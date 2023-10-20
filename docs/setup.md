@@ -18,7 +18,8 @@ This page instructs software engineers how to get started working with the Djang
 
 4. Clone your fork to your local machine
 
-5. Ensure you have a working installation of PostgreSQL **version 16**
+5. Ensure you have a working installation of PostgreSQL 
+    - Note: The application database was originally developed with version 12, but has also been tested with PostgreSQL **version 16**, which we need for PostGIS spatial data later on (see `spatialdb.md`)
     - <details><summary>Example instructions for macOS</summary>
 
         - `brew install postgres@16`
