@@ -43,6 +43,7 @@ This page instructs software engineers how to get started working with the Djang
 6. After PostgreSQL is installed, install the Python packages in your environment (some packages have psql as a dependency). From the top level of the `seshat` repo:
     ```
         pip install -r requirements.txt
+        pip install "django-geojson [field]"
     ```
 
 7. Restore Seshat database from dump:
