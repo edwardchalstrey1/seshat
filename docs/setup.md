@@ -35,7 +35,8 @@ This page instructs software engineers how to get started working with the Djang
         ```
             psql postgres
         ```
-        - If you get the following error:
+        - <details><summary>Possible macOS/brew error</summary>
+
             ```
                 Library not loaded: @loader_path/../../../../lib/postgresql@14/libpq.5.dylib
             ```
@@ -45,6 +46,8 @@ This page instructs software engineers how to get started working with the Djang
             echo 'export PATH="/opt/homebrew/opt/libpq/bin:$PATH"' >> ~/.zshrc
             ```
             And open a new terminal again.
+            
+            </details>
     - In psql, create a default superuser called "postgres", which is needed to restore the Seshat database from backup:
         ```
             CREATE USER postgres SUPERUSER;
