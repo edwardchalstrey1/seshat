@@ -18,16 +18,16 @@ This page instructs software engineers how to get started working with the Djang
 
 4. Clone your fork to your local machine
 
-5. Ensure you have a working installation of PostgreSQL **version 12**
+5. Ensure you have a working installation of PostgreSQL **version 14**
     - <details><summary>Example instructions for macOS</summary>
 
-        - `brew install postgres@12`
-        - `brew services start postgresql@12`
+        - `brew install postgres@14`
+        - `brew services start postgresql@14`
         - Update `~/.zshrc` (or equivalent for your terminal) with:
             ```
-                export PATH="/opt/homebrew/opt/postgresql@12/bin:$PATH"
-                export LDFLAGS="-L/opt/homebrew/opt/postgresql@12/lib"
-                export CPPFLAGS="-I/opt/homebrew/opt/postgresql@12/include"
+                export PATH="/opt/homebrew/opt/postgresql@14/bin:$PATH"
+                export LDFLAGS="-L/opt/homebrew/opt/postgresql@14/lib"
+                export CPPFLAGS="-I/opt/homebrew/opt/postgresql@14/include"
             ```
         - Open a new terminal
         </details>
@@ -35,6 +35,16 @@ This page instructs software engineers how to get started working with the Djang
         ```
             psql postgres
         ```
+        - If you get the following error:
+            ```
+                Library not loaded: @loader_path/../../../../lib/postgresql@14/libpq.5.dylib
+            ```
+            Do:
+            ```
+            brew link libpq --force
+            echo 'export PATH="/opt/homebrew/opt/libpq/bin:$PATH"' >> ~/.zshrc
+            ```
+            And open a new terminal again.
     - In psql, create a default superuser called "postgres", which is needed to restore the Seshat database from backup:
         ```
             CREATE USER postgres SUPERUSER;
