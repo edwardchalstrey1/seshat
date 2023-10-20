@@ -11,7 +11,7 @@
 2. Create db and log in
     ```
         createdb -U postgres seshat_spatial
-        psql -U postgres -d <seshat_db_name>
+        psql -U postgres -d seshat_spatial
     ```
 
 2. Add PostGIS extension
