@@ -18,5 +18,6 @@
     ```
         cd spatialdb
         chmod +x ./macrostate_shapefiles.sh
-        ./macrostate_shapefiles.sh /path/to/dir seshat_spatial <table_name>
+        ./macrostate_shapefiles.sh /path/to/shapefiles_dir seshat_spatial macrostate_shapefiles
+        psql -U postgres -h localhost -d seshat_spatial -f macrostate_shapefiles.sql
     ```
