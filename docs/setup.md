@@ -19,17 +19,23 @@ This page instructs software engineers how to get started working with the Djang
 4. Clone your fork to your local machine
 
 5. Ensure you have a working installation of PostgreSQL 
-    - Note: The application database was originally developed with version 12, but has also been tested with PostgreSQL **version 16**, which we need for PostGIS spatial data later on (see `spatialdb.md`)
+    - Note: The application database was originally developed with version 12, but has also been tested with PostgreSQL **version 16** (at least v14 is needed for the PostGIS-enabled spatial database later on see `spatialdb.md`)
     - <details><summary>Example instructions for macOS</summary>
 
-        - `brew install postgres@16`
-        - `brew services start postgresql@16`
+        - Check if you already have PosgreSQL installed via brew:
+            - `brew services list`
+        - If no installation exists, follow the instructions to install https://postgresapp.com/ which **gives you PostgreSQL version 16 with PostGIS installed**.
+            - Ed's note: I had a lot of trouble getting PostgreSQL 14 to start on an M1 Mac, but installing via postgresapp worked. If you have the same issue, it may be worth ensuring all traces of brew installations are removed first, e.g. run `find /opt/homebrew -name '*postgresql*'` and remove everything first
+        - If you want to use brew, PostGIS will *only* work with version 14:
+            - `brew install postgres@14`
+            - `brew services start postgresql@14`
+            - `brew install postgis`
         </details>
     - Open PostgreSQL with:
         ```
             psql postgres
         ```
-    - In psql, create a default superuser called "postgres", which is needed to restore the Seshat database from backup:
+    - In psql, create a default superuser called "postgres", which is needed to restore the Seshat database from backup (this may already exist):
         ```
             CREATE USER postgres SUPERUSER;
         ```
