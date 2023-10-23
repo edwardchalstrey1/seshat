@@ -20,7 +20,7 @@ for dir in "$base_dir"/*/; do
   shp_file="${dir}${subdir_name}.shp"
 
   # Use shp2pgsql to convert the Shapefile to SQL and append it to the specified table
-  shp2pgsql -a -s 4326 -I -c "$shp_file" "$table_name" >> macrostate_shapefiles.sql
+  shp2pgsql -a -s 4326 -I "$shp_file" "$table_name" >> macrostate_shapefiles.sql
 done
 
 # Once the loop is complete, you can run the generated SQL script
