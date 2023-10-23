@@ -11,6 +11,14 @@ base_dir="$1"
 database_name="$2"
 table_name="$3"
 
+# Delete the SQL script if it already exists
+rm -f macrostate_shapefiles.sql
+
+# # Create an SQL script to append data to the specified table
+echo "CREATE TABLE $table_name (gid serial, "id" float8);" >> macrostate_shapefiles.sql
+echo "ALTER TABLE "macrostate_shapefiles" ADD PRIMARY KEY (gid);" >> macrostate_shapefiles.sql
+echo "SELECT AddGeometryColumn('','macrostate_shapefiles','geom','4326','MULTIPOLYGON',2);" >> macrostate_shapefiles.sql
+
 # Loop through subdirectories
 for dir in "$base_dir"/*/; do
   # Extract the directory name
