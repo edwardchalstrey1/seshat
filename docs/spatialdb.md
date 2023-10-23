@@ -12,12 +12,13 @@
         CREATE EXTENSION postgis;
     ```
 
-<!-- 3. Creating a script (and subsequent table) from an individual shapefile [with shp2pgsql](https://www.crunchydata.com/blog/loading-data-into-postgis-an-overview#shp2pgsql) results in a single row/geom in that table -->
-
-4. Script that uses `shp2pgsql`
+3. Run script that uses `shp2pgsql` to populate a table in the db with one row per shape. Expects `shapefiles_dir` to contain subdirectories that each contain a single `.shp` file, named the same as the subdirectory:
     ```
         cd spatialdb
-        chmod +x ./macrostate_shapefiles.sh
-        ./macrostate_shapefiles.sh /path/to/shapefiles_dir seshat_spatial macrostate_shapefiles
-        psql -U postgres -h localhost -d seshat_spatial -f macrostate_shapefiles.sql
+
+        chmod +x ./shapefile_populate.sh
+
+        ./shapefile_populate.sh /path/to/shapefiles_dir seshat_spatial <table name>
+        
+        psql -U postgres -h localhost -d seshat_spatial -f <table_name>.sql
     ```
