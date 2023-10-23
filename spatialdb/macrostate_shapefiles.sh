@@ -12,12 +12,13 @@ database_name="$2"
 table_name="$3"
 
 # Delete the SQL script if it already exists
-rm -f macrostate_shapefiles.sql
+rm -f "$table_name.sql"
 
 # # Create an SQL script to append data to the specified table
-echo "CREATE TABLE $table_name (gid serial, "id" float8);" >> macrostate_shapefiles.sql
-echo "ALTER TABLE "macrostate_shapefiles" ADD PRIMARY KEY (gid);" >> macrostate_shapefiles.sql
-echo "SELECT AddGeometryColumn('','macrostate_shapefiles','geom','4326','MULTIPOLYGON',2);" >> macrostate_shapefiles.sql
+echo "DROP TABLE IF EXISTS $table_name;" >> "$table_name.sql"
+echo "CREATE TABLE $table_name (gid serial, "id" float8);" >> "$table_name.sql"
+echo "ALTER TABLE $table_name ADD PRIMARY KEY (gid);" >> "$table_name.sql"
+echo "SELECT AddGeometryColumn('',$table_name,'geom','4326','MULTIPOLYGON',2);" >> "$table_name.sql"
 
 # Loop through subdirectories
 for dir in "$base_dir"/*/; do
@@ -28,8 +29,8 @@ for dir in "$base_dir"/*/; do
   shp_file="${dir}${subdir_name}.shp"
 
   # Use shp2pgsql to convert the Shapefile to SQL and append it to the specified table
-  shp2pgsql -a -s 4326 -I "$shp_file" "$table_name" >> macrostate_shapefiles.sql
+  shp2pgsql -a -s 4326 -I "$shp_file" "$table_name" >> "$table_name.sql"
 done
 
 # Once the loop is complete, you can run the generated SQL script
-echo "Run the generated SQL script (macrostate_shapefiles.sql) to populate the database."
+echo "Run the generated SQL script ("$table_name.sql") to populate the database."
