@@ -34,6 +34,8 @@ DATABASES = {
     }
 }
 
+GEOGRAPHIC_DB = True
+
 django_settings_module = os.environ.get('DJANGO_SETTINGS_MODULE')
 
 #print("###################",django_settings_module)

@@ -218,6 +218,9 @@ if os.path.exists(local_env_path):
             'PORT': env('PORT'),
         }
     }
+
+    GEOGRAPHIC_DB = True
+
 else:
     DATABASES = {
         'default': {
