@@ -13,13 +13,21 @@ environ.Env.read_env()
 
 
 # Databases
+# TODO: find a way not not hardcode the spatial db
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': env('NAME'),
         'USER': env('USER'),
         'HOST': env('HOST'),
-        'PORT': env('PORT'),
+        'PORT': env('PORT')
+    },
+    'spatial': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'seshat_spatial',
+        'USER': env('USER'),
+        'HOST': env('HOST'),
+        'PORT': 5434,
     }
 }
 
