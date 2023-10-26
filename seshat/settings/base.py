@@ -80,6 +80,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     #'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
+    'django.contrib.gis',
+    'leaflet',
 
 ]
 
@@ -209,7 +211,7 @@ if os.path.exists(local_env_path):
             'PORT': env('PORT')
         },
         'spatial': {
-            'ENGINE': 'django.db.backends.postgresql',
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': 'seshat_spatial',
             'USER': env('USER'),
             'HOST': env('HOST'),

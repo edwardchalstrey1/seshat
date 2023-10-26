@@ -6,7 +6,11 @@ import environ
 env = environ.Env()
 environ.Env.read_env()
 
-#INSTALLED_APPS += ["debug_toolbar"]
+INSTALLED_APPS = [
+    # "debug_toolbar"
+    'django.contrib.gis',
+    'leaflet',
+]
 
 #MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 #MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
@@ -22,7 +26,7 @@ DATABASES = {
         'PORT': env('PORT')
     },
     'spatial': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'seshat_spatial',
         'USER': env('USER'),
         'HOST': env('HOST'),
