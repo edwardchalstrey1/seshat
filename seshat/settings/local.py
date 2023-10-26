@@ -64,7 +64,12 @@ DATABASES = {
     }
 }
 
+# Shapefile spatial stuff
 GEOGRAPHIC_DB = True
+
+# TODO: Find a way to not hardcode:
+GDAL_LIBRARY_PATH = '/opt/homebrew/opt/gdal/lib/libgdal.dylib'
+GEOS_LIBRARY_PATH = '/opt/homebrew/opt/geos/lib/libgeos_c.dylib'
 
 django_settings_module = os.environ.get('DJANGO_SETTINGS_MODULE')
 
