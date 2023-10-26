@@ -7,9 +7,39 @@ env = environ.Env()
 environ.Env.read_env()
 
 INSTALLED_APPS = [
-    # "debug_toolbar"
+    "seshat.apps.accounts",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "whitenoise.runserver_nostatic",
+    "django.contrib.staticfiles",
+
+    'django.contrib.sites', # Add this
+
+
+    'django.contrib.humanize',
+    'crispy_forms',
+    "seshat.apps.core",
+    "seshat.apps.general",
+    "seshat.apps.sc",
+    "seshat.apps.wf",
+    "seshat.apps.crisisdb",
+    "seshat.apps.seshat_api",
+    "django_filters",
+    "corsheaders",
+    "rest_framework",
+    "mathfilters",
+    # all-auth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    #'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.google',
     'django.contrib.gis',
     'leaflet',
+
 ]
 
 #MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
