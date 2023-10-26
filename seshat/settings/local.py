@@ -27,7 +27,7 @@ DATABASES = {
         'NAME': 'seshat_spatial',
         'USER': env('USER'),
         'HOST': env('HOST'),
-        'PORT': 5434,
+        'PORT': env('PORT'),
     }
 }
 
