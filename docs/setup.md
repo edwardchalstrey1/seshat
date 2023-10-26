@@ -10,8 +10,8 @@ This page instructs software engineers how to get started working with the Djang
     - Note: The application has been tested with Python **3.8.13**
     - Example:
         ```
-            conda create --name seshat38 python=3.8.13
-            conda activate seshat38
+            conda create --name seshat python=3.8.13
+            conda activate seshat
         ```
 
 3. Create a fork of the GitHub repo with all branches: https://github.com/MajidBenam/seshat
