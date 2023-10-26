@@ -13,7 +13,6 @@ environ.Env.read_env()
 
 
 # Databases
-# TODO: find a way not not hardcode the spatial db
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

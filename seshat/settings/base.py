@@ -206,6 +206,13 @@ if os.path.exists(local_env_path):
             'NAME': env('NAME'),
             'USER': env('USER'),
             'HOST': env('HOST'),
+            'PORT': env('PORT')
+        },
+        'spatial': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'seshat_spatial',
+            'USER': env('USER'),
+            'HOST': env('HOST'),
             'PORT': env('PORT'),
         }
     }
