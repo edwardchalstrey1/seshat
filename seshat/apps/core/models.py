@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.gis.db import models as models_spatial
 from django.db.models.fields.related import ManyToManyField
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
@@ -628,5 +629,5 @@ class SeshatCommon(models.Model):
 
 # Shapefile models
 
-class MacrostateShapefile(models.Model):
-    geom = models.GeometryField()
+class MacrostateShapefile(models_spatial.Model):
+    geom = models_spatial.GeometryField()
