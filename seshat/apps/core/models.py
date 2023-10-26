@@ -626,4 +626,7 @@ class SeshatCommon(models.Model):
 #     job_description = models.CharField(
 #         choices=job_description_annual_wages_choices)
 
+# Shapefile models
 
+class MacrostateShapefile(models.Model):
+    geom = models.GeometryField()

@@ -50,7 +50,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 from ..general.models import Polity_research_assistant
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, MacrostateShapefile
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -1512,3 +1512,9 @@ def download_oldcsv(request, file_name):
     response = FileResponse(open(file_path, 'rb'))
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
     return response
+
+# Shapefile views
+
+def map_view(request):
+    shapes = MacrostateShapefile.objects.all()
+    return render(request, 'core/spatial_map.html', {'shapes': shapes})
