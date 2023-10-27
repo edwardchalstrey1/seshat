@@ -3,8 +3,9 @@
 {% block content %}
 <div id="map" style="height: 500px;"></div>
 <script>
-    var map = L.map('map').setView([51.505, -0.09], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    var map = L.map('map').setView([0, 0], 2);  // Centered at [0, 0] and zoomed out
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png').addTo(map);
 
     {% for shape in shapes %}
     L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
