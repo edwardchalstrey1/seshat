@@ -8,13 +8,19 @@
 
 <body>
     {% block content %}
-    <div>
-        <fieldset>
-            <legend><h3>Base Map</h3></legend>
-            <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked> CartoDB</label>
-            <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()"> OpenStreetMap</label>
-            <!-- Add more base map options as needed -->
-        </fieldset>
+    <div style="display: flex;">
+        <div>
+            <fieldset>
+                <legend>
+                    <h3>Base Map</h3>
+                </legend>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"
+                        checked>CartoDB</label><br>
+                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
+                <label><input type="radio" name="baseMap" value="stamen" onclick="switchBaseMap()"> Stamen</label><br>
+            </fieldset>
+        </div>
+        <div id="map" style="height: 75vh; flex: 1;"></div>
     </div>
     <div id="map" style="height: 75vh;"></div>
     {% leaflet_map "map" %}
@@ -23,7 +29,7 @@
         var baseLayers = {
             "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'),
             "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
-            // Add more base map options as needed
+            "stamen": L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg')
         };
         var currentLayer = baseLayers.carto.addTo(map);
 
