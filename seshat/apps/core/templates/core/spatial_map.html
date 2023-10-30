@@ -9,12 +9,29 @@
 <body>
     {% block content %}
     <div id="map" style="height: 75vh;"></div>
+    <div>
+        <button id="cartoBtn" onclick="switchToCarto()">CartoDB</button>
+        <button id="osmBtn" onclick="switchToOSM()">OpenStreetMap</button>
+    </div>
     {% leaflet_map "map" %}
     <script>
         var map = L.map('map').setView([0, 0], 2);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png').addTo(map);
+        var cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png');
+        var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+        var currentLayer = cartoLayer.addTo(map);
+
+        function switchToCarto() {
+            map.removeLayer(currentLayer);
+            currentLayer = cartoLayer.addTo(map);
+        }
+
+        function switchToOSM() {
+            map.removeLayer(currentLayer);
+            currentLayer = osmLayer.addTo(map);
+        }
+
         {% for shape in shapes %}
-            var geoJSONLayer = L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
+        var geoJSONLayer = L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
         {% endfor %}
     </script>
     {% endblock %}
