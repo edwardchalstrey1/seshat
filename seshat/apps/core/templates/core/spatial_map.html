@@ -1,15 +1,26 @@
 {% extends "core/seshat-base.html" %}
+{% load leaflet_tags %}
 
-{% block content %}
-<div id="map" style="height: 500px;"></div>
-<script src="{% static 'leaflet/leaflet.js' %}"></script> {# Use the correct path to leaflet.js #}
-<script>
-    var map = L.map('map').setView([0, 0], 2);  // Centered at [0, 0] and zoomed out
+<head>
+    {% leaflet_js %}
+    {% leaflet_css %}
+</head>
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png').addTo(map);
+<body>
+    {% block content %}
+    <div id="map" style="height: 500px;"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map', {
+            maxZoom: 2,  // Set the maximum zoom level
+            minZoom: 2,  // Set the minimum zoom level
+        }).setView([0, 0], 2);
 
-    {% for shape in shapes %}
-    L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
-    {% endfor %}
-</script>
-{% endblock %}
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png').addTo(map);
+
+        {% for shape in shapes %}
+        L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
+        {% endfor %}
+    </script>
+    {% endblock %}
+</body>
