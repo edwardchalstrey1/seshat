@@ -1,14 +1,22 @@
 {% extends "core/seshat-base.html" %}
+{% load leaflet_tags %}
 
 {% block content %}
-<div id="map" style="height: 500px;"></div>
+{% leaflet_map "spatial_map" callback="window.map_init_basic" %}
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
 <script>
-    var map = L.map('map').setView([0, 0], 2);  // Centered at [0, 0] and zoomed out
+    function map_init_basic(map, options) {
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png').addTo(map);
+        var map = L.map('map').setView([0, 0], 2);  // Centered at [0, 0] and zoomed out
 
-    {% for shape in shapes %}
-    L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
-    {% endfor %}
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png').addTo(map);
+
+        {% for shape in shapes %}
+            L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
+        {% endfor %}
+    }
 </script>
 {% endblock %}
