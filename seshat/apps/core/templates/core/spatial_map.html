@@ -17,6 +17,10 @@
             minZoom: 2
         }).setView([0, 0], 2);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png').addTo(map);
+        {% for shape in shapes %}
+            var geoJSONLayer = L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
+            geoJSONLayer.bringToFront();  // Bring the overlay pane to the front
+        {% endfor %}
     </script>
     {% endblock %}
 </body>
