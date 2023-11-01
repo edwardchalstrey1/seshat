@@ -1,14 +1,9 @@
 # Set up database
 
 1. Ensure that PostgreSQL and PostGIS is already installed (see `setup.md`)
-2. Create db and log in
+2. Add PostGIS extension to the database
     ```
-        createdb -U postgres seshat_spatial
-        psql -U postgres -d seshat_spatial
-    ```
-
-2. Add PostGIS extension
-    ```
+        psql -U postgres -d <seshat_db_name>
         CREATE EXTENSION postgis;
     ```
 
@@ -18,7 +13,7 @@
 
         chmod +x ./shapefile_populate.sh
 
-        ./shapefile_populate.sh /path/to/shapefiles_dir seshat_spatial <table name>
+        ./shapefile_populate.sh /path/to/shapefiles_dir <seshat_db_name> <table name>
         
-        psql -U postgres -d seshat_spatial -f <table_name>.sql
+        psql -U postgres -d <seshat_db_name> -f <table_name>.sql
     ```

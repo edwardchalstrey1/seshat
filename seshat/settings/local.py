@@ -49,18 +49,11 @@ INSTALLED_APPS = [
 # Databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': env('NAME'),
         'USER': env('USER'),
         'HOST': env('HOST'),
         'PORT': env('PORT')
-    },
-    'spatial': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'seshat_spatial',
-        'USER': env('USER'),
-        'HOST': env('HOST'),
-        'PORT': env('PORT'),
     }
 }
 

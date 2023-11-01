@@ -1516,5 +1516,5 @@ def download_oldcsv(request, file_name):
 # Shapefile views
 
 def map_view(request):
-    shapes = MacrostateShapefile.objects.using('spatial').all()
+    shapes = MacrostateShapefile.objects.all()
     return render(request, 'core/spatial_map.html', {'shapes': shapes})
