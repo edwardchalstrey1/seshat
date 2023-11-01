@@ -20,5 +20,5 @@
 
         ./shapefile_populate.sh /path/to/shapefiles_dir seshat_spatial <table name>
         
-        psql -U postgres -h localhost -d seshat_spatial -f <table_name>.sql
+        psql -U postgres -d seshat_spatial -f <table_name>.sql
     ```
