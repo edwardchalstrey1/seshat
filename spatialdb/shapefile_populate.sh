@@ -31,8 +31,8 @@ for dir in "$base_dir"/*/; do
   # Use shp2pgsql to generate SQL for the Shapefile
   shp2pgsql -a -s 4326 -I "$shp_file" "$table_name" >> "$table_name.sql"
   
-  # Add INSERT command for name column separately
-  echo "UPDATE $table_name SET shape_name = '$subdir_name' WHERE shape_name IS NULL;" >> "$table_name.sql"
+  # Add INSERT command for name column separately - TODO: this is broken
+  # echo "UPDATE $table_name SET shape_name = '$subdir_name' WHERE shape_name IS NULL;" >> "$table_name.sql"
 done
 
 # Once the loop is complete, you can run the generated SQL script
