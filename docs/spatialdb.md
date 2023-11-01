@@ -7,13 +7,12 @@
         CREATE EXTENSION postgis;
     ```
 
-3. Run script that uses `shp2pgsql` to populate a table in the db with one row per shape. Expects `shapefiles_dir` to contain subdirectories that each contain a single `.shp` file, named the same as the subdirectory:
+3. Ensure that database migrations have run:
     ```
-        cd spatialdb
+        python manage.py migrate
+    ```
 
-        chmod +x ./shapefile_populate.sh
-
-        ./shapefile_populate.sh /path/to/shapefiles_dir <seshat_db_name> <table name>
-        
-        psql -U postgres -d <seshat_db_name> -f <table_name>.sql
+4. Populate database from shapefiles:
+    ```
+        python manage.py populate_spatial /path/to/data
     ```
