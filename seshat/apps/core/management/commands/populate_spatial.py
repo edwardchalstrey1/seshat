@@ -19,7 +19,7 @@ class Command(BaseCommand):
                     shape_name = os.path.splitext(file)[0]
 
                     mapping = {
-                        'geom': 'MULTIPOLYGON',
+                        'geom': 'Polygon',
                     }
 
                     lm = LayerMapping(
