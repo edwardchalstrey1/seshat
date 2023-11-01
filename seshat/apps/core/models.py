@@ -630,4 +630,4 @@ class SeshatCommon(models.Model):
 # Shapefile models
 
 class MacrostateShapefile(models.Model):
-    geom = models.GeometryField()
+    geom = models.PolygonField()
