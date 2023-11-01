@@ -631,7 +631,3 @@ class SeshatCommon(models.Model):
 
 class MacrostateShapefile(models.Model):
     geom = models.GeometryField()
-
-    # Specify the table name, because we created it before using Django and it doesn't have the default name
-    class Meta:
-        db_table = 'macrostate_shapefiles'
