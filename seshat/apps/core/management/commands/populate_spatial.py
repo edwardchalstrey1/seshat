@@ -1,6 +1,6 @@
 import os
 from django.core.management.base import BaseCommand
-from django.contrib.gis.utils import LayerMapping
+from django.contrib.gis.geos import GEOSGeometry
 from seshat.apps.core.models import MacrostateShapefile
 
 class Command(BaseCommand):
@@ -18,14 +18,11 @@ class Command(BaseCommand):
                     shp_file = os.path.join(dirpath, file)
                     shape_name = os.path.splitext(file)[0]
 
-                    mapping = {
-                        'geom': 'Polygon',
-                    }
-
-                    lm = LayerMapping(
-                        MacrostateShapefile, shp_file, mapping,
-                        transform=False, encoding='utf-8',
+                    # Assuming the shape_name is unique and identifies the same row as the geom
+                    instance = MacrostateShapefile.objects.create(
+                        geom=GEOSGeometry(shp_file),
                     )
-                    lm.save(strict=True, verbose=True)
-
-                    self.stdout.write(self.style.SUCCESS(f"Inserted '{shape_name}' from '{shp_file}' into the database."))
+                    
+                    # Set the name field using the shape_name
+                    instance.name = shape_name
+                    instance.save()
