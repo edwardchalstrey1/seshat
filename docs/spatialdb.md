@@ -12,7 +12,9 @@
         python manage.py migrate
     ```
 
-4. Populate database from shapefiles:
-    ```
-        python manage.py populate_spatial /path/to/data
-    ```
+4. Populate database from shapefiles based on dataset:
+    - Download and unzip the [Macrostate_Shapefiles](https://drive.google.com/file/d/16hC7usvuZa5KyzFg6T-_t4AJ7j_47IeM/view?usp=drive_link) dataset. Note: this is a private drive link.
+    - Populate `core_macrostateshapefile` table
+        ```
+            python manage.py populate_macrostate /path/to/data
+        ```
