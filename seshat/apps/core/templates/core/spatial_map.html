@@ -18,21 +18,40 @@
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
             </fieldset>
             <div id="dateDropdowns" style="margin-top: 20px;">
-                <label for="startYear">Start Year:</label>
-                <select id="startYear" name="startYear">
-                    <option value="">1000</option>
-                    {% for shape in shapes %}
-                        <option value="{{ shape.date_from }}">{{ shape.date_from }}</option>
-                    {% endfor %}
-                </select>
-                <label for="endYear">End Year:</label>
-                <select id="endYear" name="endYear">
-                    <option value="">1100</option>
-                    {% for shape in shapes %}
-                        <option value="{{ shape.date_to }}">{{ shape.date_to }}</option>
-                    {% endfor %}
-                </select>
-                <button onclick="filterByYearRange()">Filter</button>
+                <fieldset>
+                    <legend>
+                        <h3>Date Range</h3>
+                    </legend>
+                    <label for="startYear">Start Year:</label>
+                    <select name="startYear" id="startYear">
+                        {% for shape in shapes %}
+                            {% if 'BCE' in shape.date_from %}
+                                {% with start_year=shape.date_from|slice:":-3"|add:"0" %}
+                                    <option value="{{ start_year }}">{{ start_year }}</option>
+                                {% endwith %}
+                            {% else %}
+                                {% with start_year=shape.date_from|slice:":-2"|add:"0" %}
+                                    <option value="{{ start_year }}">{{ start_year }}</option>
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+
+                    <label for="endYear">End Year:</label>
+                    <select name="endYear" id="endYear">
+                        {% for shape in shapes %}
+                            {% if 'BCE' in shape.date_to %}
+                                {% with end_year=shape.date_to|slice:":-3"|add:"0" %}
+                                    <option value="{{ end_year }}">{{ end_year }}</option>
+                                {% endwith %}
+                            {% else %}
+                                {% with end_year=shape.date_to|slice:":-2"|add:"0" %}
+                                    <option value="{{ end_year }}">{{ end_year }}</option>
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+                </fieldset>
             </div>
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
