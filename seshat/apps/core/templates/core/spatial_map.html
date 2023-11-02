@@ -21,15 +21,15 @@
                 <label for="startYear">Start Year:</label>
                 <select id="startYear" name="startYear">
                     <option value="">1000</option>
-                    {% for year in range_start %}
-                    <option value="{{ year }}">{{ year }}</option>
+                    {% for shape in shapes %}
+                        <option value="{{ shape.date_from }}">{{ shape.date_from }}</option>
                     {% endfor %}
                 </select>
                 <label for="endYear">End Year:</label>
                 <select id="endYear" name="endYear">
                     <option value="">1100</option>
-                    {% for year in range_end %}
-                    <option value="{{ year }}">{{ year }}</option>
+                    {% for shape in shapes %}
+                        <option value="{{ shape.date_to }}">{{ shape.date_to }}</option>
                     {% endfor %}
                 </select>
                 <button onclick="filterByYearRange()">Filter</button>
