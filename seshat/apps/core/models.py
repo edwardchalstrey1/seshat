@@ -632,3 +632,7 @@ class SeshatCommon(models.Model):
 class MacrostateShapefile(models.Model):
     geom = models.MultiPolygonField()
     name = models.CharField(max_length=50, null=True)
+    polity = models.CharField(max_length=50, null=True)
+    date_from = models.CharField(max_length=50, null=True)
+    date_to = models.CharField(max_length=50, null=True)
+
