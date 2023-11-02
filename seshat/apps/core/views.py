@@ -1515,6 +1515,25 @@ def download_oldcsv(request, file_name):
 
 # Shapefile views
 
+# def map_view(request):
+#     shapes = MacrostateShapefile.objects.all()
+#     return render(request, 'core/spatial_map.html', {'shapes': shapes})
+
 def map_view(request):
     shapes = MacrostateShapefile.objects.all()
+
+    for shape in shapes:
+        if shape.date_from is not None and shape.date_to is not None:
+            start_year = int(shape.date_from[:-3] if 'BCE' in shape.date_from else shape.date_from[:-2])
+            end_year = int(shape.date_to[:-3] if 'BCE' in shape.date_to else shape.date_to[:-2])
+
+            # For BCE dates, make the value negative
+            if 'BCE' in shape.date_from:
+                start_year = -start_year
+            if 'BCE' in shape.date_to:
+                end_year = -end_year
+
+            shape.start_year = start_year
+            shape.end_year = end_year
+
     return render(request, 'core/spatial_map.html', {'shapes': shapes})

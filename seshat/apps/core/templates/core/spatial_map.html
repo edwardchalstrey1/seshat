@@ -25,30 +25,14 @@
                     <label for="startYear">Start Year:</label>
                     <select name="startYear" id="startYear">
                         {% for shape in shapes %}
-                            {% if 'BCE' in shape.date_from %}
-                                {% with start_year=shape.date_from|slice:":-3"|add:"0" %}
-                                    <option value="{{ start_year }}">{{ start_year }}</option>
-                                {% endwith %}
-                            {% else %}
-                                {% with start_year=shape.date_from|slice:":-2"|add:"0" %}
-                                    <option value="{{ start_year }}">{{ start_year }}</option>
-                                {% endwith %}
-                            {% endif %}
+                            <option value="{{ shape.start_year }}">{{ shape.start_year }}</option>
                         {% endfor %}
                     </select><br>
 
                     <label for="endYear">End Year:</label>
                     <select name="endYear" id="endYear">
                         {% for shape in shapes %}
-                            {% if 'BCE' in shape.date_to %}
-                                {% with end_year=shape.date_to|slice:":-3"|add:"0" %}
-                                    <option value="{{ end_year }}">{{ end_year }}</option>
-                                {% endwith %}
-                            {% else %}
-                                {% with end_year=shape.date_to|slice:":-2"|add:"0" %}
-                                    <option value="{{ end_year }}">{{ end_year }}</option>
-                                {% endwith %}
-                            {% endif %}
+                            <option value="{{ shape.end_year }}">{{ shape.end_year }}</option>
                         {% endfor %}
                     </select><br>
                 </fieldset>
