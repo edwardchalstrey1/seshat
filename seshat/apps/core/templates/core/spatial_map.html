@@ -17,6 +17,23 @@
                 <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>CartoDB</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
             </fieldset>
+            <div id="dateDropdowns" style="margin-top: 20px;">
+                <label for="startYear">Start Year:</label>
+                <select id="startYear" name="startYear">
+                    <option value="">1000</option>
+                    {% for year in range_start %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+                <label for="endYear">End Year:</label>
+                <select id="endYear" name="endYear">
+                    <option value="">1100</option>
+                    {% for year in range_end %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+                <button onclick="filterByYearRange()">Filter</button>
+            </div>
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
     </div>
@@ -34,6 +51,11 @@
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
             map.removeLayer(currentLayer);
             currentLayer = baseLayers[selectedMap].addTo(map);
+        }
+
+        function filterByYearRange() {
+            var startYear = document.getElementById('startYear').value;
+            var endYear = document.getElementById('endYear').value;
         }
 
         {% for shape in shapes %}
