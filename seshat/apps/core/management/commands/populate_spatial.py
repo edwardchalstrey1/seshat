@@ -5,6 +5,11 @@ from django.core.management.base import BaseCommand
 from seshat.apps.core.models import MacrostateShapefile
 
 class Command(BaseCommand):
+    """
+        Iterate through the provided directory.
+        Find shapefiles in the subdirs.
+        Populate the core_macrostateshapefile table with the shape's MultiPolygon and filename.
+    """
     help = 'Populates the database with Shapefiles'
 
     def add_arguments(self, parser):
@@ -33,6 +38,8 @@ class Command(BaseCommand):
                     if geom.geom_type == 'Polygon':
                         geom = MultiPolygon(geom)
 
+                    # Save the table row
                     instance = MacrostateShapefile.objects.create(geom=geom, name=shape_name)
 
+                    # Print completion to terminal
                     self.stdout.write(self.style.SUCCESS(f"Inserted '{shape_name}' from '{shp_file}' into the database."))
