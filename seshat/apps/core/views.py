@@ -1522,6 +1522,8 @@ def download_oldcsv(request, file_name):
 def map_view(request):
     shapes = MacrostateShapefile.objects.all()
 
+    all_years = set()
+
     for shape in shapes:
         if shape.date_from is not None and shape.date_to is not None:
             start_year = int(shape.date_from[:-3] if 'BCE' in shape.date_from else shape.date_from[:-2])
@@ -1533,7 +1535,14 @@ def map_view(request):
             if 'BCE' in shape.date_to:
                 end_year = -end_year
 
+            all_years.add(start_year)
+            all_years.add(end_year)
+
             shape.start_year = start_year
             shape.end_year = end_year
 
-    return render(request, 'core/spatial_map.html', {'shapes': shapes})
+    # Filter out the unique years and sort them
+    unique_years = sorted(all_years)
+
+    return render(request, 'core/spatial_map.html', {'shapes': shapes, 'unique_years': unique_years})
+

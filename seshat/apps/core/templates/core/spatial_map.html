@@ -24,19 +24,20 @@
                     </legend>
                     <label for="startYear">Start Year:</label>
                     <select name="startYear" id="startYear">
-                        {% for shape in shapes %}
-                            <option value="{{ shape.start_year }}">{{ shape.start_year }}</option>
+                        {% for year in unique_years %}
+                            <option value="{{ year }}">{{ year }}</option>
                         {% endfor %}
                     </select><br>
-
+            
                     <label for="endYear">End Year:</label>
                     <select name="endYear" id="endYear">
-                        {% for shape in shapes %}
-                            <option value="{{ shape.end_year }}">{{ shape.end_year }}</option>
+                        {% for year in unique_years %}
+                            <option value="{{ year }}">{{ year }}</option>
                         {% endfor %}
                     </select><br>
                 </fieldset>
             </div>
+
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
     </div>
