@@ -1,6 +1,6 @@
 import os
 from django.contrib.gis.gdal import DataSource
-from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon
 from django.core.management.base import BaseCommand
 from seshat.apps.core.models import MacrostateShapefile
 
@@ -19,9 +19,20 @@ class Command(BaseCommand):
                     shp_file = os.path.join(dirpath, file)
                     shape_name = os.path.splitext(file)[0]
 
+                    # Load the geometry using DataSource from the shapefile
                     data_source = DataSource(shp_file)
                     layer = data_source[0]
-                    geom = GEOSGeometry(layer[0].geom.wkt)
+
+                    # Get the first feature in the layer
+                    feature = layer[0]
+
+                    # Convert the geometry to a GEOSGeometry object
+                    geom = GEOSGeometry(feature.geom.wkt)
+
+                    # Convert Polygon to MultiPolygon if necessary
+                    if geom.geom_type == 'Polygon':
+                        geom = MultiPolygon(geom)
+
                     instance = MacrostateShapefile.objects.create(geom=geom, name=shape_name)
 
                     self.stdout.write(self.style.SUCCESS(f"Inserted '{shape_name}' from '{shp_file}' into the database."))
