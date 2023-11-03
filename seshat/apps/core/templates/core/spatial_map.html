@@ -23,14 +23,14 @@
                         <h3>Date Range</h3>
                     </legend>
                     <label for="startYear">Start Year:</label>
-                    <select name="startYear" id="startYear">
+                    <select name="startYear" id="startYear" onchange="filterByYearRange()">
                         {% for year in unique_years %}
                             <option value="{{ year }}">{{ year }}</option>
                         {% endfor %}
                     </select><br>
             
                     <label for="endYear">End Year:</label>
-                    <select name="endYear" id="endYear">
+                    <select name="endYear" id="endYear" onchange="filterByYearRange()">
                         {% for year in unique_years %}
                             <option value="{{ year }}">{{ year }}</option>
                         {% endfor %}
@@ -44,11 +44,23 @@
     <div id="map" style="height: 75vh;"></div>
     {% leaflet_map "map" %}
     <script>
-        var map = L.map('map').setView([0, 0], 2);
+
+        function createBaseMap() {
+            return L.map('map').setView([0, 0], 2);
+        }
+
+        function deleteMap(){
+            map.remove();
+            document.getElementById('map').innerHTML = '';
+        }
+
+        var map = createBaseMap();
+
         var baseLayers = {
             "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'),
             "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         };
+
         var currentLayer = baseLayers.carto.addTo(map);
 
         function switchBaseMap() {
@@ -58,12 +70,16 @@
         }
 
         function filterByYearRange() {
+            var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
             var startYear = document.getElementById('startYear').value;
             var endYear = document.getElementById('endYear').value;
+            deleteMap();
+            var map = createBaseMap();
+            currentLayer = baseLayers[selectedMap].addTo(map);
         }
 
         {% for shape in shapes %}
-        var geoJSONLayer = L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
+            var geoJSONLayer = L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
         {% endfor %}
     </script>
     {% endblock %}
