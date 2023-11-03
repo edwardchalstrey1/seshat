@@ -49,10 +49,10 @@
             return L.map('map').setView([0, 0], 2);
         }
 
-        function deleteMap(){
-            map.remove();
-            document.getElementById('map').innerHTML = '';
-        }
+        // function deleteMap(){
+        //     map.remove();
+        //     document.getElementById('map').innerHTML = '';
+        // }
 
         var shapesData = [
             // JavaScript object representing shape data
@@ -81,13 +81,17 @@
         }
 
         function filterByYearRange() {
-            var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
             var startYear = document.getElementById('startYear').value;
             var endYear = document.getElementById('endYear').value;
-            deleteMap();
-            var map = createBaseMap();
-            currentLayer = baseLayers[selectedMap].addTo(map);
-            // Get shapes within the selected year range and add them to the new map
+
+            // Remove all existing layers from the map
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.GeoJSON) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Add layers that are within the selected year range to the map
             shapesData.forEach(function (shape) {
                 if (!(shape.startYear > endYear || shape.endYear < startYear)) {
                     var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
@@ -95,6 +99,7 @@
             });
         }
 
+        // Initial filtering on page load
         filterByYearRange()
 
     </script>
