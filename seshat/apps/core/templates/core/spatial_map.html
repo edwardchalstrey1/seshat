@@ -25,14 +25,14 @@
                     <label for="startYear">Start Year:</label>
                     <select name="startYear" id="startYear" onchange="filterByYearRange()">
                         {% for year in unique_years %}
-                            <option value="{{ year }}">{{ year }}</option>
+                            <option value="{{ year }}" {% if forloop.first %}selected{% endif %}>{{ year }}</option>
                         {% endfor %}
                     </select><br>
             
                     <label for="endYear">End Year:</label>
                     <select name="endYear" id="endYear" onchange="filterByYearRange()">
                         {% for year in unique_years %}
-                            <option value="{{ year }}">{{ year }}</option>
+                            <option value="{{ year }}" {% if forloop.last %}selected{% endif %}>{{ year }}</option>
                         {% endfor %}
                     </select><br>
                 </fieldset>
@@ -95,9 +95,8 @@
             });
         }
 
-        shapesData.forEach(function (shape) {
-            var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
-        });
+        filterByYearRange()
+
     </script>
     {% endblock %}
 </body>
