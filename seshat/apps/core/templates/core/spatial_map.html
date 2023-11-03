@@ -24,15 +24,15 @@
                     </legend>
                     <label for="startYear">From:</label>
                     <select name="startYear" id="startYear" onchange="filterByYearRange()">
-                        {% for year in centuries %}
-                            <option value="{{ year }}" {% if forloop.first %}selected{% endif %}>{{ year }}</option>
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
                         {% endfor %}
                     </select><br>
             
                     <label for="endYear">To:</label>
                     <select name="endYear" id="endYear" onchange="filterByYearRange()">
-                        {% for year in centuries %}
-                            <option value="{{ year }}" {% if forloop.last %}selected{% endif %}>{{ year }}</option>
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
                         {% endfor %}
                     </select><br>
                 </fieldset>

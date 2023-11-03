@@ -1549,6 +1549,13 @@ def map_view(request):
     earliest_century = floor(unique_years[0] / 100) * 100
     latest_century = ceil(unique_years[-1] / 100) * 100
     centuries = [num for num in range(earliest_century, latest_century + 1) if num % 100 == 0]
+    century_strings = []
+    for century in centuries:
+        if century < 0:
+            century_strings.append(str(abs(century)) + "BCE")
+        else:
+            century_strings.append(str(century) + "CE")
+    centuries_zipped = zip(centuries, century_strings)
 
-    return render(request, 'core/spatial_map.html', {'shapes': shapes, 'unique_years': unique_years, 'centuries': centuries})
+    return render(request, 'core/spatial_map.html', {'shapes': shapes, 'unique_years': unique_years, 'centuries': dict(centuries_zipped)})
 
