@@ -54,6 +54,17 @@
             document.getElementById('map').innerHTML = '';
         }
 
+        var shapesData = [
+            // JavaScript object representing shape data
+            {% for shape in shapes %}
+                {
+                    startYear: '{{ shape.start_year}}',
+                    endYear: '{{ shape.end_year }}',
+                    geometry: '{{ shape.geom.geojson | safe }}'
+                },
+            {% endfor %}
+        ];
+
         var map = createBaseMap();
 
         var baseLayers = {
@@ -76,11 +87,17 @@
             deleteMap();
             var map = createBaseMap();
             currentLayer = baseLayers[selectedMap].addTo(map);
+            // Get shapes within the selected year range and add them to the new map
+            shapesData.forEach(function (shape) {
+                if (!(shape.startYear > endYear || shape.endYear < startYear)) {
+                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
+                }
+            });
         }
 
-        {% for shape in shapes %}
-            var geoJSONLayer = L.geoJSON({{ shape.geom.geojson | safe }}).addTo(map);
-        {% endfor %}
+        shapesData.forEach(function (shape) {
+            var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
+        });
     </script>
     {% endblock %}
 </body>
