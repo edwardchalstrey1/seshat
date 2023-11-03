@@ -59,6 +59,7 @@ from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic
 
 from django.shortcuts import HttpResponse
 
+from math import floor, ceil
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
@@ -1544,5 +1545,10 @@ def map_view(request):
     # Filter out the unique years and sort them
     unique_years = sorted(all_years)
 
-    return render(request, 'core/spatial_map.html', {'shapes': shapes, 'unique_years': unique_years})
+    # Get a list of centuries
+    earliest_century = floor(unique_years[0] / 100) * 100
+    latest_century = ceil(unique_years[-1] / 100) * 100
+    centuries = [num for num in range(earliest_century, latest_century + 1) if num % 100 == 0]
+
+    return render(request, 'core/spatial_map.html', {'shapes': shapes, 'unique_years': unique_years, 'centuries': centuries})
 

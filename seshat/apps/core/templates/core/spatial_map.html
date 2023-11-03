@@ -20,18 +20,18 @@
             <div id="dateDropdowns" style="margin-top: 20px;">
                 <fieldset>
                     <legend>
-                        <h3>Date Range</h3>
+                        <h3>Show Polities</h3>
                     </legend>
-                    <label for="startYear">Start Year:</label>
+                    <label for="startYear">From:</label>
                     <select name="startYear" id="startYear" onchange="filterByYearRange()">
-                        {% for year in unique_years %}
+                        {% for year in centuries %}
                             <option value="{{ year }}" {% if forloop.first %}selected{% endif %}>{{ year }}</option>
                         {% endfor %}
                     </select><br>
             
-                    <label for="endYear">End Year:</label>
+                    <label for="endYear">To:</label>
                     <select name="endYear" id="endYear" onchange="filterByYearRange()">
-                        {% for year in unique_years %}
+                        {% for year in centuries %}
                             <option value="{{ year }}" {% if forloop.last %}selected{% endif %}>{{ year }}</option>
                         {% endfor %}
                     </select><br>
