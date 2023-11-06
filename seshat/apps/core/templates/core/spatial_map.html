@@ -55,7 +55,8 @@
                 {
                     startYear: '{{ shape.start_year}}',
                     endYear: '{{ shape.end_year }}',
-                    geometry: '{{ shape.geom.geojson | safe }}'
+                    geometry: '{{ shape.geom.geojson | safe }}',
+                    name: '{{ shape.name }}'
                 },
             {% endfor %}
         ];
@@ -89,7 +90,11 @@
             // Add layers that are within the selected year range to the map
             shapesData.forEach(function (shape) {
                 if (!(shape.startYear > endYear || shape.endYear < startYear)) {
-                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
+                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                        onEachFeature: function (feature, layer) {
+                            layer.bindPopup(shape.name);
+                        }
+                    }).addTo(map);
                 }
             });
         }
