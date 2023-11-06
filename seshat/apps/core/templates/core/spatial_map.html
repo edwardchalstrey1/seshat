@@ -14,28 +14,27 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"
-                        checked>CartoDB</label><br>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>CartoDB</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
             </fieldset>
-            <div id="dateRange" style="margin-top: 20px;">
+            <div id="dateDropdowns" style="margin-top: 20px;">
                 <fieldset>
                     <legend>
                         <h3>Show Polities</h3>
                     </legend>
                     <label for="startYear">From:</label>
-                    <input type="range" id="startYear" name="startYear" min="{{ earliest_century }}"
-                        max="{{ latest_century }}" step="100" value="{{ earliest_century }}" list="tickmarks"
-                        onchange="filterByYearRange()">
-                    <datalist id="tickmarks">
-                        {% for year, century_name in centuries.items %}
-                            <option value="{{ year }}">{{ century_name }}</option>
+                    <select name="startYear" id="startYear" onchange="filterByYearRange()">
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
                         {% endfor %}
-                    </datalist>
-                    <br>
+                    </select><br>
+            
                     <label for="endYear">To:</label>
-                    <input type="range" id="endYear" name="endYear" min="{{ earliest_century }}" max="{{ latest_century }}"
-                        step="100" value="{{ latest_century }}" list="tickmarks" onchange="filterByYearRange()">
+                    <select name="endYear" id="endYear" onchange="filterByYearRange()">
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
+                        {% endfor %}
+                    </select><br>
                 </fieldset>
             </div>
 

@@ -1557,13 +1557,5 @@ def map_view(request):
             century_strings.append(str(century) + "CE")
     centuries_zipped = zip(centuries, century_strings)
 
-    return render(request,
-                  'core/spatial_map.html',
-                  {'shapes': shapes,
-                    'unique_years': unique_years,
-                    'centuries': dict(centuries_zipped),
-                    'earliest_century': earliest_century,
-                    'latest_century': latest_century
-                    }
-                    )
+    return render(request, 'core/spatial_map.html', {'shapes': shapes, 'unique_years': unique_years, 'centuries': dict(centuries_zipped)})
 
