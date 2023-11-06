@@ -1516,10 +1516,6 @@ def download_oldcsv(request, file_name):
 
 # Shapefile views
 
-# def map_view(request):
-#     shapes = MacrostateShapefile.objects.all()
-#     return render(request, 'core/spatial_map.html', {'shapes': shapes})
-
 def map_view(request):
     shapes = MacrostateShapefile.objects.all()
 
@@ -1557,5 +1553,11 @@ def map_view(request):
             century_strings.append(str(century) + "CE")
     centuries_zipped = zip(centuries, century_strings)
 
-    return render(request, 'core/spatial_map.html', {'shapes': shapes, 'unique_years': unique_years, 'centuries': dict(centuries_zipped)})
+    return render(request,
+                  'core/spatial_map.html',
+                  {'shapes': shapes,
+                    'unique_years': unique_years,
+                    'centuries': dict(centuries_zipped)
+                    }
+                    )
 
