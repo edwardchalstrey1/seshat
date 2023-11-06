@@ -92,7 +92,10 @@
                 if (!(shape.startYear > endYear || shape.endYear < startYear)) {
                     var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                         onEachFeature: function (feature, layer) {
-                            layer.bindPopup(shape.name);
+                            var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
+                                '<b>Start Year:</b> ' + shape.startYear + '<br>' +
+                                '<b>End Year:</b> ' + shape.endYear;
+                            layer.bindPopup(popupContent);
                         }
                     }).addTo(map);
                 }
