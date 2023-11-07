@@ -87,16 +87,15 @@
                 }
             });
 
+            // Convert to ints, because for some reason JS converts them to strings
+            var selectedStartYear = parseInt(startYear);
+            var selectedEndYear = parseInt(endYear);
+
             // Add layers that are within the selected year range to the map
             shapesData.forEach(function (shape) {
-                if ((shape.startYear <= endYear && shape.endYear >= startYear)) {
-                    if (shape.name == 'Nabatae_0CE'){
-                        console.log(typeof shape.startYear);
-                        console.log(typeof startYear);
-                        console.log(typeof shape.endYear);
-                        console.log(typeof endYear);
-                    }
-
+                if (parseInt(shape.startYear) <= selectedEndYear &&
+                    parseInt(shape.endYear) >= selectedStartYear
+                    ) {
                     var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                         onEachFeature: function (feature, layer) {
                             var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
