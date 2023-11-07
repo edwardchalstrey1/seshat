@@ -1,5 +1,4 @@
 from django.contrib.gis.db import models
-# from django.contrib.gis.db import models as models_spatial
 from django.db.models.fields.related import ManyToManyField
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
