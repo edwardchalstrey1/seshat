@@ -53,7 +53,7 @@
             // JavaScript object representing shape data
             {% for shape in shapes %}
                 {
-                    startYear: '{{ shape.start_year}}',
+                    startYear: '{{ shape.start_year }}',
                     endYear: '{{ shape.end_year }}',
                     geometry: '{{ shape.geom.geojson | safe }}',
                     name: '{{ shape.name }}'
@@ -90,6 +90,13 @@
             // Add layers that are within the selected year range to the map
             shapesData.forEach(function (shape) {
                 if ((shape.startYear <= endYear && shape.endYear >= startYear)) {
+                    if (shape.name == 'Nabatae_0CE'){
+                        console.log(typeof shape.startYear);
+                        console.log(typeof startYear);
+                        console.log(typeof shape.endYear);
+                        console.log(typeof endYear);
+                    }
+
                     var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                         onEachFeature: function (feature, layer) {
                             var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
