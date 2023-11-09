@@ -1517,6 +1517,10 @@ def download_oldcsv(request, file_name):
 # Shapefile views
 
 def map_view(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        TODO: Update to switch between different datasets
+    """
     shapes = MacrostateShapefile.objects.all()
 
     all_years = set()
