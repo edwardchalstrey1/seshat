@@ -76,7 +76,7 @@ This page instructs software engineers how to get started working with the Djang
         python manage.py migrate core
     ```
 
-10. If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in `spatialdb.md`.
+10. If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in [spatialdb.md](spatialdb.md).
 
 11. Run Django
     ```

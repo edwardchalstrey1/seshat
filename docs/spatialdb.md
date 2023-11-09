@@ -1,6 +1,6 @@
 # Shape datasets
 
-Ensure that the database and Django are already set up (see `setup.md`).
+Ensure that the database and Django are already set up (see [setup.md](setup.md)).
 
 ## Macrostate shapefiles dataset
 
