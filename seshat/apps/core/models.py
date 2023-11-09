@@ -637,7 +637,7 @@ class MacrostateShapefile(models.Model):
 
 class GADMShapefile(models.Model):
     name = models.CharField(max_length=25)  # corresponds to the 'str' field
-    poly = models.PolygonField(srid=4269)  # we want our model in a different SRID
+    geom = models.PolygonField(srid=4326)  # Using a different SRID (4326 for latitude/longitude)
 
     def __str__(self):
         return "Name: %s" % self.name

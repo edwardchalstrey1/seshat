@@ -1,39 +1,34 @@
-import os
-from django.contrib.gis.utils import LayerMapping
 from django.contrib.gis.gdal import DataSource
 from django.core.management.base import BaseCommand
 from seshat.apps.core.models import GADMShapefile
 
 class Command(BaseCommand):
-    """
-    Iterate through the provided directory.
-    Find shapefiles in the subdirs.
-    Populate the core_gadmshapefile table with the shape's MultiPolygon and filename.
-    """
-    help = 'Populates the database with Shapefiles'
+    help = 'Populates the GADMShapefile table with features from a GeoPackage'
 
     def add_arguments(self, parser):
-        parser.add_argument('base_dir', type=str, help='Base directory containing shapefiles')
+        parser.add_argument('gpkg_file', type=str, help='Path to the GeoPackage file')
 
     def handle(self, *args, **options):
-        base_dir = options['base_dir']
+        gpkg_file = options['gpkg_file']
 
-        for filename in os.listdir(base_dir):
-            if filename.endswith(".shp"):
-                shp_file = os.path.join(base_dir, filename)
-                ds = DataSource(shp_file)
-                layer = ds[0]
-                print(layer.fields)
-                print(len(layer))
-                print(layer.geom_type)
-                print(layer.srs)
-                # break
+        data_source = DataSource(gpkg_file)
+        layer = data_source[0]  # Access the first layer in the GeoPackage
 
-                
-                # mapping = {
-                #     "name": "str",
-                #     "poly": "POLYGON",
-                # }
-                # lm = LayerMapping(GADMShapefile, shp_file, mapping)
-                # lm.save(verbose=True)  # Save the layermap, imports the data.
+        for feature in layer:
+            geom = feature.geom  # Retrieve the geometry of the feature
+            # Creating a GEOSGeometry object from the feature's geometry
+            geom_gis = geom.geos
 
+            # Additional fields can be obtained based on the fields available in the layer
+            name = feature.get('name', '')  # Replace 'name' with the field name in your data
+            # Include other fields as needed and accessible in your GADMShapefile model
+
+            # Create an entry in the GADMShapefile model for each feature in the layer
+            GADMShapefile.objects.create(
+                geom=geom_gis,
+                name=name,  # Include other fields here as required
+                # Add other fields based on the data available in the GeoPackage
+                # TODO: update this
+            )
+
+            self.stdout.write(self.style.SUCCESS(f"Inserted feature into the GADMShapefile table."))
