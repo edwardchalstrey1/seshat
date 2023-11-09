@@ -71,19 +71,30 @@ This page instructs software engineers how to get started working with the Djang
         ```
     - The presence of this file will ensure Django connects to your local database
 
-9. Ensure that database migrations have run for the "core" Django app:
+9. Set the path to your local installation of GDAL and GEOS
+    - Open `seshat/settings/local.py` and edit the following variables:
+        - `GDAL_LIBRARY_PATH`
+        - `GEOS_LIBRARY_PATH`
+    - Note: the current hardcoded paths are to the default installation by Homebrew on a Mac
+    - <details><summary>Install instructions for macOS</summary>
+
+        - `brew install gdal`
+        - `brew install geos`
+        </details>
+
+10. Ensure that database migrations have run for the "core" Django app:
     ```
         python manage.py migrate core
     ```
 
-10. If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in [spatialdb.md](spatialdb.md).
+11. If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in [spatialdb.md](spatialdb.md).
 
-11. Run Django
+12. Run Django
     ```
         python manage.py runserver
     ```
 
-12. The webapp should be visible in a browser at http://127.0.0.1:8000/
+13. The webapp should be visible in a browser at http://127.0.0.1:8000/
 
 
 
