@@ -635,3 +635,9 @@ class MacrostateShapefile(models.Model):
     date_from = models.CharField(max_length=50, null=True)
     date_to = models.CharField(max_length=50, null=True)
 
+class GADMShapefile(models.Model):
+    name = models.CharField(max_length=25)  # corresponds to the 'str' field
+    poly = models.PolygonField(srid=4269)  # we want our model in a different SRID
+
+    def __str__(self):
+        return "Name: %s" % self.name
