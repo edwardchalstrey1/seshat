@@ -1,4 +1,4 @@
-from django.db import models
+from django.contrib.gis.db import models
 from django.db.models.fields.related import ManyToManyField
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
@@ -626,4 +626,12 @@ class SeshatCommon(models.Model):
 #     job_description = models.CharField(
 #         choices=job_description_annual_wages_choices)
 
+# Shapefile models
+
+class MacrostateShapefile(models.Model):
+    geom = models.MultiPolygonField()
+    name = models.CharField(max_length=50, null=True)
+    polity = models.CharField(max_length=50, null=True)
+    date_from = models.CharField(max_length=50, null=True)
+    date_to = models.CharField(max_length=50, null=True)
 

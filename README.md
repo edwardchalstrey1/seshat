@@ -4,3 +4,6 @@
 
 This repo contains the necessary Django Python code to host the [Seshat](http://seshat-db.com/) website and interact with the backend PostgreSQL database.
 
+## Developers
+
+Follow the steps on [docs/setup](docs/setup.md).

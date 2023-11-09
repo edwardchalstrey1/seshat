@@ -80,6 +80,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     #'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
+    'django.contrib.gis',
+    'leaflet',
 
 ]
 
@@ -202,13 +204,16 @@ TEMPLATES = [
 if os.path.exists(local_env_path):
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': env('NAME'),
             'USER': env('USER'),
             'HOST': env('HOST'),
-            'PORT': env('PORT'),
+            'PORT': env('PORT')
         }
     }
+
+    GEOGRAPHIC_DB = True
+
 else:
     DATABASES = {
         'default': {

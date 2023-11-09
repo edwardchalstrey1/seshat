@@ -1,0 +1,117 @@
+{% extends "core/seshat-base.html" %}
+{% load leaflet_tags %}
+
+<head>
+    {% leaflet_js %}
+    {% leaflet_css %}
+</head>
+
+<body>
+    {% block content %}
+    <div style="display: flex;">
+        <div>
+            <fieldset>
+                <legend>
+                    <h3>Base Map</h3>
+                </legend>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>CartoDB</label><br>
+                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
+            </fieldset>
+            <div id="dateDropdowns" style="margin-top: 20px;">
+                <fieldset>
+                    <legend>
+                        <h3>Show Polities</h3>
+                    </legend>
+                    <label for="startYear">From:</label>
+                    <select name="startYear" id="startYear" onchange="filterByYearRange()">
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
+                        {% endfor %}
+                    </select><br>
+            
+                    <label for="endYear">To:</label>
+                    <select name="endYear" id="endYear" onchange="filterByYearRange()">
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
+                        {% endfor %}
+                    </select><br>
+                </fieldset>
+            </div>
+
+        </div>
+        <div id="map" style="height: 75vh; flex: 1;"></div>
+    </div>
+    <div id="map" style="height: 75vh;"></div>
+    {% leaflet_map "map" %}
+    <script>
+
+        function createBaseMap() {
+            return L.map('map').setView([0, 0], 2);
+        }
+
+        var shapesData = [
+            // JavaScript object representing shape data
+            {% for shape in shapes %}
+                {
+                    startYear: '{{ shape.start_year }}',
+                    endYear: '{{ shape.end_year }}',
+                    geometry: '{{ shape.geom.geojson | safe }}',
+                    name: '{{ shape.name }}'
+                },
+            {% endfor %}
+        ];
+
+        var map = createBaseMap();
+
+        var baseLayers = {
+            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'),
+            "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        };
+
+        var currentLayer = baseLayers.carto.addTo(map);
+
+        function switchBaseMap() {
+            var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
+            map.removeLayer(currentLayer);
+            currentLayer = baseLayers[selectedMap].addTo(map);
+        }
+
+        function filterByYearRange() {
+            var startYear = document.getElementById('startYear').value;
+            var endYear = document.getElementById('endYear').value;
+
+            // Remove all existing layers from the map
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.GeoJSON) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Convert to ints, because for some reason JS converts them to strings
+            var selectedStartYear = parseInt(startYear);
+            var selectedEndYear = parseInt(endYear);
+
+            // Add layers that are within the selected year range to the map
+            shapesData.forEach(function (shape) {
+                // If the shape start date or end date falls in the selected range
+                 if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
+                    (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
+                ) {
+                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                        onEachFeature: function (feature, layer) {
+                            var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
+                                '<b>Start Year:</b> ' + shape.startYear + '<br>' +
+                                '<b>End Year:</b> ' + shape.endYear;
+                            layer.bindPopup(popupContent);
+                        }
+                    }).addTo(map);
+                }
+            });
+        }
+
+        // Initial filtering on page load
+        filterByYearRange()
+
+    </script>
+    {% endblock %}
+</body>

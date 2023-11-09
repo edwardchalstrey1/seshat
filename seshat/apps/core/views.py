@@ -50,7 +50,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 from ..general.models import Polity_research_assistant
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, MacrostateShapefile
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -59,6 +59,7 @@ from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic
 
 from django.shortcuts import HttpResponse
 
+from math import floor, ceil
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
@@ -1512,3 +1513,55 @@ def download_oldcsv(request, file_name):
     response = FileResponse(open(file_path, 'rb'))
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
     return response
+
+# Shapefile views
+
+def map_view(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        TODO: Update to switch between different datasets
+    """
+    shapes = MacrostateShapefile.objects.all()
+
+    all_years = set()
+
+    for shape in shapes:
+        if shape.date_from is not None and shape.date_to is not None:
+            start_year = int(shape.date_from[:-3] if 'BCE' in shape.date_from else shape.date_from[:-2])
+            end_year = int(shape.date_to[:-3] if 'BCE' in shape.date_to else shape.date_to[:-2])
+
+            # For BCE dates, make the value negative
+            if 'BCE' in shape.date_from:
+                start_year = -start_year
+            if 'BCE' in shape.date_to:
+                end_year = -end_year
+
+            all_years.add(start_year)
+            all_years.add(end_year)
+
+            shape.start_year = start_year
+            shape.end_year = end_year
+
+    # Filter out the unique years and sort them
+    unique_years = sorted(all_years)
+
+    # Get a list of centuries
+    earliest_century = floor(unique_years[0] / 100) * 100
+    latest_century = ceil(unique_years[-1] / 100) * 100
+    centuries = [num for num in range(earliest_century, latest_century + 1) if num % 100 == 0]
+    century_strings = []
+    for century in centuries:
+        if century < 0:
+            century_strings.append(str(abs(century)) + "BCE")
+        else:
+            century_strings.append(str(century) + "CE")
+    centuries_zipped = zip(centuries, century_strings)
+
+    return render(request,
+                  'core/spatial_map.html',
+                  {'shapes': shapes,
+                    'unique_years': unique_years,
+                    'centuries': dict(centuries_zipped)
+                    }
+                    )
+

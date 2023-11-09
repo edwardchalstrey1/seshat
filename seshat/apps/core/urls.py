@@ -128,3 +128,7 @@ urlpatterns += [
      path('core/not_found_404', views.four_o_four,
          name="four-o-four"),
 ]
+
+# Shapefile urls
+
+urlpatterns += [path('core/spatial_map/', views.map_view, name='spatial_map'),]
