@@ -1,6 +1,6 @@
 # Setup instructions
 
-This page instructs software engineers how to get started working with the Django codebase and PostgreSQL database.
+This page instructs software engineers how to get started working with the Django codebase and PostgreSQL database for the "core" Seshat webapp.
 
 ## Local setup
 
@@ -46,16 +46,18 @@ This page instructs software engineers how to get started working with the Djang
         pip install "django-geojson [field]"
     ```
 
-7. Restore Seshat database from dump:
+7. Restore Seshat database from dump and add PostGIS extension:
     - Note: you'll need a dump file of the Seshat database, which can be provided by one of the current developers
         ```
         createdb -U postgres <seshat_db_name>
 
         pg_restore -U postgres -d <seshat_db_name> /path/to/file.dump
         ```
-    - Connect to the new test database to make sure things are in order
+    - Connect to the new database and add PostGIS
         ```
             psql -U postgres -d <seshat_db_name>
+
+            CREATE EXTENSION postgis;
         ```
 
 8. Create a config with your database info for Django
@@ -69,12 +71,19 @@ This page instructs software engineers how to get started working with the Djang
         ```
     - The presence of this file will ensure Django connects to your local database
 
-9. Run Django
+9. Ensure that database migrations have run for the "core" Django app:
+    ```
+        python manage.py migrate core
+    ```
+
+10. If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in `spatialdb.md`.
+
+11. Run Django
     ```
         python manage.py runserver
     ```
 
-10. The webapp should be visible in a browser at http://127.0.0.1:8000/
+12. The webapp should be visible in a browser at http://127.0.0.1:8000/
 
 
 
