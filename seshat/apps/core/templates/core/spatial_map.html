@@ -93,9 +93,10 @@
 
             // Add layers that are within the selected year range to the map
             shapesData.forEach(function (shape) {
-                if (parseInt(shape.startYear) <= selectedEndYear &&
-                    parseInt(shape.endYear) >= selectedStartYear
-                    ) {
+                // If the shape start date or end date falls in the selected range
+                 if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
+                    (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
+                ) {
                     var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                         onEachFeature: function (feature, layer) {
                             var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
