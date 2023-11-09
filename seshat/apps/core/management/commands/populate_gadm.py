@@ -1,9 +1,8 @@
 import os
-import csv
+from django.contrib.gis.utils import LayerMapping
 from django.contrib.gis.gdal import DataSource
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand
-from seshat.apps.core.models import MacrostateShapefile
+from seshat.apps.core.models import GADMShapefile
 
 class Command(BaseCommand):
     """
@@ -22,15 +21,19 @@ class Command(BaseCommand):
         for filename in os.listdir(base_dir):
             if filename.endswith(".shp"):
                 shp_file = os.path.join(base_dir, filename)
-
-                # Load the geometry using DataSource from the shapefile
-                data_source = DataSource(shp_file)
-                layer = data_source[0]
-
+                ds = DataSource(shp_file)
+                layer = ds[0]
                 print(layer.fields)
-
+                print(len(layer))
                 print(layer.geom_type)
-
                 print(layer.srs)
+                # break
 
+                
+                # mapping = {
+                #     "name": "str",
+                #     "poly": "POLYGON",
+                # }
+                # lm = LayerMapping(GADMShapefile, shp_file, mapping)
+                # lm.save(verbose=True)  # Save the layermap, imports the data.
 
