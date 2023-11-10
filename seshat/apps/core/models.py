@@ -637,7 +637,7 @@ class MacrostateShapefile(models.Model):
 
 class GADMShapefile(models.Model):
     name = models.CharField(max_length=50, null=True)
-    models.MultiPolygonField()
+    geom = models.MultiPolygonField()
 
     def __str__(self):
         return "Name: %s" % self.name
