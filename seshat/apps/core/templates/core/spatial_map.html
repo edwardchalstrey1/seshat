@@ -17,30 +17,36 @@
                 <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>CartoDB</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
             </fieldset>
-            <div id="dateDropdowns" style="margin-top: 20px;">
-                <fieldset>
-                    <legend>
-                        <h3>Show Polities</h3>
-                    </legend>
-                    <label for="startYear">From:</label>
-                    <select name="startYear" id="startYear" onchange="filterByYearRange()">
-                        {% for century, century_string in centuries.items %}
-                            <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
-                        {% endfor %}
-                    </select><br>
+            <p></p>
+            <fieldset>
+                <legend>
+                    <h3>Displayed dataset</h3>
+                </legend>
             
-                    <label for="endYear">To:</label>
-                    <select name="endYear" id="endYear" onchange="filterByYearRange()">
-                        {% for century, century_string in centuries.items %}
-                            <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
-                        {% endfor %}
-                    </select><br>
-                </fieldset>
-                <form>
-                    <input type="radio" name="data" value="macrostate" checked> Macrostate
-                </form>
-            </div>
-
+                <select name="displayedData" id="displayedData" onchange="selectDisplayedData()">
+                    <option value=macro>Macrostate test data</option>
+                    <option value=gadm>GADM present day</option>
+                </select><br>
+            </fieldset>
+            <p></p>
+            <fieldset>
+                <legend>
+                    <h3>Show Polities</h3>
+                </legend>
+                <label for="startYear">From:</label>
+                <select name="startYear" id="startYear" onchange="filterByYearRange()">
+                    {% for century, century_string in centuries.items %}
+                        <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
+                    {% endfor %}
+                </select><br>
+        
+                <label for="endYear">To:</label>
+                <select name="endYear" id="endYear" onchange="filterByYearRange()">
+                    {% for century, century_string in centuries.items %}
+                        <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
+                    {% endfor %}
+                </select><br>
+            </fieldset>
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
     </div>
@@ -110,6 +116,11 @@
                     }).addTo(map);
                 }
             });
+        }
+
+        function selectDisplayedData(){
+            var selectedData = document.getElementById("displayedData").value;
+            window.location.href = '{% url "spatial_map" %}?data=' + selectedData;
         }
 
         // Initial filtering on page load

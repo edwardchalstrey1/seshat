@@ -1563,6 +1563,9 @@ def map_view(request, data='macrostate'):
                    'centuries': dict(centuries_zipped),
                    'data': data
                    }
+
+    elif data == 'gadm':
+        content = {}
     
     return render(request,
                   'core/spatial_map.html',
