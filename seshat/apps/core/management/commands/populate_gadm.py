@@ -20,8 +20,7 @@ class Command(BaseCommand):
             geom_gis = geom.geos
 
             # Additional fields can be obtained based on the fields available in the layer
-            name = feature.get('name', '')  # Replace 'name' with the field name in your data
-            # Include other fields as needed and accessible in your GADMShapefile model
+            name = feature.get('name_1')
 
             # Create an entry in the GADMShapefile model for each feature in the layer
             GADMShapefile.objects.create(
