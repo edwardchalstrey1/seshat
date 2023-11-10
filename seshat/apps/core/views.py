@@ -1565,7 +1565,10 @@ def map_view(request, data='macrostate'):
                    }
 
     elif data == 'gadm':
-        content = {}
+        shapes = GADMShapefile.objects.all()
+        content = {'shapes': shapes,
+                   'data': data
+                   }
     
     return render(request,
                   'core/spatial_map.html',
