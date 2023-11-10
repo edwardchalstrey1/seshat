@@ -1516,52 +1516,56 @@ def download_oldcsv(request, file_name):
 
 # Shapefile views
 
-def map_view(request):
+def map_view(request, data='macrostate'):
     """
         This view is used to display a map with polities plotted on it.
-        TODO: Update to switch between different datasets
     """
-    shapes = MacrostateShapefile.objects.all()
+    
+    # Determine which shape data to plot
+    if data == 'macrostate':
+        shapes = MacrostateShapefile.objects.all()
 
-    all_years = set()
+        all_years = set()
 
-    for shape in shapes:
-        if shape.date_from is not None and shape.date_to is not None:
-            start_year = int(shape.date_from[:-3] if 'BCE' in shape.date_from else shape.date_from[:-2])
-            end_year = int(shape.date_to[:-3] if 'BCE' in shape.date_to else shape.date_to[:-2])
+        for shape in shapes:
+            if shape.date_from is not None and shape.date_to is not None:
+                start_year = int(shape.date_from[:-3] if 'BCE' in shape.date_from else shape.date_from[:-2])
+                end_year = int(shape.date_to[:-3] if 'BCE' in shape.date_to else shape.date_to[:-2])
 
-            # For BCE dates, make the value negative
-            if 'BCE' in shape.date_from:
-                start_year = -start_year
-            if 'BCE' in shape.date_to:
-                end_year = -end_year
+                # For BCE dates, make the value negative
+                if 'BCE' in shape.date_from:
+                    start_year = -start_year
+                if 'BCE' in shape.date_to:
+                    end_year = -end_year
 
-            all_years.add(start_year)
-            all_years.add(end_year)
+                all_years.add(start_year)
+                all_years.add(end_year)
 
-            shape.start_year = start_year
-            shape.end_year = end_year
+                shape.start_year = start_year
+                shape.end_year = end_year
 
-    # Filter out the unique years and sort them
-    unique_years = sorted(all_years)
+        # Filter out the unique years and sort them
+        unique_years = sorted(all_years)
 
-    # Get a list of centuries
-    earliest_century = floor(unique_years[0] / 100) * 100
-    latest_century = ceil(unique_years[-1] / 100) * 100
-    centuries = [num for num in range(earliest_century, latest_century + 1) if num % 100 == 0]
-    century_strings = []
-    for century in centuries:
-        if century < 0:
-            century_strings.append(str(abs(century)) + "BCE")
-        else:
-            century_strings.append(str(century) + "CE")
-    centuries_zipped = zip(centuries, century_strings)
-
+        # Get a list of centuries
+        earliest_century = floor(unique_years[0] / 100) * 100
+        latest_century = ceil(unique_years[-1] / 100) * 100
+        centuries = [num for num in range(earliest_century, latest_century + 1) if num % 100 == 0]
+        century_strings = []
+        for century in centuries:
+            if century < 0:
+                century_strings.append(str(abs(century)) + "BCE")
+            else:
+                century_strings.append(str(century) + "CE")
+        centuries_zipped = zip(centuries, century_strings)
+        content = {'shapes': shapes,
+                   'unique_years': unique_years,
+                   'centuries': dict(centuries_zipped),
+                   'data': data
+                   }
+    
     return render(request,
                   'core/spatial_map.html',
-                  {'shapes': shapes,
-                    'unique_years': unique_years,
-                    'centuries': dict(centuries_zipped)
-                    }
-                    )
+                  content
+                  )
 
