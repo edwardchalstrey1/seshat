@@ -99,23 +99,29 @@
             // Convert to ints, because for some reason JS converts them to strings
             var selectedStartYear = parseInt(startYear);
             var selectedEndYear = parseInt(endYear);
+            
+            {% if data == 'macrostate' %}
+                // Add layers that are within the selected year range to the map
+                shapesData.forEach(function (shape) {
+                    // If the shape start date or end date falls in the selected range
+                    if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
+                        (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
+                    ) {
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                            onEachFeature: function (feature, layer) {
+                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
+                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
+                                    '<b>End Year:</b> ' + shape.endYear;
+                                layer.bindPopup(popupContent);
+                            }
+                        }).addTo(map);
+                    }
+                });
+            {% endif %}
+            {% if data == 'gadm' %}
+                
+            {% endif %}
 
-            // Add layers that are within the selected year range to the map
-            shapesData.forEach(function (shape) {
-                // If the shape start date or end date falls in the selected range
-                 if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
-                    (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
-                ) {
-                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
-                        onEachFeature: function (feature, layer) {
-                            var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
-                                '<b>Start Year:</b> ' + shape.startYear + '<br>' +
-                                '<b>End Year:</b> ' + shape.endYear;
-                            layer.bindPopup(popupContent);
-                        }
-                    }).addTo(map);
-                }
-            });
         }
 
         function selectDisplayedData(){
