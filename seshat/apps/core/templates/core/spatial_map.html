@@ -24,8 +24,8 @@
                 </legend>
             
                 <select name="displayedData" id="displayedData" onchange="selectDisplayedData()">
-                    <option value=macro>Macrostate test data</option>
                     <option value=gadm>GADM present day</option>
+                    <option value=macro>Macrostate test data</option>
                 </select><br>
             </fieldset>
             <p></p>
@@ -119,7 +119,10 @@
                 });
             {% endif %}
             {% if data == 'gadm' %}
-                
+                // Add layers that are within the selected year range to the map
+                shapesData.forEach(function (shape) {
+                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
+                });
             {% endif %}
 
         }
