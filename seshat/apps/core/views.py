@@ -50,7 +50,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 from ..general.models import Polity_research_assistant
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, MacrostateShapefile
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, MacrostateShapefile, GADMShapefile
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -1576,8 +1576,8 @@ def map_view(request, data='macrostate'):
                   )
 
 def gadm_map_view(request):
-    # shapes = GADMShapefile.objects.all()
-    shapes = {}
+    shapes = GADMShapefile.objects.all()
+    # shapes = {}
     content = {'shapes': shapes}
     
     return render(request,
