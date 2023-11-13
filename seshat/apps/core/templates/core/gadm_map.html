@@ -39,18 +39,6 @@
             return L.map('map').setView([0, 0], 2);
         }
 
-        var shapesData = [
-            // JavaScript object representing shape data
-            {% for shape in shapes %}
-                {
-                    startYear: '{{ shape.start_year }}',
-                    endYear: '{{ shape.end_year }}',
-                    geometry: '{{ shape.geom.geojson | safe }}',
-                    name: '{{ shape.name }}'
-                },
-            {% endfor %}
-        ];
-
         var map = createBaseMap();
 
         var baseLayers = {
@@ -66,14 +54,9 @@
             currentLayer = baseLayers[selectedMap].addTo(map);
         }
 
-        function filterByYearRange() {
-
-            // Add layers that are within the selected year range to the map
-            shapesData.forEach(function (shape) {
-                var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
-            });
-
-        }
+        {% for shape in shapes %}
+            var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
+        {% endfor %}
 
         // Initial filtering on page load
         filterByYearRange()
