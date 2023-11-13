@@ -54,6 +54,17 @@
             currentLayer = baseLayers[selectedMap].addTo(map);
         }
 
+        function selectDisplayedData() {
+            var selectedData = document.getElementById("displayedData").value;
+            if (selectedData === 'gadm') {
+                window.location.href = '{% url "gadm_map" %}';
+            } else if (selectedData === 'macro') {
+                window.location.href = '{% url "spatial_map" %}'
+            } else {
+                window.location.href = '{% url "spatial_map" %}?data=' + selectedData;
+            }
+        }
+
         {% for shape in shapes %}
             var geometry = '{{ shape.geom.geojson | safe }}'
             var geoJSONLayer = L.geoJSON(JSON.parse(geometry)).addTo(map);
