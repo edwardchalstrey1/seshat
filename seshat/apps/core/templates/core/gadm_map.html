@@ -55,7 +55,8 @@
         }
 
         {% for shape in shapes %}
-            var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
+            var geometry = '{{ shape.geom.geojson | safe }}'
+            var geoJSONLayer = L.geoJSON(JSON.parse(geometry)).addTo(map);
         {% endfor %}
 
         // Initial filtering on page load
