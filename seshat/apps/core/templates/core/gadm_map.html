@@ -1,0 +1,83 @@
+{% extends "core/seshat-base.html" %}
+{% load leaflet_tags %}
+
+<head>
+    {% leaflet_js %}
+    {% leaflet_css %}
+</head>
+
+<body>
+    {% block content %}
+    <div style="display: flex;">
+        <div>
+            <fieldset>
+                <legend>
+                    <h3>Base Map</h3>
+                </legend>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>CartoDB</label><br>
+                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
+            </fieldset>
+            <p></p>
+            <fieldset>
+                <legend>
+                    <h3>Displayed dataset</h3>
+                </legend>
+            
+                <select name="displayedData" id="displayedData" onchange="selectDisplayedData()">
+                    <option value=gadm>GADM present day</option>
+                    <option value=macro>Macrostate test data</option>
+                </select><br>
+            </fieldset>
+        </div>
+        <div id="map" style="height: 75vh; flex: 1;"></div>
+    </div>
+    <div id="map" style="height: 75vh;"></div>
+    {% leaflet_map "map" %}
+    <script>
+
+        function createBaseMap() {
+            return L.map('map').setView([0, 0], 2);
+        }
+
+        var shapesData = [
+            // JavaScript object representing shape data
+            {% for shape in shapes %}
+                {
+                    startYear: '{{ shape.start_year }}',
+                    endYear: '{{ shape.end_year }}',
+                    geometry: '{{ shape.geom.geojson | safe }}',
+                    name: '{{ shape.name }}'
+                },
+            {% endfor %}
+        ];
+
+        var map = createBaseMap();
+
+        var baseLayers = {
+            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'),
+            "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        };
+
+        var currentLayer = baseLayers.carto.addTo(map);
+
+        function switchBaseMap() {
+            var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
+            map.removeLayer(currentLayer);
+            currentLayer = baseLayers[selectedMap].addTo(map);
+        }
+
+        function filterByYearRange() {
+
+            // Add layers that are within the selected year range to the map
+            shapesData.forEach(function (shape) {
+                var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
+            });
+
+        }
+
+        // Initial filtering on page load
+        filterByYearRange()
+
+    </script>
+    {% endblock %}
+</body>

@@ -1575,3 +1575,12 @@ def map_view(request, data='macrostate'):
                   content
                   )
 
+def gadm_map_view(request):
+    # shapes = GADMShapefile.objects.all()
+    shapes = {}
+    content = {'shapes': shapes}
+    
+    return render(request,
+                  'core/gadm_map.html',
+                  content
+                  )
