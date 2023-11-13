@@ -121,7 +121,11 @@
 
         function selectDisplayedData(){
             var selectedData = document.getElementById("displayedData").value;
-            window.location.href = '{% url "spatial_map" %}?data=' + selectedData;
+            if (selectedData === 'gadm') {
+                window.location.href = '{% url "gadm_map" %}';
+            } else {
+                window.location.href = '{% url "spatial_map" %}?data=' + selectedData;
+            }
         }
 
         // Initial filtering on page load
