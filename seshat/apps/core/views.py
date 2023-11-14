@@ -1580,11 +1580,11 @@ def gadm_map_view(request):
     query = """
         SELECT 
             "COUNTRY",
-            ST_Collect(geom) AS aggregated_geometry
+            ST_Union(geom) AS aggregated_geometry
         FROM 
             core_gadmshapefile
         WHERE 
-            "COUNTRY" = 'Slovakia'
+            "COUNTRY" = 'Austria'
         GROUP BY 
             "COUNTRY";
     """

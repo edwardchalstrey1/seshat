@@ -66,10 +66,20 @@
         }
 
         {% for shape in shapes %}
-            var geometryCollection = {{ shape.aggregated_geometry| safe }};
-            geometryCollection.geometries.forEach(function (geometry) {
-                var geoJSONLayer = L.geoJSON(geometry).addTo(map);
-            });
+            var geometry = {{ shape.aggregated_geometry | safe }};
+            // Ensure the geometry is not empty
+            if (geometry && geometry.type) {
+                if (geometry.type === "Polygon") {
+                    var coordinates = geometry.coordinates[0];
+                    var polygon = L.polygon(coordinates).addTo(map);
+                } else if (geometry.type === "MultiPolygon") {
+                    // Loop through each polygon and add it to the map
+                    for (var i = 0; i < geometry.coordinates.length; i++) {
+                        var coordinates = geometry.coordinates[i][0];
+                        var polygon = L.polygon(coordinates).addTo(map);
+                    }
+                }
+            }
         {% endfor %}
 
     </script>
