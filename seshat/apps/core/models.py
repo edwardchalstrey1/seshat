@@ -692,3 +692,10 @@ class GADMShapefile(models.Model):
 
     def __str__(self):
         return "Name: %s" % self.name
+    
+class GADMCountries(models.Model):
+    geom = models.MultiPolygonField()
+    COUNTRY=models.CharField(max_length=100, null=True)
+
+    def __str__(self):
+        return "Name: %s" % self.name
