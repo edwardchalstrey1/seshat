@@ -66,12 +66,9 @@
         }
 
         {% for shape in shapes %}
-            var geometry = '{{ shape.geom.geojson | safe }}'
-            var geoJSONLayer = L.geoJSON(JSON.parse(geometry)).addTo(map);
+            var geometry = '{{ shape.aggregated_geometry.geojson| safe }}';
+            var geoJSONLayer = L.geoJSON(geometry).addTo(map);
         {% endfor %}
-
-        // Initial filtering on page load
-        filterByYearRange()
 
     </script>
     {% endblock %}

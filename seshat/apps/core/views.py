@@ -18,7 +18,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.db import IntegrityError
+from django.db import IntegrityError, connection
 from django.db.models import Prefetch, F, Value
 from django.db.models.functions import Replace
 
@@ -1576,7 +1576,25 @@ def map_view(request, data='macrostate'):
                   )
 
 def gadm_map_view(request):
-    shapes = GADMShapefile.objects.all()
+    query = """
+        SELECT 
+            "COUNTRY",
+            ST_Collect(geom) AS aggregated_geometry
+        FROM 
+            core_gadmshapefile
+        WHERE 
+            "COUNTRY" = 'Slovakia'
+        GROUP BY 
+            "COUNTRY";
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+    # Process the result
+    shapes = [{'country': row[0], 'aggregated_geometry': row[1]} for row in rows]
+
     content = {'shapes': shapes}
     
     return render(request,
