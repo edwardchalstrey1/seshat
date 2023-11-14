@@ -10,3 +10,11 @@ Ensure that the database and Django are already set up (see [setup.md](setup.md)
     ```
         python manage.py populate_macrostate /path/to/data
     ```
+
+## GADM
+
+1. [Download](https://geodata.ucdavis.edu/gadm/gadm4.1/gadm_410-gpkg.zip) the whole world GeoPackage file from the [GADM website](https://gadm.org/download_world.html).
+2. Populate the `core_gadmshapefile` table
+    ```
+        python manage.py populate_gadm /path/to/gpkg_file
+    ```
