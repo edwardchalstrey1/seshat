@@ -60,6 +60,7 @@ from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic
 from django.shortcuts import HttpResponse
 
 from math import floor, ceil
+from django.contrib.gis.geos import GEOSGeometry
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
@@ -1593,7 +1594,7 @@ def gadm_map_view(request):
         rows = cursor.fetchall()
 
     # Process the result
-    shapes = [{'country': row[0], 'aggregated_geometry': row[1]} for row in rows]
+    shapes = [{'country': row[0], 'aggregated_geometry': GEOSGeometry(row[1]).geojson} for row in rows]
 
     content = {'shapes': shapes}
     

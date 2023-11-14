@@ -66,8 +66,10 @@
         }
 
         {% for shape in shapes %}
-            var geometry = '{{ shape.aggregated_geometry.geojson| safe }}';
-            var geoJSONLayer = L.geoJSON(geometry).addTo(map);
+            var geometryCollection = {{ shape.aggregated_geometry| safe }};
+            geometryCollection.geometries.forEach(function (geometry) {
+                var geoJSONLayer = L.geoJSON(geometry).addTo(map);
+            });
         {% endfor %}
 
     </script>
