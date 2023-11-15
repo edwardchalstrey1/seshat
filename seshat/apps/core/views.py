@@ -1577,7 +1577,27 @@ def map_view(request, data='macrostate'):
                   )
 
 def gadm_map_view(request):
-    shapes = GADMCountries.objects.filter(COUNTRY='Afghanistan')
+    # Define a simplification tolerance
+    simplification_tolerance = 0.01  # Adjust this value based on your needs
+
+    query = """
+        SELECT 
+            "COUNTRY",
+            ST_Simplify(geom, %s) AS simplified_geometry
+        FROM
+            core_gadmcountries;
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(query, [simplification_tolerance])
+        rows = cursor.fetchall()
+
+    # Process the result
+    shapes = []
+    for row in rows:
+        if row[1] != None:
+            shapes.append({'country': row[0], 'aggregated_geometry': GEOSGeometry(row[1]).geojson})
+
     content = {'shapes': shapes}
     
     return render(request,
