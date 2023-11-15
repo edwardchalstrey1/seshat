@@ -14,7 +14,7 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>CartoDB</label><br>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>No labels (CartoDB)</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
             </fieldset>
             <p></p>
@@ -42,7 +42,7 @@
         var map = createBaseMap();
 
         var baseLayers = {
-            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'),
+            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'),
             "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         };
 
