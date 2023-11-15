@@ -65,19 +65,13 @@
             }
         }
 
-        var shapesData = [
-            // JavaScript object representing shape data
-            {% for shape in shapes %}
-                {
-                    geometry: '{{ shape.geom.geojson | safe }}',
-                    country: '{{ shape.COUNTRY }}'
-                },
-            {% endfor %}
-        ];
-
-        shapesData.forEach(function (shape) {
-            var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
-        });
+        {% for shape in shapes %}
+            var shapeData = {
+                geometry: '{{ shape.geom.geojson | safe }}',
+                country: '{{ shape.COUNTRY }}'
+            };
+            var geoJSONLayer = L.geoJSON(JSON.parse(shapeData.geometry)).addTo(map);
+        {% endfor %}
 
     </script>
     {% endblock %}
