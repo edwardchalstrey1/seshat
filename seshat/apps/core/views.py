@@ -1577,18 +1577,21 @@ def map_view(request, data='macrostate'):
                   )
 
 def gadm_map_view(request):
+    # Define a simplification tolerance
+    simplification_tolerance = 0.01  # Adjust this value based on your needs
+
     query = """
         SELECT 
             "COUNTRY",
-            geom AS aggregated_geometry
-        FROM 
+            ST_Simplify(geom, %s) AS simplified_geometry
+        FROM
             core_gadmcountries
         WHERE 
             "COUNTRY" = 'Austria';
     """
 
     with connection.cursor() as cursor:
-        cursor.execute(query)
+        cursor.execute(query, [simplification_tolerance])
         rows = cursor.fetchall()
 
     # Process the result
