@@ -67,6 +67,7 @@
 
         {% for shape in shapes %}
             var geometry = {{ shape.aggregated_geometry | safe }};
+            var country = '{{ shape.country | escapejs | safe }}';
             // Ensure the geometry is not empty
             if (geometry && geometry.type) {
                 if (geometry.type === "Polygon") {
@@ -76,6 +77,7 @@
                         return [coord[1], coord[0]];
                     });
                     var polygon = L.polygon(coordinates).addTo(map);
+                    polygon.bindPopup(`<p> ${country} </p>`);
                 } else if (geometry.type === "MultiPolygon") {
                     // Loop through each polygon and add it to the map
                     for (var i = 0; i < geometry.coordinates.length; i++) {
@@ -85,6 +87,7 @@
                             return [coord[1], coord[0]];
                         });
                         var polygon = L.polygon(coordinates).addTo(map);
+                        polygon.bindPopup(`<p> ${country} </p>`);
                     }
                 }
             }
