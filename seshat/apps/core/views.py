@@ -1585,9 +1585,7 @@ def gadm_map_view(request):
             "COUNTRY",
             ST_Simplify(geom, %s) AS simplified_geometry
         FROM
-            core_gadmcountries
-        WHERE 
-            "COUNTRY" = 'Austria';
+            core_gadmcountries;
     """
 
     with connection.cursor() as cursor:
@@ -1595,7 +1593,10 @@ def gadm_map_view(request):
         rows = cursor.fetchall()
 
     # Process the result
-    shapes = [{'country': row[0], 'aggregated_geometry': GEOSGeometry(row[1]).geojson} for row in rows]
+    shapes = []
+    for row in rows:
+        if row[1] != None:
+            shapes.append({'country': row[0], 'aggregated_geometry': GEOSGeometry(row[1]).geojson})
 
     content = {'shapes': shapes}
     
