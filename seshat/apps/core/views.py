@@ -50,7 +50,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 from ..general.models import Polity_research_assistant
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, MacrostateShapefile, GADMShapefile
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, MacrostateShapefile, GADMShapefile, GADMCountries
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -1577,23 +1577,7 @@ def map_view(request, data='macrostate'):
                   )
 
 def gadm_map_view(request):
-    query = """
-        SELECT 
-            "COUNTRY",
-            geom AS aggregated_geometry
-        FROM 
-            core_gadmcountries
-        WHERE 
-            "COUNTRY" = 'Austria';
-    """
-
-    with connection.cursor() as cursor:
-        cursor.execute(query)
-        rows = cursor.fetchall()
-
-    # Process the result
-    shapes = [{'country': row[0], 'aggregated_geometry': GEOSGeometry(row[1]).geojson} for row in rows]
-
+    shapes = GADMCountries.objects.filter(COUNTRY='Afghanistan')
     content = {'shapes': shapes}
     
     return render(request,
