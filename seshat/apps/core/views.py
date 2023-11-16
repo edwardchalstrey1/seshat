@@ -1577,8 +1577,8 @@ def map_view(request, data='macrostate'):
                   )
 
 def gadm_map_view(request):
-    # Define a simplification tolerance
-    simplification_tolerance = 0.01  # Adjust this value based on your needs
+    # Define a simplification tolerance for faster loading of shapes at lower res
+    simplification_tolerance = 0.01
 
     query = """
         SELECT 
