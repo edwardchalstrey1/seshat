@@ -88,14 +88,37 @@
                         return [coord[1], coord[0]];
                     });
                     var polygon = L.polygon(coordinates).addTo(map);
-                    polygon.bindPopup(`
-                                        <p> Country: ${country} </p>
-                                        <p> National region: ${name_0} </p>
-                                        <p> ${engtype_1}: ${name_1} </p>
-                                        <p> ${engtype_2}: ${name_2} </p>
-                                        <p> ${engtype_3}: ${name_3} </p>
-                                        <p> ${engtype_4}: ${name_4} </p>
-                                        <p> ${engtype_5}: ${name_5} </p>
+                    polygon.bindPopup(` 
+                                        <table>
+                                            <tr>
+                                                <th>Country</th>
+                                                <th>${country}</th>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>${name_0}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>${engtype_1}</td>
+                                                <td>${name_1}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>${engtype_2}</td>
+                                                <td>${name_2}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>${engtype_3}</td>
+                                                <td>${name_3}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>${engtype_4}</td>
+                                                <td>${name_4}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>${engtype_5}</td>
+                                                <td>${name_5}</td>
+                                            </tr>
+                                        </table>
                                     `);
                 } else if (geometry.type === "MultiPolygon") {
                     // Loop through each polygon and add it to the map
@@ -107,13 +130,36 @@
                         });
                         var polygon = L.polygon(coordinates).addTo(map);
                         polygon.bindPopup(`
-                                            <p> Country: ${country} </p>
-                                            <p> National region: ${name_0} </p>
-                                            <p> ${engtype_1}: ${name_1} </p>
-                                            <p> ${engtype_2}: ${name_2} </p>
-                                            <p> ${engtype_3}: ${name_3} </p>
-                                            <p> ${engtype_4}: ${name_4} </p>
-                                            <p> ${engtype_5}: ${name_5} </p>
+                                            <table>
+                                                <tr>
+                                                    <th>Country</th>
+                                                    <th>${country}</th>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td>${name_0}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>${engtype_1}</td>
+                                                    <td>${name_1}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>${engtype_2}</td>
+                                                    <td>${name_2}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>${engtype_3}</td>
+                                                    <td>${name_3}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>${engtype_4}</td>
+                                                    <td>${name_4}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>${engtype_5}</td>
+                                                    <td>${name_5}</td>
+                                                </tr>
+                                            </table>
                                         `);
                     }
                 }
