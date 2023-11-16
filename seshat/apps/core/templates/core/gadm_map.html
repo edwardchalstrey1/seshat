@@ -67,6 +67,17 @@
 
         {% for shape in shapes %}
             var geometry = {{ shape.aggregated_geometry | safe }};
+            var name_0 = '{{ shape.name_0 | escapejs | safe }}';
+            var engtype_1 = '{{ shape.engtype_1 | escapejs | safe }}';
+            var name_1 = '{{ shape.name_1 | escapejs | safe }}';
+            var engtype_2 = '{{ shape.engtype_2 | escapejs | safe }}';
+            var name_2 = '{{ shape.name_2 | escapejs | safe }}';
+            var engtype_3 = '{{ shape.engtype_3 | escapejs | safe }}';
+            var name_3 = '{{ shape.name_3 | escapejs | safe }}';
+            var engtype_4 = '{{ shape.engtype_4 | escapejs | safe }}';
+            var name_4 = '{{ shape.name_4 | escapejs | safe }}';
+            var engtype_5 = '{{ shape.engtype_5 | escapejs | safe }}';
+            var name_5 = '{{ shape.name_5 | escapejs | safe }}';
             var country = '{{ shape.country | escapejs | safe }}';
             // Ensure the geometry is not empty
             if (geometry && geometry.type) {
@@ -77,7 +88,15 @@
                         return [coord[1], coord[0]];
                     });
                     var polygon = L.polygon(coordinates).addTo(map);
-                    polygon.bindPopup(`<p> ${country} </p>`);
+                    polygon.bindPopup(`
+                                        <p> Country: ${country} </p>
+                                        <p> National region: ${name_0} </p>
+                                        <p> ${engtype_1}: ${name_1} </p>
+                                        <p> ${engtype_2}: ${name_2} </p>
+                                        <p> ${engtype_3}: ${name_3} </p>
+                                        <p> ${engtype_4}: ${name_4} </p>
+                                        <p> ${engtype_5}: ${name_5} </p>
+                                    `);
                 } else if (geometry.type === "MultiPolygon") {
                     // Loop through each polygon and add it to the map
                     for (var i = 0; i < geometry.coordinates.length; i++) {
@@ -87,7 +106,15 @@
                             return [coord[1], coord[0]];
                         });
                         var polygon = L.polygon(coordinates).addTo(map);
-                        polygon.bindPopup(`<p> ${country} </p>`);
+                        polygon.bindPopup(`
+                                            <p> Country: ${country} </p>
+                                            <p> National region: ${name_0} </p>
+                                            <p> ${engtype_1}: ${name_1} </p>
+                                            <p> ${engtype_2}: ${name_2} </p>
+                                            <p> ${engtype_3}: ${name_3} </p>
+                                            <p> ${engtype_4}: ${name_4} </p>
+                                            <p> ${engtype_5}: ${name_5} </p>
+                                        `);
                     }
                 }
             }

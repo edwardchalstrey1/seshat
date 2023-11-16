@@ -1581,11 +1581,22 @@ def gadm_map_view(request):
     simplification_tolerance = 0.01
 
     query = """
-        SELECT 
-            "COUNTRY",
-            ST_Simplify(geom, %s) AS simplified_geometry
+        SELECT
+            ST_Simplify(geom, %s) AS simplified_geometry,
+            "NAME_0",
+            "ENGTYPE_1",
+            "NAME_1",
+            "ENGTYPE_2",
+            "NAME_2",
+            "ENGTYPE_3",
+            "NAME_3",
+            "ENGTYPE_4",
+            "NAME_4",
+            "ENGTYPE_5",
+            "NAME_5",
+            "COUNTRY"
         FROM
-            core_gadmcountries;
+            core_gadmshapefile;
     """
 
     with connection.cursor() as cursor:
@@ -1595,8 +1606,22 @@ def gadm_map_view(request):
     # Process the result
     shapes = []
     for row in rows:
-        if row[1] != None:
-            shapes.append({'country': row[0], 'aggregated_geometry': GEOSGeometry(row[1]).geojson})
+        if row[0] != None:
+            shapes.append({
+                'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                'name_0': row[1],
+                'engtype_1': row[2],
+                'name_1': row[3],
+                'engtype_2': row[4],
+                'name_2': row[5],
+                'engtype_3': row[6],
+                'name_3': row[7],
+                'engtype_4': row[8],
+                'name_4': row[9],
+                'engtype_5': row[10],
+                'name_5': row[11],
+                'country': row[12]
+                })
 
     content = {'shapes': shapes}
     
