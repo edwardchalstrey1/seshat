@@ -57,7 +57,7 @@
         var map = createBaseMap();
 
         var baseLayers = {
-            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'),
+            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', { minZoom: 1}),
             "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         };
 
@@ -108,6 +108,7 @@
             var engtype_5 = '{{ shape.engtype_5 | escapejs | safe }}';
             var name_5 = '{{ shape.name_5 | escapejs | safe }}';
             var country = '{{ shape.country | escapejs | safe }}';
+            var disputedby = '{{ shape.disputedby | escapejs | safe }}';
             // Ensure the geometry is not empty
             if (geometry && geometry.type) {
                 if (geometry.type === "Polygon") {
@@ -130,7 +131,8 @@
                         engtype_4,
                         name_4,
                         engtype_5,
-                        name_5
+                        name_5,
+                        disputedby
                     );
                     attachDoubleClickEvent(polygon, country);
                 } else if (geometry.type === "MultiPolygon") {
@@ -155,7 +157,8 @@
                             engtype_4,
                             name_4,
                             engtype_5,
-                            name_5
+                            name_5,
+                            disputedby
                         );
                         attachDoubleClickEvent(polygon, country);
                     }
@@ -177,7 +180,8 @@
                                 engtype_4,
                                 name_4,
                                 engtype_5,
-                                name_5
+                                name_5,
+                                disputedby
                             ) {
             polygon.bindPopup(`
                 <table>
@@ -208,6 +212,10 @@
                     <tr>
                         <td>${engtype_5}</td>
                         <td>${name_5}</td>
+                    </tr>
+                    <tr>
+                        <td>Disputed by</td>
+                        <td>${disputedby}</td>
                     </tr>
                 </table>
             `);

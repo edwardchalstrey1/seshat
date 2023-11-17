@@ -1602,7 +1602,8 @@ def gadm_map_view(request):
                 "NAME_4",
                 "ENGTYPE_5",
                 "NAME_5",
-                "COUNTRY"
+                "COUNTRY",
+                "DISPUTEDBY"
             FROM
                 core_gadmshapefile
         """
@@ -1630,7 +1631,8 @@ def gadm_map_view(request):
                         'name_4': row[9],
                         'engtype_5': row[10],
                         'name_5': row[11],
-                        'country': row[12]
+                        'country': row[12],
+                        'disputedby': row[13]
                         })
         
         # Load from the countries table when no specific country selected
