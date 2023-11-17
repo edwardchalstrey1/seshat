@@ -187,7 +187,7 @@
             if (country==name_0){
                 name_0="";
             }
-            polygon.bindPopup(`
+            var popupContent = `
                 <table>
                     <tr>
                         <th>${country}</th>
@@ -212,13 +212,22 @@
                     <tr>
                         <td>${engtype_5}</td>
                         <td>${name_5}</td>
-                    </tr>
+                    </tr>`;
+
+            // Conditionally include the "Disputed by" row
+            if (disputedby.trim() !== "") {
+                popupContent += `
                     <tr>
                         <td>Disputed by</td>
                         <td>${disputedby}</td>
-                    </tr>
-                </table>
-            `);
+                    </tr>`;
+            }
+
+            // Close the table tag
+            popupContent += '</table>';
+
+            // Bind the popup with the updated content
+            polygon.bindPopup(popupContent);
         }
 
         // Function to attach double-click event to the polygon to change the country dropdown
