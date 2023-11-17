@@ -40,6 +40,8 @@
                         <option value="{{ country | escapejs | safe }}">{{ country | escapejs | safe }}</option>
                     {% endfor %}
                 </select><br>
+                <p></p>
+                <button onclick="selectWorld()">World</button>
             </fieldset>
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
@@ -82,6 +84,14 @@
             var selectedCountry = document.getElementById("countrySelector").value;
             // Redirect to the same page with the selected country as a parameter
             window.location.href = '{% url "gadm_map" %}?country=' + selectedCountry;
+        }
+
+        // Function to set the country dropdown to "-- World --"
+        function selectWorld() {
+            var countrySelector = document.getElementById("countrySelector");
+            countrySelector.value = "";
+            // Trigger the change event manually
+            countrySelector.dispatchEvent(new Event('change'));
         }
 
         {% for shape in shapes %}
