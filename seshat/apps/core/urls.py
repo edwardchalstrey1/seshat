@@ -132,5 +132,4 @@ urlpatterns += [
 # Shapefile urls
 
 urlpatterns += [path('core/spatial_map/', views.map_view, name='spatial_map'),]
-urlpatterns += [path('core/spatial_map/<str:data>/', views.map_view, name='spatial_map_data'),]
 urlpatterns += [path('core/gadm_map/', views.gadm_map_view, name='gadm_map'),]
