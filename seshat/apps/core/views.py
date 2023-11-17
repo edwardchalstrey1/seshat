@@ -18,7 +18,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.db import IntegrityError
+from django.db import IntegrityError, connection
 from django.db.models import Prefetch, F, Value
 from django.db.models.functions import Replace
 
@@ -50,7 +50,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 from ..general.models import Polity_research_assistant
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, MacrostateShapefile
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, MacrostateShapefile, GADMShapefile, GADMCountries
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -60,6 +60,7 @@ from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic
 from django.shortcuts import HttpResponse
 
 from math import floor, ceil
+from django.contrib.gis.geos import GEOSGeometry
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
@@ -1519,8 +1520,8 @@ def download_oldcsv(request, file_name):
 def map_view(request):
     """
         This view is used to display a map with polities plotted on it.
-        TODO: Update to switch between different datasets
     """
+
     shapes = MacrostateShapefile.objects.all()
 
     all_years = set()
@@ -1556,12 +1557,118 @@ def map_view(request):
         else:
             century_strings.append(str(century) + "CE")
     centuries_zipped = zip(centuries, century_strings)
-
+    content = {'shapes': shapes,
+                'unique_years': unique_years,
+                'centuries': dict(centuries_zipped)
+                }
+    
     return render(request,
                   'core/spatial_map.html',
-                  {'shapes': shapes,
-                    'unique_years': unique_years,
-                    'centuries': dict(centuries_zipped)
-                    }
-                    )
+                  content
+                  )
 
+def gadm_map_view(request):
+    # Define a simplification tolerance for faster loading of shapes at lower res
+    simplification_tolerance = 0.001
+
+    # Get the selected country from the request parameters
+    selected_country = request.GET.get('country', None)
+
+    shapes = []
+
+    def get_shapes():
+
+        # Build the SQL query based on the selected country
+        query = """
+            SELECT
+                ST_Simplify(geom, %s) AS simplified_geometry,
+                "NAME_0",
+                "ENGTYPE_1",
+                "NAME_1",
+                "ENGTYPE_2",
+                "NAME_2",
+                "ENGTYPE_3",
+                "NAME_3",
+                "ENGTYPE_4",
+                "NAME_4",
+                "ENGTYPE_5",
+                "NAME_5",
+                "COUNTRY",
+                "DISPUTEDBY"
+            FROM
+                core_gadmshapefile
+        """
+        
+        # Add a WHERE clause if a country is selected
+        if selected_country:
+            query += f' WHERE "COUNTRY"=%s;'
+
+            with connection.cursor() as cursor:
+                cursor.execute(query, [simplification_tolerance, selected_country])
+                rows = cursor.fetchall()
+
+            for row in rows:
+                if row[0] != None:
+                    shapes.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'name_0': row[1],
+                        'engtype_1': row[2],
+                        'name_1': row[3],
+                        'engtype_2': row[4],
+                        'name_2': row[5],
+                        'engtype_3': row[6],
+                        'name_3': row[7],
+                        'engtype_4': row[8],
+                        'name_4': row[9],
+                        'engtype_5': row[10],
+                        'name_5': row[11],
+                        'country': row[12],
+                        'disputedby': row[13]
+                        })
+        
+        # Load from the countries table when no specific country selected
+        else:
+            query = """
+                SELECT
+                    ST_Simplify(geom, %s) AS simplified_geometry,
+                    "COUNTRY"                
+                FROM
+                    core_gadmcountries;
+            """
+
+            with connection.cursor() as cursor:
+                cursor.execute(query, [simplification_tolerance])
+                rows = cursor.fetchall()
+
+            for row in rows:
+                if row[0] != None:
+                    shapes.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'country': row[1]
+                        })
+                
+        return shapes
+    
+    def get_countries():
+        # Build the SQL query based on the selected country
+        query = """
+            SELECT
+                "COUNTRY"
+            FROM
+                core_gadmcountries;
+        """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            rows = cursor.fetchall()
+
+        countries = [i for row in rows for i in row]
+        countries.sort()
+        return countries
+
+    content = {'shapes': get_shapes(), 'countries': get_countries()}
+    
+    return render(request,
+                  'core/gadm_map.html',
+                  content
+                  )

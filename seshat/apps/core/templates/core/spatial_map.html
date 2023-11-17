@@ -14,40 +14,45 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>CartoDB</label><br>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>No labels (CartoDB)</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
             </fieldset>
-            <div id="dateDropdowns" style="margin-top: 20px;">
-                <fieldset>
-                    <legend>
-                        <h3>Show Polities</h3>
-                    </legend>
-                    <label for="startYear">From:</label>
-                    <select name="startYear" id="startYear" onchange="filterByYearRange()">
-                        {% for century, century_string in centuries.items %}
-                            <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
-                        {% endfor %}
-                    </select><br>
+            <p></p>
+            <fieldset>
+                <legend>
+                    <h3>Displayed dataset</h3>
+                </legend>
             
-                    <label for="endYear">To:</label>
-                    <select name="endYear" id="endYear" onchange="filterByYearRange()">
-                        {% for century, century_string in centuries.items %}
-                            <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
-                        {% endfor %}
-                    </select><br>
-                </fieldset>
-            </div>
-
+                <select name="displayedData" id="displayedData" onchange="selectDisplayedData()">
+                    <option value=macro>Macrostate test data</option>
+                    <option value=gadm>GADM present day</option>
+                </select><br>
+            </fieldset>
+            <p></p>
+            <fieldset>
+                <legend>
+                    <h3>Show Polities</h3>
+                </legend>
+                <label for="startYear">From:</label>
+                <select name="startYear" id="startYear" onchange="filterByYearRange()">
+                    {% for century, century_string in centuries.items %}
+                        <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
+                    {% endfor %}
+                </select><br>
+        
+                <label for="endYear">To:</label>
+                <select name="endYear" id="endYear" onchange="filterByYearRange()">
+                    {% for century, century_string in centuries.items %}
+                        <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
+                    {% endfor %}
+                </select><br>
+            </fieldset>
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
     </div>
     <div id="map" style="height: 75vh;"></div>
     {% leaflet_map "map" %}
     <script>
-
-        function createBaseMap() {
-            return L.map('map').setView([0, 0], 2);
-        }
 
         var shapesData = [
             // JavaScript object representing shape data
@@ -61,10 +66,10 @@
             {% endfor %}
         ];
 
-        var map = createBaseMap();
+        var map = L.map('map').setView([0, 0], 2);
 
         var baseLayers = {
-            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'),
+            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'),
             "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         };
 
@@ -94,7 +99,7 @@
             // Add layers that are within the selected year range to the map
             shapesData.forEach(function (shape) {
                 // If the shape start date or end date falls in the selected range
-                 if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
+                if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
                     (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
                 ) {
                     var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
@@ -107,6 +112,18 @@
                     }).addTo(map);
                 }
             });
+
+        }
+
+        function selectDisplayedData(){
+            var selectedData = document.getElementById("displayedData").value;
+            if (selectedData === 'gadm') {
+                window.location.href = '{% url "gadm_map" %}';
+            } else if (selectedData === 'macro') {
+                window.location.href = '{% url "spatial_map" %}'
+            } else {
+                window.location.href = '{% url "spatial_map" %}?data=' + selectedData;
+            }
         }
 
         // Initial filtering on page load
