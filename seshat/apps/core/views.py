@@ -1580,52 +1580,86 @@ def gadm_map_view(request):
     # Define a simplification tolerance for faster loading of shapes at lower res
     simplification_tolerance = 0.001
 
-    query = """
-        SELECT
-            ST_Simplify(geom, %s) AS simplified_geometry,
-            "NAME_0",
-            "ENGTYPE_1",
-            "NAME_1",
-            "ENGTYPE_2",
-            "NAME_2",
-            "ENGTYPE_3",
-            "NAME_3",
-            "ENGTYPE_4",
-            "NAME_4",
-            "ENGTYPE_5",
-            "NAME_5",
-            "COUNTRY"
-        FROM
-            core_gadmshapefile
-        WHERE
-            "COUNTRY"='France';
-    """
+    # Get the selected country from the request parameters
+    selected_country = request.GET.get('country', None)
 
-    with connection.cursor() as cursor:
-        cursor.execute(query, [simplification_tolerance])
-        rows = cursor.fetchall()
+    def get_shapes():
 
-    # Process the result
-    shapes = []
-    for row in rows:
-        if row[0] != None:
-            shapes.append({
-                'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                'name_0': row[1],
-                'engtype_1': row[2],
-                'name_1': row[3],
-                'engtype_2': row[4],
-                'name_2': row[5],
-                'engtype_3': row[6],
-                'name_3': row[7],
-                'engtype_4': row[8],
-                'name_4': row[9],
-                'engtype_5': row[10],
-                'name_5': row[11],
-                'country': row[12]
-                })
+        # Build the SQL query based on the selected country
+        query = """
+            SELECT
+                ST_Simplify(geom, %s) AS simplified_geometry,
+                "NAME_0",
+                "ENGTYPE_1",
+                "NAME_1",
+                "ENGTYPE_2",
+                "NAME_2",
+                "ENGTYPE_3",
+                "NAME_3",
+                "ENGTYPE_4",
+                "NAME_4",
+                "ENGTYPE_5",
+                "NAME_5",
+                "COUNTRY"
+            FROM
+                core_gadmshapefile
+        """
+        
+        # Add a WHERE clause if a country is selected
+        if selected_country:
+            query += f' WHERE "COUNTRY"=%s;'
 
-    content = {'shapes': shapes}
+            with connection.cursor() as cursor:
+                cursor.execute(query, [simplification_tolerance, selected_country])
+                rows = cursor.fetchall()
+        else:
+            # query += f' GROUP BY "COUNTRY";'
+            query += f' WHERE "COUNTRY"=%s;'
+
+            with connection.cursor() as cursor:
+                cursor.execute(query, [simplification_tolerance, "United Kingdom"])
+                rows = cursor.fetchall()
+
+        # Process the result
+        shapes = []
+        for row in rows:
+            if row[0] != None:
+                shapes.append({
+                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                    'name_0': row[1],
+                    'engtype_1': row[2],
+                    'name_1': row[3],
+                    'engtype_2': row[4],
+                    'name_2': row[5],
+                    'engtype_3': row[6],
+                    'name_3': row[7],
+                    'engtype_4': row[8],
+                    'name_4': row[9],
+                    'engtype_5': row[10],
+                    'name_5': row[11],
+                    'country': row[12]
+                    })
+                
+        return shapes
+    
+    def get_countries():
+        # Build the SQL query based on the selected country
+        query = """
+            SELECT
+                "COUNTRY"
+            FROM
+                core_gadmcountries;
+        """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            rows = cursor.fetchall()
+
+        countries = [i for row in rows for i in row]
+        countries.sort()
+        return countries
+
+    content = {'shapes': get_shapes(), 'countries': get_countries()}
     
     return render(request,
                   'core/gadm_map.html',

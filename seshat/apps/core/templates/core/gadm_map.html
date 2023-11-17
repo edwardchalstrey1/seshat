@@ -28,6 +28,19 @@
                     <option value=macro>Macrostate test data</option>
                 </select><br>
             </fieldset>
+            <p></p>
+            <fieldset>
+                <legend>
+                    <h3>Select Country</h3>
+                </legend>
+                <select name="countrySelector" id="countrySelector" onchange="selectCountry()">
+                    <option value="">-- Select Country --</option>
+                    <!-- Add options dynamically based on available countries -->
+                    {% for country in countries %}
+                        <option value="{{ country | escapejs | safe }}">{{ country | escapejs | safe }}</option>
+                    {% endfor %}
+                </select><br>
+            </fieldset>
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
     </div>
@@ -63,6 +76,12 @@
             } else {
                 window.location.href = '{% url "spatial_map" %}?data=' + selectedData;
             }
+        }
+
+        function selectCountry() {
+            var selectedCountry = document.getElementById("countrySelector").value;
+            // Redirect to the same page with the selected country as a parameter
+            window.location.href = '{% url "gadm_map" %}?country=' + selectedCountry;
         }
 
         {% for shape in shapes %}
