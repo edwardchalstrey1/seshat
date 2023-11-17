@@ -86,8 +86,18 @@
 
         {% for shape in shapes %}
             var geometry = {{ shape.aggregated_geometry | safe }};
+            var name_0 = '{{ shape.name_0 | escapejs | safe }}';
+            var engtype_1 = '{{ shape.engtype_1 | escapejs | safe }}';
+            var name_1 = '{{ shape.name_1 | escapejs | safe }}';
+            var engtype_2 = '{{ shape.engtype_2 | escapejs | safe }}';
+            var name_2 = '{{ shape.name_2 | escapejs | safe }}';
+            var engtype_3 = '{{ shape.engtype_3 | escapejs | safe }}';
+            var name_3 = '{{ shape.name_3 | escapejs | safe }}';
+            var engtype_4 = '{{ shape.engtype_4 | escapejs | safe }}';
+            var name_4 = '{{ shape.name_4 | escapejs | safe }}';
+            var engtype_5 = '{{ shape.engtype_5 | escapejs | safe }}';
+            var name_5 = '{{ shape.name_5 | escapejs | safe }}';
             var country = '{{ shape.country | escapejs | safe }}';
-            var shape = '{{ shape | escapejs | safe }}';
             // Ensure the geometry is not empty
             if (geometry && geometry.type) {
                 if (geometry.type === "Polygon") {
@@ -97,7 +107,21 @@
                         return [coord[1], coord[0]];
                     });
                     var polygon = L.polygon(coordinates).addTo(map);
-                    attachPopup(polygon, shape);
+                    attachPopup(
+                        polygon,
+                        country,
+                        name_0,
+                        engtype_1,
+                        name_1,
+                        engtype_2,
+                        name_2,
+                        engtype_3,
+                        name_3,
+                        engtype_4,
+                        name_4,
+                        engtype_5,
+                        name_5
+                    );
                     attachDoubleClickEvent(polygon, country);
                 } else if (geometry.type === "MultiPolygon") {
                     // Loop through each polygon and add it to the map
@@ -108,7 +132,21 @@
                             return [coord[1], coord[0]];
                         });
                         var polygon = L.polygon(coordinates).addTo(map);
-                        attachPopup(polygon, shape);
+                        attachPopup(
+                            polygon,
+                            country,
+                            name_0,
+                            engtype_1,
+                            name_1,
+                            engtype_2,
+                            name_2,
+                            engtype_3,
+                            name_3,
+                            engtype_4,
+                            name_4,
+                            engtype_5,
+                            name_5
+                        );
                         attachDoubleClickEvent(polygon, country);
                     }
                 }
@@ -116,36 +154,50 @@
         {% endfor %}
 
         // Function to attach a popup to the polygon
-        function attachPopup(polygon, shape) {
+        function attachPopup(
+                                polygon,
+                                country,
+                                name_0,
+                                engtype_1,
+                                name_1,
+                                engtype_2,
+                                name_2,
+                                engtype_3,
+                                name_3,
+                                engtype_4,
+                                name_4,
+                                engtype_5,
+                                name_5
+                            ) {
             polygon.bindPopup(`
                 <table>
                     <tr>
                         <th>Country</th>
-                        <th>${shape.country}</th>
+                        <th>${country}</th>
                     </tr>
                     <tr>
                         <td></td>
-                        <td>${shape.name_0}</td>
+                        <td>${name_0}</td>
                     </tr>
                     <tr>
-                        <td>${shape.engtype_1}</td>
-                        <td>${shape.name_1}</td>
+                        <td>${engtype_1}</td>
+                        <td>${name_1}</td>
                     </tr>
                     <tr>
-                        <td>${shape.engtype_2}</td>
-                        <td>${shape.name_2}</td>
+                        <td>${engtype_2}</td>
+                        <td>${name_2}</td>
                     </tr>
                     <tr>
-                        <td>${shape.engtype_3}</td>
-                        <td>${shape.name_3}</td>
+                        <td>${engtype_3}</td>
+                        <td>${name_3}</td>
                     </tr>
                     <tr>
-                        <td>${shape.engtype_4}</td>
-                        <td>${shape.name_4}</td>
+                        <td>${engtype_4}</td>
+                        <td>${name_4}</td>
                     </tr>
                     <tr>
-                        <td>${shape.engtype_5}</td>
-                        <td>${shape.name_5}</td>
+                        <td>${engtype_5}</td>
+                        <td>${name_5}</td>
                     </tr>
                 </table>
             `);
