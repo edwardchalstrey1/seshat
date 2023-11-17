@@ -1583,6 +1583,8 @@ def gadm_map_view(request):
     # Get the selected country from the request parameters
     selected_country = request.GET.get('country', None)
 
+    shapes = []
+
     def get_shapes():
 
         # Build the SQL query based on the selected country
@@ -1612,33 +1614,45 @@ def gadm_map_view(request):
             with connection.cursor() as cursor:
                 cursor.execute(query, [simplification_tolerance, selected_country])
                 rows = cursor.fetchall()
+
+            for row in rows:
+                if row[0] != None:
+                    shapes.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'name_0': row[1],
+                        'engtype_1': row[2],
+                        'name_1': row[3],
+                        'engtype_2': row[4],
+                        'name_2': row[5],
+                        'engtype_3': row[6],
+                        'name_3': row[7],
+                        'engtype_4': row[8],
+                        'name_4': row[9],
+                        'engtype_5': row[10],
+                        'name_5': row[11],
+                        'country': row[12]
+                        })
+        
+        # Load from the countries table when no specific country selected
         else:
-            # query += f' GROUP BY "COUNTRY";'
-            query += f' WHERE "COUNTRY"=%s;'
+            query = """
+                SELECT
+                    ST_Simplify(geom, %s) AS simplified_geometry,
+                    "COUNTRY"                
+                FROM
+                    core_gadmcountries;
+            """
 
             with connection.cursor() as cursor:
-                cursor.execute(query, [simplification_tolerance, "United Kingdom"])
+                cursor.execute(query, [simplification_tolerance])
                 rows = cursor.fetchall()
 
-        # Process the result
-        shapes = []
-        for row in rows:
-            if row[0] != None:
-                shapes.append({
-                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                    'name_0': row[1],
-                    'engtype_1': row[2],
-                    'name_1': row[3],
-                    'engtype_2': row[4],
-                    'name_2': row[5],
-                    'engtype_3': row[6],
-                    'name_3': row[7],
-                    'engtype_4': row[8],
-                    'name_4': row[9],
-                    'engtype_5': row[10],
-                    'name_5': row[11],
-                    'country': row[12]
-                    })
+            for row in rows:
+                if row[0] != None:
+                    shapes.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'country': row[1]
+                        })
                 
         return shapes
     
