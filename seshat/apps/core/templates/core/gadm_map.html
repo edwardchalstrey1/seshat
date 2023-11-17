@@ -34,7 +34,7 @@
                     <h3>Select Country</h3>
                 </legend>
                 <select name="countrySelector" id="countrySelector" onchange="selectCountry()">
-                    <option value="">-- Select Country --</option>
+                    <option value="">-- World --</option>
                     <!-- Add options dynamically based on available countries -->
                     {% for country in countries %}
                         <option value="{{ country | escapejs | safe }}">{{ country | escapejs | safe }}</option>
