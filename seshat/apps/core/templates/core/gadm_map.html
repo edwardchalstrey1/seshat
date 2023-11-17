@@ -183,15 +183,15 @@
                                 name_5,
                                 disputedby
                             ) {
+            // Only display name_0 when it differs from country
+            if (country==name_0){
+                name_0="";
+            }
             polygon.bindPopup(`
                 <table>
                     <tr>
-                        <th>Country</th>
                         <th>${country}</th>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>${name_0}</td>
+                        <th>${name_0}</th>
                     </tr>
                     <tr>
                         <td>${engtype_1}</td>
