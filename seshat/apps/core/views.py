@@ -1578,7 +1578,7 @@ def map_view(request, data='macrostate'):
 
 def gadm_map_view(request):
     # Define a simplification tolerance for faster loading of shapes at lower res
-    simplification_tolerance = 0.01
+    simplification_tolerance = 0.001
 
     query = """
         SELECT
@@ -1596,7 +1596,9 @@ def gadm_map_view(request):
             "NAME_5",
             "COUNTRY"
         FROM
-            core_gadmshapefile;
+            core_gadmshapefile
+        WHERE
+            "COUNTRY"='France';
     """
 
     with connection.cursor() as cursor:
