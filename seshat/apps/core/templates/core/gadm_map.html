@@ -20,13 +20,10 @@
             <p></p>
             <fieldset>
                 <legend>
-                    <h3>Displayed dataset</h3>
+                    <h3>Show</h3>
                 </legend>
-            
-                <select name="displayedData" id="displayedData" onchange="selectDisplayedData()">
-                    <option value=gadm>GADM present day</option>
-                    <option value=macro>Macrostate test data</option>
-                </select><br>
+                <label><input type="radio" name="displayedData" value="macro" onclick="selectDisplayedData()" checked>Historical polities</label><br>
+                <label><input type="radio" name="displayedData" value="gadm" onclick="selectDisplayedData()">Current administrative areas</label><br>
             </fieldset>
             <p></p>
             <fieldset>
@@ -65,7 +62,7 @@
         }
 
         function selectDisplayedData() {
-            var selectedData = document.getElementById("displayedData").value;
+            var selectedData = document.querySelector('input[name="displayedData"]:checked').value;
             if (selectedData === 'gadm') {
                 window.location.href = '{% url "gadm_map" %}';
             } else if (selectedData === 'macro') {
