@@ -22,8 +22,8 @@
                 <legend>
                     <h3>Show</h3>
                 </legend>
-                <label><input type="radio" name="displayedData" value="macro" onclick="selectDisplayedData()" checked>Historical polities</label><br>
-                <label><input type="radio" name="displayedData" value="gadm" onclick="selectDisplayedData()">Current administrative areas</label><br>
+                <label><input type="radio" name="displayedData" value="macro" onclick="selectDisplayedData()">Historical polities</label><br>
+                <label><input type="radio" name="displayedData" value="gadm" onclick="selectDisplayedData()" checked>Current administrative areas</label><br>
             </fieldset>
             <p></p>
             <fieldset>
@@ -236,7 +236,7 @@
             });
         }
         
-        // Keep the country selection on the dropdown when the page is loaded
+         // Keep the country selection on the dropdown when the page is loaded
         document.addEventListener("DOMContentLoaded", function () {
             // Get the country parameter from the URL
             var urlParams = new URLSearchParams(window.location.search);
@@ -250,6 +250,22 @@
                     option.selected = true;
                 }
             }
+
+            // Get the displayedData parameter from local storage
+            var displayedData = localStorage.getItem('displayedData');
+            if (displayedData) {
+                // Set the selected radio button based on the stored value
+                var radio = document.querySelector('input[name="displayedData"][value="' + displayedData + '"]');
+                if (radio) {
+                    radio.checked = true;
+                }
+            }
+        });
+
+        // Store the selected displayedData value in local storage
+        document.addEventListener("change", function () {
+            var displayedData = document.querySelector('input[name="displayedData"]:checked').value;
+            localStorage.setItem('displayedData', displayedData);
         });
 
     </script>
