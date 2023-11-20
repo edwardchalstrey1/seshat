@@ -20,12 +20,10 @@
             <p></p>
             <fieldset>
                 <legend>
-                    <h3>Displayed dataset</h3>
+                    <h3>Show</h3>
                 </legend>
-            
-                <select name="displayedData" id="displayedData" onchange="selectDisplayedData()">
-                    <option value=macro>Macrostate test data</option>
-                    <option value=gadm>GADM present day</option>
+                <label><input type="radio" name="displayedData" value="macro" onclick="selectDisplayedData()" checked>Historical polities</label><br>
+                <label><input type="radio" name="displayedData" value="gadm" onclick="selectDisplayedData()">Current administrative areas</label><br>
                 </select><br>
             </fieldset>
             <p></p>
@@ -116,7 +114,7 @@
         }
 
         function selectDisplayedData(){
-            var selectedData = document.getElementById("displayedData").value;
+            var selectedData = document.querySelector('input[name="displayedData"]:checked').value;
             if (selectedData === 'gadm') {
                 window.location.href = '{% url "gadm_map" %}';
             } else if (selectedData === 'macro') {
@@ -128,6 +126,28 @@
 
         // Initial filtering on page load
         filterByYearRange()
+
+        // Make sure Radio selection is kept on page refresh
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get the country parameter from the URL
+            var urlParams = new URLSearchParams(window.location.search);
+
+            // Get the displayedData parameter from local storage
+            var displayedData = localStorage.getItem('displayedData');
+            if (displayedData) {
+                // Set the selected radio button based on the stored value
+                var radio = document.querySelector('input[name="displayedData"][value="' + displayedData + '"]');
+                if (radio) {
+                    radio.checked = true;
+                }
+            }
+        });
+
+        // Store the selected displayedData value in local storage
+        document.addEventListener("change", function () {
+            var displayedData = document.querySelector('input[name="displayedData"]:checked').value;
+            localStorage.setItem('displayedData', displayedData);
+        });
 
     </script>
     {% endblock %}

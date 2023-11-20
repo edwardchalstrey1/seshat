@@ -12,6 +12,8 @@ from django.template.loader import render_to_string
 from .tokens import account_activation_token
 from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+from django.utils.text import slugify
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.conf import settings
@@ -1574,9 +1576,8 @@ def gadm_map_view(request):
     # Get the selected country from the request parameters
     selected_country = request.GET.get('country', None)
 
-    shapes = []
-
     def get_shapes():
+        shapes = []
 
         # Build the SQL query based on the selected country
         query = """
@@ -1624,7 +1625,7 @@ def gadm_map_view(request):
                         'name_5': row[11],
                         'country': row[12],
                         'disputedby': row[13]
-                        })
+                    })
         
         # Load from the countries table when no specific country selected
         else:
@@ -1645,9 +1646,25 @@ def gadm_map_view(request):
                     shapes.append({
                         'aggregated_geometry': GEOSGeometry(row[0]).geojson,
                         'country': row[1]
-                        })
+                    })
                 
         return shapes
+
+    # Sanitize the selected_country for use as a cache key
+    sanitized_country = slugify(selected_country) if selected_country else "World"
+
+    # Try to get shapes from cache
+    cached_shapes = cache.get(sanitized_country)
+    
+    if cached_shapes is None:
+        # Shapes not in cache, retrieve and cache them
+        shapes = get_shapes()
+        cache.set(sanitized_country, shapes)
+        print("No cached for ", sanitized_country)
+    else:
+        # Shapes found in cache
+        shapes = cached_shapes
+        print("Used cached for ", sanitized_country)
     
     def get_countries():
         # Build the SQL query based on the selected country
@@ -1666,7 +1683,7 @@ def gadm_map_view(request):
         countries.sort()
         return countries
 
-    content = {'shapes': get_shapes(), 'countries': get_countries()}
+    content = {'shapes': shapes, 'countries': get_countries()}
     
     return render(request,
                   'core/gadm_map.html',
