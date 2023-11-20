@@ -127,6 +127,7 @@
         // Initial filtering on page load
         filterByYearRange()
 
+        // Make sure Radio selection is kept on page refresh
         document.addEventListener("DOMContentLoaded", function () {
             // Get the country parameter from the URL
             var urlParams = new URLSearchParams(window.location.search);
