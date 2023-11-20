@@ -127,6 +127,27 @@
         // Initial filtering on page load
         filterByYearRange()
 
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get the country parameter from the URL
+            var urlParams = new URLSearchParams(window.location.search);
+
+            // Get the displayedData parameter from local storage
+            var displayedData = localStorage.getItem('displayedData');
+            if (displayedData) {
+                // Set the selected radio button based on the stored value
+                var radio = document.querySelector('input[name="displayedData"][value="' + displayedData + '"]');
+                if (radio) {
+                    radio.checked = true;
+                }
+            }
+        });
+
+        // Store the selected displayedData value in local storage
+        document.addEventListener("change", function () {
+            var displayedData = document.querySelector('input[name="displayedData"]:checked').value;
+            localStorage.setItem('displayedData', displayedData);
+        });
+
     </script>
     {% endblock %}
 </body>
