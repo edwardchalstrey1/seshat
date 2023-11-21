@@ -30,27 +30,35 @@
                 <legend>
                     <h3>Show Polities</h3>
                 </legend>
-                <label><input type="radio" name="dateRange" value="single" checked>Year</label><br>
-                <label><input type="radio" name="dateRange" value="range" >Year range</label><br>
-                <label for="selectedYear">Selected year:</label>
-                <select name="selectedYear" id="selectedYear" onchange="filterByYearRange()">
-                    {% for century, century_string in centuries.items %}
-                        <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
-                    {% endfor %}
-                </select><br>
-                <label for="startYear">From:</label>
-                <select name="startYear" id="startYear" onchange="filterByYearRange()">
-                    {% for century, century_string in centuries.items %}
-                        <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
-                    {% endfor %}
-                </select><br>
-        
-                <label for="endYear">To:</label>
-                <select name="endYear" id="endYear" onchange="filterByYearRange()">
-                    {% for century, century_string in centuries.items %}
-                        <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
-                    {% endfor %}
-                </select><br>
+                <label><input type="radio" name="dateRange" value="single" checked onclick="toggleDateRange()">Year</label><br>
+                <label><input type="radio" name="dateRange" value="range" onclick="toggleDateRange()">Year range</label><br>
+            
+                <!-- Display only when "dateRange" is set to "single" -->
+                <div id="selectedYearContainer">
+                    <label for="selectedYear">Selected year:</label>
+                    <select name="selectedYear" id="selectedYear" onchange="filterByYearRange()">
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
+                        {% endfor %}
+                    </select><br>
+                </div>
+            
+                <!-- Display only when "dateRange" is set to "range" -->
+                <div id="yearRangeContainer" style="display: none;">
+                    <label for="startYear">From:</label>
+                    <select name="startYear" id="startYear" onchange="filterByYearRange()">
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
+                        {% endfor %}
+                    </select><br>
+            
+                    <label for="endYear">To:</label>
+                    <select name="endYear" id="endYear" onchange="filterByYearRange()">
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
+                        {% endfor %}
+                    </select><br>
+                </div>
             </fieldset>
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
@@ -159,6 +167,21 @@
                 window.location.href = '{% url "spatial_map" %}'
             } else {
                 window.location.href = '{% url "spatial_map" %}?data=' + selectedData;
+            }
+        }
+
+        // Function to toggle visibility of date range dropdowns
+        function toggleDateRange() {
+            var selectedValue = document.querySelector('input[name="dateRange"]:checked').value;
+            var selectedYearContainer = document.getElementById('selectedYearContainer');
+            var yearRangeContainer = document.getElementById('yearRangeContainer');
+
+            if (selectedValue === 'single') {
+                selectedYearContainer.style.display = 'block';
+                yearRangeContainer.style.display = 'none';
+            } else if (selectedValue === 'range') {
+                selectedYearContainer.style.display = 'none';
+                yearRangeContainer.style.display = 'block';
             }
         }
 
