@@ -32,6 +32,12 @@
                 </legend>
                 <label><input type="radio" name="dateRange" value="single" checked>Year</label><br>
                 <label><input type="radio" name="dateRange" value="range" >Year range</label><br>
+                <label for="selectedYear">Selected year:</label>
+                <select name="selectedYear" id="selectedYear" onchange="filterByYearRange()">
+                    {% for century, century_string in centuries.items %}
+                        <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
+                    {% endfor %}
+                </select><br>
                 <label for="startYear">From:</label>
                 <select name="startYear" id="startYear" onchange="filterByYearRange()">
                     {% for century, century_string in centuries.items %}
@@ -81,40 +87,71 @@
         }
 
         function filterByYearRange() {
-            var startYear = document.getElementById('startYear').value;
-            var endYear = document.getElementById('endYear').value;
+            // Check if "Year" radio is selected
+            var isSingleYear = document.querySelector('input[name="dateRange"][value="single"]').checked;
 
-            // Remove all existing layers from the map
-            map.eachLayer(function (layer) {
-                if (layer instanceof L.GeoJSON) {
-                    map.removeLayer(layer);
-                }
-            });
+            if (isSingleYear) {
+                var selectedYear = document.getElementById('selectedYear').value;
 
-            // Convert to ints, because for some reason JS converts them to strings
-            var selectedStartYear = parseInt(startYear);
-            var selectedEndYear = parseInt(endYear);
+                // Remove all existing layers from the map
+                map.eachLayer(function (layer) {
+                    if (layer instanceof L.GeoJSON) {
+                        map.removeLayer(layer);
+                    }
+                });
 
-            // Add layers that are within the selected year range to the map
-            shapesData.forEach(function (shape) {
-                // If the shape start date or end date falls in the selected range
-                if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
-                    (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
-                ) {
-                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
-                        onEachFeature: function (feature, layer) {
-                            var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
-                                '<b>Start Year:</b> ' + shape.startYear + '<br>' +
-                                '<b>End Year:</b> ' + shape.endYear;
-                            layer.bindPopup(popupContent);
-                        }
-                    }).addTo(map);
-                }
-            });
+                // Convert to int, because for some reason JS converts it to a string
+                var selectedYearInt = parseInt(selectedYear);
 
+                // Add layers that are within the selected year to the map
+                shapesData.forEach(function (shape) {
+                    // If the shape spans the selected year
+                    if (parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt) {
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                            onEachFeature: function (feature, layer) {
+                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
+                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
+                                    '<b>End Year:</b> ' + shape.endYear;
+                                layer.bindPopup(popupContent);
+                            }
+                        }).addTo(map);
+                    }
+                });
+            } else {
+                var startYear = document.getElementById('startYear').value;
+                var endYear = document.getElementById('endYear').value;
+
+                // Remove all existing layers from the map
+                map.eachLayer(function (layer) {
+                    if (layer instanceof L.GeoJSON) {
+                        map.removeLayer(layer);
+                    }
+                });
+
+                // Convert to ints, because for some reason JS converts them to strings
+                var selectedStartYear = parseInt(startYear);
+                var selectedEndYear = parseInt(endYear);
+
+                // Add layers that are within the selected year range to the map
+                shapesData.forEach(function (shape) {
+                    // If the shape start date or end date falls in the selected range
+                    if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
+                        (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
+                    ) {
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                            onEachFeature: function (feature, layer) {
+                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
+                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
+                                    '<b>End Year:</b> ' + shape.endYear;
+                                layer.bindPopup(popupContent);
+                            }
+                        }).addTo(map);
+                    }
+                });
+            }
         }
 
-        function selectDisplayedData(){
+        function selectDisplayedData() {
             var selectedData = document.querySelector('input[name="displayedData"]:checked').value;
             if (selectedData === 'gadm') {
                 window.location.href = '{% url "gadm_map" %}';
@@ -142,12 +179,25 @@
                     radio.checked = true;
                 }
             }
+
+            // Get the dateRange parameter from local storage
+            var dateRange = localStorage.getItem('dateRange');
+            if (dateRange) {
+                // Set the selected radio button based on the stored value
+                var radio = document.querySelector('input[name="dateRange"][value="' + dateRange + '"]');
+                if (radio) {
+                    radio.checked = true;
+                }
+            }
         });
 
-        // Store the selected displayedData value in local storage
+        // Store the selected displayedData and dateRange values in local storage
         document.addEventListener("change", function () {
             var displayedData = document.querySelector('input[name="displayedData"]:checked').value;
             localStorage.setItem('displayedData', displayedData);
+
+            var dateRange = document.querySelector('input[name="dateRange"]:checked').value;
+            localStorage.setItem('dateRange', dateRange);
         });
 
     </script>
