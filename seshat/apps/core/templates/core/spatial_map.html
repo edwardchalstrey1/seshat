@@ -157,6 +157,10 @@
                     }
                 });
             }
+
+            // Store the selected dateRange value in local storage
+            var dateRange = document.querySelector('input[name="dateRange"]:checked').value;
+            localStorage.setItem('dateRange', dateRange);
         }
 
         function selectDisplayedData() {
@@ -183,6 +187,9 @@
                 selectedYearContainer.style.display = 'none';
                 yearRangeContainer.style.display = 'block';
             }
+
+            // Trigger filtering when the date range changes
+            filterByYearRange();
         }
 
         // Initial filtering on page load
@@ -211,6 +218,9 @@
                 if (radio) {
                     radio.checked = true;
                 }
+
+                // Trigger filtering when the page refreshes
+                filterByYearRange();
             }
         });
 
