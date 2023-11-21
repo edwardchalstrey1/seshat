@@ -219,9 +219,19 @@
                     radio.checked = true;
                 }
 
-                // Trigger filtering when the page refreshes
-                filterByYearRange();
             }
+
+            // Set default values for selectedYear, startYear, and endYear to 0CE
+            var selectedYearSelect = document.getElementById('selectedYear');
+            var startYearSelect = document.getElementById('startYear');
+            var endYearSelect = document.getElementById('endYear');         
+            selectedYearSelect.value = 0;
+            startYearSelect.value = 0;
+            endYearSelect.value = 0;
+
+            // Trigger filtering when the page refreshes
+            filterByYearRange();
+
         });
 
         // Store the selected displayedData and dateRange values in local storage
