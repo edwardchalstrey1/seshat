@@ -30,6 +30,8 @@
                 <legend>
                     <h3>Show Polities</h3>
                 </legend>
+                <label><input type="radio" name="dateRange" value="single" checked>Year</label><br>
+                <label><input type="radio" name="dateRange" value="range" >Year range</label><br>
                 <label for="startYear">From:</label>
                 <select name="startYear" id="startYear" onchange="filterByYearRange()">
                     {% for century, century_string in centuries.items %}
