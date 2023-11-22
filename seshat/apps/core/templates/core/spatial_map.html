@@ -42,7 +42,7 @@
                         {% endfor %}
                     </select><br>
                     <div class="slidecontainer">
-                        <input type="range" name="dateSlide" id="dateSlide" min="-1700" max="1900" value="0" class="slider" onchange="filterByYearRange()">
+                        <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()">
                         <span id="sliderDate"></span>
                     </div>
                 </div>

@@ -1560,7 +1560,8 @@ def map_view(request):
             century_strings.append(str(century) + "CE")
     centuries_zipped = zip(centuries, century_strings)
     content = {'shapes': shapes,
-                'unique_years': unique_years,
+                'earliest_century': earliest_century,
+                'latest_century': latest_century,
                 'centuries': dict(centuries_zipped)
                 }
     
