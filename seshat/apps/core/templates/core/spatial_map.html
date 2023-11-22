@@ -37,6 +37,8 @@
                 <div id="selectedYearContainer">
                     <div class="slidecontainer">
                         <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()">
+                        <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
+                        <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
                         <span id="sliderDate"></span>
                     </div>
                 </div>
@@ -194,15 +196,31 @@
         // Display slider value
         var slider = document.getElementById("dateSlide");
         var output = document.getElementById("sliderDate");
-        output.innerHTML = slider.value + ' CE'; // Display the default slider value
+        updateSliderOutput(); // Display the default slider value
 
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function () {
-            if (this.value < 0){
-                output.innerHTML = this.value + ' BCE';
+            updateSliderOutput();
+        }
+
+        function updateSliderOutput() {
+            if (slider.value < 0) {
+                output.innerHTML = slider.value + ' BCE';
             } else {
-                output.innerHTML = this.value + ' CE';
+                output.innerHTML = slider.value + ' CE';
             }
+        }
+
+        function adjustSliderUp() {
+            slider.value = Number(slider.value) + 1;
+            updateSliderOutput(); // Update the displayed year
+            filterByYearRange();
+        }
+
+        function adjustSliderDown() {
+            slider.value = Number(slider.value) - 1;
+            updateSliderOutput(); // Update the displayed year
+            filterByYearRange();
         }
 
         // Make sure Radio selection is kept on page refresh
