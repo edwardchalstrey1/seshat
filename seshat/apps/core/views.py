@@ -63,6 +63,7 @@ from django.shortcuts import HttpResponse
 
 from math import floor, ceil
 from django.contrib.gis.geos import GEOSGeometry
+from distinctipy import get_colors, get_hex
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
@@ -1527,8 +1528,11 @@ def map_view(request):
     shapes = MacrostateShapefile.objects.all()
 
     all_years = set()
+    all_polities = set()
 
     for shape in shapes:
+        if shape.polity is not None:
+            all_polities.add(shape.polity)
         if shape.date_from is not None and shape.date_to is not None:
             start_year = int(shape.date_from[:-3] if 'BCE' in shape.date_from else shape.date_from[:-2])
             end_year = int(shape.date_to[:-3] if 'BCE' in shape.date_to else shape.date_to[:-2])
@@ -1547,6 +1551,19 @@ def map_view(request):
 
     # Filter out the unique years and sort them
     unique_years = sorted(all_years)
+
+    # Unique sorted polities each have a colour
+    # Add the colour to each shape. Where a shape lacks a polity, set it to black.
+    unique_polities = sorted(all_polities)
+    colours = []
+    for col in get_colors(len(unique_polities)):
+        colours.append(get_hex(col))
+    pol_col_mapping = dict(zip(unique_polities, colours))
+    for shape in shapes:
+        try:
+            shape.colour = pol_col_mapping[shape.polity]
+        except:
+            shape.colour = '#000000'
 
     # Get a list of centuries
     earliest_century = floor(unique_years[0] / 100) * 100
