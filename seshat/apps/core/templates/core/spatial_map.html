@@ -24,32 +24,45 @@
                 </legend>
                 <label><input type="radio" name="displayedData" value="macro" onclick="selectDisplayedData()" checked>Historical polities</label><br>
                 <label><input type="radio" name="displayedData" value="gadm" onclick="selectDisplayedData()">Current administrative areas</label><br>
-                </select><br>
             </fieldset>
             <p></p>
             <fieldset>
                 <legend>
                     <h3>Show Polities</h3>
                 </legend>
-                <label for="startYear">From:</label>
-                <select name="startYear" id="startYear" onchange="filterByYearRange()">
-                    {% for century, century_string in centuries.items %}
-                        <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
-                    {% endfor %}
-                </select><br>
-        
-                <label for="endYear">To:</label>
-                <select name="endYear" id="endYear" onchange="filterByYearRange()">
-                    {% for century, century_string in centuries.items %}
-                        <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
-                    {% endfor %}
-                </select><br>
+                <label><input type="radio" name="dateRange" value="single" checked onclick="toggleDateRange()">Specific year</label><br>
+                <label><input type="radio" name="dateRange" value="range" onclick="toggleDateRange()">Date range</label><br>
+            
+                <!-- Display only when "dateRange" is set to "single" -->
+                <div id="selectedYearContainer">
+                    <div class="slidecontainer">
+                        <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()">
+                        <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
+                        <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
+                        <span id="sliderDate"></span>
+                    </div>
+                </div>
+            
+                <!-- Display only when "dateRange" is set to "range" -->
+                <div id="yearRangeContainer" style="display: none;">
+                    <label for="startYear">From:</label>
+                    <select name="startYear" id="startYear" onchange="filterByYearRange()">
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
+                        {% endfor %}
+                    </select><br>
+            
+                    <label for="endYear">To:</label>
+                    <select name="endYear" id="endYear" onchange="filterByYearRange()">
+                        {% for century, century_string in centuries.items %}
+                            <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
+                        {% endfor %}
+                    </select><br>
+                </div>
             </fieldset>
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
     </div>
-    <div id="map" style="height: 75vh;"></div>
-    {% leaflet_map "map" %}
     <script>
 
         var shapesData = [
@@ -80,40 +93,76 @@
         }
 
         function filterByYearRange() {
-            var startYear = document.getElementById('startYear').value;
-            var endYear = document.getElementById('endYear').value;
+            // Check if "Year" radio is selected
+            var isSingleYear = document.querySelector('input[name="dateRange"][value="single"]').checked;
 
-            // Remove all existing layers from the map
-            map.eachLayer(function (layer) {
-                if (layer instanceof L.GeoJSON) {
-                    map.removeLayer(layer);
-                }
-            });
+            if (isSingleYear) {
+                var selectedYear = document.getElementById('dateSlide').value;
 
-            // Convert to ints, because for some reason JS converts them to strings
-            var selectedStartYear = parseInt(startYear);
-            var selectedEndYear = parseInt(endYear);
+                // Remove all existing layers from the map
+                map.eachLayer(function (layer) {
+                    if (layer instanceof L.GeoJSON) {
+                        map.removeLayer(layer);
+                    }
+                });
 
-            // Add layers that are within the selected year range to the map
-            shapesData.forEach(function (shape) {
-                // If the shape start date or end date falls in the selected range
-                if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
-                    (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
-                ) {
-                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
-                        onEachFeature: function (feature, layer) {
-                            var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
-                                '<b>Start Year:</b> ' + shape.startYear + '<br>' +
-                                '<b>End Year:</b> ' + shape.endYear;
-                            layer.bindPopup(popupContent);
-                        }
-                    }).addTo(map);
-                }
-            });
+                // Convert to int, because for some reason JS converts it to a string
+                var selectedYearInt = parseInt(selectedYear);
 
+                // Add layers that are within the selected year to the map
+                shapesData.forEach(function (shape) {
+                    // If the shape spans the selected year
+                    // Note: If the selected year is the shape.endYear it won't show. This decision prevents overlap in the macrostate dataset.
+                    if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) > selectedYearInt)) {
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                            onEachFeature: function (feature, layer) {
+                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
+                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
+                                    '<b>End Year:</b> ' + shape.endYear;
+                                layer.bindPopup(popupContent);
+                            }
+                        }).addTo(map);
+                    }
+                });
+            } else {
+                var startYear = document.getElementById('startYear').value;
+                var endYear = document.getElementById('endYear').value;
+
+                // Remove all existing layers from the map
+                map.eachLayer(function (layer) {
+                    if (layer instanceof L.GeoJSON) {
+                        map.removeLayer(layer);
+                    }
+                });
+
+                // Convert to ints, because for some reason JS converts them to strings
+                var selectedStartYear = parseInt(startYear);
+                var selectedEndYear = parseInt(endYear);
+
+                // Add layers that are within the selected year range to the map
+                shapesData.forEach(function (shape) {
+                    // If the shape start date or end date falls in the selected range
+                    if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
+                        (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
+                    ) {
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                            onEachFeature: function (feature, layer) {
+                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
+                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
+                                    '<b>End Year:</b> ' + shape.endYear;
+                                layer.bindPopup(popupContent);
+                            }
+                        }).addTo(map);
+                    }
+                });
+            }
+
+            // Store the selected dateRange value in local storage
+            var dateRange = document.querySelector('input[name="dateRange"]:checked').value;
+            localStorage.setItem('dateRange', dateRange);
         }
 
-        function selectDisplayedData(){
+        function selectDisplayedData() {
             var selectedData = document.querySelector('input[name="displayedData"]:checked').value;
             if (selectedData === 'gadm') {
                 window.location.href = '{% url "gadm_map" %}';
@@ -124,8 +173,56 @@
             }
         }
 
+        // Function to toggle visibility of date range dropdowns
+        function toggleDateRange() {
+            var selectedValue = document.querySelector('input[name="dateRange"]:checked').value;
+            var selectedYearContainer = document.getElementById('selectedYearContainer');
+            var yearRangeContainer = document.getElementById('yearRangeContainer');
+
+            if (selectedValue === 'single') {
+                selectedYearContainer.style.display = 'block';
+                yearRangeContainer.style.display = 'none';
+            } else if (selectedValue === 'range') {
+                selectedYearContainer.style.display = 'none';
+                yearRangeContainer.style.display = 'block';
+            }
+
+            // Trigger filtering when the date range changes
+            filterByYearRange();
+        }
+
         // Initial filtering on page load
         filterByYearRange()
+
+        // Display slider value
+        var slider = document.getElementById("dateSlide");
+        var output = document.getElementById("sliderDate");
+        updateSliderOutput(); // Display the default slider value
+
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function () {
+            updateSliderOutput();
+        }
+
+        function updateSliderOutput() {
+            if (slider.value < 0) {
+                output.innerHTML = slider.value + ' BCE';
+            } else {
+                output.innerHTML = slider.value + ' CE';
+            }
+        }
+
+        function adjustSliderUp() {
+            slider.value = Number(slider.value) + 1;
+            updateSliderOutput(); // Update the displayed year
+            filterByYearRange();
+        }
+
+        function adjustSliderDown() {
+            slider.value = Number(slider.value) - 1;
+            updateSliderOutput(); // Update the displayed year
+            filterByYearRange();
+        }
 
         // Make sure Radio selection is kept on page refresh
         document.addEventListener("DOMContentLoaded", function () {
@@ -141,12 +238,36 @@
                     radio.checked = true;
                 }
             }
+
+            // Get the dateRange parameter from local storage
+            var dateRange = localStorage.getItem('dateRange');
+            if (dateRange) {
+                // Set the selected radio button based on the stored value
+                var radio = document.querySelector('input[name="dateRange"][value="' + dateRange + '"]');
+                if (radio) {
+                    radio.checked = true;
+                }
+
+            }
+
+            // Set default values for selectedYear, startYear, and endYear to 0CE
+            var startYearSelect = document.getElementById('startYear');
+            var endYearSelect = document.getElementById('endYear');
+            startYearSelect.value = 0;
+            endYearSelect.value = 0;
+
+            // Trigger filtering when the page refreshes
+            filterByYearRange();
+
         });
 
-        // Store the selected displayedData value in local storage
+        // Store the selected displayedData and dateRange values in local storage
         document.addEventListener("change", function () {
             var displayedData = document.querySelector('input[name="displayedData"]:checked').value;
             localStorage.setItem('displayedData', displayedData);
+
+            var dateRange = document.querySelector('input[name="dateRange"]:checked').value;
+            localStorage.setItem('dateRange', dateRange);
         });
 
     </script>
