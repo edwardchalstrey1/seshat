@@ -35,12 +35,6 @@
             
                 <!-- Display only when "dateRange" is set to "single" -->
                 <div id="selectedYearContainer">
-                    <label for="selectedYear">Selected year:</label>
-                    <select name="selectedYear" id="selectedYear" onchange="filterByYearRange()">
-                        {% for century, century_string in centuries.items %}
-                            <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
-                        {% endfor %}
-                    </select><br>
                     <div class="slidecontainer">
                         <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()">
                         <span id="sliderDate"></span>
@@ -101,7 +95,6 @@
             var isSingleYear = document.querySelector('input[name="dateRange"][value="single"]').checked;
 
             if (isSingleYear) {
-                // var selectedYear = document.getElementById('selectedYear').value;
                 var selectedYear = document.getElementById('dateSlide').value;
 
                 // Remove all existing layers from the map
@@ -113,7 +106,6 @@
 
                 // Convert to int, because for some reason JS converts it to a string
                 var selectedYearInt = parseInt(selectedYear);
-                // var centuryEndYear = selectedYearInt+99
 
                 // Add layers that are within the selected year to the map
                 shapesData.forEach(function (shape) {
@@ -240,7 +232,7 @@
             }
 
             // Set default values for selectedYear, startYear, and endYear to 0CE
-            var selectedYearSelect = document.getElementById('selectedYear');
+            var selectedYearSelect = document.getElementById('dateSlide');
             var startYearSelect = document.getElementById('startYear');
             var endYearSelect = document.getElementById('endYear');         
             selectedYearSelect.value = 0;
