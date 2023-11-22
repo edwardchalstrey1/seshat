@@ -43,6 +43,7 @@
                     </select><br>
                     <div class="slidecontainer">
                         <input type="range" name="dateSlide" id="dateSlide" min="-1700" max="1900" value="0" class="slider" onchange="filterByYearRange()">
+                        <span id="sliderDate"></span>
                     </div>
                 </div>
             
@@ -197,6 +198,16 @@
 
         // Initial filtering on page load
         filterByYearRange()
+
+        // Display slider value
+        var slider = document.getElementById("dateSlide");
+        var output = document.getElementById("sliderDate");
+        output.innerHTML = slider.value; // Display the default slider value
+
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function () {
+            output.innerHTML = this.value;
+        }
 
         // Make sure Radio selection is kept on page refresh
         document.addEventListener("DOMContentLoaded", function () {
