@@ -202,11 +202,15 @@
         // Display slider value
         var slider = document.getElementById("dateSlide");
         var output = document.getElementById("sliderDate");
-        output.innerHTML = slider.value; // Display the default slider value
+        output.innerHTML = slider.value + ' CE'; // Display the default slider value
 
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function () {
-            output.innerHTML = this.value;
+            if (this.value < 0){
+                output.innerHTML = this.value + ' BCE';
+            } else {
+                output.innerHTML = this.value + ' CE';
+            }
         }
 
         // Make sure Radio selection is kept on page refresh
