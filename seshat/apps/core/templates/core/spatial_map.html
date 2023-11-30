@@ -44,6 +44,9 @@
                         <input type="text" id="enterYear" name="enterYear" value="0"><br><br>
                         <label for="playButton">Run animation:</label>
                         <button id="playButton" type="button" onclick="startPlay()">▶️</button>
+                        <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br><br>
+                        <label for="playRate">Play rate (ms):</label>
+                        <input type="number" id="playRate" name="playRate" value="100"><br><br>
                     </div>
                 </div>
             
@@ -279,6 +282,7 @@
         }
 
         var playInterval;
+        var playRateInput = document.getElementById("playRate");
 
         function startPlay() {
             playInterval = setInterval(function () {
@@ -294,7 +298,7 @@
                 if (slider.value >= parseInt(slider.max)) {
                     stopPlay();
                 }
-            }, 100); // Interval in milliseconds (adjust as needed)
+            }, parseInt(playRateInput.value)); // Interval based on user input
         }
 
         function stopPlay() {
@@ -303,6 +307,12 @@
 
         // Add event listener to stop playing when adjusting the slider manually
         slider.addEventListener("input", stopPlay);
+
+        // Add event listener to update play rate when the input changes
+        playRateInput.addEventListener("change", function () {
+            stopPlay(); // Stop current play if ongoing
+            startPlay(); // Start with the updated play rate
+        });
 
         // Make sure Radio selection is kept on page refresh
         document.addEventListener("DOMContentLoaded", function () {
