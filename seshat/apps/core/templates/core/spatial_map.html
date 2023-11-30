@@ -65,6 +65,8 @@
     </div>
     <script>
 
+        var displayedShapes = [];
+
         var shapesData = [
             // JavaScript object representing shape data
             {% for shape in shapes %}
@@ -131,6 +133,10 @@
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
+                        // Update the displayedShapes array
+                        if (displayedShapes.indexOf(shape.name) === -1) {
+                            displayedShapes.push(shape.name);
+                        }
                     }
                 });
             } else {
@@ -170,6 +176,10 @@
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
+                        // Update the displayedShapes array
+                        if (displayedShapes.indexOf(shape.name) === -1) {
+                            displayedShapes.push(shape.name);
+                        }
                     }
                 });
             }
@@ -233,21 +243,28 @@
             slider.value = Number(slider.value) + 1;
             updateSliderOutput(); // Update the displayed year
             filterByYearRange();
-            updateColorInfoInLocalStorage(); // Update the color information in local storage
+            // Update the color information in local storage for newly displayed shapes
+            updateColorInfoInLocalStorage(displayedShapes);
         }
 
         function adjustSliderDown() {
             slider.value = Number(slider.value) - 1;
             updateSliderOutput(); // Update the displayed year
             filterByYearRange();
-            updateColorInfoInLocalStorage(); // Update the color information in local storage
+            // Update the color information in local storage for newly displayed shapes
+            updateColorInfoInLocalStorage(displayedShapes);
         }
 
-        function updateColorInfoInLocalStorage() {
+        function updateColorInfoInLocalStorage(updatedShapes) {
             var colorInfo = {};
+
+            // Only update color information for the specified shapes
             shapesData.forEach(function (shape) {
-                colorInfo[shape.name] = shape.colour;
+                if (updatedShapes.indexOf(shape.name) !== -1) {
+                    colorInfo[shape.name] = shape.colour;
+                }
             });
+
             localStorage.setItem('colorInfo', JSON.stringify(colorInfo));
         }
 
