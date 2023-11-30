@@ -233,12 +233,22 @@
             slider.value = Number(slider.value) + 1;
             updateSliderOutput(); // Update the displayed year
             filterByYearRange();
+            updateColorInfoInLocalStorage(); // Update the color information in local storage
         }
 
         function adjustSliderDown() {
             slider.value = Number(slider.value) - 1;
             updateSliderOutput(); // Update the displayed year
             filterByYearRange();
+            updateColorInfoInLocalStorage(); // Update the color information in local storage
+        }
+
+        function updateColorInfoInLocalStorage() {
+            var colorInfo = {};
+            shapesData.forEach(function (shape) {
+                colorInfo[shape.name] = shape.colour;
+            });
+            localStorage.setItem('colorInfo', JSON.stringify(colorInfo));
         }
 
         // Make sure Radio selection is kept on page refresh
@@ -272,6 +282,18 @@
             var endYearSelect = document.getElementById('endYear');
             startYearSelect.value = 0;
             endYearSelect.value = 0;
+
+            // Retrieve color information from local storage
+            var colorInfo = localStorage.getItem('colorInfo');
+            if (colorInfo) {
+                colorInfo = JSON.parse(colorInfo);
+                shapesData.forEach(function (shape) {
+                    var storedColor = colorInfo[shape.name];
+                    if (storedColor) {
+                        shape.colour = storedColor;
+                    }
+                });
+            }
 
             // Trigger filtering when the page refreshes
             filterByYearRange();
