@@ -239,7 +239,7 @@
 
         function updateSliderOutput() {
             if (slider.value < 0) {
-                output.innerHTML = slider.value + ' BCE';
+                output.innerHTML = Math.abs(slider.value) + ' BCE';
             } else {
                 output.innerHTML = slider.value + ' CE';
             }
