@@ -39,6 +39,7 @@
                         <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()">
                         <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
                         <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
+                        <button id="playButton" type="button" onclick="startPlay()">Play</button>
                         <span id="sliderDate"></span><br><br>
                         <label for="enterYear">Enter year:</label>
                         <input type="text" id="enterYear" name="enterYear" value="0">
@@ -275,6 +276,32 @@
 
             localStorage.setItem('colorInfo', JSON.stringify(colorInfo));
         }
+
+        var playInterval;
+
+        function startPlay() {
+            playInterval = setInterval(function () {
+                // Increment the slider value by 1
+                slider.value = Number(slider.value) + 1;
+                enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
+                updateSliderOutput(); // Update the displayed year
+                filterByYearRange();
+                // Update the color information in local storage for newly displayed shapes
+                updateColorInfoInLocalStorage(displayedShapes);
+
+                // Stop playing when the slider reaches its maximum value
+                if (slider.value >= parseInt(slider.max)) {
+                    stopPlay();
+                }
+            }, 100); // Interval in milliseconds (adjust as needed)
+        }
+
+        function stopPlay() {
+            clearInterval(playInterval);
+        }
+
+        // Add event listener to stop playing when adjusting the slider manually
+        slider.addEventListener("input", stopPlay);
 
         // Make sure Radio selection is kept on page refresh
         document.addEventListener("DOMContentLoaded", function () {
