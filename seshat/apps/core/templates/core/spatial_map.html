@@ -39,10 +39,11 @@
                         <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()">
                         <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
                         <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
-                        <button id="playButton" type="button" onclick="startPlay()">Play</button>
                         <span id="sliderDate"></span><br><br>
                         <label for="enterYear">Enter year:</label>
-                        <input type="text" id="enterYear" name="enterYear" value="0">
+                        <input type="text" id="enterYear" name="enterYear" value="0"><br><br>
+                        <label for="playButton">Run animation:</label>
+                        <button id="playButton" type="button" onclick="startPlay()">▶️</button>
                     </div>
                 </div>
             
