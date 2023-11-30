@@ -31,7 +31,7 @@
                     <h3>Show Polities</h3>
                 </legend>
                 <label><input type="radio" name="dateRange" value="single" checked onclick="toggleDateRange()">Specific year</label><br>
-                <label><input type="radio" name="dateRange" value="range" onclick="toggleDateRange()">Date range</label><br>
+                <label><input type="radio" name="dateRange" value="range" onclick="toggleDateRange()">Date range</label><br><br>
             
                 <!-- Display only when "dateRange" is set to "single" -->
                 <div id="selectedYearContainer">
@@ -39,7 +39,9 @@
                         <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()">
                         <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
                         <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
-                        <span id="sliderDate"></span>
+                        <span id="sliderDate"></span><br><br>
+                        <label for="enterYear">Enter year:</label>
+                        <input type="text" id="enterYear" name="enterYear">
                     </div>
                 </div>
             
