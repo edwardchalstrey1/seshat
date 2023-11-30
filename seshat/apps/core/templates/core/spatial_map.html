@@ -14,8 +14,8 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>No labels (CartoDB)</label><br>
-                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()">No labels (CartoDB)</label><br>
+                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()"checked>OpenStreetMap</label><br>
             </fieldset>
             <p></p>
             <fieldset>
@@ -87,7 +87,8 @@
             "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         };
 
-        var currentLayer = baseLayers.carto.addTo(map);
+        // Select OSM as the default base layer
+        var currentLayer = baseLayers.osm.addTo(map);
 
         function switchBaseMap() {
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
