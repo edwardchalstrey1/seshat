@@ -41,7 +41,7 @@
                         <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
                         <span id="sliderDate"></span><br><br>
                         <label for="enterYear">Enter year:</label>
-                        <input type="text" id="enterYear" name="enterYear">
+                        <input type="text" id="enterYear" name="enterYear" value="0">
                     </div>
                 </div>
             
@@ -226,12 +226,15 @@
 
         // Display slider value
         var slider = document.getElementById("dateSlide");
+        var enterYearInput = document.getElementById("enterYear");
         var output = document.getElementById("sliderDate");
         updateSliderOutput(); // Display the default slider value
 
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function () {
             updateSliderOutput();
+            // Sync enterYear input with dateSlide value
+            enterYearInput.value = slider.value;
         }
 
         function updateSliderOutput() {
@@ -244,6 +247,7 @@
 
         function adjustSliderUp() {
             slider.value = Number(slider.value) + 1;
+            enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
             updateSliderOutput(); // Update the displayed year
             filterByYearRange();
             // Update the color information in local storage for newly displayed shapes
@@ -252,6 +256,7 @@
 
         function adjustSliderDown() {
             slider.value = Number(slider.value) - 1;
+            enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
             updateSliderOutput(); // Update the displayed year
             filterByYearRange();
             // Update the color information in local storage for newly displayed shapes
@@ -327,6 +332,18 @@
 
             var dateRange = document.querySelector('input[name="dateRange"]:checked').value;
             localStorage.setItem('dateRange', dateRange);
+        });
+
+        // Update the enterYear input value when the user hits return
+        enterYearInput.addEventListener("keyup", function (event) {
+            if (event.key === "Enter") {
+                // Update the slider value
+                slider.value = enterYearInput.value;
+                updateSliderOutput();
+                filterByYearRange();
+                // Update the color information in local storage for newly displayed shapes
+                updateColorInfoInLocalStorage(displayedShapes);
+            }
         });
 
     </script>
