@@ -14,8 +14,8 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>No labels (CartoDB)</label><br>
-                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()">No labels (CartoDB)</label><br>
+                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()"checked>OpenStreetMap</label><br>
             </fieldset>
             <p></p>
             <fieldset>
@@ -65,6 +65,8 @@
     </div>
     <script>
 
+        var displayedShapes = [];
+
         var shapesData = [
             // JavaScript object representing shape data
             {% for shape in shapes %}
@@ -72,7 +74,8 @@
                     startYear: '{{ shape.start_year }}',
                     endYear: '{{ shape.end_year }}',
                     geometry: '{{ shape.geom.geojson | safe }}',
-                    name: '{{ shape.name }}'
+                    name: '{{ shape.name }}',
+                    colour: '{{ shape.colour }}'
                 },
             {% endfor %}
         ];
@@ -84,7 +87,8 @@
             "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         };
 
-        var currentLayer = baseLayers.carto.addTo(map);
+        // Select OSM as the default base layer
+        var currentLayer = baseLayers.osm.addTo(map);
 
         function switchBaseMap() {
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
@@ -115,6 +119,14 @@
                     // Note: If the selected year is the shape.endYear it won't show. This decision prevents overlap in the macrostate dataset.
                     if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) > selectedYearInt)) {
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                            style: function (feature) {
+                                return {
+                                    fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                    color: shape.colour,  // Set the border color
+                                    weight: 0,  // Set the border weight
+                                    fillOpacity: 0.5  // Set the fill opacity
+                                };
+                            },
                             onEachFeature: function (feature, layer) {
                                 var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
                                     '<b>Start Year:</b> ' + shape.startYear + '<br>' +
@@ -122,6 +134,10 @@
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
+                        // Update the displayedShapes array
+                        if (displayedShapes.indexOf(shape.name) === -1) {
+                            displayedShapes.push(shape.name);
+                        }
                     }
                 });
             } else {
@@ -146,6 +162,14 @@
                         (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
                     ) {
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                            style: function (feature) {
+                                return {
+                                    fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                    color: shape.colour,  // Set the border color
+                                    weight: 0,  // Set the border weight
+                                    fillOpacity: 0.5  // Set the fill opacity
+                                };
+                            },
                             onEachFeature: function (feature, layer) {
                                 var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
                                     '<b>Start Year:</b> ' + shape.startYear + '<br>' +
@@ -153,6 +177,10 @@
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
+                        // Update the displayedShapes array
+                        if (displayedShapes.indexOf(shape.name) === -1) {
+                            displayedShapes.push(shape.name);
+                        }
                     }
                 });
             }
@@ -216,12 +244,29 @@
             slider.value = Number(slider.value) + 1;
             updateSliderOutput(); // Update the displayed year
             filterByYearRange();
+            // Update the color information in local storage for newly displayed shapes
+            updateColorInfoInLocalStorage(displayedShapes);
         }
 
         function adjustSliderDown() {
             slider.value = Number(slider.value) - 1;
             updateSliderOutput(); // Update the displayed year
             filterByYearRange();
+            // Update the color information in local storage for newly displayed shapes
+            updateColorInfoInLocalStorage(displayedShapes);
+        }
+
+        function updateColorInfoInLocalStorage(updatedShapes) {
+            var colorInfo = {};
+
+            // Only update color information for the specified shapes
+            shapesData.forEach(function (shape) {
+                if (updatedShapes.indexOf(shape.name) !== -1) {
+                    colorInfo[shape.name] = shape.colour;
+                }
+            });
+
+            localStorage.setItem('colorInfo', JSON.stringify(colorInfo));
         }
 
         // Make sure Radio selection is kept on page refresh
@@ -255,6 +300,18 @@
             var endYearSelect = document.getElementById('endYear');
             startYearSelect.value = 0;
             endYearSelect.value = 0;
+
+            // Retrieve color information from local storage
+            var colorInfo = localStorage.getItem('colorInfo');
+            if (colorInfo) {
+                colorInfo = JSON.parse(colorInfo);
+                shapesData.forEach(function (shape) {
+                    var storedColor = colorInfo[shape.name];
+                    if (storedColor) {
+                        shape.colour = storedColor;
+                    }
+                });
+            }
 
             // Trigger filtering when the page refreshes
             filterByYearRange();
