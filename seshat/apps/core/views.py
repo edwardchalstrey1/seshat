@@ -1554,6 +1554,7 @@ def map_view(request):
 
     # Unique sorted polities each have a colour
     # Add the colour to each shape. Where a shape lacks a polity, set it to black.
+    # NOTE: for the macrostate dataset, polities do not have a consistent value in the polity field across time
     unique_polities = sorted(all_polities)
     colours = []
     for col in get_colors(len(unique_polities)):
