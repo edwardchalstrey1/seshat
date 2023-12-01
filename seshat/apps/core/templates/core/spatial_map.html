@@ -30,10 +30,7 @@
                 <legend>
                     <h3>Show Polities</h3>
                 </legend>
-                <label><input type="radio" name="dateRange" value="single" checked onclick="toggleDateRange()">Specific year</label><br>
-                <label><input type="radio" name="dateRange" value="range" onclick="toggleDateRange()">Date range</label><br><br>
-            
-                <!-- Display only when "dateRange" is set to "single" -->
+
                 <div id="selectedYearContainer">
                     <div class="slidecontainer">
                         <label for="enterYear">Enter year:</label>
@@ -49,23 +46,6 @@
                         <label for="playRate">Play rate (years per second):</label>
                         <input type="number" id="playRate" name="playRate" value="10" style="width: 50px;"><br><br>
                     </div>
-                </div>
-            
-                <!-- Display only when "dateRange" is set to "range" -->
-                <div id="yearRangeContainer" style="display: none;">
-                    <label for="startYear">From:</label>
-                    <select name="startYear" id="startYear" onchange="filterByYearRange()">
-                        {% for century, century_string in centuries.items %}
-                            <option value="{{ century }}" {% if forloop.first %}selected{% endif %}>{{ century_string }}</option>
-                        {% endfor %}
-                    </select><br>
-            
-                    <label for="endYear">To:</label>
-                    <select name="endYear" id="endYear" onchange="filterByYearRange()">
-                        {% for century, century_string in centuries.items %}
-                            <option value="{{ century }}" {% if forloop.last %}selected{% endif %}>{{ century_string }}</option>
-                        {% endfor %}
-                    </select><br>
                 </div>
             </fieldset>
         </div>
@@ -105,97 +85,46 @@
         }
 
         function filterByYearRange() {
-            // Check if "Year" radio is selected
-            var isSingleYear = document.querySelector('input[name="dateRange"][value="single"]').checked;
 
-            if (isSingleYear) {
-                var selectedYear = document.getElementById('dateSlide').value;
+            var selectedYear = document.getElementById('dateSlide').value;
 
-                // Remove all existing layers from the map
-                map.eachLayer(function (layer) {
-                    if (layer instanceof L.GeoJSON) {
-                        map.removeLayer(layer);
-                    }
-                });
+            // Remove all existing layers from the map
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.GeoJSON) {
+                    map.removeLayer(layer);
+                }
+            });
 
-                // Convert to int, because for some reason JS converts it to a string
-                var selectedYearInt = parseInt(selectedYear);
+            // Convert to int, because for some reason JS converts it to a string
+            var selectedYearInt = parseInt(selectedYear);
 
-                // Add layers that are within the selected year to the map
-                shapesData.forEach(function (shape) {
-                    // If the shape spans the selected year
-                    // Note: If the selected year is the shape.endYear it won't show. This decision prevents overlap in the macrostate dataset.
-                    if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) > selectedYearInt)) {
-                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
-                            style: function (feature) {
-                                return {
-                                    fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                    color: shape.colour,  // Set the border color
-                                    weight: 0,  // Set the border weight
-                                    fillOpacity: 0.5  // Set the fill opacity
-                                };
-                            },
-                            onEachFeature: function (feature, layer) {
-                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
-                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
-                                    '<b>End Year:</b> ' + shape.endYear;
-                                layer.bindPopup(popupContent);
-                            }
-                        }).addTo(map);
-                        // Update the displayedShapes array
-                        if (displayedShapes.indexOf(shape.name) === -1) {
-                            displayedShapes.push(shape.name);
+            // Add layers that are within the selected year to the map
+            shapesData.forEach(function (shape) {
+                // If the shape spans the selected year
+                // Note: If the selected year is the shape.endYear it won't show. This decision prevents overlap in the macrostate dataset.
+                if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) > selectedYearInt)) {
+                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                        style: function (feature) {
+                            return {
+                                fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                color: shape.colour,  // Set the border color
+                                weight: 0,  // Set the border weight
+                                fillOpacity: 0.5  // Set the fill opacity
+                            };
+                        },
+                        onEachFeature: function (feature, layer) {
+                            var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
+                                '<b>Start Year:</b> ' + shape.startYear + '<br>' +
+                                '<b>End Year:</b> ' + shape.endYear;
+                            layer.bindPopup(popupContent);
                         }
+                    }).addTo(map);
+                    // Update the displayedShapes array
+                    if (displayedShapes.indexOf(shape.name) === -1) {
+                        displayedShapes.push(shape.name);
                     }
-                });
-            } else {
-                var startYear = document.getElementById('startYear').value;
-                var endYear = document.getElementById('endYear').value;
-
-                // Remove all existing layers from the map
-                map.eachLayer(function (layer) {
-                    if (layer instanceof L.GeoJSON) {
-                        map.removeLayer(layer);
-                    }
-                });
-
-                // Convert to ints, because for some reason JS converts them to strings
-                var selectedStartYear = parseInt(startYear);
-                var selectedEndYear = parseInt(endYear);
-
-                // Add layers that are within the selected year range to the map
-                shapesData.forEach(function (shape) {
-                    // If the shape start date or end date falls in the selected range
-                    if ((parseInt(shape.startYear) >= selectedStartYear && parseInt(shape.startYear) <= selectedEndYear) ||
-                        (parseInt(shape.endYear) >= selectedStartYear && parseInt(shape.endYear) <= selectedEndYear)
-                    ) {
-                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
-                            style: function (feature) {
-                                return {
-                                    fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                    color: shape.colour,  // Set the border color
-                                    weight: 0,  // Set the border weight
-                                    fillOpacity: 0.5  // Set the fill opacity
-                                };
-                            },
-                            onEachFeature: function (feature, layer) {
-                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
-                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
-                                    '<b>End Year:</b> ' + shape.endYear;
-                                layer.bindPopup(popupContent);
-                            }
-                        }).addTo(map);
-                        // Update the displayedShapes array
-                        if (displayedShapes.indexOf(shape.name) === -1) {
-                            displayedShapes.push(shape.name);
-                        }
-                    }
-                });
-            }
-
-            // Store the selected dateRange value in local storage
-            var dateRange = document.querySelector('input[name="dateRange"]:checked').value;
-            localStorage.setItem('dateRange', dateRange);
+                }
+            });
         }
 
         function selectDisplayedData() {
@@ -207,24 +136,6 @@
             } else {
                 window.location.href = '{% url "spatial_map" %}?data=' + selectedData;
             }
-        }
-
-        // Function to toggle visibility of date range dropdowns
-        function toggleDateRange() {
-            var selectedValue = document.querySelector('input[name="dateRange"]:checked').value;
-            var selectedYearContainer = document.getElementById('selectedYearContainer');
-            var yearRangeContainer = document.getElementById('yearRangeContainer');
-
-            if (selectedValue === 'single') {
-                selectedYearContainer.style.display = 'block';
-                yearRangeContainer.style.display = 'none';
-            } else if (selectedValue === 'range') {
-                selectedYearContainer.style.display = 'none';
-                yearRangeContainer.style.display = 'block';
-            }
-
-            // Trigger filtering when the date range changes
-            filterByYearRange();
         }
 
         // Initial filtering on page load
@@ -335,17 +246,6 @@
                 }
             }
 
-            // Get the dateRange parameter from local storage
-            var dateRange = localStorage.getItem('dateRange');
-            if (dateRange) {
-                // Set the selected radio button based on the stored value
-                var radio = document.querySelector('input[name="dateRange"][value="' + dateRange + '"]');
-                if (radio) {
-                    radio.checked = true;
-                }
-
-            }
-
             // Set default values for selectedYear, startYear, and endYear to 0CE
             var startYearSelect = document.getElementById('startYear');
             var endYearSelect = document.getElementById('endYear');
@@ -369,13 +269,10 @@
 
         });
 
-        // Store the selected displayedData and dateRange values in local storage
+        // Store the selected displayedData value in local storage
         document.addEventListener("change", function () {
             var displayedData = document.querySelector('input[name="displayedData"]:checked').value;
             localStorage.setItem('displayedData', displayedData);
-
-            var dateRange = document.querySelector('input[name="dateRange"]:checked').value;
-            localStorage.setItem('dateRange', dateRange);
         });
 
         // Update the enterYear input value when the user hits return
