@@ -36,12 +36,18 @@
                 <!-- Display only when "dateRange" is set to "single" -->
                 <div id="selectedYearContainer">
                     <div class="slidecontainer">
-                        <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()">
-                        <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
-                        <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
-                        <span id="sliderDate"></span><br><br>
                         <label for="enterYear">Enter year:</label>
-                        <input type="text" id="enterYear" name="enterYear" value="0">
+                        <input type="number" id="enterYear" name="enterYear" value="0" style="width: 75px;">
+                        <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
+                        <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
+                        <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()" style="width: 300px;"><br>
+                        <label for="sliderDate">Selected year:</label>
+                        <span id="sliderDate"></span><br><br>
+                        <label for="playButton">Run animation:</label>
+                        <button id="playButton" type="button" onclick="startPlay()">▶️</button>
+                        <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
+                        <label for="playRate">Play rate (years per second):</label>
+                        <input type="number" id="playRate" name="playRate" value="10" style="width: 50px;"><br><br>
                     </div>
                 </div>
             
@@ -275,6 +281,44 @@
 
             localStorage.setItem('colorInfo', JSON.stringify(colorInfo));
         }
+
+        var playInterval;
+        var playRateInput = document.getElementById("playRate");
+
+        function startPlay() {
+            stopPlay(); // Clear existing interval before starting a new one
+
+            var yearsPerSecond = parseFloat(playRateInput.value);
+            var milliseconds = 1 / (yearsPerSecond / 1000);
+
+            playInterval = setInterval(function () {
+                // Increment the slider value by 1
+                slider.value = Number(slider.value) + 1;
+                enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
+                updateSliderOutput(); // Update the displayed year
+                filterByYearRange();
+                // Update the color information in local storage for newly displayed shapes
+                updateColorInfoInLocalStorage(displayedShapes);
+
+                // Stop playing when the slider reaches its maximum value
+                if (slider.value >= parseInt(slider.max)) {
+                    stopPlay();
+                }
+            }, milliseconds); // Interval based on user input
+        }
+
+        function stopPlay() {
+            clearInterval(playInterval);
+        }
+
+        // Add event listener to stop playing when adjusting the slider manually
+        slider.addEventListener("input", stopPlay);
+
+        // Add event listener to update play rate when the input changes
+        playRateInput.addEventListener("change", function () {
+            stopPlay(); // Stop current play if ongoing
+            startPlay(); // Start with the updated play rate
+        });
 
         // Make sure Radio selection is kept on page refresh
         document.addEventListener("DOMContentLoaded", function () {
