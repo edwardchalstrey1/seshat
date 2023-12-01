@@ -285,6 +285,7 @@
         var playRateInput = document.getElementById("playRate");
 
         function startPlay() {
+            stopPlay(); // Clear existing interval before starting a new one
             playInterval = setInterval(function () {
                 // Increment the slider value by 1
                 slider.value = Number(slider.value) + 1;
