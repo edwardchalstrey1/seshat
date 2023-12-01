@@ -36,12 +36,13 @@
                 <!-- Display only when "dateRange" is set to "single" -->
                 <div id="selectedYearContainer">
                     <div class="slidecontainer">
-                        <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()">
-                        <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
-                        <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
-                        <span id="sliderDate"></span><br><br>
                         <label for="enterYear">Enter year:</label>
-                        <input type="number" id="enterYear" name="enterYear" value="0" style="width: 75px;"><br><br>
+                        <input type="number" id="enterYear" name="enterYear" value="0" style="width: 75px;">
+                        <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
+                        <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
+                        <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()"><br>
+                        <label for="sliderDate">Selected year:</label>
+                        <span id="sliderDate"></span><br><br>
                         <label for="playButton">Run animation:</label>
                         <button id="playButton" type="button" onclick="startPlay()">▶️</button>
                         <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
