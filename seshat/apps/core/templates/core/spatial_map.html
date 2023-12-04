@@ -14,8 +14,8 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()">No labels (CartoDB)</label><br>
-                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()"checked>OpenStreetMap</label><br>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>No labels (CartoDB)</label><br>
+                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
             </fieldset>
             <p></p>
             <fieldset>
@@ -66,6 +66,17 @@
             {% endfor %}
         ];
 
+        var provinceShapeData = [
+            // JavaScript object representing modern day province shape data
+            {% for shape in provinces %}
+                {
+                    geometry: '{{ shape.aggregated_geometry.geojson | safe }}',
+                    province: '{{ shape.province }}',
+                    provinceType: '{{ shape.province_type }}'
+                },
+            {% endfor %}
+        ];
+
         var map = L.map('map').setView([0, 0], 2);
 
         var baseLayers = {
@@ -73,8 +84,13 @@
             "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         };
 
-        // Select OSM as the default base layer
-        var currentLayer = baseLayers.osm.addTo(map);
+        // Select carto as the default base layer
+        var currentLayer = baseLayers.carto.addTo(map);
+
+        // Add provinces that to the base map
+        provinceShapeData.forEach(function (shape) {
+            var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry)).addTo(map);
+        });
 
         function switchBaseMap() {
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
