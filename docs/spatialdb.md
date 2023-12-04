@@ -29,3 +29,15 @@ Ensure that the database and Django are already set up (see [setup.md](setup.md)
         GROUP BY 
             "COUNTRY";
     ```
+4. To populate the `core_gadmprovinces`, go into the database (`psql -U postgres -d <seshat_db_name>`) and run the following query:
+    ```{SQL}
+        INSERT INTO core_gadmprovinces (geom, "NAME_1", "ENGTYPE_1")
+        SELECT 
+            ST_Union(geom) AS geom,
+            "NAME_1",
+            "ENGTYPE_1"
+        FROM 
+            core_gadmshapefile
+        GROUP BY 
+            "NAME_1", "ENGTYPE_1";
+    ```
