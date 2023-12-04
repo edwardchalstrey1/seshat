@@ -699,3 +699,11 @@ class GADMCountries(models.Model):
 
     def __str__(self):
         return "Name: %s" % self.name
+    
+class GADMProvinces(models.Model):
+    geom = models.MultiPolygonField()
+    NAME_1=models.CharField(max_length=100, null=True)
+    ENGTYPE_1=models.CharField(max_length=100, null=True)
+
+    def __str__(self):
+        return "Name: %s" % self.name
