@@ -39,5 +39,5 @@ Ensure that the database and Django are already set up (see [setup.md](setup.md)
         FROM 
             core_gadmshapefile
         GROUP BY 
-            "NAME_1";
+            "NAME_1", "ENGTYPE_1";
     ```
