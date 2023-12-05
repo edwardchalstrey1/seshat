@@ -98,6 +98,13 @@
                         return [coord[1], coord[0]];
                     });
                     var polygon = L.polygon(coordinates).addTo(map);
+                    // Set the style using the style method
+                    polygon.setStyle({
+                        fillColor: 'white',   // Set the fill color based on the "colour" field
+                        color: 'black',       // Set the border color
+                        weight: 1,            // Set the border weight
+                        fillOpacity: 1        // Set the fill opacity
+                    });
                 }
             }
         });
