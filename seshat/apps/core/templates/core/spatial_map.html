@@ -90,23 +90,14 @@
         provinceShapeData.forEach(function (shape) {
             // Ensure the geometry is not empty
             if (shape.geometry && shape.geometry.type) {
-                if (shape.geometry.type === "Polygon") {
-                    var coordinates = shape.geometry.coordinates[0];
+                // Loop through each polygon and add it to the map
+                for (var i = 0; i < shape.geometry.coordinates.length; i++) {
+                    var coordinates = shape.geometry.coordinates[i][0];
                     // Swap latitude and longitude for each coordinate
                     coordinates = coordinates.map(function (coord) {
                         return [coord[1], coord[0]];
                     });
                     var polygon = L.polygon(coordinates).addTo(map);
-                } else if (shape.geometry.type === "MultiPolygon") {
-                    // Loop through each polygon and add it to the map
-                    for (var i = 0; i < shape.geometry.coordinates.length; i++) {
-                        var coordinates = shape.geometry.coordinates[i][0];
-                        // Swap latitude and longitude for each coordinate
-                        coordinates = coordinates.map(function (coord) {
-                            return [coord[1], coord[0]];
-                        });
-                        var polygon = L.polygon(coordinates).addTo(map);
-                    }
                 }
             }
         });
