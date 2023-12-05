@@ -345,6 +345,13 @@
             }
         });
 
+        // Add event listener to switchBaseMap when changing baseMapGADM radio buttons
+        document.querySelectorAll('input[name="baseMapGADM"]').forEach(function (radio) {
+            radio.addEventListener("change", function () {
+                switchBaseMap();
+            });
+        });
+
     </script>
     {% endblock %}
 </body>
