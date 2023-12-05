@@ -86,39 +86,21 @@
 
         // Select carto as the default base layer
         var currentLayer = baseLayers.carto.addTo(map);
-        // Add provinces to the base map
-        provinceShapeData.forEach(function (shape) {
-            // Ensure the geometry is not empty
-            if (shape.geometry && shape.geometry.type) {
-                // Loop through each polygon and add it to the map
-                for (var i = 0; i < shape.geometry.coordinates.length; i++) {
-                    var coordinates = shape.geometry.coordinates[i][0];
-                    // Swap latitude and longitude for each coordinate
-                    coordinates = coordinates.map(function (coord) {
-                        return [coord[1], coord[0]];
-                    });
-                    var polygon = L.polygon(coordinates).addTo(map);
-                    // Set the style using the style method
-                    polygon.setStyle({
-                        fillColor: 'white',   // Set the fill color based on the "colour" field
-                        color: 'black',       // Set the border color
-                        weight: 1,            // Set the border weight
-                        fillOpacity: 1        // Set the fill opacity
-                    });
-                }
-            }
-        });
+        // switchBaseMap()
 
         var provinceLayers = []; // Keep track of province layers to remove them later
 
         function switchBaseMap() {
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
-            map.eachLayer(function (layer) {
-                // Remove all province layers
-                if (provinceLayers.indexOf(layer) !== -1) {
-                    map.removeLayer(layer);
-                }
+
+            // Remove all province layers
+            provinceLayers.forEach(function (layer) {
+                map.removeLayer(layer);
+                console.log("Removed a layer");
             });
+
+            // Clear the provinceLayers array
+            provinceLayers = [];
 
             map.removeLayer(currentLayer);
 
@@ -126,7 +108,6 @@
                 currentLayer = baseLayers.carto.addTo(map);
 
                 // Add provinces to the base map
-                provinceLayers = []; // Clear the array
                 provinceShapeData.forEach(function (shape) {
                     // Ensure the geometry is not empty
                     if (shape.geometry && shape.geometry.type) {
