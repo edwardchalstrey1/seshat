@@ -109,13 +109,24 @@
             }
         });
 
+        var provinceLayers = []; // Keep track of province layers to remove them later
+
         function switchBaseMap() {
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
+            map.eachLayer(function (layer) {
+                // Remove all province layers
+                if (provinceLayers.indexOf(layer) !== -1) {
+                    map.removeLayer(layer);
+                }
+            });
+
             map.removeLayer(currentLayer);
+
             if (selectedMap === 'carto') {
                 currentLayer = baseLayers.carto.addTo(map);
 
                 // Add provinces to the base map
+                provinceLayers = []; // Clear the array
                 provinceShapeData.forEach(function (shape) {
                     // Ensure the geometry is not empty
                     if (shape.geometry && shape.geometry.type) {
@@ -134,12 +145,13 @@
                                 weight: 1,            // Set the border weight
                                 fillOpacity: 1        // Set the fill opacity
                             });
+
+                            provinceLayers.push(polygon); // Add the layer to the array
                         }
                     }
                 });
             } else if (selectedMap === 'osm') {
                 currentLayer = baseLayers.osm.addTo(map);
-                // You can add any additional logic or leave it empty for OSM base map
             }
         }
 
