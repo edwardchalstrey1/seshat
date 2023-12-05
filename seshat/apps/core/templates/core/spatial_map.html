@@ -86,9 +86,8 @@
 
         // Select carto as the default base layer
         var currentLayer = baseLayers.carto.addTo(map);
-        // switchBaseMap()
-
         var provinceLayers = []; // Keep track of province layers to remove them later
+        switchBaseMap()
 
         function switchBaseMap() {
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
@@ -96,7 +95,6 @@
             // Remove all province layers
             provinceLayers.forEach(function (layer) {
                 map.removeLayer(layer);
-                console.log("Removed a layer");
             });
 
             // Clear the provinceLayers array
