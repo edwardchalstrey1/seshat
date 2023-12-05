@@ -1583,14 +1583,27 @@ def map_view(request):
     # Define a simplification tolerance for faster loading of shapes at lower res
     simplification_tolerance = 0.1
     provinces = []
-    query = """
-        SELECT
-            ST_Simplify(geom, %s) AS simplified_geometry,
-            "NAME_1",
-            "ENGTYPE_1"                
-        FROM
-            core_gadmprovinces;
-    """
+    # Determine the selected baseMapGADM radio button value
+    selected_base_map_gadm = request.GET.get('baseMapGADM', 'country')
+
+    # Use the appropriate SQL query based on the selected baseMapGADM value
+    if selected_base_map_gadm == 'country':
+        query = """
+            SELECT
+                ST_Simplify(geom, %s) AS simplified_geometry,
+                "COUNTRY"                
+            FROM
+                core_gadmcountries;
+        """
+    elif selected_base_map_gadm == 'province':
+        query = """
+            SELECT
+                ST_Simplify(geom, %s) AS simplified_geometry,
+                "NAME_1",
+                "ENGTYPE_1"                
+            FROM
+                core_gadmprovinces;
+        """
 
     with connection.cursor() as cursor:
         cursor.execute(query, [simplification_tolerance])
@@ -1598,11 +1611,17 @@ def map_view(request):
 
     for row in rows:
         if row[0] != None:
-            provinces.append({
-                'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                'province': row[1],
-                'province_type': row[2]
-            })
+            if selected_base_map_gadm == 'country':
+                provinces.append({
+                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                    'country': row[1]
+                })
+            elif selected_base_map_gadm == 'province':
+                provinces.append({
+                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                    'province': row[1],
+                    'province_type': row[2]
+                })
 
     content = {'shapes': shapes,
                 'earliest_century': earliest_century,
