@@ -1581,7 +1581,7 @@ def map_view(request):
 
     # Get all the province shapes for the map base layer
     # Define a simplification tolerance for faster loading of shapes at lower res
-    simplification_tolerance = 0.001
+    simplification_tolerance = 0.1
     provinces = []
     query = """
         SELECT
