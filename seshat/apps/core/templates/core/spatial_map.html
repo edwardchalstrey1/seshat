@@ -14,7 +14,7 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>No labels (CartoDB)</label><br>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>GADM</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
             </fieldset>
             <p></p>
@@ -112,7 +112,35 @@
         function switchBaseMap() {
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
             map.removeLayer(currentLayer);
-            currentLayer = baseLayers[selectedMap].addTo(map);
+            if (selectedMap === 'carto') {
+                currentLayer = baseLayers.carto.addTo(map);
+
+                // Add provinces to the base map
+                provinceShapeData.forEach(function (shape) {
+                    // Ensure the geometry is not empty
+                    if (shape.geometry && shape.geometry.type) {
+                        // Loop through each polygon and add it to the map
+                        for (var i = 0; i < shape.geometry.coordinates.length; i++) {
+                            var coordinates = shape.geometry.coordinates[i][0];
+                            // Swap latitude and longitude for each coordinate
+                            coordinates = coordinates.map(function (coord) {
+                                return [coord[1], coord[0]];
+                            });
+                            var polygon = L.polygon(coordinates).addTo(map);
+                            // Set the style using the style method
+                            polygon.setStyle({
+                                fillColor: 'white',   // Set the fill color based on the "colour" field
+                                color: 'black',       // Set the border color
+                                weight: 1,            // Set the border weight
+                                fillOpacity: 1        // Set the fill opacity
+                            });
+                        }
+                    }
+                });
+            } else if (selectedMap === 'osm') {
+                currentLayer = baseLayers.osm.addTo(map);
+                // You can add any additional logic or leave it empty for OSM base map
+            }
         }
 
         function filterByYearRange() {
