@@ -73,17 +73,22 @@
                 },
             {% endfor %}
         ];
+        
+        function getProvinceOrCountryShapes() {
+            return [
+                // JavaScript object representing modern day province shape data
+                {% for shape in provinces %}
+                    {
+                        geometry: {{ shape.aggregated_geometry | safe }},
+                        province: '{{ shape.province }}',
+                        provinceType: '{{ shape.province_type }}'
+                    },
+                {% endfor %}
+            ];
 
-        var provinceShapeData = [
-            // JavaScript object representing modern day province shape data
-            {% for shape in provinces %}
-                {
-                    geometry: {{ shape.aggregated_geometry | safe }},
-                    province: '{{ shape.province }}',
-                    provinceType: '{{ shape.province_type }}'
-                },
-            {% endfor %}
-        ];
+        };
+
+        var provinceShapeData = getProvinceOrCountryShapes();
 
         var map = L.map('map').setView([0, 0], 2);
 
@@ -345,10 +350,10 @@
             }
         });
 
-        // Add event listener to switchBaseMap when changing baseMapGADM radio buttons
+        // Add event listener to update provice or country shapes when changing baseMapGADM radio buttons
         document.querySelectorAll('input[name="baseMapGADM"]').forEach(function (radio) {
             radio.addEventListener("change", function () {
-                switchBaseMap();
+                provinceShapeData = getProvinceOrCountryShapes();
             });
         });
 
