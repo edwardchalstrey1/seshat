@@ -124,7 +124,7 @@
                                 weight: 1,            // Set the border weight
                                 fillOpacity: 1        // Set the fill opacity
                             });
-
+                            polygon.bringToBack(); // Move the province layers to back so they are always behind polity shapes
                             provinceLayers.push(polygon); // Add the layer to the array
                         }
                     }
