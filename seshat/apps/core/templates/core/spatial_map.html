@@ -22,8 +22,8 @@
                 <legend>
                     <h5>Base map displayed level</h5>
                 </legend>
-                <label><input type="radio" name="baseMapGADM" value="country" onclick="plotPolities()" checked>Countries</label><br>
-                <label><input type="radio" name="baseMapGADM" value="province" onclick="plotPolities()">Provinces</label><br>
+                <label><input type="radio" name="baseMapGADM" value="country" onclick="switchGADMBase()" checked>Countries</label><br>
+                <label><input type="radio" name="baseMapGADM" value="province" onclick="switchGADMBase()">Provinces</label><br>
             </fieldset>
             <p></p>
             <fieldset>
@@ -146,6 +146,11 @@
                 currentLayer = baseLayers.osm.addTo(map);
             }
         }
+
+        function switchGADMBase() {
+            provinceShapeData = getProvinceOrCountryShapes();
+            switchBaseMap()
+        };
 
         function plotPolities() {
 
@@ -348,13 +353,6 @@
                 // Update the color information in local storage for newly displayed shapes
                 updateColorInfoInLocalStorage(displayedShapes);
             }
-        });
-
-        // Add event listener to update provice or country shapes when changing baseMapGADM radio buttons
-        document.querySelectorAll('input[name="baseMapGADM"]').forEach(function (radio) {
-            radio.addEventListener("change", function () {
-                provinceShapeData = getProvinceOrCountryShapes();
-            });
         });
 
     </script>
