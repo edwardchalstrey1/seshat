@@ -16,6 +16,8 @@
                 </legend>
                 <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>GADM</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
+                <label for="baseMapOnly">Base map only</label>
+                <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
                 <label for="baseMapGADM">Base map level:</label>
@@ -189,33 +191,36 @@
             // Convert to int, because for some reason JS converts it to a string
             var selectedYearInt = parseInt(selectedYear);
 
-            // Add layers that are within the selected year to the map
-            shapesData.forEach(function (shape) {
-                // If the shape spans the selected year
-                // Note: If the selected year is the shape.endYear it won't show. This decision prevents overlap in the macrostate dataset.
-                if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) > selectedYearInt)) {
-                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
-                        style: function (feature) {
-                            return {
-                                fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                color: shape.colour,  // Set the border color
-                                weight: 0,  // Set the border weight
-                                fillOpacity: 0.5  // Set the fill opacity
-                            };
-                        },
-                        onEachFeature: function (feature, layer) {
-                            var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
-                                '<b>Start Year:</b> ' + shape.startYear + '<br>' +
-                                '<b>End Year:</b> ' + shape.endYear;
-                            layer.bindPopup(popupContent);
+            // Add shapes to the map
+            // Don't plot them if "Base map only" checkbox selected
+            if (!document.getElementById('baseMapOnly').checked){
+                shapesData.forEach(function (shape) {
+                    // If the shape spans the selected year
+                    // Note: If the selected year is the shape.endYear it won't show. This decision prevents overlap in the macrostate dataset.
+                    if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) > selectedYearInt)) {
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                            style: function (feature) {
+                                return {
+                                    fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                    color: shape.colour,  // Set the border color
+                                    weight: 0,  // Set the border weight
+                                    fillOpacity: 0.5  // Set the fill opacity
+                                };
+                            },
+                            onEachFeature: function (feature, layer) {
+                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
+                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
+                                    '<b>End Year:</b> ' + shape.endYear;
+                                layer.bindPopup(popupContent);
+                            }
+                        }).addTo(map);
+                        // Update the displayedShapes array
+                        if (displayedShapes.indexOf(shape.name) === -1) {
+                            displayedShapes.push(shape.name);
                         }
-                    }).addTo(map);
-                    // Update the displayedShapes array
-                    if (displayedShapes.indexOf(shape.name) === -1) {
-                        displayedShapes.push(shape.name);
                     }
-                }
-            });
+                });
+            };
         }
 
         function selectDisplayedData() {
