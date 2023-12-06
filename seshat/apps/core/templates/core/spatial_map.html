@@ -85,7 +85,21 @@
 
         };
 
+        function getCountryShapes() {
+            return [
+                // JavaScript object representing modern day province shape data
+                {% for shape in countries %}
+                    {
+                        geometry: {{ shape.aggregated_geometry | safe }},
+                        country: '{{ shape.country }}'
+                    },
+                {% endfor %}
+            ];
+
+        };
+
         var provinceShapeData = getProvinceShapes();
+        var countryShapeData = getCountryShapes();
 
         var map = L.map('map').setView([0, 0], 2);
 
