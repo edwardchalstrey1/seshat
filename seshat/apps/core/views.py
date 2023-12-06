@@ -1581,6 +1581,7 @@ def map_view(request):
 
     # Determine the selected baseMapGADM radio button value
     selected_base_map_gadm = request.GET.get('baseMapGADM', 'country')
+    print(selected_base_map_gadm)
 
     def get_provinces():
 

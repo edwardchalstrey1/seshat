@@ -22,8 +22,10 @@
                 <legend>
                     <h5>Base map displayed level</h5>
                 </legend>
-                <label><input type="radio" name="baseMapGADM" value="country" onclick="switchGADMBase()" checked>Countries</label><br>
-                <label><input type="radio" name="baseMapGADM" value="province" onclick="switchGADMBase()">Provinces</label><br>
+                <select name="baseMapGADM" id="baseMapGADM" onchange="switchGADMBase()">
+                    <option value="country">Countries</option>
+                    <option value="province">Provinces</option>
+                </select><br>
             </fieldset>
             <p></p>
             <fieldset>
