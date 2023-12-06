@@ -1579,55 +1579,60 @@ def map_view(request):
             century_strings.append(str(century) + "CE")
     centuries_zipped = zip(centuries, century_strings)
 
-    # Get all the province shapes for the map base layer
-    # Define a simplification tolerance for faster loading of shapes at lower res
-    simplification_tolerance = 0.1
-    provinces = []
     # Determine the selected baseMapGADM radio button value
     selected_base_map_gadm = request.GET.get('baseMapGADM', 'country')
 
-    # Use the appropriate SQL query based on the selected baseMapGADM value
-    if selected_base_map_gadm == 'country':
-        query = """
-            SELECT
-                ST_Simplify(geom, %s) AS simplified_geometry,
-                "COUNTRY"                
-            FROM
-                core_gadmcountries;
-        """
-    elif selected_base_map_gadm == 'province':
-        query = """
-            SELECT
-                ST_Simplify(geom, %s) AS simplified_geometry,
-                "NAME_1",
-                "ENGTYPE_1"                
-            FROM
-                core_gadmprovinces;
-        """
+    def get_provinces():
 
-    with connection.cursor() as cursor:
-        cursor.execute(query, [simplification_tolerance])
-        rows = cursor.fetchall()
+        # Get all the province or country shapes for the map base layer
+        # Define a simplification tolerance for faster loading of shapes at lower res
+        simplification_tolerance = 0.1
+        provinces = []
 
-    for row in rows:
-        if row[0] != None:
-            if selected_base_map_gadm == 'country':
-                provinces.append({
-                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                    'country': row[1]
-                })
-            elif selected_base_map_gadm == 'province':
-                provinces.append({
-                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                    'province': row[1],
-                    'province_type': row[2]
-                })
+        # Use the appropriate SQL query based on the selected baseMapGADM value
+        if selected_base_map_gadm == 'country':
+            query = """
+                SELECT
+                    ST_Simplify(geom, %s) AS simplified_geometry,
+                    "COUNTRY"                
+                FROM
+                    core_gadmcountries;
+            """
+        elif selected_base_map_gadm == 'province':
+            query = """
+                SELECT
+                    ST_Simplify(geom, %s) AS simplified_geometry,
+                    "NAME_1",
+                    "ENGTYPE_1"                
+                FROM
+                    core_gadmprovinces;
+            """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query, [simplification_tolerance])
+            rows = cursor.fetchall()
+
+        for row in rows:
+            if row[0] != None:
+                if selected_base_map_gadm == 'country':
+                    provinces.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'country': row[1]
+                    })
+                elif selected_base_map_gadm == 'province':
+                    provinces.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'province': row[1],
+                        'province_type': row[2]
+                    })
+
+        return provinces
 
     content = {'shapes': shapes,
                 'earliest_century': earliest_century,
                 'latest_century': latest_century,
                 'centuries': dict(centuries_zipped),
-                'provinces': provinces
+                'provinces': get_provinces()
                 }
     
     return render(request,
