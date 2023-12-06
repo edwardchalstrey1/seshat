@@ -104,8 +104,13 @@
         var provinceLayers = []; // Keep track of province layers to remove them later
         switchBaseMap()
 
-        function switchBaseMap() {
+        function switchBaseMap(base = 'country') {
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
+            if (base == 'province'){
+                var baseShapeData = provinceShapeData;
+            } else if (base == 'country'){
+                var baseShapeData = countryShapeData;
+            }
 
             // Remove all province layers
             provinceLayers.forEach(function (layer) {
@@ -121,7 +126,7 @@
                 currentLayer = baseLayers.carto.addTo(map);
 
                 // Add provinces to the base map
-                provinceShapeData.forEach(function (shape) {
+                baseShapeData.forEach(function (shape) {
                     // Ensure the geometry is not empty
                     if (shape.geometry && shape.geometry.type) {
                         // Loop through each polygon and add it to the map
@@ -151,7 +156,7 @@
 
         function switchGADMBase() {
             var selectedBaseMapGADM = document.getElementById("baseMapGADM").value;
-            window.location.href = '{% url "spatial_map" %}?gadmbase=' + selectedBaseMapGADM;
+            switchBaseMap(base=selectedBaseMapGADM)
         };
 
         function plotPolities() {
