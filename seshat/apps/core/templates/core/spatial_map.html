@@ -16,6 +16,8 @@
                 </legend>
                 <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>GADM</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
+            </fieldset>
+            <fieldset id="baseMapGADMFieldset">
                 <label for="baseMapGADM">Base map level:</label>
                 <select name="baseMapGADM" id="baseMapGADM" onchange="switchGADMBase()">
                     <option value="country">Countries</option>
@@ -106,10 +108,19 @@
 
         function switchBaseMap(base = 'country') {
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
+
             if (base == 'province'){
                 var baseShapeData = provinceShapeData;
             } else if (base == 'country'){
                 var baseShapeData = countryShapeData;
+            }
+
+            // Only show "Base map level" select for GADM
+            var baseMapGADMFieldset = document.getElementById("baseMapGADMFieldset");
+            if (selectedMap == 'osm') {
+                baseMapGADMFieldset.style.display = "none"
+            } else if (selectedMap == 'carto') {
+                baseMapGADMFieldset.style.display = "block"
             }
 
             // Remove all province layers
