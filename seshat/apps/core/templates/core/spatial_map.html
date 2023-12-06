@@ -71,7 +71,7 @@
             {% endfor %}
         ];
         
-        function getProvinceOrCountryShapes() {
+        function getProvinceShapes() {
             return [
                 // JavaScript object representing modern day province shape data
                 {% for shape in provinces %}
@@ -85,7 +85,7 @@
 
         };
 
-        var provinceShapeData = getProvinceOrCountryShapes();
+        var provinceShapeData = getProvinceShapes();
 
         var map = L.map('map').setView([0, 0], 2);
 
@@ -147,8 +147,6 @@
         function switchGADMBase() {
             var selectedBaseMapGADM = document.getElementById("baseMapGADM").value;
             window.location.href = '{% url "spatial_map" %}?gadmbase=' + selectedBaseMapGADM;
-            provinceShapeData = getProvinceOrCountryShapes();
-            switchBaseMap()
         };
 
         function plotPolities() {

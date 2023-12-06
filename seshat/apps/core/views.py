@@ -1579,11 +1579,7 @@ def map_view(request):
             century_strings.append(str(century) + "CE")
     centuries_zipped = zip(centuries, century_strings)
 
-    # Determine the selected baseMapGADM radio button value
-    selected_base_map_gadm = request.GET.get('baseMapGADM', 'country')
-    print(selected_base_map_gadm)
-
-    def get_provinces():
+    def get_provinces(selected_base_map_gadm='province'):
 
         # Get all the province or country shapes for the map base layer
         # Define a simplification tolerance for faster loading of shapes at lower res
@@ -1633,7 +1629,8 @@ def map_view(request):
                 'earliest_century': earliest_century,
                 'latest_century': latest_century,
                 'centuries': dict(centuries_zipped),
-                'provinces': get_provinces()
+                'provinces': get_provinces(),
+                'countries': get_provinces(selected_base_map_gadm='country')
                 }
     
     return render(request,
