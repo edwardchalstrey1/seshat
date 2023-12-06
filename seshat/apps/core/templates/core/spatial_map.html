@@ -14,8 +14,17 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()">No labels (CartoDB)</label><br>
-                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()"checked>OpenStreetMap</label><br>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>GADM</label><br>
+                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
+                <label for="baseMapOnly">Base map only</label>
+                <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
+            </fieldset>
+            <fieldset id="baseMapGADMFieldset">
+                <label for="baseMapGADM">Base map level:</label>
+                <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMap()">
+                    <option value="country">Countries</option>
+                    <option value="province">Provinces</option>
+                </select><br>
             </fieldset>
             <p></p>
             <fieldset>
@@ -36,7 +45,7 @@
                     <input type="number" id="enterYear" name="enterYear" value="0" style="width: 75px;">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
                     <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="filterByYearRange()" style="width: 300px;"><br>
+                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="plotPolities()" style="width: 300px;"><br>
                     <label for="sliderDate">Selected year:</label>
                     <span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
@@ -65,6 +74,27 @@
                 },
             {% endfor %}
         ];
+        
+        var provinceShapeData =  [
+            // JavaScript object representing modern day province shape data
+            {% for shape in provinces %}
+                {
+                    geometry: {{ shape.aggregated_geometry | safe }},
+                    province: '{{ shape.province }}',
+                    provinceType: '{{ shape.province_type }}'
+                },
+            {% endfor %}
+        ];
+
+        var countryShapeData =  [
+            // JavaScript object representing modern day province shape data
+            {% for shape in countries %}
+                {
+                    geometry: {{ shape.aggregated_geometry | safe }},
+                    country: '{{ shape.country }}'
+                },
+            {% endfor %}
+        ];
 
         var map = L.map('map').setView([0, 0], 2);
 
@@ -73,16 +103,77 @@
             "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         };
 
-        // Select OSM as the default base layer
-        var currentLayer = baseLayers.osm.addTo(map);
+        // Select carto as the default base layer
+        var currentLayer = baseLayers.carto.addTo(map);
+        var provinceLayers = []; // Keep track of province layers to remove them later
+        switchBaseMap()
 
         function switchBaseMap() {
             var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
+            var base = document.getElementById("baseMapGADM").value
+
+            if (base == 'province'){
+                var baseShapeData = provinceShapeData;
+            } else if (base == 'country'){
+                var baseShapeData = countryShapeData;
+            }
+
+            // Only show "Base map level" select for GADM
+            var baseMapGADMFieldset = document.getElementById("baseMapGADMFieldset");
+            if (selectedMap == 'osm') {
+                baseMapGADMFieldset.style.display = "none"
+            } else if (selectedMap == 'carto') {
+                baseMapGADMFieldset.style.display = "block"
+            }
+
+            // Remove all province layers
+            provinceLayers.forEach(function (layer) {
+                map.removeLayer(layer);
+            });
+
+            // Clear the provinceLayers array
+            provinceLayers = [];
+
             map.removeLayer(currentLayer);
-            currentLayer = baseLayers[selectedMap].addTo(map);
+
+            if (selectedMap === 'carto') {
+                currentLayer = baseLayers.carto.addTo(map);
+
+                // Add provinces to the base map
+                baseShapeData.forEach(function (shape) {
+                    // Ensure the geometry is not empty
+                    if (shape.geometry && shape.geometry.type) {
+                        // Loop through each polygon and add it to the map
+                        for (var i = 0; i < shape.geometry.coordinates.length; i++) {
+                            var coordinates = shape.geometry.coordinates[i][0];
+                            // Swap latitude and longitude for each coordinate
+                            coordinates = coordinates.map(function (coord) {
+                                return [coord[1], coord[0]];
+                            });
+                            var polygon = L.polygon(coordinates).addTo(map);
+                            if (base == 'province') {
+                                polygon.bindPopup(`${shape.province} (${shape.provinceType})`);
+                            } else if (base == 'country') {
+                                polygon.bindPopup(shape.country);
+                            }
+                            // Set the style using the style method
+                            polygon.setStyle({
+                                fillColor: 'white',   // Set the fill color based on the "colour" field
+                                color: 'black',       // Set the border color
+                                weight: 1,            // Set the border weight
+                                fillOpacity: 1        // Set the fill opacity
+                            });
+                            polygon.bringToBack(); // Move the province layers to back so they are always behind polity shapes
+                            provinceLayers.push(polygon); // Add the layer to the array
+                        }
+                    }
+                });
+            } else if (selectedMap === 'osm') {
+                currentLayer = baseLayers.osm.addTo(map);
+            }
         }
 
-        function filterByYearRange() {
+        function plotPolities() {
 
             var selectedYear = document.getElementById('dateSlide').value;
 
@@ -96,33 +187,36 @@
             // Convert to int, because for some reason JS converts it to a string
             var selectedYearInt = parseInt(selectedYear);
 
-            // Add layers that are within the selected year to the map
-            shapesData.forEach(function (shape) {
-                // If the shape spans the selected year
-                // Note: If the selected year is the shape.endYear it won't show. This decision prevents overlap in the macrostate dataset.
-                if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) > selectedYearInt)) {
-                    var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
-                        style: function (feature) {
-                            return {
-                                fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                color: shape.colour,  // Set the border color
-                                weight: 0,  // Set the border weight
-                                fillOpacity: 0.5  // Set the fill opacity
-                            };
-                        },
-                        onEachFeature: function (feature, layer) {
-                            var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
-                                '<b>Start Year:</b> ' + shape.startYear + '<br>' +
-                                '<b>End Year:</b> ' + shape.endYear;
-                            layer.bindPopup(popupContent);
+            // Add shapes to the map
+            // Don't plot them if "Base map only" checkbox selected
+            if (!document.getElementById('baseMapOnly').checked){
+                shapesData.forEach(function (shape) {
+                    // If the shape spans the selected year
+                    // Note: If the selected year is the shape.endYear it won't show. This decision prevents overlap in the macrostate dataset.
+                    if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) > selectedYearInt)) {
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                            style: function (feature) {
+                                return {
+                                    fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                    color: shape.colour,  // Set the border color
+                                    weight: 0,  // Set the border weight
+                                    fillOpacity: 0.5  // Set the fill opacity
+                                };
+                            },
+                            onEachFeature: function (feature, layer) {
+                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
+                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
+                                    '<b>End Year:</b> ' + shape.endYear;
+                                layer.bindPopup(popupContent);
+                            }
+                        }).addTo(map);
+                        // Update the displayedShapes array
+                        if (displayedShapes.indexOf(shape.name) === -1) {
+                            displayedShapes.push(shape.name);
                         }
-                    }).addTo(map);
-                    // Update the displayedShapes array
-                    if (displayedShapes.indexOf(shape.name) === -1) {
-                        displayedShapes.push(shape.name);
                     }
-                }
-            });
+                });
+            };
         }
 
         function selectDisplayedData() {
@@ -136,8 +230,8 @@
             }
         }
 
-        // Initial filtering on page load
-        filterByYearRange()
+        // Initial plot on page load
+        plotPolities()
 
         // Display slider value
         var slider = document.getElementById("dateSlide");
@@ -164,7 +258,7 @@
             slider.value = Number(slider.value) + 1;
             enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
             updateSliderOutput(); // Update the displayed year
-            filterByYearRange();
+            plotPolities();
             // Update the color information in local storage for newly displayed shapes
             updateColorInfoInLocalStorage(displayedShapes);
         }
@@ -173,7 +267,7 @@
             slider.value = Number(slider.value) - 1;
             enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
             updateSliderOutput(); // Update the displayed year
-            filterByYearRange();
+            plotPolities();
             // Update the color information in local storage for newly displayed shapes
             updateColorInfoInLocalStorage(displayedShapes);
         }
@@ -205,7 +299,7 @@
                 slider.value = Number(slider.value) + 1;
                 enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
                 updateSliderOutput(); // Update the displayed year
-                filterByYearRange();
+                plotPolities();
                 // Update the color information in local storage for newly displayed shapes
                 updateColorInfoInLocalStorage(displayedShapes);
 
@@ -263,7 +357,7 @@
             }
 
             // Trigger filtering when the page refreshes
-            filterByYearRange();
+            plotPolities();
 
         });
 
@@ -279,7 +373,7 @@
                 // Update the slider value
                 slider.value = enterYearInput.value;
                 updateSliderOutput();
-                filterByYearRange();
+                plotPolities();
                 // Update the color information in local storage for newly displayed shapes
                 updateColorInfoInLocalStorage(displayedShapes);
             }
