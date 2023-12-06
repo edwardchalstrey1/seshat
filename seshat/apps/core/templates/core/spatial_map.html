@@ -71,35 +71,26 @@
             {% endfor %}
         ];
         
-        function getProvinceShapes() {
-            return [
-                // JavaScript object representing modern day province shape data
-                {% for shape in provinces %}
-                    {
-                        geometry: {{ shape.aggregated_geometry | safe }},
-                        province: '{{ shape.province }}',
-                        provinceType: '{{ shape.province_type }}'
-                    },
-                {% endfor %}
-            ];
+        var provinceShapeData =  [
+            // JavaScript object representing modern day province shape data
+            {% for shape in provinces %}
+                {
+                    geometry: {{ shape.aggregated_geometry | safe }},
+                    province: '{{ shape.province }}',
+                    provinceType: '{{ shape.province_type }}'
+                },
+            {% endfor %}
+        ];
 
-        };
-
-        function getCountryShapes() {
-            return [
-                // JavaScript object representing modern day province shape data
-                {% for shape in countries %}
-                    {
-                        geometry: {{ shape.aggregated_geometry | safe }},
-                        country: '{{ shape.country }}'
-                    },
-                {% endfor %}
-            ];
-
-        };
-
-        var provinceShapeData = getProvinceShapes();
-        var countryShapeData = getCountryShapes();
+        var countryShapeData =  [
+            // JavaScript object representing modern day province shape data
+            {% for shape in countries %}
+                {
+                    geometry: {{ shape.aggregated_geometry | safe }},
+                    country: '{{ shape.country }}'
+                },
+            {% endfor %}
+        ];
 
         var map = L.map('map').setView([0, 0], 2);
 
