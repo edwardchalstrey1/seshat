@@ -16,12 +16,7 @@
                 </legend>
                 <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>GADM</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
-            </fieldset>
-            <p></p>
-            <fieldset>
-                <legend>
-                    <h5>Base map displayed level</h5>
-                </legend>
+                <label for="baseMapGADM">Base map level:</label>
                 <select name="baseMapGADM" id="baseMapGADM" onchange="switchGADMBase()">
                     <option value="country">Countries</option>
                     <option value="province">Provinces</option>
