@@ -148,6 +148,11 @@
                                 return [coord[1], coord[0]];
                             });
                             var polygon = L.polygon(coordinates).addTo(map);
+                            if (base == 'province') {
+                                polygon.bindPopup(`${shape.province} (${shape.provinceType})`);
+                            } else if (base == 'country') {
+                                polygon.bindPopup(shape.country);
+                            }
                             // Set the style using the style method
                             polygon.setStyle({
                                 fillColor: 'white',   // Set the fill color based on the "colour" field
