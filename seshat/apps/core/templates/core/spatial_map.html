@@ -145,8 +145,7 @@
         }
 
         function switchGADMBase() {
-            var selectedBaseMapGADM = document.querySelector('input[name="baseMapGADM"]:checked').value;
-            // Redirect to the same page with the selected country as a parameter
+            var selectedBaseMapGADM = document.getElementById("baseMapGADM").value;
             window.location.href = '{% url "spatial_map" %}?gadmbase=' + selectedBaseMapGADM;
             provinceShapeData = getProvinceOrCountryShapes();
             switchBaseMap()
