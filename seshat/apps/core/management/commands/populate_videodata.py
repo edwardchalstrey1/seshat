@@ -35,6 +35,8 @@ class Command(BaseCommand):
                             polity_years[properties['PolID']] = []
                         polity_years[properties['PolID']].append(properties['Year'])
 
+                self.stdout.write(self.style.SUCCESS(f'Successfully generated end date for {filename}'))
+
         # Iterate over files in the directory
         for filename in os.listdir(dir):
             if filename.endswith('.geojson'):
