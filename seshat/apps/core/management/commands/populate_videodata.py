@@ -12,15 +12,15 @@ class Command(BaseCommand):
     help = 'Populates the database with Shapefiles'
 
     def add_arguments(self, parser):
-        parser.add_argument('base_dir', type=str, help='Base directory containing geojson files')
+        parser.add_argument('dir', type=str, help='Directory containing geojson files')
 
     def handle(self, *args, **options):
-        base_dir = options['base_dir']
+        dir = options['dir']
 
         # Iterate through each file in the base directory
-        for file_name in os.listdir(base_dir):
+        for file_name in os.listdir(dir):
             if file_name.endswith(".geojson"):
-                file_path = os.path.join(base_dir, file_name)
+                file_path = os.path.join(dir, file_name)
 
                 # Read GeoJSON file using geopandas
                 gdf = gpd.read_file(file_path)
