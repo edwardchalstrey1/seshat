@@ -26,11 +26,11 @@ class Command(BaseCommand):
                 file_name = '_'.join(parts[:-1])
                 end_year_str = parts[-1]
 
-                # Determine whether the end_year is BCE
-                is_bce = end_year_str.upper() == 'BCE'
-
                 # Convert end_year to an integer
-                end_year = int(end_year_str) * (-1 if is_bce else 1)
+                if 'BCE' in end_year_str:
+                    end_year = int(end_year_str.replace('BCE', '')) * -1
+                elif 'CE' in end_year_str:
+                    end_year = int(end_year_str.replace('CE', ''))
 
                 # Read and parse the GeoJSON file
                 with open(file_path, 'r') as geojson_file:
