@@ -30,15 +30,16 @@ class Command(BaseCommand):
                     if geom.geom_type == 'Polygon':
                         geom = MultiPolygon(geom)
 
-                    VideoShapefile.objects.create(
-                        geom=geom,
-                        name=properties['Name'],
-                        name_underscores=properties['PolID'],
-                        wikipedia_name=properties['Wikipedia'],
-                        seshat_id=properties['SeshatID'],
-                        area=properties['Area_km2'],
-                        start_year=properties['Year'],
-                        end_year=properties['Year']  # TODO: Adjust as needed
-                    )
+                    if properties['Type'] == 'POLITY':
+                        VideoShapefile.objects.create(
+                            geom=geom,
+                            name=properties['Name'],
+                            name_underscores=properties['PolID'],
+                            wikipedia_name=properties['Wikipedia'],
+                            seshat_id=properties['SeshatID'],
+                            area=properties['Area_km2'],
+                            start_year=properties['Year'],
+                            end_year=properties['Year']  # TODO: Adjust as needed
+                        )
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported data from {filename}'))
