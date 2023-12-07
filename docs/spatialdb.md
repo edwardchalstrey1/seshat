@@ -26,6 +26,15 @@ To create a new shape dataset for use in the Seshat map explorer, you can do the
         python manage.py populate_macrostate /path/to/data
     ```
 
+## RA curated dataset
+
+1. Download and unzip the [dataset](https://drive.google.com/file/d/1qrBnwSdIM2LLBsgVWtn0k1C_cO8l2FQR/view?usp=drive_link) dataset
+    - Note: this is a private drive link
+2. Populate `core_videoshapefile` table
+    ```
+        python manage.py populate_videodata /path/to/data
+    ```
+
 ## GADM
 
 1. [Download](https://geodata.ucdavis.edu/gadm/gadm4.1/gadm_410-gpkg.zip) the whole world GeoPackage file from the [GADM website](https://gadm.org/download_world.html).
