@@ -635,6 +635,19 @@ class MacrostateShapefile(models.Model):
     date_from = models.CharField(max_length=50, null=True)
     date_to = models.CharField(max_length=50, null=True)
 
+class VideoShapefile(models.Model):
+    geom = models.MultiPolygonField()
+    name=models.CharField(max_length=100, null=True)
+    name_underscores=models.CharField(max_length=100, null=True)
+    wikipedia_name=models.CharField(max_length=100, null=True)
+    seshat_id=models.CharField(max_length=100, blank=True, null=True)
+    area=models.FloatField()
+    start_year = models.IntegerField()
+    end_year = models.IntegerField()
+
+    def __str__(self):
+        return "Name: %s" % self.name
+
 class GADMShapefile(models.Model):
     geom = models.MultiPolygonField()
     UID=models.BigIntegerField()
