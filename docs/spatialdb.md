@@ -13,8 +13,9 @@ To create a new shape dataset for use in the Seshat map explorer, you can do the
 3. Create a new "command" at `seshat/apps/core/management/commands` which can be used to populate the db table from the dataset files
     - See the examples below
     - Add a new header on this page to document here how this works
-4. Update the map template with the necessary logic to use this dataset
-    - e.g. `seshat/apps/core/templates/core/spatial_map.html`
+4. Create a new view and update the the map template with the necessary logic to use this dataset
+    - views at `seshat/apps/core/views.py`
+    - template e.g. `seshat/apps/core/templates/core/spatial_map.html`
 
 ## Macrostate shapefiles dataset
 
