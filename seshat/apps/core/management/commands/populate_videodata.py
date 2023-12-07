@@ -1,6 +1,6 @@
 import os
 import json
-from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand
 from seshat.apps.core.models import VideoShapefile
 
@@ -25,10 +25,13 @@ class Command(BaseCommand):
                 # Extract data and create VideoShapefile instances
                 for feature in geojson_data['features']:
                     properties = feature['properties']
-                    geometry = feature['geometry']
+                    geom=GEOSGeometry(json.dumps(feature['geometry']))
+                    # Convert Polygon to MultiPolygon if necessary
+                    if geom.geom_type == 'Polygon':
+                        geom = MultiPolygon(geom)
 
                     VideoShapefile.objects.create(
-                        geom=GEOSGeometry(json.dumps(geometry)),
+                        geom=geom,
                         name=properties['Name'],
                         name_underscores=properties['PolID'],
                         wikipedia_name=properties['Wikipedia'],
