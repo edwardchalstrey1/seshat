@@ -1,8 +1,8 @@
 import os
-import geopandas as gpd
+import json
+from django.contrib.gis.geos import GEOSGeometry
 from django.core.management.base import BaseCommand
 from seshat.apps.core.models import VideoShapefile
-from shapely.geometry import shape
 
 class Command(BaseCommand):
     help = 'Populates the database with Shapefiles'
@@ -13,24 +13,29 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         dir = options['dir']
 
+        # Iterate over files in the directory
         for filename in os.listdir(dir):
             if filename.endswith('.geojson'):
-                filepath = os.path.join(dir, filename)
+                file_path = os.path.join(dir, filename)
 
-                # Load GeoJSON file using geopandas
-                gdf = gpd.read_file(filepath)
+                # Read and parse the GeoJSON file
+                with open(file_path, 'r') as geojson_file:
+                    geojson_data = json.load(geojson_file)
 
-                for index, row in gdf.iterrows():
-                    # Extract fields from GeoDataFrame and create VideoShapefile object
-                    video_shapefile = VideoShapefile(
-                        geom=shape(row.geometry),
-                        name=row['Name'],
-                        name_underscores=row['PolID'],
-                        start_year=row['Year'],
-                        area=row['Area_km2'],
-                        seshat_id=row['SeshatID'],
-                        wikipedia_name=row['Wikipedia'],
+                # Extract data and create VideoShapefile instances
+                for feature in geojson_data['features']:
+                    properties = feature['properties']
+                    geometry = feature['geometry']
+
+                    VideoShapefile.objects.create(
+                        geom=GEOSGeometry(json.dumps(geometry)),
+                        name=properties['Name'],
+                        name_underscores=properties['PolID'],
+                        wikipedia_name=properties['Wikipedia'],
+                        seshat_id=properties['SeshatID'],
+                        area=properties['Area_km2'],
+                        start_year=properties['Year'],
+                        end_year=properties['Year']  # TODO: Adjust as needed
                     )
-                    video_shapefile.save()
 
-                self.stdout.write(self.style.SUCCESS(f'Successfully loaded data from {filename}'))
+                self.stdout.write(self.style.SUCCESS(f'Successfully imported data from {filename}'))
