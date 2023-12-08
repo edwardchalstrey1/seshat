@@ -34,6 +34,18 @@ To create a new shape dataset for use in the Seshat map explorer, you can do the
     ```
         python manage.py populate_videodata /path/to/data
     ```
+    - This will create a row for each shape. The `end_year` of a shape is calculated to be the `start_year` of the next shape for that polity, and is left blank for the last shape.
+3. To add the `end_year` for last shape of each polity, go into the database (`psql -U postgres -d <seshat_db_name>`) and run the following query:
+    ```{SQL}
+        UPDATE core_videoshapefile
+        SET end_year = CASE
+            WHEN core_polity.new_name IS NOT NULL AND core_videoshapefile.end_year IS NULL THEN EXTRACT(YEAR FROM CURRENT_DATE)
+            ELSE core_polity.end_year
+        END
+        FROM core_polity
+        WHERE core_videoshapefile.seshat_id = core_polity.new_name AND core_videoshapefile.end_year IS NULL;
+    ```
+    - This will get the `end_year` from the polity unless
 
 ## GADM
 
