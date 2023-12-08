@@ -1,6 +1,5 @@
 import os
 import json
-from datetime import datetime
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand
 from seshat.apps.core.models import VideoShapefile
@@ -52,15 +51,15 @@ class Command(BaseCommand):
                     if properties['Type'] == 'POLITY':
 
                         # Get the end year for a shape from the next shape for that polity start year minus one
-                        this_polity_years =  sorted(polity_years[properties['PolID']])
+                        this_polity_years = sorted(polity_years[properties['PolID']])
                         this_year_index = this_polity_years.index(properties['Year'])
                         try:
-                            end_year = this_polity_years[this_year_index+1] - 1
-                        except:
-                            end_year = datetime.now().year # Assume the last shape runs until present day TODO: change this to the polity end date later
+                            end_year = this_polity_years[this_year_index + 1] - 1
+                        except IndexError:
+                            end_year = None  # Set end_year to None if there is no next year
                         
                         # Save geom and convert Polygon to MultiPolygon if necessary
-                        geom=GEOSGeometry(json.dumps(feature['geometry']))
+                        geom = GEOSGeometry(json.dumps(feature['geometry']))
                         if geom.geom_type == 'Polygon':
                             geom = MultiPolygon(geom)
 
