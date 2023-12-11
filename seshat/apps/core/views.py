@@ -52,7 +52,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 from ..general.models import Polity_research_assistant
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, MacrostateShapefile, GADMShapefile, GADMCountries, VideoShapefile
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, VideoShapefile
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -1525,12 +1525,7 @@ def map_view(request):
         This view is used to display a map with polities plotted on it.
     """
 
-    # TODO: Implement a toggle between datasets or remove MacrostateShapefile completely
-    video_dataset = True
-    if video_dataset:
-        shapes = VideoShapefile.objects.all()
-    else:
-        shapes = MacrostateShapefile.objects.all()
+    shapes = VideoShapefile.objects.all()
 
     all_years = set()
     all_polities = set()
@@ -1538,52 +1533,21 @@ def map_view(request):
     for shape in shapes:
 
         # Temporary macrostate => video shape adjustments
-        if video_dataset:
-            shape.polity = shape.name_underscores
-            shape.colour = shape.hex
-            shape.date_from = shape.start_year
+        shape.polity = shape.name_underscores
+        shape.colour = shape.hex
+        shape.date_from = shape.start_year
 
-            # TODO: remove this temp fix that accounts for shapes with no end year in the db
-            if shape.end_year:
-                shape.date_to = shape.end_year
-            else:
-                shape.date_to = shape.start_year
+        # TODO: remove this temp fix that accounts for shapes with no end year in the db
+        if shape.end_year:
+            shape.date_to = shape.end_year
+        else:
+            shape.date_to = shape.start_year
 
         if shape.polity is not None:
             all_polities.add(shape.polity)
         if shape.date_from is not None and shape.date_to is not None:
-
-            if video_dataset:
-                all_years.add(shape.date_from)
-                all_years.add(shape.date_to)
-            else:
-                start_year = int(shape.date_from[:-3] if 'BCE' in shape.date_from else shape.date_from[:-2])
-                end_year = int(shape.date_to[:-3] if 'BCE' in shape.date_to else shape.date_to[:-2])
-
-                # For BCE dates, make the value negative
-                if 'BCE' in shape.date_from:
-                    start_year = -start_year
-                if 'BCE' in shape.date_to:
-                    end_year = -end_year
-
-                shape.start_year = start_year
-                shape.end_year = end_year
-                all_years.add(start_year)
-                all_years.add(end_year)
-
-                # Unique sorted polities each have a colour
-                # Add the colour to each shape. Where a shape lacks a polity, set it to black.
-                # NOTE: for the macrostate dataset, polities do not have a consistent value in the polity field across time
-                unique_polities = sorted(all_polities)
-                colours = []
-                for col in get_colors(len(unique_polities)):
-                    colours.append(get_hex(col))
-                pol_col_mapping = dict(zip(unique_polities, colours))
-                for shape in shapes:
-                    try:
-                        shape.colour = pol_col_mapping[shape.polity]
-                    except:
-                        shape.colour = '#000000'
+            all_years.add(shape.date_from)
+            all_years.add(shape.date_to)
 
     # Filter out the unique years and sort them
     unique_years = sorted(all_years)
