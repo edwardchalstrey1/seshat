@@ -74,13 +74,13 @@ class Command(BaseCommand):
                         VideoShapefile.objects.create(
                             geom=geom,
                             name=properties['Name'],
-                            name_underscores=properties['PolID'],
+                            polity=properties['PolID'],
                             wikipedia_name=properties['Wikipedia'],
                             seshat_id=properties['SeshatID'],
                             area=properties['Area_km2'],
                             start_year=properties['Year'],
                             end_year=end_year,
-                            hex=pol_col_map[properties['PolID']]
+                            colour=pol_col_map[properties['PolID']]
                         )
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported data from {filename}'))

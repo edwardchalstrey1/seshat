@@ -1532,22 +1532,15 @@ def map_view(request):
 
     for shape in shapes:
 
-        # Temporary macrostate => video shape adjustments
-        shape.polity = shape.name_underscores
-        shape.colour = shape.hex
-        shape.date_from = shape.start_year
-
         # TODO: remove this temp fix that accounts for shapes with no end year in the db
-        if shape.end_year:
-            shape.date_to = shape.end_year
-        else:
-            shape.date_to = shape.start_year
+        if not shape.end_year:
+            shape.end_year = shape.start_year
 
         if shape.polity is not None:
             all_polities.add(shape.polity)
-        if shape.date_from is not None and shape.date_to is not None:
-            all_years.add(shape.date_from)
-            all_years.add(shape.date_to)
+        if shape.start_year is not None and shape.end_year is not None:
+            all_years.add(shape.start_year)
+            all_years.add(shape.end_year)
 
     # Filter out the unique years and sort them
     unique_years = sorted(all_years)

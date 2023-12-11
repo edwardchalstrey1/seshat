@@ -638,13 +638,13 @@ class MacrostateShapefile(models.Model):
 class VideoShapefile(models.Model):
     geom = models.MultiPolygonField()
     name=models.CharField(max_length=100)
-    name_underscores=models.CharField(max_length=100)
+    polity=models.CharField(max_length=100)
     wikipedia_name=models.CharField(max_length=100, null=True)
     seshat_id=models.CharField(max_length=100)
     area=models.FloatField()
     start_year = models.IntegerField()
     end_year = models.IntegerField(null=True)
-    hex=models.CharField(max_length=7)
+    colour=models.CharField(max_length=7)
 
     def __str__(self):
         return "Name: %s" % self.name
