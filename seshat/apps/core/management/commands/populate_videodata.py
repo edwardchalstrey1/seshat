@@ -1,5 +1,6 @@
 import os
 import json
+from distinctipy import get_colors, get_hex
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand
 from seshat.apps.core.models import VideoShapefile
@@ -15,6 +16,8 @@ class Command(BaseCommand):
 
         # Dict of all the shape years for a given polity
         polity_years = {}
+        # Set of all polities, for generating colour mapping
+        all_polities = set()
         # Iterate over files in the directory
         for filename in os.listdir(dir):
             if filename.endswith('.geojson'):
@@ -34,7 +37,12 @@ class Command(BaseCommand):
                             polity_years[properties['PolID']] = []
                         polity_years[properties['PolID']].append(properties['Year'])
 
+                        all_polities.add(properties['PolID'])
+
                 self.stdout.write(self.style.SUCCESS(f'Successfully generated end date for {filename}'))
+
+        unique_polities = sorted(all_polities)
+        pol_col_map = polity_colour_mapping(unique_polities)
 
         # Iterate over files in the directory
         for filename in os.listdir(dir):
@@ -71,7 +79,16 @@ class Command(BaseCommand):
                             seshat_id=properties['SeshatID'],
                             area=properties['Area_km2'],
                             start_year=properties['Year'],
-                            end_year=end_year
+                            end_year=end_year,
+                            hex=pol_col_map[properties['PolID']]
                         )
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported data from {filename}'))
+
+
+def polity_colour_mapping(polities):
+    """Use DistinctiPy package to assign a colour to each polity"""
+    colours = []
+    for col in get_colors(len(polities)):
+        colours.append(get_hex(col))
+    return dict(zip(polities, colours))
