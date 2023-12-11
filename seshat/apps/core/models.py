@@ -644,6 +644,7 @@ class VideoShapefile(models.Model):
     area=models.FloatField()
     start_year = models.IntegerField()
     end_year = models.IntegerField(null=True)
+    hex=models.CharField(max_length=7)
 
     def __str__(self):
         return "Name: %s" % self.name
