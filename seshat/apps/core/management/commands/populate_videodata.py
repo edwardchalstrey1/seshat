@@ -40,7 +40,6 @@ class Command(BaseCommand):
                         all_polities.add(properties['PolID'])
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully extracted date for {filename}'))
-        print("ergeargqerg")
         unique_polities = sorted(all_polities)
         pol_col_map = polity_colour_mapping(unique_polities)
 
