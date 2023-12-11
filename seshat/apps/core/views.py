@@ -1540,6 +1540,7 @@ def map_view(request):
         # Temporary macrostate => video shape adjustments
         if video_dataset:
             shape.polity = shape.name_underscores
+            shape.colour = shape.hex
             shape.date_from = shape.start_year
 
             # TODO: remove this temp fix that accounts for shapes with no end year in the db
@@ -1570,22 +1571,22 @@ def map_view(request):
                 all_years.add(start_year)
                 all_years.add(end_year)
 
+                # Unique sorted polities each have a colour
+                # Add the colour to each shape. Where a shape lacks a polity, set it to black.
+                # NOTE: for the macrostate dataset, polities do not have a consistent value in the polity field across time
+                unique_polities = sorted(all_polities)
+                colours = []
+                for col in get_colors(len(unique_polities)):
+                    colours.append(get_hex(col))
+                pol_col_mapping = dict(zip(unique_polities, colours))
+                for shape in shapes:
+                    try:
+                        shape.colour = pol_col_mapping[shape.polity]
+                    except:
+                        shape.colour = '#000000'
+
     # Filter out the unique years and sort them
     unique_years = sorted(all_years)
-
-    # Unique sorted polities each have a colour
-    # Add the colour to each shape. Where a shape lacks a polity, set it to black.
-    # NOTE: for the macrostate dataset, polities do not have a consistent value in the polity field across time
-    unique_polities = sorted(all_polities)
-    colours = []
-    for col in get_colors(len(unique_polities)):
-        colours.append(get_hex(col))
-    pol_col_mapping = dict(zip(unique_polities, colours))
-    for shape in shapes:
-        try:
-            shape.colour = pol_col_mapping[shape.polity]
-        except:
-            shape.colour = '#000000'
 
     # Get a list of centuries
     earliest_century = floor(unique_years[0] / 100) * 100
