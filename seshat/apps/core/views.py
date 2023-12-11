@@ -1541,7 +1541,12 @@ def map_view(request):
         if video_dataset:
             shape.polity = shape.name_underscores
             shape.date_from = shape.start_year
-            shape.date_to = shape.end_year
+
+            # TODO: remove this temp fix that accounts for shapes with no end year in the db
+            if shape.end_year:
+                shape.date_to = shape.end_year
+            else:
+                shape.date_to = shape.start_year
 
         if shape.polity is not None:
             all_polities.add(shape.polity)
