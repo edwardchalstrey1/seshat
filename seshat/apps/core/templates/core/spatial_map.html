@@ -192,8 +192,7 @@
             if (!document.getElementById('baseMapOnly').checked){
                 shapesData.forEach(function (shape) {
                     // If the shape spans the selected year
-                    // Note: If the selected year is the shape.endYear it won't show. This decision prevents overlap in the macrostate dataset.
-                    if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) > selectedYearInt)) {
+                    if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                             style: function (feature) {
                                 return {
