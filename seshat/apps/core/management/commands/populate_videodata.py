@@ -40,7 +40,7 @@ class Command(BaseCommand):
                         all_polities.add(properties['PolID'])
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully extracted date for {filename}'))
-
+        print("ergeargqerg")
         unique_polities = sorted(all_polities)
         pol_col_map = polity_colour_mapping(unique_polities)
 
@@ -101,6 +101,5 @@ def polity_colour_mapping(polities):
     i = 0
     for col in get_colors(len(polities)):
         colours.append(get_hex(col))
-        self.stdout.write(self.style.SUCCESS(f'Successfully generated colour for {polities[i]}'))
         i+=1
     return dict(zip(polities, colours))
