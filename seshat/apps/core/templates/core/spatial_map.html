@@ -68,6 +68,8 @@
                 {
                     startYear: '{{ shape.start_year }}',
                     endYear: '{{ shape.end_year }}',
+                    polityStartYear: '{{ shape.polity_start_year }}',
+                    polityEndYear: '{{ shape.polity_start_year }}',
                     geometry: '{{ shape.geom.geojson | safe }}',
                     name: '{{ shape.name }}',
                     colour: '{{ shape.colour }}'
@@ -203,9 +205,9 @@
                                 };
                             },
                             onEachFeature: function (feature, layer) {
-                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
-                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
-                                    '<b>End Year:</b> ' + shape.endYear;
+                                var popupContent = '<b>Polity:</b> ' + shape.name + '<br>' +
+                                    '<b>Start:</b> ' + shape.polityStartYear + '<br>' +
+                                    '<b>End:</b> ' + shape.polityEndYear;
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
