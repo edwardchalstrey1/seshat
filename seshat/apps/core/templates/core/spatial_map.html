@@ -31,8 +31,8 @@
                 <legend>
                     <h3>Show</h3>
                 </legend>
-                <label><input type="radio" name="displayedData" value="macro" onclick="selectDisplayedData()" checked>Historical polities</label><br>
-                <label><input type="radio" name="displayedData" value="gadm" onclick="selectDisplayedData()">Current administrative areas</label><br>
+                <label><input type="radio" name="displayedData" value="historical" onclick="selectDisplayedData()" checked>Historical polities</label><br>
+                <label><input type="radio" name="displayedData" value="current" onclick="selectDisplayedData()">Current administrative areas</label><br>
             </fieldset>
             <p></p>
             <fieldset>
@@ -220,9 +220,9 @@
 
         function selectDisplayedData() {
             var selectedData = document.querySelector('input[name="displayedData"]:checked').value;
-            if (selectedData === 'gadm') {
+            if (selectedData === 'current') {
                 window.location.href = '{% url "gadm_map" %}';
-            } else if (selectedData === 'macro') {
+            } else if (selectedData === 'historical') {
                 window.location.href = '{% url "spatial_map" %}'
             } else {
                 window.location.href = '{% url "spatial_map" %}?data=' + selectedData;
