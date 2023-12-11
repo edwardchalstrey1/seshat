@@ -642,8 +642,10 @@ class VideoShapefile(models.Model):
     wikipedia_name=models.CharField(max_length=100, null=True)
     seshat_id=models.CharField(max_length=100)
     area=models.FloatField()
-    start_year = models.IntegerField()
-    end_year = models.IntegerField(null=True)
+    start_year=models.IntegerField()
+    end_year=models.IntegerField()
+    polity_start_year=models.IntegerField()
+    polity_end_year=models.IntegerField()
     colour=models.CharField(max_length=7)
 
     def __str__(self):

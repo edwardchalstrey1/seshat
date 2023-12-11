@@ -1528,16 +1528,7 @@ def map_view(request):
     shapes = VideoShapefile.objects.all()
 
     all_years = set()
-    all_polities = set()
-
     for shape in shapes:
-
-        # TODO: remove this temp fix that accounts for shapes with no end year in the db
-        if not shape.end_year:
-            shape.end_year = shape.start_year
-
-        if shape.polity is not None:
-            all_polities.add(shape.polity)
         if shape.start_year is not None and shape.end_year is not None:
             all_years.add(shape.start_year)
             all_years.add(shape.end_year)

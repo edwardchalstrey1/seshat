@@ -57,14 +57,21 @@ class Command(BaseCommand):
                 for feature in geojson_data['features']:
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
+                        
+                        # Get a sorted list of the shape years this polity
+                        this_polity_years = sorted(polity_years[properties['PolID']])
+
+                        # Get the polity start and end years
+                        polity_start_year = this_polity_years[0]
+                        polity_end_year = this_polity_years[-1]
 
                         # Get the end year for a shape from the next shape for that polity start year minus one
-                        this_polity_years = sorted(polity_years[properties['PolID']])
+                        
                         this_year_index = this_polity_years.index(properties['Year'])
                         try:
                             end_year = this_polity_years[this_year_index + 1] - 1
                         except IndexError:
-                            end_year = None  # Set end_year to None if there is no next year
+                            end_year = polity_end_year
                         
                         # Save geom and convert Polygon to MultiPolygon if necessary
                         geom = GEOSGeometry(json.dumps(feature['geometry']))
@@ -80,6 +87,8 @@ class Command(BaseCommand):
                             area=properties['Area_km2'],
                             start_year=properties['Year'],
                             end_year=end_year,
+                            polity_start_year=polity_start_year,
+                            polity_end_year=polity_end_year,
                             colour=pol_col_map[properties['PolID']]
                         )
 
