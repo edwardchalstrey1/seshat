@@ -1527,26 +1527,10 @@ def map_view(request):
 
     shapes = VideoShapefile.objects.all()
 
-    all_years = set()
-    for shape in shapes:
-        if shape.start_year is not None and shape.end_year is not None:
-            all_years.add(shape.start_year)
-            all_years.add(shape.end_year)
-
-    # Filter out the unique years and sort them
-    unique_years = sorted(all_years)
-
-    # Get a list of centuries
-    earliest_century = floor(unique_years[0] / 100) * 100
-    latest_century = ceil(unique_years[-1] / 100) * 100
-    centuries = [num for num in range(earliest_century, latest_century + 1) if num % 100 == 0]
-    century_strings = []
-    for century in centuries:
-        if century < 0:
-            century_strings.append(str(abs(century)) + "BCE")
-        else:
-            century_strings.append(str(century) + "CE")
-    centuries_zipped = zip(centuries, century_strings)
+    # Set some vars for the range of years to display
+    earliest_year = -3400
+    display_year = 0
+    latest_year = 2023
 
     def get_provinces(selected_base_map_gadm='province'):
 
@@ -1595,12 +1579,12 @@ def map_view(request):
         return provinces
 
     content = {'shapes': shapes,
-                'earliest_century': earliest_century,
-                'latest_century': latest_century,
-                'centuries': dict(centuries_zipped),
-                'provinces': get_provinces(),
-                'countries': get_provinces(selected_base_map_gadm='country')
-                }
+               'provinces': get_provinces(),
+               'countries': get_provinces(selected_base_map_gadm='country'),
+               'earliest_year': earliest_year,
+               'display_year': display_year,
+               'latest_year': latest_year
+               }
     
     return render(request,
                   'core/spatial_map.html',
