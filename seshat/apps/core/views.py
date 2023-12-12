@@ -1528,9 +1528,10 @@ def map_view(request):
     shapes = VideoShapefile.objects.all()
 
     # Set some vars for the range of years to display
+    # TODO: ensure these reflect the true extent of polity shape data
     earliest_year = -3400
     display_year = 0
-    latest_year = 2023
+    latest_year = 2014
 
     def get_provinces(selected_base_map_gadm='province'):
 
