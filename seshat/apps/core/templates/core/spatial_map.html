@@ -31,8 +31,8 @@
                 <legend>
                     <h3>Show</h3>
                 </legend>
-                <label><input type="radio" name="displayedData" value="macro" onclick="selectDisplayedData()" checked>Historical polities</label><br>
-                <label><input type="radio" name="displayedData" value="gadm" onclick="selectDisplayedData()">Current administrative areas</label><br>
+                <label><input type="radio" name="displayedData" value="historical" onclick="selectDisplayedData()" checked>Historical polities</label><br>
+                <label><input type="radio" name="displayedData" value="current" onclick="selectDisplayedData()">Current administrative areas</label><br>
             </fieldset>
             <p></p>
             <fieldset>
@@ -45,7 +45,7 @@
                     <input type="number" id="enterYear" name="enterYear" value="0" style="width: 75px;">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
                     <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_century }}" max="{{ latest_century }}" value="0" class="slider" onchange="plotPolities()" style="width: 300px;"><br>
+                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities()" style="width: 300px;"><br>
                     <label for="sliderDate">Selected year:</label>
                     <span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
@@ -68,6 +68,8 @@
                 {
                     startYear: '{{ shape.start_year }}',
                     endYear: '{{ shape.end_year }}',
+                    polityStartYear: '{{ shape.polity_start_year }}',
+                    polityEndYear: '{{ shape.polity_end_year }}',
                     geometry: '{{ shape.geom.geojson | safe }}',
                     name: '{{ shape.name }}',
                     colour: '{{ shape.colour }}'
@@ -192,8 +194,7 @@
             if (!document.getElementById('baseMapOnly').checked){
                 shapesData.forEach(function (shape) {
                     // If the shape spans the selected year
-                    // Note: If the selected year is the shape.endYear it won't show. This decision prevents overlap in the macrostate dataset.
-                    if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) > selectedYearInt)) {
+                    if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                             style: function (feature) {
                                 return {
@@ -204,9 +205,9 @@
                                 };
                             },
                             onEachFeature: function (feature, layer) {
-                                var popupContent = '<b>Name:</b> ' + shape.name + '<br>' +
-                                    '<b>Start Year:</b> ' + shape.startYear + '<br>' +
-                                    '<b>End Year:</b> ' + shape.endYear;
+                                var popupContent = '<b>Polity:</b> ' + shape.name + '<br>' +
+                                    '<b>Start:</b> ' + shape.polityStartYear + '<br>' +
+                                    '<b>End:</b> ' + shape.polityEndYear;
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
@@ -221,9 +222,9 @@
 
         function selectDisplayedData() {
             var selectedData = document.querySelector('input[name="displayedData"]:checked').value;
-            if (selectedData === 'gadm') {
+            if (selectedData === 'current') {
                 window.location.href = '{% url "gadm_map" %}';
-            } else if (selectedData === 'macro') {
+            } else if (selectedData === 'historical') {
                 window.location.href = '{% url "spatial_map" %}'
             } else {
                 window.location.href = '{% url "spatial_map" %}?data=' + selectedData;

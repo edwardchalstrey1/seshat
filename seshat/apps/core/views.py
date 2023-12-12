@@ -52,7 +52,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 from ..general.models import Polity_research_assistant
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, MacrostateShapefile, GADMShapefile, GADMCountries
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, VideoShapefile
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -1525,59 +1525,13 @@ def map_view(request):
         This view is used to display a map with polities plotted on it.
     """
 
-    # TODO: switch to a more complete polities dataset
-    shapes = MacrostateShapefile.objects.all()
+    shapes = VideoShapefile.objects.all()
 
-    all_years = set()
-    all_polities = set()
-
-    for shape in shapes:
-        if shape.polity is not None:
-            all_polities.add(shape.polity)
-        if shape.date_from is not None and shape.date_to is not None:
-            start_year = int(shape.date_from[:-3] if 'BCE' in shape.date_from else shape.date_from[:-2])
-            end_year = int(shape.date_to[:-3] if 'BCE' in shape.date_to else shape.date_to[:-2])
-
-            # For BCE dates, make the value negative
-            if 'BCE' in shape.date_from:
-                start_year = -start_year
-            if 'BCE' in shape.date_to:
-                end_year = -end_year
-
-            all_years.add(start_year)
-            all_years.add(end_year)
-
-            shape.start_year = start_year
-            shape.end_year = end_year
-
-    # Filter out the unique years and sort them
-    unique_years = sorted(all_years)
-
-    # Unique sorted polities each have a colour
-    # Add the colour to each shape. Where a shape lacks a polity, set it to black.
-    # NOTE: for the macrostate dataset, polities do not have a consistent value in the polity field across time
-    unique_polities = sorted(all_polities)
-    colours = []
-    for col in get_colors(len(unique_polities)):
-        colours.append(get_hex(col))
-    pol_col_mapping = dict(zip(unique_polities, colours))
-    for shape in shapes:
-        try:
-            shape.colour = pol_col_mapping[shape.polity]
-        except:
-            shape.colour = '#000000'
-
-    # Get a list of centuries
-    earliest_century = floor(unique_years[0] / 100) * 100
-    latest_century = ceil(unique_years[-1] / 100) * 100
-    centuries = [num for num in range(earliest_century, latest_century + 1) if num % 100 == 0]
-    century_strings = []
-    for century in centuries:
-        if century < 0:
-            century_strings.append(str(abs(century)) + "BCE")
-        else:
-            century_strings.append(str(century) + "CE")
-    centuries_zipped = zip(centuries, century_strings)
+    # Set some vars for the range of years to display
+    # TODO: ensure these reflect the true extent of polity shape data
+    earliest_year = -3400
+    display_year = 0
+    latest_year = 2014
 
     def get_provinces(selected_base_map_gadm='province'):
 
@@ -1626,12 +1580,12 @@ def map_view(request):
         return provinces
 
     content = {'shapes': shapes,
-                'earliest_century': earliest_century,
-                'latest_century': latest_century,
-                'centuries': dict(centuries_zipped),
-                'provinces': get_provinces(),
-                'countries': get_provinces(selected_base_map_gadm='country')
-                }
+               'provinces': get_provinces(),
+               'countries': get_provinces(selected_base_map_gadm='country'),
+               'earliest_year': earliest_year,
+               'display_year': display_year,
+               'latest_year': latest_year
+               }
     
     return render(request,
                   'core/spatial_map.html',
