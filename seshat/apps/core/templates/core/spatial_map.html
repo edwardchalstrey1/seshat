@@ -54,6 +54,8 @@
                     <label for="playRate">Play rate (years per second):</label>
                     <input type="number" id="playRate" name="playRate" value="10" style="width: 50px;"><br><br>
                 </div>
+                <p>Click a polity to reveal information.</p>
+                <p>Reach polity pages with double click.</p>
             </fieldset>
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
@@ -72,7 +74,8 @@
                     polityEndYear: '{{ shape.polity_end_year }}',
                     geometry: '{{ shape.geom.geojson | safe }}',
                     name: '{{ shape.name }}',
-                    colour: '{{ shape.colour }}'
+                    colour: '{{ shape.colour }}',
+                    seshatId: '{{ shape.seshat_id }}'
                 },
             {% endfor %}
         ];
@@ -175,6 +178,8 @@
             }
         }
 
+        var seshatIdPageId = {{ seshat_id_page_id | safe }};
+
         function plotPolities() {
 
             var selectedYear = document.getElementById('dateSlide').value;
@@ -193,24 +198,71 @@
             // Don't plot them if "Base map only" checkbox selected
             if (!document.getElementById('baseMapOnly').checked){
                 shapesData.forEach(function (shape) {
+
+                    // Make shapes that lack a linked Seshat page stand out
+                    if (shape.seshatId in seshatIdPageId) {
+                        var borderColour = shape.colour;
+                        var borderWeight = 0;
+                    } else {
+                        // Ed's note: I'm not convinced polity borders look good
+                        var borderColour = shape.colour;
+                        var borderWeight = 0;
+                        // var borderColour = 'red';
+                        // var borderWeight = 1;
+                    }
+
                     // If the shape spans the selected year
                     if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                             style: function (feature) {
                                 return {
                                     fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                    color: shape.colour,  // Set the border color
-                                    weight: 0,  // Set the border weight
+                                    color: borderColour,  // Set the border color
+                                    weight: borderWeight,  // Set the border weight
                                     fillOpacity: 0.5  // Set the fill opacity
                                 };
                             },
                             onEachFeature: function (feature, layer) {
-                                var popupContent = '<b>Polity:</b> ' + shape.name + '<br>' +
-                                    '<b>Start:</b> ' + shape.polityStartYear + '<br>' +
-                                    '<b>End:</b> ' + shape.polityEndYear;
+                                var popupContent = `
+                                    <table>
+                                        <tr>
+                                            <th>${shape.name}</th>
+                                            <th></th>
+                                        </tr>
+                                `;
+                                if (shape.seshatId in seshatIdPageId) {
+                                    popupContent = popupContent + `
+                                        <tr>
+                                            <td>Seshat page</td>
+                                            <td>${seshatIdPageId[shape.seshatId]['long_name']}</td>
+                                        </tr>
+                                    `;
+                                }
+                                popupContent = popupContent + `
+                                        <tr>
+                                            <td>Start</td>
+                                            <td>${shape.polityStartYear}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>End</td>
+                                            <td>${shape.polityEndYear}</td>
+                                        </tr>
+                                    </table>
+                                `;
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
+
+                        // Add double-click event listener to GeoJSON layers
+                        geoJSONLayer.on('dblclick', function (event) {
+                            // Check if the shape has a corresponding seshat_id
+                            if (shape.seshatId in seshatIdPageId) {
+                                // Redirect to the corresponding URL
+                                var polityId = seshatIdPageId[shape.seshatId]['id'];
+                                window.location.href = '/core/polity/' + polityId;
+                            }
+                        });
+
                         // Update the displayedShapes array
                         if (displayedShapes.indexOf(shape.name) === -1) {
                             displayedShapes.push(shape.name);
