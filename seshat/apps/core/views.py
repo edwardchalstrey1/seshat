@@ -1586,12 +1586,16 @@ def map_view(request):
             try:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT id FROM core_polity WHERE new_name = %s",
+                        "SELECT id, long_name FROM core_polity WHERE new_name = %s",
                         [shape.seshat_id]
                     )
                     row = cursor.fetchone()
                     if row:
-                        seshat_id_page_id[shape.seshat_id] = row[0]
+                        seshat_id_page_id[shape.seshat_id] = {}
+                        seshat_id_page_id[shape.seshat_id]['id'] = row[0]
+                        seshat_id_page_id[shape.seshat_id]['long_name'] = ""
+                        if row[1]:
+                            seshat_id_page_id[shape.seshat_id]['long_name'] = row[1]
             except Exception as e:
                 print(f"Error fetching ID for shape {shape.name}: {shape.seshat_id}: {e}")
 

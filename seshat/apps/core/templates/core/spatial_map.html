@@ -220,7 +220,7 @@
                             // Check if the shape has a corresponding seshat_id
                             if (shape.seshat_id in seshatIdPageId) {
                                 // Redirect to the corresponding URL
-                                var polityId = seshatIdPageId[shape.seshat_id];
+                                var polityId = seshatIdPageId[shape.seshat_id]['id'];
                                 window.location.href = '/core/polity/' + polityId;
                             }
                         });
