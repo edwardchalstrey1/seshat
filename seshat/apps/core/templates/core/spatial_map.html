@@ -73,7 +73,7 @@
                     geometry: '{{ shape.geom.geojson | safe }}',
                     name: '{{ shape.name }}',
                     colour: '{{ shape.colour }}',
-                    seshat_id: '{{ shape.seshat_id }}'
+                    seshatId: '{{ shape.seshat_id }}'
                 },
             {% endfor %}
         ];
@@ -208,9 +208,20 @@
                                 };
                             },
                             onEachFeature: function (feature, layer) {
-                                var popupContent = '<b>Polity:</b> ' + shape.name + '<br>' +
-                                    '<b>Start:</b> ' + shape.polityStartYear + '<br>' +
-                                    '<b>End:</b> ' + shape.polityEndYear;
+                                var popupContent = `
+                                    <table>
+                                        <tr>
+                                            <th>${shape.name}</th>
+                                            <th></th>
+                                        </tr>
+                                        <tr>
+                                            <td>Start</td>
+                                            <td>${shape.polityStartYear}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>End</td>
+                                            <td>${shape.polityEndYear}</td>
+                                        </tr>`;
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
@@ -218,9 +229,9 @@
                         // Add double-click event listener to GeoJSON layers
                         geoJSONLayer.on('dblclick', function (event) {
                             // Check if the shape has a corresponding seshat_id
-                            if (shape.seshat_id in seshatIdPageId) {
+                            if (shape.seshatId in seshatIdPageId) {
                                 // Redirect to the corresponding URL
-                                var polityId = seshatIdPageId[shape.seshat_id]['id'];
+                                var polityId = seshatIdPageId[shape.seshatId]['id'];
                                 window.location.href = '/core/polity/' + polityId;
                             }
                         });
