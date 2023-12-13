@@ -196,14 +196,21 @@
             // Don't plot them if "Base map only" checkbox selected
             if (!document.getElementById('baseMapOnly').checked){
                 shapesData.forEach(function (shape) {
+                    var borderColour = shape.colour;
+                    var borderWeight = 0;
+                    // Make shapes that have a linked Seshat page stand out
+                    if (shape.seshatId in seshatIdPageId) {
+                        borderColour = 'red'
+                        borderWeight = 1;
+                    }
                     // If the shape spans the selected year
                     if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                             style: function (feature) {
                                 return {
                                     fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                    color: shape.colour,  // Set the border color
-                                    weight: 0,  // Set the border weight
+                                    color: borderColour,  // Set the border color
+                                    weight: borderWeight,  // Set the border weight
                                     fillOpacity: 0.5  // Set the fill opacity
                                 };
                             },
