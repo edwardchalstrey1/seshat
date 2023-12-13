@@ -72,7 +72,8 @@
                     polityEndYear: '{{ shape.polity_end_year }}',
                     geometry: '{{ shape.geom.geojson | safe }}',
                     name: '{{ shape.name }}',
-                    colour: '{{ shape.colour }}'
+                    colour: '{{ shape.colour }}',
+                    seshat_id: '{{ shape.seshat_id }}'
                 },
             {% endfor %}
         ];
@@ -175,6 +176,8 @@
             }
         }
 
+        var seshatIdPageId = {{ seshat_id_page_id | safe }};
+
         function plotPolities() {
 
             var selectedYear = document.getElementById('dateSlide').value;
@@ -211,6 +214,17 @@
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
+
+                        // Add double-click event listener to GeoJSON layers
+                        geoJSONLayer.on('dblclick', function (event) {
+                            // Check if the shape has a corresponding seshat_id
+                            if (shape.seshat_id in seshatIdPageId) {
+                                // Redirect to the corresponding URL
+                                var polityId = seshatIdPageId[shape.seshat_id];
+                                window.location.href = '/core/polity/' + polityId;
+                            }
+                        });
+
                         // Update the displayedShapes array
                         if (displayedShapes.indexOf(shape.name) === -1) {
                             displayedShapes.push(shape.name);
