@@ -227,6 +227,16 @@
                                             <th>${shape.name}</th>
                                             <th></th>
                                         </tr>
+                                `;
+                                if (shape.seshatId in seshatIdPageId) {
+                                    popupContent = popupContent + `
+                                        <tr>
+                                            <td>Seshat page</td>
+                                            <td>${seshatIdPageId[shape.seshatId]['long_name']}</td>
+                                        </tr>
+                                    `;
+                                }
+                                popupContent = popupContent + `
                                         <tr>
                                             <td>Start</td>
                                             <td>${shape.polityStartYear}</td>
@@ -234,7 +244,9 @@
                                         <tr>
                                             <td>End</td>
                                             <td>${shape.polityEndYear}</td>
-                                        </tr>`;
+                                        </tr>
+                                    </table>
+                                `;
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
