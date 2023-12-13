@@ -97,8 +97,6 @@ class Command(BaseCommand):
 def polity_colour_mapping(polities):
     """Use DistinctiPy package to assign a colour to each polity"""
     colours = []
-    i = 0
     for col in get_colors(len(polities)):
         colours.append(get_hex(col))
-        i+=1
     return dict(zip(polities, colours))
