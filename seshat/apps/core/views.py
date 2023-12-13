@@ -1579,12 +1579,29 @@ def map_view(request):
 
         return provinces
 
+    # Update shapes with polity_id for loading Seshat pages
+    seshat_id_page_id = {}
+    for shape in shapes:
+        if shape.seshat_id:
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT id FROM core_polity WHERE new_name = %s",
+                        [shape.seshat_id]
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        seshat_id_page_id[shape.seshat_id] = row[0]
+            except Exception as e:
+                print(f"Error fetching ID for shape {shape.name}: {shape.seshat_id}: {e}")
+
     content = {'shapes': shapes,
                'provinces': get_provinces(),
                'countries': get_provinces(selected_base_map_gadm='country'),
                'earliest_year': earliest_year,
                'display_year': display_year,
-               'latest_year': latest_year
+               'latest_year': latest_year,
+               'seshat_id_page_id': seshat_id_page_id
                }
     
     return render(request,
