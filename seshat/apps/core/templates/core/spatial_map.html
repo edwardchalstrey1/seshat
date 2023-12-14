@@ -14,8 +14,9 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>GADM</label><br>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>Current borders</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
+                <label><input type="radio" name="baseMap" value="cartobasic" onclick="switchBaseMap()">Basic</label><br>
                 <label for="baseMapOnly">Base map only</label>
                 <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
             </fieldset>
@@ -125,10 +126,10 @@
 
             // Only show "Base map level" select for GADM
             var baseMapGADMFieldset = document.getElementById("baseMapGADMFieldset");
-            if (selectedMap == 'osm') {
-                baseMapGADMFieldset.style.display = "none"
-            } else if (selectedMap == 'carto') {
+            if (selectedMap == 'carto') {
                 baseMapGADMFieldset.style.display = "block"
+            } else {
+                baseMapGADMFieldset.style.display = "none"
             }
 
             // Remove all province layers
@@ -141,9 +142,13 @@
 
             map.removeLayer(currentLayer);
 
-            if (selectedMap === 'carto') {
+            if (selectedMap === 'osm') {
+                currentLayer = baseLayers.osm.addTo(map);
+            } else {
                 currentLayer = baseLayers.carto.addTo(map);
+            }
 
+            if (selectedMap === 'carto') {
                 // Add provinces to the base map
                 baseShapeData.forEach(function (shape) {
                     // Ensure the geometry is not empty
@@ -173,8 +178,6 @@
                         }
                     }
                 });
-            } else if (selectedMap === 'osm') {
-                currentLayer = baseLayers.osm.addTo(map);
             }
         }
 
