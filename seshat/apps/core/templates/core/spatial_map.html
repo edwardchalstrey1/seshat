@@ -21,7 +21,7 @@
                 <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
-                <label for="baseMapGADM">Base map level:</label>
+                <label for="baseMapGADM">Current borders:</label>
                 <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMap()">
                     <option value="country">Countries</option>
                     <option value="province">Provinces</option>
@@ -124,7 +124,7 @@
                 var baseShapeData = countryShapeData;
             }
 
-            // Only show "Base map level" select for GADM
+            // Only show "Current borders" select for GADM
             var baseMapGADMFieldset = document.getElementById("baseMapGADMFieldset");
             if (selectedMap == 'gadm') {
                 baseMapGADMFieldset.style.display = "block"
