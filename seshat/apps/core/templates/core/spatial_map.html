@@ -15,7 +15,7 @@
                     <h3>Base Map</h3>
                 </legend>
                 <label><input type="radio" name="baseMap" value="cartobasic" onclick="switchBaseMap()">Basic</label><br>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>Current borders</label><br>
+                <label><input type="radio" name="baseMap" value="gadm" onclick="switchBaseMap()" checked>Current borders</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
                 <label for="baseMapOnly">Base map only</label>
                 <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
@@ -126,7 +126,7 @@
 
             // Only show "Base map level" select for GADM
             var baseMapGADMFieldset = document.getElementById("baseMapGADMFieldset");
-            if (selectedMap == 'carto') {
+            if (selectedMap == 'gadm') {
                 baseMapGADMFieldset.style.display = "block"
             } else {
                 baseMapGADMFieldset.style.display = "none"
@@ -148,8 +148,8 @@
                 currentLayer = baseLayers.carto.addTo(map);
             }
 
-            if (selectedMap === 'carto') {
-                // Add provinces to the base map
+            if (selectedMap === 'gadm') {
+                // Add countries or provinces to the base map
                 baseShapeData.forEach(function (shape) {
                     // Ensure the geometry is not empty
                     if (shape.geometry && shape.geometry.type) {
