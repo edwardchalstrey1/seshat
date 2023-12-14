@@ -78,7 +78,8 @@
                     geometry: '{{ shape.geom.geojson | safe }}',
                     name: '{{ shape.name }}',
                     colour: '{{ shape.colour }}',
-                    seshatId: '{{ shape.seshat_id }}'
+                    seshatId: '{{ shape.seshat_id }}',
+                    area: '{{ shape.area }}'
                 },
             {% endfor %}
         ];
@@ -218,6 +219,12 @@
 
                     // If the shape spans the selected year
                     if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
+                        // Format the area float
+                        const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                            useGrouping: true
+                        });
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                             style: function (feature) {
                                 return {
@@ -251,6 +258,10 @@
                                         <tr>
                                             <td>End</td>
                                             <td>${shape.polityEndYear}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Area</td>
+                                            <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                     </table>
                                 `;
