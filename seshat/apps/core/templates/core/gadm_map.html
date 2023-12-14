@@ -20,14 +20,6 @@
             <p></p>
             <fieldset>
                 <legend>
-                    <h3>Show</h3>
-                </legend>
-                <label><input type="radio" name="displayedData" value="macro" onclick="selectDisplayedData()">Historical polities</label><br>
-                <label><input type="radio" name="displayedData" value="gadm" onclick="selectDisplayedData()" checked>Current administrative areas</label><br>
-            </fieldset>
-            <p></p>
-            <fieldset>
-                <legend>
                     <h3>Select Country</h3>
                 </legend>
                 <select name="countrySelector" id="countrySelector" onchange="selectCountry()">
@@ -39,6 +31,18 @@
                 </select><br>
                 <p></p>
                 <button onclick="selectWorld()">World</button>
+                <p></p>
+                <p>Tip: Try double clicking a country!</p>
+            </fieldset>
+            <p></p>
+            <fieldset>
+                <legend>
+                    <h3>Map view</h3>
+                </legend>
+                <label><input type="radio" name="displayedData" value="historical" onclick="selectDisplayedData()"
+                        checked>Historical polities</label><br>
+                <label><input type="radio" name="displayedData" value="current" onclick="selectDisplayedData()">Current
+                    administrative areas</label><br>
             </fieldset>
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>

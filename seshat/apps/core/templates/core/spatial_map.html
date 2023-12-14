@@ -14,25 +14,18 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()" checked>GADM</label><br>
+                <label><input type="radio" name="baseMap" value="cartobasic" onclick="switchBaseMap()">Basic</label><br>
+                <label><input type="radio" name="baseMap" value="gadm" onclick="switchBaseMap()" checked>Current borders</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
                 <label for="baseMapOnly">Base map only</label>
                 <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
-                <label for="baseMapGADM">Base map level:</label>
+                <label for="baseMapGADM">Current borders:</label>
                 <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMap()">
                     <option value="country">Countries</option>
                     <option value="province">Provinces</option>
                 </select><br>
-            </fieldset>
-            <p></p>
-            <fieldset>
-                <legend>
-                    <h3>Show</h3>
-                </legend>
-                <label><input type="radio" name="displayedData" value="historical" onclick="selectDisplayedData()" checked>Historical polities</label><br>
-                <label><input type="radio" name="displayedData" value="current" onclick="selectDisplayedData()">Current administrative areas</label><br>
             </fieldset>
             <p></p>
             <fieldset>
@@ -57,6 +50,16 @@
                 <p>Click a polity to reveal information.</p>
                 <p>Reach polity pages with double click.</p>
             </fieldset>
+            <p></p>
+            <fieldset>
+                <legend>
+                    <h3>Map view</h3>
+                </legend>
+                <label><input type="radio" name="displayedData" value="historical" onclick="selectDisplayedData()"
+                        checked>Historical polities</label><br>
+                <label><input type="radio" name="displayedData" value="current" onclick="selectDisplayedData()">Current
+                    administrative areas</label><br>
+            </fieldset>                      
         </div>
         <div id="map" style="height: 75vh; flex: 1;"></div>
     </div>
@@ -75,7 +78,8 @@
                     geometry: '{{ shape.geom.geojson | safe }}',
                     name: '{{ shape.name }}',
                     colour: '{{ shape.colour }}',
-                    seshatId: '{{ shape.seshat_id }}'
+                    seshatId: '{{ shape.seshat_id }}',
+                    area: '{{ shape.area }}'
                 },
             {% endfor %}
         ];
@@ -123,12 +127,12 @@
                 var baseShapeData = countryShapeData;
             }
 
-            // Only show "Base map level" select for GADM
+            // Only show "Current borders" select for GADM
             var baseMapGADMFieldset = document.getElementById("baseMapGADMFieldset");
-            if (selectedMap == 'osm') {
-                baseMapGADMFieldset.style.display = "none"
-            } else if (selectedMap == 'carto') {
+            if (selectedMap == 'gadm') {
                 baseMapGADMFieldset.style.display = "block"
+            } else {
+                baseMapGADMFieldset.style.display = "none"
             }
 
             // Remove all province layers
@@ -141,10 +145,14 @@
 
             map.removeLayer(currentLayer);
 
-            if (selectedMap === 'carto') {
+            if (selectedMap === 'osm') {
+                currentLayer = baseLayers.osm.addTo(map);
+            } else {
                 currentLayer = baseLayers.carto.addTo(map);
+            }
 
-                // Add provinces to the base map
+            if (selectedMap === 'gadm') {
+                // Add countries or provinces to the base map
                 baseShapeData.forEach(function (shape) {
                     // Ensure the geometry is not empty
                     if (shape.geometry && shape.geometry.type) {
@@ -173,8 +181,6 @@
                         }
                     }
                 });
-            } else if (selectedMap === 'osm') {
-                currentLayer = baseLayers.osm.addTo(map);
             }
         }
 
@@ -213,6 +219,27 @@
 
                     // If the shape spans the selected year
                     if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
+                        
+                        // Format the area float
+                        const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                            useGrouping: true
+                        });
+                        
+                        // Format the years
+                        if (parseInt(shape.startYear) < 0) {
+                            displayStartYear = Math.abs(parseInt(shape.startYear)) + ' BCE';
+                        } else {
+                            displayStartYear = shape.startYear + ' CE';
+                        }
+                        if (parseInt(shape.endYear) < 0) {
+                            displayEndYear = Math.abs(parseInt(shape.endYear)) + ' BCE';
+                        } else {
+                            displayEndYear = shape.endYear + ' CE';
+                        }
+                        
+                        // Add shape
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                             style: function (feature) {
                                 return {
@@ -241,11 +268,15 @@
                                 popupContent = popupContent + `
                                         <tr>
                                             <td>Start</td>
-                                            <td>${shape.polityStartYear}</td>
+                                            <td>${displayStartYear}</td>
                                         </tr>
                                         <tr>
                                             <td>End</td>
-                                            <td>${shape.polityEndYear}</td>
+                                            <td>${displayEndYear}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Estimated area</td>
+                                            <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                     </table>
                                 `;
