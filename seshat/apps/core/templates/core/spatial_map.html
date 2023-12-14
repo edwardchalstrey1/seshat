@@ -219,12 +219,27 @@
 
                     // If the shape spans the selected year
                     if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
+                        
                         // Format the area float
                         const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
                             minimumFractionDigits: 0,
                             maximumFractionDigits: 0,
                             useGrouping: true
                         });
+                        
+                        // Format the years
+                        if (parseInt(shape.startYear) < 0) {
+                            displayStartYear = Math.abs(parseInt(shape.startYear)) + ' BCE';
+                        } else {
+                            displayStartYear = shape.startYear + ' CE';
+                        }
+                        if (parseInt(shape.endYear) < 0) {
+                            displayEndYear = Math.abs(parseInt(shape.endYear)) + ' BCE';
+                        } else {
+                            displayEndYear = shape.endYear + ' CE';
+                        }
+                        
+                        // Add shape
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                             style: function (feature) {
                                 return {
@@ -253,11 +268,11 @@
                                 popupContent = popupContent + `
                                         <tr>
                                             <td>Start</td>
-                                            <td>${shape.polityStartYear}</td>
+                                            <td>${displayStartYear}</td>
                                         </tr>
                                         <tr>
                                             <td>End</td>
-                                            <td>${shape.polityEndYear}</td>
+                                            <td>${displayEndYear}</td>
                                         </tr>
                                         <tr>
                                             <td>Area</td>
