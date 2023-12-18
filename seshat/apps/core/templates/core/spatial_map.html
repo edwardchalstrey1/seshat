@@ -265,22 +265,18 @@
                                 if (shape.seshatId in seshatIdPageId) {
                                     popupContent = popupContent + `
                                         <tr>
-                                            <td>Seshat page</td>
+                                            <td>Seshat Page</td>
                                             <td>${seshatIdPageId[shape.seshatId]['long_name']}</td>
                                         </tr>
                                     `;
                                 }
                                 popupContent = popupContent + `
                                         <tr>
-                                            <td>From</td>
-                                            <td>${displayStartYear}</td>
+                                            <td>Year Range</td>
+                                            <td>${displayStartYear} to ${displayEndYear}</td>
                                         </tr>
                                         <tr>
-                                            <td>To</td>
-                                            <td>${displayEndYear}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Estimated area</td>
+                                            <td>Area (est.)</td>
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                     </table>
