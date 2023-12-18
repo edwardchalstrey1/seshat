@@ -228,15 +228,15 @@
                         });
                         
                         // Format the years
-                        if (parseInt(shape.startYear) < 0) {
-                            displayStartYear = Math.abs(parseInt(shape.startYear)) + ' BCE';
+                        if (parseInt(shape.polityStartYear) < 0) {
+                            displayStartYear = Math.abs(parseInt(shape.polityStartYear)) + ' BCE';
                         } else {
-                            displayStartYear = shape.startYear + ' CE';
+                            displayStartYear = shape.polityStartYear + ' CE';
                         }
-                        if (parseInt(shape.endYear) < 0) {
-                            displayEndYear = Math.abs(parseInt(shape.endYear)) + ' BCE';
+                        if (parseInt(shape.polityEndYear) < 0) {
+                            displayEndYear = Math.abs(parseInt(shape.polityEndYear)) + ' BCE';
                         } else {
-                            displayEndYear = shape.endYear + ' CE';
+                            displayEndYear = shape.polityEndYear + ' CE';
                         }
                         
                         // Add shape
