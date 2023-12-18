@@ -45,7 +45,7 @@
                     <button id="playButton" type="button" onclick="startPlay()">▶️</button>
                     <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
                     <label for="playRate">Animation speed:</label>
-                    <input type="range" name="playRate" id="playRate" min="1" max="3" value="2" class="slider" onchange="plotPolities()"><br><br>
+                    <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" onchange="plotPolities()"><br><br>
                 </div>
                 <p>Click a polity to reveal information.</p>
                 <p>Reach polity pages with double click.</p>
@@ -379,8 +379,12 @@
             if (animationSpeed == 1){
                 var yearsPerSecond = 1;
             } else if (animationSpeed == 2){
-                var yearsPerSecond = 10;
+                var yearsPerSecond = 5;
             } else if (animationSpeed == 3) {
+                var yearsPerSecond = 20;
+            } else if (animationSpeed == 4) {
+                var yearsPerSecond = 50;
+            } else if (animationSpeed == 5) {
                 var yearsPerSecond = 100;
             }
 
