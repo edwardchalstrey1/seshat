@@ -375,7 +375,15 @@
         function startPlay() {
             stopPlay(); // Clear existing interval before starting a new one
 
-            var yearsPerSecond = parseFloat(playRateInput.value);
+            var animationSpeed = parseFloat(playRateInput.value);
+            if (animationSpeed == 1){
+                var yearsPerSecond = 1;
+            } else if (animationSpeed == 2){
+                var yearsPerSecond = 10;
+            } else if (animationSpeed == 3) {
+                var yearsPerSecond = 100;
+            }
+
             var milliseconds = 1 / (yearsPerSecond / 1000);
 
             playInterval = setInterval(function () {
