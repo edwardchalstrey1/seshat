@@ -233,10 +233,15 @@
                         } else {
                             displayStartYear = shape.polityStartYear + ' CE';
                         }
-                        if (parseInt(shape.polityEndYear) < 0) {
-                            displayEndYear = Math.abs(parseInt(shape.polityEndYear)) + ' BCE';
+
+                        if (parseInt(shape.polityEndYear) == {{ latest_year }}){
+                            displayEndYear = 'Present';
                         } else {
-                            displayEndYear = shape.polityEndYear + ' CE';
+                            if (parseInt(shape.polityEndYear) < 0) {
+                                displayEndYear = Math.abs(parseInt(shape.polityEndYear)) + ' BCE';
+                            } else {
+                                displayEndYear = shape.polityEndYear + ' CE';
+                            }
                         }
                         
                         // Add shape
@@ -258,24 +263,24 @@
                                         </tr>
                                 `;
                                 if (shape.seshatId in seshatIdPageId) {
+                                    longName = seshatIdPageId[shape.seshatId]['long_name'];
+                                    if (longName == ''){
+                                        longName = '[Page empty]'
+                                    }
                                     popupContent = popupContent + `
                                         <tr>
-                                            <td>Seshat page</td>
-                                            <td>${seshatIdPageId[shape.seshatId]['long_name']}</td>
+                                            <td>Seshat Page</td>
+                                            <td>${longName}</td>
                                         </tr>
                                     `;
                                 }
                                 popupContent = popupContent + `
                                         <tr>
-                                            <td>Start</td>
-                                            <td>${displayStartYear}</td>
+                                            <td>Range</td>
+                                            <td>${displayStartYear} to ${displayEndYear}</td>
                                         </tr>
                                         <tr>
-                                            <td>End</td>
-                                            <td>${displayEndYear}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Estimated area</td>
+                                            <td>Area (est.)</td>
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                     </table>
