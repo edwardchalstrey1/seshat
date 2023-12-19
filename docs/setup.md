@@ -151,6 +151,13 @@ This page instructs software engineers how to set up a testing version of the Se
         ```
             az storage account create --name seshatdumps --resource-group seshat --location uksouth --sku Standard_RAGRS --kind StorageV2 --allow-blob-public-access false
         ```
-    - 
+    - Get the connection string (required for next step)
+        ```
+            az storage account show-connection-string --name seshatdumps --resource-group seshat --output tsv
+        ```
+    - Create blob container to store dump file(s)
+        ```
+            az storage container create --account-name seshatdumps --name dumps --connection-string "<YourConnectionString>"
+        ```
     - Upload the dump file to Azure
     - Populate the database
