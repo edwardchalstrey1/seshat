@@ -144,11 +144,11 @@ This page instructs software engineers how to set up a testing version of the Se
 7. Create a database dump and restore the database on Azure
     - Create dump (ingnore roles)
         ```
-            pg_dump -d <LocalDatabaseName> --no-privileges --file=/path/to/file.dump
+            pg_dump -d <LocalDatabaseName> --no-privileges --format=custom --file=/path/to/file.dump
         ```
     - Restore on Azure
         ```
-            pg_restore --host=seshatdb.postgres.database.azure.com --port=5432 --username=<YourAdminUsername>@seshatdb --password --dbname=seshat --no-privileges --format=custom --no-owner --no-acl --clean /path/to/file.dump
+            pg_restore --host=seshatdb.postgres.database.azure.com --port=5432 --username=<YourAdminUsername>@seshatdb --password --dbname=seshat --no-privileges --no-owner --no-acl --clean /path/to/file.dump
         ```
         - Note: `--clean` will ensure an existing db of the same name is dropped
     - <details><summary>Azure Storage Account alternative</summary>
