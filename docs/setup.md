@@ -184,3 +184,5 @@ This page instructs software engineers how to set up a testing version of the Se
         - Delete the storage account
 
     </details>
+8. [Deploy the code to Azure App Service](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/tutorial-django-app-service-postgres?tabs=clone#deploy-the-code-to-azure-app-service)
+    - Note: have not set up a vnet
