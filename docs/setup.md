@@ -115,7 +115,7 @@ This page instructs software engineers how to set up a testing version of the Se
         az group create --name seshat --location uksouth
     ```
 
-3. Set up PostreSQL flexible server in a new virtual network with an admin user and password
+3. Set up PostreSQL server in a new virtual network with an admin user and password
     ```
-        az postgres flexible-server create --resource-group seshat --name seshatdb --location uksouth --admin-user YourAdminUsername --admin-password YourAdminPassword --vnet seshatvnet
+        az postgres server create --resource-group seshat --name seshatdb --location uksouth --admin-user YourAdminUsername --admin-password YourAdminPassword
     ```
