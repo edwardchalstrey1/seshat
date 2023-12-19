@@ -172,7 +172,7 @@ This page instructs software engineers how to set up a testing version of the Se
         ```
     - Populate the database
         ```
-            pg_restore --host=seshatdb.postgres.database.azure.com --port=5432 --username=<YourAdminUsername>@seshatdb --password --dbname=seshat "https://seshatdumps.blob.core.windows.net/dumps/<file.dump>?<YourSASToken>"
+            pg_restore --host=seshatdb.postgres.database.azure.com --port=5432 --username=<YourAdminUsername>@seshatdb --password <YourAdminPassword> --dbname=seshat "https://seshatdumps.blob.core.windows.net/dumps/<file.dump>?<YourSASToken>"
 
         ```
     - Delete the storage account
