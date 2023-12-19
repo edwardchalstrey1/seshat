@@ -117,7 +117,7 @@ This page instructs software engineers how to set up a testing version of the Se
 
 3. Set up PostreSQL server in a new virtual network with an admin user and password
     ```
-        az postgres server create --resource-group seshat --name seshatdb --location uksouth --admin-user YourAdminUsername --admin-password YourAdminPassword
+        az postgres server create --resource-group seshat --name seshatdb --location uksouth --admin-user <YourAdminUsername> --admin-password <YourAdminPassword>
     ```
 
 4. Configure the PostgreSQL Server firewall to allow connections
@@ -129,3 +129,14 @@ This page instructs software engineers how to set up a testing version of the Se
     ```
         az postgres db create --resource-group seshat --server seshatdb --name seshat
     ```
+
+6. Set up the database
+    - Connect to the database
+        ```
+            psql -h seshatdb.postgres.database.azure.com -U <YourAdminUsername>@seshatdb -d seshat
+        ```
+    - In PostgreSQL add PostGIS
+        ```
+            CREATE EXTENSION postgis;
+        ```
+    - Exit PostgreSQL
