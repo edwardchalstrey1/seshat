@@ -119,3 +119,13 @@ This page instructs software engineers how to set up a testing version of the Se
     ```
         az postgres server create --resource-group seshat --name seshatdb --location uksouth --admin-user YourAdminUsername --admin-password YourAdminPassword
     ```
+
+4. Configure the PostgreSQL Server firewall to allow connections
+    ```
+        az postgres server firewall-rule create --resource-group seshat --server seshatdb --name AllowAll --start-ip-address 0.0.0.0 --end-ip-address 255.255.255.255
+    ```
+
+5. Create the PostgreSQL Database
+    ```
+        az postgres db create --resource-group seshat --server seshatdb --name seshat
+    ```
