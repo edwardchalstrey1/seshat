@@ -100,7 +100,7 @@ This page instructs software engineers how to get started working with the Djang
 
 ## Azure setup
 
-This page instructs software engineers how to set up Seshat website on MS Azure. You'll need an account on Azure and to have set up and credited a subscription.
+This page instructs software engineers how to set up a testing version of the Seshat website on MS Azure. You'll need an account on Azure and to have set up and credited a subscription. These are the steps followed at The Alan Turing Institute:
 
 1. Install Azure CLI on your computer
     - <details><summary>Install instructions for macOS</summary>
@@ -108,6 +108,14 @@ This page instructs software engineers how to set up Seshat website on MS Azure.
         - `brew install azure-cli`
         </details>
 
-2. Log in to Azure with the CLI and set the subscription
-    - `az login`
-    - `az account set --subscription <subscription id>`
+2. Log in to Azure with the CLI, set the subscription and create a resource group called "seshat":
+    ```
+        az login
+        az account set --subscription <subscription id>
+        az group create --name seshat --location uksouth
+    ```
+
+3. Set up PostreSQL flexible server in a new virtual network with an admin user and password
+    ```
+        az postgres flexible-server create --resource-group seshat --name seshatdb --location uksouth --admin-user YourAdminUsername --admin-password YourAdminPassword --vnet seshatvnet
+    ```
