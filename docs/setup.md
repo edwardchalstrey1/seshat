@@ -147,32 +147,40 @@ This page instructs software engineers how to set up a testing version of the Se
     - Exit PostgreSQL
 
 7. Restore the Seshat database from a dump file
-    - Create an Azure Storage Account
-        ```
-            az storage account create --name seshatdumps --resource-group seshat --location uksouth --sku Standard_RAGRS --kind StorageV2 --allow-blob-public-access false
-        ```
-    - Get the connection string (required for next step)
-        ```
-            az storage account show-connection-string --name seshatdumps --resource-group seshat --output tsv
-        ```
-    - Create blob container to store dump file(s)
-        ```
-            az storage container create --account-name seshatdumps --name dumps --connection-string "<YourConnectionString>"
-        ```
-    - Upload the dump file to Azure
-        ```
-            az storage blob upload --account-name seshatdumps --container-name dumps --name <file.dump> --file path/to/file.dump
+    ```
+        psql -h seshatdb.postgres.database.azure.com -U <YourAdminUsername>@seshatdb -d seshat < path/to/file.dump
+    ```
+    - TODO handle error: `role "postgres" does not exist` (seems like you can't make a superuser on Azure)
+    - <details><summary>Azure Storage Account alternative</summary>
 
-        ```
-        - If you get the following, hit "Y" - "The command requires the extension storage-preview. Do you want to install it now?"
-    - Generate a temporary SAS Token (needed to allow the PostgreSQL server to access the file from storage)
-        ```
-            az storage blob generate-sas --account-name seshatdumps --container-name dumps --name <file.dump> --permissions r --expiry YYYY-MM-DDTHH:MMZ --output tsv
+        - Create an Azure Storage Account
+            ```
+                az storage account create --name seshatdumps --resource-group seshat --location uksouth --sku Standard_RAGRS --kind StorageV2 --allow-blob-public-access false
+            ```
+        - Get the connection string (required for next step)
+            ```
+                az storage account show-connection-string --name seshatdumps --resource-group seshat --output tsv
+            ```
+        - Create blob container to store dump file(s)
+            ```
+                az storage container create --account-name seshatdumps --name dumps --connection-string "<YourConnectionString>"
+            ```
+        - Upload the dump file to Azure
+            ```
+                az storage blob upload --account-name seshatdumps --container-name dumps --name <file.dump> --file path/to/file.dump
 
-        ```
-    - Populate the database
-        ```
-            pg_restore --host=seshatdb.postgres.database.azure.com --port=5432 --username=<YourAdminUsername>@seshatdb --password --dbname=seshat "https://seshatdumps.blob.core.windows.net/dumps/<file.dump>?<YourSASToken>"
+            ```
+            - If you get the following, hit "Y" - "The command requires the extension storage-preview. Do you want to install it now?"
+        - Generate a temporary SAS Token (needed to allow the PostgreSQL server to access the file from storage)
+            ```
+                az storage blob generate-sas --account-name seshatdumps --container-name dumps --name <file.dump> --permissions r --expiry YYYY-MM-DDTHH:MMZ --output tsv
 
-        ```
-    - Delete the storage account
+            ```
+        - Populate the database
+            ```
+                pg_restore --host=seshatdb.postgres.database.azure.com --port=5432 --username=<YourAdminUsername>@seshatdb --password --dbname=seshat "https://seshatdumps.blob.core.windows.net/dumps/<file.dump>?<YourSASToken>"
+
+            ```
+        - Delete the storage account
+
+    </details>
