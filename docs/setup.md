@@ -98,6 +98,16 @@ This page instructs software engineers how to get started working with the Djang
 
 
 
-## Production setup (AWS)
+## Azure setup
 
-_TODO_
+This page instructs software engineers how to set up Seshat website on MS Azure. You'll need an account on Azure and to have set up and credited a subscription.
+
+1. Install Azure CLI on your computer
+    - <details><summary>Install instructions for macOS</summary>
+
+        - `brew install azure-cli`
+        </details>
+
+2. Log in to Azure with the CLI and set the subscription
+    - `az login`
+    - `az account set --subscription <subscription id>`
