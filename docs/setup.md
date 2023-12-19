@@ -161,7 +161,7 @@ This page instructs software engineers how to set up a testing version of the Se
         ```
     - Upload the dump file to Azure
         ```
-            az storage blob directory upload --account-name seshatdumps -c dumps -s /path/to/seshatdb.dump -d dumps
+            az storage blob upload --account-name seshatdumps --container-name dumps --name file.dump --file path/to/file.dump
 
         ```
         - If you get the following, hit "Y" - "The command requires the extension storage-preview. Do you want to install it now?"
