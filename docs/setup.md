@@ -172,8 +172,6 @@ This page instructs software engineers how to set up a testing version of the Se
         ```
     - Populate the database
         ```
-            psql "host=seshatdb.postgres.database.azure.com dbname=seshat user=<YourAdminUsername>@seshatdb password=<YourAdminPassword> sslmode=require" -c "CREATE DATABASE seshat"
-
             pg_restore --host=seshatdb.postgres.database.azure.com --port=5432 --username=<YourAdminUsername>@seshatdb --password --dbname=seshat "https://seshatdumps.blob.core.windows.net/dumps/<file.dump>?<YourSASToken>"
 
         ```
