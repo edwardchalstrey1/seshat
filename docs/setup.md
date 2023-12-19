@@ -102,11 +102,6 @@ This page instructs software engineers how to get started working with the Djang
 
 This page instructs software engineers how to set up a testing version of the Seshat website on MS Azure. You'll need an account on Azure and to have set up and credited a subscription. These are the steps followed at The Alan Turing Institute:
 
-0. In the Azure Portal, navigate to the subscription and enable `Microsoft.Storage` (we'll need this later to add a storage account for database dumps)
-    - On the subscription, select "Resource Provider" from the left pane
-    - Search "Microsoft.Storage"
-    - Click "Register"
-
 1. Install Azure CLI on your computer
     - <details><summary>Install instructions for macOS</summary>
 
