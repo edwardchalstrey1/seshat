@@ -186,4 +186,4 @@ This page instructs software engineers how to set up a testing version of the Se
     </details>
 8. [Deploy the code to Azure App Service](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/tutorial-django-app-service-postgres?tabs=clone#deploy-the-code-to-azure-app-service)
     - Note: have not set up a vnet
-    - TODO: It probably makes more sense to use a VM (see [why](https://karansinghreen.medium.com/azure-virtual-machine-or-azure-app-service-which-one-should-you-choose-d4ba7d4a120d))
+    - TODO: It probably makes more sense to use a VM (see [why](https://karansinghreen.medium.com/azure-virtual-machine-or-azure-app-service-which-one-should-you-choose-d4ba7d4a120d)) and since we will need to install the relevant non-Python stuff for GIS to work properly
