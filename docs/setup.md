@@ -115,7 +115,7 @@ This page instructs software engineers how to set up a testing version of the Se
         az group create --name seshat --location uksouth
     ```
 
-3. Set up PostreSQL server in a new virtual network with an admin user and password
+3. Set up PostreSQL server with an admin user and password
     ```
         az postgres server create --resource-group seshat --name seshatdb --location uksouth --admin-user <YourAdminUsername> --admin-password <YourAdminPassword>
     ```
@@ -135,17 +135,22 @@ This page instructs software engineers how to set up a testing version of the Se
         ```
             psql -h seshatdb.postgres.database.azure.com -U <YourAdminUsername>@seshatdb -d seshat
         ```
-    - In PostgreSQL add PostGIS
+    - In PostgreSQL add PostGIS (TODO: move this)
         ```
             CREATE EXTENSION postgis;
         ```
     - Exit PostgreSQL
 
-7. Restore the Seshat database from a dump file
-    ```
-        psql -h seshatdb.postgres.database.azure.com -U <YourAdminUsername>@seshatdb -d seshat < path/to/file.dump
-    ```
-    - TODO handle error: `role "postgres" does not exist` (seems like you can't make a superuser on Azure)
+7. Create a database dump and restore the database on Azure
+    - Create dump (ingnore roles)
+        ```
+            pg_dump -d <LocalDatabaseName> --no-privileges --file=/path/to/file.dump
+        ```
+    - Restore on Azure
+        ```
+            pg_restore --host=seshatdb.postgres.database.azure.com --port=5432 --username=<YourAdminUsername>@seshatdb --password --dbname=seshat --no-privileges --no-owner --no-acl --clean /path/to/file.dump
+        ```
+        - Note: `--clean` will ensure an existing db of the same name is dropped
     - <details><summary>Azure Storage Account alternative</summary>
 
         - Create an Azure Storage Account
