@@ -187,3 +187,10 @@ This page instructs software engineers how to set up a testing version of the Se
 8. [Deploy the code to Azure App Service](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/tutorial-django-app-service-postgres?tabs=clone#deploy-the-code-to-azure-app-service)
     - Note: have not set up a vnet
     - TODO: It probably makes more sense to use a VM (see [why](https://karansinghreen.medium.com/azure-virtual-machine-or-azure-app-service-which-one-should-you-choose-d4ba7d4a120d)) and since we will need to install the relevant non-Python stuff for GIS to work properly
+
+
+### TODO: Alternative strategy
+
+1. Set up a VM and install things in the same way as was done above (local install) including PostgreSQL:
+    - Ability to install extensions, control authentication, and configure PostgreSQL settings to meet specific application needs.
+2. Mount the Azure storage account to the VM so we have access to the dumpfile that way for restoring from dump. Try with the version that has the roles included first, since we should be able to add a Superuser called "Postgres" this time, that wasn't possible when using Azure Database for PostgreSQL single server
