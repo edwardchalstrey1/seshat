@@ -161,9 +161,20 @@ This page instructs software engineers how to set up a testing version of the Se
         ```
     - Upload the dump file to Azure
         ```
-            az storage blob upload --account-name seshatdumps --container-name dumps --name file.dump --file path/to/file.dump
+            az storage blob upload --account-name seshatdumps --container-name dumps --name <file.dump> --file path/to/file.dump
 
         ```
         - If you get the following, hit "Y" - "The command requires the extension storage-preview. Do you want to install it now?"
+    - Generate a temporary SAS Token (needed to allow the PostgreSQL server to access the file from storage)
+        ```
+            az storage blob generate-sas --account-name seshatdumps --container-name dumps --name <file.dump> --permissions r --expiry YYYY-MM-DDTHH:MMZ --output tsv
+
+        ```
     - Populate the database
+        ```
+            psql "host=seshatdb.postgres.database.azure.com dbname=seshat user=<YourAdminUsername>@seshatdb password=<YourAdminPassword> sslmode=require" -c "CREATE DATABASE seshat"
+
+            pg_restore --host=seshatdb.postgres.database.azure.com --port=5432 --username=<YourAdminUsername>@seshatdb --password --dbname=seshat "https://seshatdumps.blob.core.windows.net/dumps/<file.dump>?<YourSASToken>"
+
+        ```
     - Delete the storage account
