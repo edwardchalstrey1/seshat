@@ -14,9 +14,9 @@ This page instructs software engineers how to get started working with the Djang
             conda activate seshat
         ```
 
-3. Create a fork of the GitHub repo with all branches: https://github.com/MajidBenam/seshat
+3. Either create a fork of the GitHub repo with all branches: https://github.com/MajidBenam/seshat or use https://github.com/edwardchalstrey1/seshat for spatial dev work
 
-4. Clone your fork to your local machine
+4. Clone the repo to your local machine
 
 5. Ensure you have a working installation of PostgreSQL 
     - Note: The application database was originally developed with version 12, but has also been tested with PostgreSQL **version 16** (at least v14 is needed for the PostGIS extension to work)
