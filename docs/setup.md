@@ -2,16 +2,55 @@
 
 This page instructs software engineers how to get started working with the Django codebase and PostgreSQL database for the "core" Seshat webapp.
 
+Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on the Mac.
+
+<details><summary>Example Ubuntu VM setup on Mac</summary>
+
+1. A quick way is to use multipass which can be installed with brew:
+    ```
+        brew install multipass
+    ```
+    - Note: the images used by Multipass don’t have a pre-installed graphical desktop
+2. Create a VM (Ubuntu 22.04)
+    ```
+        multipass launch 22.04
+    ```
+    - This should create a VM called `primary` by default
+3. Make sure the VM has enough resources:
+    ```
+        multipass stop primary
+        multipass set local.primary.cpus=4
+        multipass set local.primary.disk=60G
+        multipass set local.primary.memory=8G
+        multipass start primary
+    ```
+4. Then log in to the VM with `multipass shell` and install pre-requisites:
+    ```
+        sudo apt update
+        sudo add-apt-repository ppa:deadsnakes/ppa
+        sudo apt install python3.8 -y
+        sudo apt install python3.8-venv -y
+        sudo apt-get install python3.8-dev
+        sudo apt-get install g++
+    ```
+
+</details>
+
 ## Local setup
 
 1. Ensure you have a working installation of Python 3
 
 2. Set up a virtual environment for the project using e.g. venv or conda
     - Note: The application has been tested with Python **3.8.13**
-    - Example:
+    - Conda example:
         ```
             conda create --name seshat python=3.8.13
             conda activate seshat
+        ```
+    - venv example:
+        ```
+            python3.8 -m venv seshat
+            source seshat/bin/activate
         ```
 
 3. Either create a fork of the GitHub repo with all branches: https://github.com/MajidBenam/seshat or use https://github.com/edwardchalstrey1/seshat for spatial dev work
