@@ -185,11 +185,45 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
 11. If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in [spatialdb.md](spatialdb.md).
 
 12. Run Django
-    ```
-        python manage.py runserver
-    ```
+    - <details><summary>macOS</summary>
 
-13. The webapp should be visible in a browser at http://127.0.0.1:8000/
+        ```
+            python manage.py runserver
+        ```
+
+        The webapp should be visible in a browser at http://127.0.0.1:8000/
+        </details>
+    - <details><summary>Ubuntu VM set up with multipass on Mac</summary>
+
+        - Check IP inside VM:
+            ```
+                ip addr show
+            ```
+            - e.g. `192.168.64.3`
+        - In the VM, ensure the firewall doesn't block incoming connections on port 8000:
+            ```
+                sudo ufw allow 8000
+            ```
+        - In a mac terminal run:
+            ```
+                multipass exec primary -- sudo iptables -t nat -A PREROUTING -p tcp --dport 8000 -j DNAT --to-destination 192.168.64.3:8000
+            ```
+            - Where `192.168.64.3` is the IP address
+        - Restart the VM:
+            ```
+                multipass restart primary
+            ```
+        - Log back into the VM with `multipass shell` and run the django app:
+            - Remember to firstactivate the venv e.g.
+                ```
+                    source seshat/bin/activate
+                ```
+            ```
+                python manage.py runserver 0.0.0.0:8000
+            ```
+            - Go to http://192.168.64.3:8000/ in a browser (where `192.168.64.3` is the IP address)
+            </details>
+    
 
 
 
