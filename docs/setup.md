@@ -69,9 +69,10 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
     - <details><summary>macOS</summary>
 
         - Installation: follow the instructions to install https://postgresapp.com/ which **gives you PostgreSQL version 16 with PostGIS installed**
-        - Configure: open psql with `psql postgres` and run:
+        - Create db: open psql with `psql postgres` and run:
             ```
-                create database seshat;
+                CREATE DATABASE <seshat_db_name>;
+                CREATE EXTENSION postgis;
             ```
         </details>
 
@@ -87,9 +88,10 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
                 sudo systemctl start postgresql
                 sudo systemctl enable postgresql
             ```
-        - Configure: open psql with `sudo -u postgres psql` and run:
+        - Create db: open psql with `sudo -u postgres psql` and run:
             ```
-                create database seshat;
+                CREATE DATABASE <seshat_db_name>;
+                CREATE EXTENSION postgis;
             ```
         
 
@@ -124,17 +126,10 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         pip install "django-geojson [field]"
     ```
 
-7. Restore Seshat database from dump and add PostGIS extension:
-    - Note: you'll need a dump file of the Seshat database, which can be provided by one of the current developers
-        ```
-            pg_restore -U postgres -d <seshat_db_name> /path/to/file.dump
-        ```
-    - Connect to the new database and add PostGIS
-        ```
-            psql -U postgres -d <seshat_db_name>
-
-            CREATE EXTENSION postgis;
-        ```
+7. Restore Seshat database from dump file:
+    ```
+        pg_restore -U postgres -d <seshat_db_name> /path/to/file.dump
+    ```
 
 8. Create a config with your database info for Django
     - Within the repo, create a file called `seshat/settings/.env` with the db connection vars
