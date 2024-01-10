@@ -155,7 +155,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
 
         - Add a password for the superuser with `sudo -u postgres psql`:
             ```
-                ALTER USER postgres WITH PASSWORD 'new_secure_password';
+                ALTER USER postgres WITH PASSWORD '<db_password>';
             ```
         - Update postgres to use md5 with`sudo nano /etc/postgresql/16/main/pg_hba.conf`
             ![](img/pg_hba.conf.png)
@@ -173,6 +173,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
             USER=postgres
             HOST=localhost
             PORT=5432
+            PASSWORD=<db_password>
         ```
     - The presence of this file will ensure Django connects to your local database
 
