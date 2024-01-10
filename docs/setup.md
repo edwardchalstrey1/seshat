@@ -127,9 +127,24 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
     ```
 
 7. Restore Seshat database from dump file:
-    ```
-        pg_restore -U postgres -d <seshat_db_name> /path/to/file.dump
-    ```
+
+    - <details><summary>macOS</summary>
+
+        ```
+            pg_restore -U postgres -d <seshat_db_name> /path/to/file.dump
+        ```
+        </details>
+    - <details><summary>Ubuntu</summary>
+
+        - Open `/etc/postgresql/16/main/pg_hba.conf`
+        - On the line `local all postgres peer` change "peer" to "trust"
+        - Reload postgres and populate the db:
+            ```
+                sudo systemctl reload postgresql
+                sudo psql -U postgres <seshat_db_name> < /path/to/file.dump
+            ```
+        </details>
+    
 
 8. Create a config with your database info for Django
     - Within the repo, create a file called `seshat/settings/.env` with the db connection vars
