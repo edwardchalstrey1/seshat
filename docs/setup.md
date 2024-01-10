@@ -42,6 +42,8 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
 
 </details>
 
+### Local Setup Steps
+
 1. Ensure you have a working installation of Python 3
 
 2. Set up a virtual environment for the project using e.g. venv or conda
