@@ -206,9 +206,10 @@ if os.path.exists(local_env_path):
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
             'NAME': env('NAME'),
-            'USER': env('USER'),
+            'USER': 'postgres',
             'HOST': env('HOST'),
-            'PORT': env('PORT')
+            'PORT': env('PORT'),
+            'PASSWORD': env('PASSWORD')
         }
     }
 
