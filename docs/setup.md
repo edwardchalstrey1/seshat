@@ -2,6 +2,8 @@
 
 This page instructs software engineers how to get started working with the Django codebase and PostgreSQL database for the "core" Seshat webapp. It assumes the engineer has access to a dumpfile of the Seshat "core" database.
 
+## Local setup
+
 Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on the Mac.
 
 <details><summary>Example Ubuntu VM setup on Mac</summary>
@@ -39,8 +41,6 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
     ```
 
 </details>
-
-## Local setup
 
 1. Ensure you have a working installation of Python 3
 
