@@ -73,6 +73,18 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
             - `brew services start postgresql@14`
             - `brew install postgis`
         </details>
+    - <details><summary>Ubuntu VM Postgres 16</summary>
+
+        ```
+            sudo apt install gnupg2 wget vim
+            sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+            curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+            sudo apt update
+            sudo apt install postgresql-16 postgresql-contrib-16 postgresql-16-postgis-3 -y
+            sudo systemctl start postgresql
+            sudo systemctl enable postgresql
+        ```
+        </details>
     - Open PostgreSQL with:
         ```
             psql postgres
