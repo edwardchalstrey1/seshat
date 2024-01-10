@@ -136,7 +136,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         </details>
     - <details><summary>Ubuntu</summary>
 
-        - Open `/etc/postgresql/16/main/pg_hba.conf`
+        - `sudo nano /etc/postgresql/16/main/pg_hba.conf`
         - On the line `local all postgres peer` change "peer" to "trust"
         - Reload postgres and populate the db:
             ```
@@ -144,7 +144,26 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
                 sudo psql -U postgres <seshat_db_name> < /path/to/file.dump
             ```
         </details>
-    
+
+8. Add a password to the db for security
+
+    - <details><summary>macOS</summary>
+
+        [TODO]
+        </details>
+    - <details><summary>Ubuntu</summary>
+
+        - Add a password for the superuser with `sudo -u postgres psql`:
+            ```
+                ALTER USER postgres WITH PASSWORD 'new_secure_password';
+            ```
+        - Update postgres to use md5 with`sudo nano /etc/postgresql/16/main/pg_hba.conf`
+            ![](img/pg_hba.conf.png)
+        - Reload postgres
+            ```
+                sudo systemctl reload postgresql
+            ```
+        </details>
 
 8. Create a config with your database info for Django
     - Within the repo, create a file called `seshat/settings/.env` with the db connection vars
