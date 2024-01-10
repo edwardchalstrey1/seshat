@@ -1,6 +1,6 @@
 # Setup instructions
 
-This page instructs software engineers how to get started working with the Django codebase and PostgreSQL database for the "core" Seshat webapp.
+This page instructs software engineers how to get started working with the Django codebase and PostgreSQL database for the "core" Seshat webapp. It assumes the engineer has access to a dumpfile of the Seshat "core" database.
 
 Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on the Mac.
 
@@ -24,7 +24,11 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         multipass set local.primary.memory=8G
         multipass start primary
     ```
-4. Then log in to the VM with `multipass shell` and install pre-requisites:
+4. Mount the dir containing the database dump to the VM:
+    ```
+        multipass mount /path/to/database_dumps/ primary:database_dumps
+    ```
+5. Then log in to the VM with `multipass shell` and install pre-requisites:
     ```
         sudo apt update
         sudo add-apt-repository ppa:deadsnakes/ppa
