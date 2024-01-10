@@ -55,7 +55,10 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
 
 3. Either create a fork of the GitHub repo with all branches: https://github.com/MajidBenam/seshat or use https://github.com/edwardchalstrey1/seshat for spatial dev work
 
-4. Clone the repo to your local machine
+4. Clone the repo e.g.
+    ```
+        git clone https://github.com/edwardchalstrey1/seshat
+    ```
 
 5. Ensure you have a working installation of PostgreSQL 
     - Note: The application database was originally developed with version 12, but has also been tested with PostgreSQL **version 16** (at least v14 is needed for the PostGIS extension to work)
