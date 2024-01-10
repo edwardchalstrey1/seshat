@@ -116,7 +116,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         - `GEOS_LIBRARY_PATH`
     - Note: there are hardcoded paths in local.py for the Mac and Ubuntu instructions above included
 
-6. After PostgreSQL is installed, install the Python packages in your environment (some packages have psql as a dependency). From the top level of the `seshat` repo:
+6. After PostgreSQL, GDAL and GEOS are installed, install the Python packages in your environment (some packages have these as dependencies). From the top level of the `seshat` repo:
     ```
         pip install -r requirements.txt
         pip install "django-geojson [field]"
