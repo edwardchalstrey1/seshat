@@ -94,6 +94,28 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
             CREATE USER postgres SUPERUSER;
         ```
 
+9. Install and configure GDAL and GEOS
+    - <details><summary>Install instructions for macOS</summary>
+
+        ```
+            brew install gdal
+            brew install geos
+        ```
+        </details>
+    - <details><summary>Install instructions Ubuntu</summary>
+
+        ```
+            sudo apt-get install gdal-bin -y
+            sudo apt-get install libgdal-dev
+            sudo apt install libgeos++-dev libgeos3.10.2 libgeos-c1v5 libgeos-dev libgeos-doc -y
+        ```
+        - Note: you could first check the available libgeos version with: `sudo apt search libgeos`
+        </details>
+    - Open `seshat/settings/local.py` and edit the following variables:
+        - `GDAL_LIBRARY_PATH`
+        - `GEOS_LIBRARY_PATH`
+    - Note: there are hardcoded paths in local.py for the Mac and Ubuntu instructions above included
+
 6. After PostgreSQL is installed, install the Python packages in your environment (some packages have psql as a dependency). From the top level of the `seshat` repo:
     ```
         pip install -r requirements.txt
@@ -124,17 +146,6 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
             PORT=5432
         ```
     - The presence of this file will ensure Django connects to your local database
-
-9. Set the path to your local installation of GDAL and GEOS
-    - Open `seshat/settings/local.py` and edit the following variables:
-        - `GDAL_LIBRARY_PATH`
-        - `GEOS_LIBRARY_PATH`
-    - Note: the current hardcoded paths are to the default installation by Homebrew on a Mac
-    - <details><summary>Install instructions for macOS</summary>
-
-        - `brew install gdal`
-        - `brew install geos`
-        </details>
 
 10. Ensure that database migrations have run for the "core" Django app:
     ```
