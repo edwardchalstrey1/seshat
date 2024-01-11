@@ -47,7 +47,8 @@ else:
 
 #ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1,localhost", cast=Csv())
 ALLOWED_HOSTS = ['seshatdb.herokuapp.com', '127.0.0.1',
-                 'majidbenam.com', 'www.majidbenam.com', 'https://majidbenam.com']
+                 'majidbenam.com', 'www.majidbenam.com', 'https://majidbenam.com',
+                 '20.68.162.158']
 
 
 INSTALLED_APPS = [
