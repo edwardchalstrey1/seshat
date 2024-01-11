@@ -84,7 +84,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
             ```
                 sudo apt install gnupg2 wget vim -y
 
-                sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+                sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 
                 curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
 
@@ -93,7 +93,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
                 sudo apt install postgresql-16 postgresql-contrib-16 postgresql-16-postgis-3 -y
                 
                 sudo systemctl start postgresql
-                
+
                 sudo systemctl enable postgresql
             ```
         - Create db: open psql with `sudo -u postgres psql` and run:
