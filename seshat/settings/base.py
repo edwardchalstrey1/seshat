@@ -213,8 +213,6 @@ if os.path.exists(local_env_path):
         }
     }
 
-    GEOGRAPHIC_DB = True
-
 else:
     DATABASES = {
         'default': {
@@ -226,6 +224,8 @@ else:
             'PORT': 5432,
         }
     }
+
+GEOGRAPHIC_DB = True
 
 #DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
