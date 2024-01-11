@@ -36,8 +36,8 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         sudo add-apt-repository ppa:deadsnakes/ppa
         sudo apt install python3.8 -y
         sudo apt install python3.8-venv -y
-        sudo apt-get install python3.8-dev
-        sudo apt-get install g++
+        sudo apt-get install python3.8-dev -y
+        sudo apt-get install g++ -y
     ```
 
 </details>
