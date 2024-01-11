@@ -82,3 +82,7 @@ my_current_server = "127.0.0.1:8000"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ######EMAIL_CONFIRMATION_BRANCH is the keyword that needs to be searched
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+ALLOWED_HOSTS = ['127.0.0.1',
+                 'localhost',
+                 '20.68.162.158']
