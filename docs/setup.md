@@ -122,7 +122,8 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         ```
             sudo apt-get install gdal-bin -y
             sudo apt-get install libgdal-dev -y
-            sudo apt install libgeos++-dev libgeos3.10.2 -y sudo sudo apt install libgeos-c1v5 libgeos-dev libgeos-doc -y
+            sudo apt install libgeos++-dev libgeos3.10.2 -y
+            sudo apt install libgeos-c1v5 libgeos-dev libgeos-doc -y
         ```
         - Note: you could first check the available libgeos version with: `sudo apt search libgeos`
         </details>
