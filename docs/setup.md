@@ -99,6 +99,9 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         - Create db: open psql with `sudo -u postgres psql` and run:
             ```
                 CREATE DATABASE <seshat_db_name>;
+            ```
+        - Add PostGIS to db: open psql with `sudo -u postgres psql -d <seshat_db_name>` and run:
+            ```
                 CREATE EXTENSION postgis;
             ```
         
