@@ -7,3 +7,12 @@ This repo contains the necessary Django Python code to host the [Seshat](http://
 ## Developers
 
 Follow the steps on [docs/setup](docs/setup.md).
+
+## GitHub workflow
+
+1. Create a new branch from `dev`
+2. Test changes locally
+3. Merge changes `dev`
+4. Also merge changes from `dev` into `azure`
+5. Pull changes on Azure VM for others to test
+6. Repeat the above until satisfied, then PR `dev` to upsream `dev` branch
