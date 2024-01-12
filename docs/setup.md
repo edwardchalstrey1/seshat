@@ -243,9 +243,36 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
 
 This page instructs software engineers how to set up a testing version of the Seshat website on MS Azure. You'll need an account on Azure and to have set up and credited a subscription. These are the steps followed at The Alan Turing Institute:
 
-
-### Strategy
-
-1. Set up a VM and install things in the same way as was done above (local install) including PostgreSQL:
-    - Ability to install extensions, control authentication, and configure PostgreSQL settings to meet specific application needs.
-2. Mount the Azure storage account to the VM so we have access to the dumpfile that way for restoring from dump. Try with the version that has the roles included first, since we should be able to add a Superuser called "Postgres" this time, that wasn't possible when using Azure Database for PostgreSQL single server
+1. Create an Ubuntu 22.04 VM:
+    - e.g. `Standard D4plds v5 (4 vcpus, 8 GiB memory)`
+    - Choose a 64GB disk
+    - Choose ssh as access method and download private key on VM creation
+    - Keep the user as the default `azureuser`
+    - Change key permissions: `chmod 400 /path/to/key.pem`
+    - SSH in like:
+        ```
+            ssh -i /path/to/key.pem azureuser@<public IP>
+        ```
+2. Upload the database dump with SCP:
+    ```
+        scp -i /path/to/key.pem /path/to/dumpfile.dump azureuser@<public IP>:/home/azureuser/db_dumps/
+    ```
+3. Follow the setup steps above for Ubuntu to install everything and create the db
+    - Save the db password for the postgres user in Azure key vault
+    - When you clone the repo, check out the `azure` branch
+    - Update `ALLOWED_HOSTS` in `seshat/settings/base.py` and `seshat/settings/local.py` with the IP address of the VM if different from what's saved there
+4. Update network security rules for the VM
+    - Go to "Network Security" on the VM in the Azure portal and add the default inbound security rules to allow:
+        - HTTP (port 80)
+        - HTTPS (port 443)
+        - Custom one for port 8000
+    - SSH into the VM and run:
+        ```
+            sudo ufw allow 8000
+        ```
+5. Run django
+    - SSH into the VM and activate the venv, then:
+        ```
+            gunicorn seshat.wsgi:application --config gunicorn.conf.py
+        ```
+    - Go to `http://<public IP>:8000/`
