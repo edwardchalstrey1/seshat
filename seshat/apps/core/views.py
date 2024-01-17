@@ -65,6 +65,8 @@ from math import floor, ceil
 from django.contrib.gis.geos import GEOSGeometry
 from distinctipy import get_colors, get_hex
 
+from asgiref.sync import sync_to_async
+
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
@@ -1520,12 +1522,12 @@ def download_oldcsv(request, file_name):
 
 # Shapefile views
 
-def map_view(request):
+async def map_view(request):
     """
         This view is used to display a map with polities plotted on it.
     """
 
-    shapes = VideoShapefile.objects.all()
+    shapes = await sync_to_async(VideoShapefile.objects.all)()
 
     # Set some vars for the range of years to display
     # TODO: ensure these reflect the true extent of polity shape data
@@ -1533,7 +1535,7 @@ def map_view(request):
     display_year = 0
     latest_year = 2014
 
-    def get_provinces(selected_base_map_gadm='province'):
+    async def get_provinces(selected_base_map_gadm='province'):
 
         # Get all the province or country shapes for the map base layer
         # Define a simplification tolerance for faster loading of shapes at lower res
@@ -1560,8 +1562,8 @@ def map_view(request):
             """
 
         with connection.cursor() as cursor:
-            cursor.execute(query, [simplification_tolerance])
-            rows = cursor.fetchall()
+            await sync_to_async(cursor.execute)(query, [simplification_tolerance])
+            rows = await sync_to_async(cursor.fetchall)()
 
         for row in rows:
             if row[0] != None:
@@ -1585,11 +1587,11 @@ def map_view(request):
         if shape.seshat_id:
             try:
                 with connection.cursor() as cursor:
-                    cursor.execute(
+                    await sync_to_async(cursor.execute)(
                         "SELECT id, long_name FROM core_polity WHERE new_name = %s",
                         [shape.seshat_id]
                     )
-                    row = cursor.fetchone()
+                    row = await sync_to_async(cursor.fetchone)()
                     if row:
                         seshat_id_page_id[shape.seshat_id] = {}
                         seshat_id_page_id[shape.seshat_id]['id'] = row[0]
@@ -1600,8 +1602,8 @@ def map_view(request):
                 print(f"Error fetching ID for shape {shape.name}: {shape.seshat_id}: {e}")
 
     content = {'shapes': shapes,
-               'provinces': get_provinces(),
-               'countries': get_provinces(selected_base_map_gadm='country'),
+               'provinces': await get_provinces(),
+               'countries': await get_provinces(selected_base_map_gadm='country'),
                'earliest_year': earliest_year,
                'display_year': display_year,
                'latest_year': latest_year,
