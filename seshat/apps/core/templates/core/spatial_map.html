@@ -88,27 +88,26 @@
                 },
             {% endfor %}
         ];
-        
-        var provinceShapeData =  [
-            // JavaScript object representing modern day province shape data
-            {% for shape in provinces %}
-                {
-                    geometry: {{ shape.aggregated_geometry | safe }},
-                    province: '{{ shape.province }}',
-                    provinceType: '{{ shape.province_type }}'
-                },
-            {% endfor %}
-        ];
 
-        var countryShapeData =  [
-            // JavaScript object representing modern day province shape data
-            {% for shape in countries %}
-                {
-                    geometry: {{ shape.aggregated_geometry | safe }},
-                    country: '{{ shape.country }}'
-                },
-            {% endfor %}
-        ];
+        window.onload = function () {
+            fetch('/core/provinces_and_countries')
+                .then(response => response.json())
+                .then(data => {
+                    var provinceShapeData = data.provinces.map(function (shape) {
+                        return {
+                            geometry: JSON.parse(shape.aggregated_geometry),
+                            province: shape.province,
+                            provinceType: shape.province_type
+                        };
+                    });
+                    var countryShapeData = data.countries.map(function (shape) {
+                        return {
+                            geometry: JSON.parse(shape.aggregated_geometry),
+                            country: shape.country
+                        };
+                    });
+                });
+        };
 
         var map = L.map('map').setView([0, 0], 2);
 

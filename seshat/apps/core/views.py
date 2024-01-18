@@ -1644,19 +1644,29 @@ async def map_view(request):
             'long_name': long_name or "",
         }
 
-    content = {'shapes': shapes,
-               'provinces': await get_provinces(simplification_tolerance=province_tolerance),
-               'countries': await get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance),
-               'earliest_year': earliest_year,
-               'display_year': display_year,
-               'latest_year': latest_year,
-               'seshat_id_page_id': seshat_id_page_id
-               }
+    content = {
+        'shapes': shapes,
+        'earliest_year': earliest_year,
+        'display_year': display_year,
+        'latest_year': latest_year,
+        'seshat_id_page_id': seshat_id_page_id
+    }
     
     return render(request,
                   'core/spatial_map.html',
                   content
                   )
+
+async def provinces_and_countries_view(request):
+    provinces = await get_provinces(simplification_tolerance=province_tolerance)
+    countries = await get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance)
+
+    content = {
+        'provinces': provinces,
+        'countries': countries,
+    }
+
+    return JsonResponse(content)
 
 def gadm_map_view(request):
     # Define a simplification tolerance for faster loading of shapes at lower res
