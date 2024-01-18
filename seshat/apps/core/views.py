@@ -1536,7 +1536,7 @@ async def map_view(request):
     # Define a simplification tolerance for faster loading of shapes at lower res
     country_tolerance = 0.01
     province_tolerance = 0.01
-    polity_tolerance = 0.01
+    polity_tolerance = 0.07
 
     async def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
         # Get all the province or country shapes for the map base layer
