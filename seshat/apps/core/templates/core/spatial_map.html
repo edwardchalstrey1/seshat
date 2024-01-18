@@ -89,8 +89,6 @@
                 },
             {% endfor %}
         ];
-
-        console.log(shapesData);
         
         // Load all polity shapes in background
         window.addEventListener('load', function () {
@@ -111,7 +109,6 @@
                             area: shape.area
                         };
                     });
-                    console.log(shapesData);
                     // Call plotPolities() after shapesData is updated
                     plotPolities();
                 });
