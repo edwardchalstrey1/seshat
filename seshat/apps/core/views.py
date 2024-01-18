@@ -1597,28 +1597,27 @@ async def map_view(request):
     shapes = await sync_to_async(get_shapes)()
 
     # Update shapes with polity_id for loading Seshat pages
-    def get_polity_info(shape):
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT id, long_name FROM core_polity WHERE new_name = %s",
-                [shape['seshat_id']]
-            )
-            row = cursor.fetchone()
-            return row
+    async def get_polity_info(seshat_ids):
+        def fetch_polity_info():
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT new_name, id, long_name FROM core_polity WHERE new_name IN %s",
+                    [tuple(seshat_ids)]
+                )
+                rows = cursor.fetchall()
+                return rows
+
+        return await sync_to_async(fetch_polity_info)()
+
+    seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
+    polity_info = await get_polity_info(seshat_ids)
 
     seshat_id_page_id = {}
-    for shape in shapes:
-        if shape['seshat_id']:
-            try:
-                row = await sync_to_async(get_polity_info)(shape)
-                if row:
-                    seshat_id_page_id[shape['seshat_id']] = {}
-                    seshat_id_page_id[shape['seshat_id']]['id'] = row[0]
-                    seshat_id_page_id[shape['seshat_id']]['long_name'] = ""
-                    if row[1]:
-                        seshat_id_page_id[shape['seshat_id']]['long_name'] = row[1]
-            except Exception as e:
-                print(f"Error fetching ID for shape {shape['name']}: {shape['seshat_id']}: {e}")
+    for new_name, id, long_name in polity_info:
+        seshat_id_page_id[new_name] = {
+            'id': id,
+            'long_name': long_name or "",
+        }
 
     content = {'shapes': shapes,
                'provinces': await get_provinces(),
