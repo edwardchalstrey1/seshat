@@ -91,7 +91,7 @@ This page instructs software engineers how to get started working with the Djang
 
 12. Run Django
     ```
-        uvicorn seshat.asgi:application
+        python manage.py runserver
     ```
 
 13. The webapp should be visible in a browser at http://127.0.0.1:8000/
