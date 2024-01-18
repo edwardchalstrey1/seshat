@@ -1522,117 +1522,117 @@ def download_oldcsv(request, file_name):
 
 # Shapefile views
 
+# Set some vars for the range of years to display
+# TODO: ensure these reflect the true extent of polity shape data
+earliest_year = -3400
+display_year = 0
+latest_year = 2014
+
+# Define a simplification tolerance for faster loading of shapes at lower res
+country_tolerance = 0.05
+province_tolerance = 0.05
+polity_tolerance = 0.07
+
+async def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
+    # Get all the province or country shapes for the map base layer
+    provinces = []
+
+    def fetch_provinces():
+        # Use the appropriate SQL query based on the selected baseMapGADM value
+        if selected_base_map_gadm == 'country':
+            query = """
+                SELECT
+                    ST_Simplify(geom, %s) AS simplified_geometry,
+                    "COUNTRY"                
+                FROM
+                    core_gadmcountries;
+            """
+        elif selected_base_map_gadm == 'province':
+            query = """
+                SELECT
+                    ST_Simplify(geom, %s) AS simplified_geometry,
+                    "NAME_1",
+                    "ENGTYPE_1"                
+                FROM
+                    core_gadmprovinces;
+            """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query, [simplification_tolerance])
+            rows = cursor.fetchall()
+
+        for row in rows:
+            if row[0] != None:
+                if selected_base_map_gadm == 'country':
+                    provinces.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'country': row[1]
+                    })
+                elif selected_base_map_gadm == 'province':
+                    provinces.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'province': row[1],
+                        'province_type': row[2]
+                    })
+
+        return provinces
+
+    return await sync_to_async(fetch_provinces)()
+
+def get_shapes():
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT
+                seshat_id,
+                name,
+                start_year,
+                end_year,
+                polity_start_year,
+                polity_end_year,
+                colour,
+                area,
+                ST_Simplify(geom, %s) AS simplified_geometry
+            FROM
+                core_videoshapefile;
+        """, [polity_tolerance])
+
+        rows = cursor.fetchall()
+
+    shapes = []
+    for row in rows:
+        shapes.append({
+            'seshat_id': row[0],
+            'name': row[1],
+            'start_year': row[2],
+            'end_year': row[3],
+            'polity_start_year': row[4],
+            'polity_end_year': row[5],
+            'colour': row[6],
+            'area': row[7],
+            'geom': GEOSGeometry(row[8]).geojson
+        })
+
+    return shapes
+
+# Update shapes with polity_id for loading Seshat pages
+async def get_polity_info(seshat_ids):
+    def fetch_polity_info():
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT new_name, id, long_name FROM core_polity WHERE new_name IN %s",
+                [tuple(seshat_ids)]
+            )
+            rows = cursor.fetchall()
+            return rows
+
+    return await sync_to_async(fetch_polity_info)()
+
 async def map_view(request):
     """
         This view is used to display a map with polities plotted on it.
     """
 
-    # Set some vars for the range of years to display
-    # TODO: ensure these reflect the true extent of polity shape data
-    earliest_year = -3400
-    display_year = 0
-    latest_year = 2014
-
-    # Define a simplification tolerance for faster loading of shapes at lower res
-    country_tolerance = 0.05
-    province_tolerance = 0.05
-    polity_tolerance = 0.07
-
-    async def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
-        # Get all the province or country shapes for the map base layer
-        provinces = []
-
-        def fetch_provinces():
-            # Use the appropriate SQL query based on the selected baseMapGADM value
-            if selected_base_map_gadm == 'country':
-                query = """
-                    SELECT
-                        ST_Simplify(geom, %s) AS simplified_geometry,
-                        "COUNTRY"                
-                    FROM
-                        core_gadmcountries;
-                """
-            elif selected_base_map_gadm == 'province':
-                query = """
-                    SELECT
-                        ST_Simplify(geom, %s) AS simplified_geometry,
-                        "NAME_1",
-                        "ENGTYPE_1"                
-                    FROM
-                        core_gadmprovinces;
-                """
-
-            with connection.cursor() as cursor:
-                cursor.execute(query, [simplification_tolerance])
-                rows = cursor.fetchall()
-
-            for row in rows:
-                if row[0] != None:
-                    if selected_base_map_gadm == 'country':
-                        provinces.append({
-                            'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                            'country': row[1]
-                        })
-                    elif selected_base_map_gadm == 'province':
-                        provinces.append({
-                            'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                            'province': row[1],
-                            'province_type': row[2]
-                        })
-
-            return provinces
-
-        return await sync_to_async(fetch_provinces)()
-    
-    def get_shapes():
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT
-                    seshat_id,
-                    name,
-                    start_year,
-                    end_year,
-                    polity_start_year,
-                    polity_end_year,
-                    colour,
-                    area,
-                    ST_Simplify(geom, %s) AS simplified_geometry
-                FROM
-                    core_videoshapefile;
-            """, [polity_tolerance])
-
-            rows = cursor.fetchall()
-
-        shapes = []
-        for row in rows:
-            shapes.append({
-                'seshat_id': row[0],
-                'name': row[1],
-                'start_year': row[2],
-                'end_year': row[3],
-                'polity_start_year': row[4],
-                'polity_end_year': row[5],
-                'colour': row[6],
-                'area': row[7],
-                'geom': GEOSGeometry(row[8]).geojson
-            })
-
-        return shapes
-
     shapes = await sync_to_async(get_shapes)()
-
-    # Update shapes with polity_id for loading Seshat pages
-    async def get_polity_info(seshat_ids):
-        def fetch_polity_info():
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    "SELECT new_name, id, long_name FROM core_polity WHERE new_name IN %s",
-                    [tuple(seshat_ids)]
-                )
-                rows = cursor.fetchall()
-                return rows
-
-        return await sync_to_async(fetch_polity_info)()
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
     polity_info = await get_polity_info(seshat_ids)
