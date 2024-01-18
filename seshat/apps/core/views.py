@@ -1520,26 +1520,22 @@ def download_oldcsv(request, file_name):
 
 # Shapefile views
 
-def map_view(request):
-    """
-        This view is used to display a map with polities plotted on it.
-    """
+# Set some vars for the range of years to display
+# TODO: ensure these reflect the true extent of polity shape data
+earliest_year = -3400
+display_year = 0
+latest_year = 2014
 
-    shapes = VideoShapefile.objects.all()
+# Define a simplification tolerance for faster loading of shapes at lower res
+country_tolerance = 0.01
+province_tolerance = 0.01
+polity_tolerance = 0.07
 
-    # Set some vars for the range of years to display
-    # TODO: ensure these reflect the true extent of polity shape data
-    earliest_year = -3400
-    display_year = 0
-    latest_year = 2014
+def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
+    # Get all the province or country shapes for the map base layer
+    provinces = []
 
-    def get_provinces(selected_base_map_gadm='province'):
-
-        # Get all the province or country shapes for the map base layer
-        # Define a simplification tolerance for faster loading of shapes at lower res
-        simplification_tolerance = 0.01
-        provinces = []
-
+    def fetch_provinces():
         # Use the appropriate SQL query based on the selected baseMapGADM value
         if selected_base_map_gadm == 'country':
             query = """
@@ -1579,39 +1575,124 @@ def map_view(request):
 
         return provinces
 
-    # Update shapes with polity_id for loading Seshat pages
-    seshat_id_page_id = {}
-    for shape in shapes:
-        if shape.seshat_id:
-            try:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT id, long_name FROM core_polity WHERE new_name = %s",
-                        [shape.seshat_id]
-                    )
-                    row = cursor.fetchone()
-                    if row:
-                        seshat_id_page_id[shape.seshat_id] = {}
-                        seshat_id_page_id[shape.seshat_id]['id'] = row[0]
-                        seshat_id_page_id[shape.seshat_id]['long_name'] = ""
-                        if row[1]:
-                            seshat_id_page_id[shape.seshat_id]['long_name'] = row[1]
-            except Exception as e:
-                print(f"Error fetching ID for shape {shape.name}: {shape.seshat_id}: {e}")
+    return fetch_provinces()
 
-    content = {'shapes': shapes,
-               'provinces': get_provinces(),
-               'countries': get_provinces(selected_base_map_gadm='country'),
-               'earliest_year': earliest_year,
-               'display_year': display_year,
-               'latest_year': latest_year,
-               'seshat_id_page_id': seshat_id_page_id
-               }
+def get_shapes(displayed_year="all"):
+    query = """
+            SELECT
+                seshat_id,
+                name,
+                start_year,
+                end_year,
+                polity_start_year,
+                polity_end_year,
+                colour,
+                area,
+                ST_Simplify(geom, %s) AS simplified_geometry
+            FROM
+                core_videoshapefile
+            """
+    if displayed_year != "all":
+        query += """
+            WHERE
+                polity_start_year <= %s AND polity_end_year >= %s;
+            """
+        with connection.cursor() as cursor:
+            cursor.execute(query, [polity_tolerance, display_year, display_year])
+            rows = cursor.fetchall()
+    else:
+        query += """
+            ;
+            """
+        with connection.cursor() as cursor:
+            cursor.execute(query, [polity_tolerance])
+            rows = cursor.fetchall()
+
+    shapes = []
+    for row in rows:
+        shapes.append({
+            'seshat_id': row[0],
+            'name': row[1],
+            'start_year': row[2],
+            'end_year': row[3],
+            'polity_start_year': row[4],
+            'polity_end_year': row[5],
+            'colour': row[6],
+            'area': row[7],
+            'geom': GEOSGeometry(row[8]).geojson
+        })
+
+    return shapes
+
+# Update shapes with polity_id for loading Seshat pages
+def get_polity_info(seshat_ids):
+    def fetch_polity_info():
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT new_name, id, long_name FROM core_polity WHERE new_name IN %s",
+                [tuple(seshat_ids)]
+            )
+            rows = cursor.fetchall()
+            return rows
+
+    return fetch_polity_info()
+
+def get_polity_shape_content(displayed_year="all"):
+    shapes = get_shapes(displayed_year=displayed_year)
+
+    seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
+    polity_info = get_polity_info(seshat_ids)
+
+    seshat_id_page_id = {}
+    for new_name, id, long_name in polity_info:
+        seshat_id_page_id[new_name] = {
+            'id': id,
+            'long_name': long_name or "",
+        }
+
+    content = {
+        'shapes': shapes,
+        'earliest_year': earliest_year,
+        'display_year': display_year,
+        'latest_year': latest_year,
+        'seshat_id_page_id': seshat_id_page_id
+    }
+
+    return content
+
+def map_view_initial(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The inital view just loads the polities for the display_year.
+    """
+
+    content = get_polity_shape_content(displayed_year=display_year)
     
     return render(request,
                   'core/spatial_map.html',
                   content
                   )
+
+def map_view_all(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The view loads all polities for the range of years.
+    """
+
+    content = get_polity_shape_content()
+    
+    return JsonResponse(content)
+
+def provinces_and_countries_view(request):
+    provinces = get_provinces(simplification_tolerance=province_tolerance)
+    countries = get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance)
+
+    content = {
+        'provinces': provinces,
+        'countries': countries,
+    }
+
+    return JsonResponse(content)
 
 def gadm_map_view(request):
     # Define a simplification tolerance for faster loading of shapes at lower res

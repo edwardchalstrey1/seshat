@@ -14,8 +14,8 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="cartobasic" onclick="switchBaseMap()">Basic</label><br>
-                <label><input type="radio" name="baseMap" value="gadm" onclick="switchBaseMap()" checked>Current borders</label><br>
+                <label><input type="radio" name="baseMap" value="cartobasic" onclick="switchBaseMap()" checked>Basic</label><br>
+                <label><input type="radio" name="baseMap" value="gadm" onclick="switchBaseMap()">Current borders</label><br>
                 <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
                 <label for="baseMapOnly">Base map only</label>
                 <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
@@ -35,7 +35,7 @@
 
                 <div class="slidecontainer">
                     <label for="enterYear">Enter year:</label>
-                    <input type="number" id="enterYear" name="enterYear" value="0" style="width: 75px;">
+                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
                     <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
                     <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities()" style="width: 300px;"><br>
@@ -72,6 +72,7 @@
 
         var displayedShapes = [];
 
+        // Load inital polity shapes for the displayed year
         var shapesData = [
             // JavaScript object representing shape data
             {% for shape in shapes %}
@@ -80,7 +81,7 @@
                     endYear: '{{ shape.end_year }}',
                     polityStartYear: '{{ shape.polity_start_year }}',
                     polityEndYear: '{{ shape.polity_end_year }}',
-                    geometry: '{{ shape.geom.geojson | safe }}',
+                    geometry: '{{ shape.geom | safe }}',
                     name: '{{ shape.name }}',
                     colour: '{{ shape.colour }}',
                     seshatId: '{{ shape.seshat_id }}',
@@ -89,26 +90,53 @@
             {% endfor %}
         ];
         
-        var provinceShapeData =  [
-            // JavaScript object representing modern day province shape data
-            {% for shape in provinces %}
-                {
-                    geometry: {{ shape.aggregated_geometry | safe }},
-                    province: '{{ shape.province }}',
-                    provinceType: '{{ shape.province_type }}'
-                },
-            {% endfor %}
-        ];
+        // Load all polity shapes in background
+        window.addEventListener('load', function () {
+            console.log("window.onload function is being called");
+            fetch('/core/spatial_map_all/')
+                .then(response => response.json())
+                .then(data => {
+                    shapesData = data.shapes.map(function (shape) {
+                        return {
+                            startYear: shape.start_year,
+                            endYear: shape.end_year,
+                            polityStartYear: shape.polity_start_year,
+                            polityEndYear: shape.polity_end_year,
+                            geometry: shape.geom,
+                            name: shape.name,
+                            colour: shape.colour,
+                            seshatId: shape.seshat_id,
+                            area: shape.area
+                        };
+                    });
+                    // Call plotPolities() after shapesData is updated
+                    plotPolities();
+                });
+        });
 
-        var countryShapeData =  [
-            // JavaScript object representing modern day province shape data
-            {% for shape in countries %}
-                {
-                    geometry: {{ shape.aggregated_geometry | safe }},
-                    country: '{{ shape.country }}'
-                },
-            {% endfor %}
-        ];
+        var provinceShapeData;
+        var countryShapeData;
+
+        window.addEventListener('load', function () {
+            fetch('/core/provinces_and_countries')
+                .then(response => response.json())
+                .then(data => {
+                    provinceShapeData = data.provinces.map(function (shape) {
+                        return {
+                            geometry: JSON.parse(shape.aggregated_geometry),
+                            province: shape.province,
+                            provinceType: shape.province_type
+                        };
+                    });
+
+                    countryShapeData = data.countries.map(function (shape) {
+                        return {
+                            geometry: JSON.parse(shape.aggregated_geometry),
+                            country: shape.country
+                        };
+                    });
+                });
+        });
 
         var map = L.map('map').setView([0, 0], 2);
 
