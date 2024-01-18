@@ -1656,8 +1656,8 @@ def map_view(request):
                   )
 
 def provinces_and_countries_view(request):
-    provinces = await get_provinces(simplification_tolerance=province_tolerance)
-    countries = await get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance)
+    provinces = get_provinces(simplification_tolerance=province_tolerance)
+    countries = get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance)
 
     content = {
         'provinces': provinces,
