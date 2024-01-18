@@ -1534,8 +1534,8 @@ async def map_view(request):
     latest_year = 2014
 
     # Define a simplification tolerance for faster loading of shapes at lower res
-    country_tolerance = 0.01
-    province_tolerance = 0.01
+    country_tolerance = 0.05
+    province_tolerance = 0.05
     polity_tolerance = 0.07
 
     async def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
