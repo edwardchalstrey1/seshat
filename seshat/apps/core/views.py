@@ -1577,7 +1577,7 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
 
     return fetch_provinces()
 
-def get_shapes():
+def get_shapes(display_start_year, display_end_year):
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT
@@ -1591,8 +1591,10 @@ def get_shapes():
                 area,
                 ST_Simplify(geom, %s) AS simplified_geometry
             FROM
-                core_videoshapefile;
-        """, [polity_tolerance])
+                core_videoshapefile
+            WHERE
+                polity_start_year <= %s AND polity_end_year >= %s;
+        """, [polity_tolerance, display_start_year, display_end_year])
 
         rows = cursor.fetchall()
 
@@ -1630,7 +1632,7 @@ def map_view(request):
         This view is used to display a map with polities plotted on it.
     """
 
-    shapes = get_shapes()
+    shapes = get_shapes(0, 0)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
     polity_info = get_polity_info(seshat_ids)
