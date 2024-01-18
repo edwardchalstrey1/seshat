@@ -1627,12 +1627,8 @@ def get_polity_info(seshat_ids):
 
     return fetch_polity_info()
 
-def map_view(request):
-    """
-        This view is used to display a map with polities plotted on it.
-    """
-
-    shapes = get_shapes(0, 0)
+def get_polity_shape_content(display_start_year, display_end_year):
+    shapes = get_shapes(display_start_year, display_end_year)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
     polity_info = get_polity_info(seshat_ids)
@@ -1651,6 +1647,15 @@ def map_view(request):
         'latest_year': latest_year,
         'seshat_id_page_id': seshat_id_page_id
     }
+
+    return content
+
+def map_view(request):
+    """
+        This view is used to display a map with polities plotted on it.
+    """
+
+    content = get_polity_shape_content(0, 0)
     
     return render(request,
                   'core/spatial_map.html',
