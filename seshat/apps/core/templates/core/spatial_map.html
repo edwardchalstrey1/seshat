@@ -93,7 +93,7 @@
         // Load all polity shapes in background
         window.addEventListener('load', function () {
             console.log("window.onload function is being called");
-            fetch('core/spatial_map_all/')
+            fetch('/core/spatial_map_all/')
                 .then(response => response.json())
                 .then(data => {
                     shapesData = data.shapes.map(function (shape) {
