@@ -1527,11 +1527,6 @@ async def map_view(request):
         This view is used to display a map with polities plotted on it.
     """
 
-    def get_shapes():
-        return list(VideoShapefile.objects.values('seshat_id', 'name'))
-
-    shapes = await sync_to_async(get_shapes)()
-
     # Set some vars for the range of years to display
     # TODO: ensure these reflect the true extent of polity shape data
     earliest_year = -3400
@@ -1583,24 +1578,33 @@ async def map_view(request):
                     })
 
         return provinces
+    
+    def get_shapes():
+        return list(VideoShapefile.objects.values('seshat_id', 'name'))
+
+    shapes = await sync_to_async(get_shapes)()
 
     # Update shapes with polity_id for loading Seshat pages
+    def get_polity_info(shape):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT id, long_name FROM core_polity WHERE new_name = %s",
+                [shape['seshat_id']]
+            )
+            row = cursor.fetchone()
+            return row
+
     seshat_id_page_id = {}
     for shape in shapes:
         if shape['seshat_id']:
             try:
-                with connection.cursor() as cursor:
-                    await sync_to_async(cursor.execute)(
-                        "SELECT id, long_name FROM core_polity WHERE new_name = %s",
-                        [shape['seshat_id']]
-                    )
-                    row = await sync_to_async(cursor.fetchone)()
-                    if row:
-                        seshat_id_page_id[shape['seshat_id']] = {}
-                        seshat_id_page_id[shape['seshat_id']]['id'] = row[0]
-                        seshat_id_page_id[shape['seshat_id']]['long_name'] = ""
-                        if row[1]:
-                            seshat_id_page_id[shape['seshat_id']]['long_name'] = row[1]
+                row = await sync_to_async(get_polity_info)(shape)
+                if row:
+                    seshat_id_page_id[shape['seshat_id']] = {}
+                    seshat_id_page_id[shape['seshat_id']]['id'] = row[0]
+                    seshat_id_page_id[shape['seshat_id']]['long_name'] = ""
+                    if row[1]:
+                        seshat_id_page_id[shape['seshat_id']]['long_name'] = row[1]
             except Exception as e:
                 print(f"Error fetching ID for shape {shape['name']}: {shape['seshat_id']}: {e}")
 
