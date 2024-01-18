@@ -1527,7 +1527,7 @@ async def map_view(request):
         This view is used to display a map with polities plotted on it.
     """
 
-    shapes = await sync_to_async(VideoShapefile.objects.all)()
+    shapes = await sync_to_async(list)(VideoShapefile.objects.all())
 
     # Set some vars for the range of years to display
     # TODO: ensure these reflect the true extent of polity shape data
