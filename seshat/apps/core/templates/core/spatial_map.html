@@ -89,18 +89,22 @@
             {% endfor %}
         ];
 
+        var provinceShapeData;
+        var countryShapeData;
+
         window.onload = function () {
             fetch('/core/provinces_and_countries')
                 .then(response => response.json())
                 .then(data => {
-                    var provinceShapeData = data.provinces.map(function (shape) {
+                    provinceShapeData = data.provinces.map(function (shape) {
                         return {
                             geometry: JSON.parse(shape.aggregated_geometry),
                             province: shape.province,
                             provinceType: shape.province_type
                         };
                     });
-                    var countryShapeData = data.countries.map(function (shape) {
+
+                    countryShapeData = data.countries.map(function (shape) {
                         return {
                             geometry: JSON.parse(shape.aggregated_geometry),
                             country: shape.country
