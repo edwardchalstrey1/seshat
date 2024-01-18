@@ -91,7 +91,8 @@
         ];
         
         // Load all polity shapes in background
-        window.onload = function () {
+        window.addEventListener('load', function () {
+            console.log("window.onload function is being called");
             fetch('core/spatial_map_all/')
                 .then(response => response.json())
                 .then(data => {
@@ -108,13 +109,16 @@
                             area: shape.area
                         };
                     });
+                    console.log(shapesData);
+                    // Call plotPolities() after shapesData is updated
+                    plotPolities();
                 });
-        };
+        });
 
         var provinceShapeData;
         var countryShapeData;
 
-        window.onload = function () {
+        window.addEventListener('load', function () {
             fetch('/core/provinces_and_countries')
                 .then(response => response.json())
                 .then(data => {
@@ -133,7 +137,7 @@
                         };
                     });
                 });
-        };
+        });
 
         var map = L.map('map').setView([0, 0], 2);
 
