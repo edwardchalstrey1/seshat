@@ -89,6 +89,8 @@
                 },
             {% endfor %}
         ];
+
+        console.log(shapesData);
         
         // Load all polity shapes in background
         window.addEventListener('load', function () {
@@ -102,7 +104,7 @@
                             endYear: shape.end_year,
                             polityStartYear: shape.polity_start_year,
                             polityEndYear: shape.polity_end_year,
-                            geometry: JSON.parse(shape.geom),
+                            geometry: shape.geom,
                             name: shape.name,
                             colour: shape.colour,
                             seshatId: shape.seshat_id,
