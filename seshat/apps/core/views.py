@@ -1577,7 +1577,7 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
 
     return fetch_provinces()
 
-def get_shapes(displayed_year=False):
+def get_shapes(displayed_year="all"):
     query = """
             SELECT
                 seshat_id,
@@ -1592,7 +1592,7 @@ def get_shapes(displayed_year=False):
             FROM
                 core_videoshapefile
             """
-    if displayed_year:
+    if displayed_year != "all":
         query += """
             WHERE
                 polity_start_year <= %s AND polity_end_year >= %s;
@@ -1637,7 +1637,7 @@ def get_polity_info(seshat_ids):
 
     return fetch_polity_info()
 
-def get_polity_shape_content(displayed_year=False):
+def get_polity_shape_content(displayed_year="all"):
     shapes = get_shapes(displayed_year=displayed_year)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
