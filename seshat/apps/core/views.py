@@ -1534,9 +1534,11 @@ async def map_view(request):
     latest_year = 2014
 
     # Define a simplification tolerance for faster loading of shapes at lower res
-    simplification_tolerance = 0.01
+    country_tolerance = 0.01
+    province_tolerance = 0.01
+    polity_tolerance = 0.01
 
-    async def get_provinces(selected_base_map_gadm='province'):
+    async def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
         # Get all the province or country shapes for the map base layer
         provinces = []
 
@@ -1597,7 +1599,7 @@ async def map_view(request):
                     ST_Simplify(geom, %s) AS simplified_geometry
                 FROM
                     core_videoshapefile;
-            """, [simplification_tolerance])
+            """, [polity_tolerance])
 
             rows = cursor.fetchall()
 
@@ -1643,8 +1645,8 @@ async def map_view(request):
         }
 
     content = {'shapes': shapes,
-               'provinces': await get_provinces(),
-               'countries': await get_provinces(selected_base_map_gadm='country'),
+               'provinces': await get_provinces(simplification_tolerance=province_tolerance),
+               'countries': await get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance),
                'earliest_year': earliest_year,
                'display_year': display_year,
                'latest_year': latest_year,
