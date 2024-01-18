@@ -1577,9 +1577,8 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
 
     return fetch_provinces()
 
-def get_shapes(display_start_year, display_end_year):
-    with connection.cursor() as cursor:
-        cursor.execute("""
+def get_shapes(displayed_year=False):
+    query = """
             SELECT
                 seshat_id,
                 name,
@@ -1592,11 +1591,22 @@ def get_shapes(display_start_year, display_end_year):
                 ST_Simplify(geom, %s) AS simplified_geometry
             FROM
                 core_videoshapefile
+            """
+    if displayed_year:
+        query += """
             WHERE
                 polity_start_year <= %s AND polity_end_year >= %s;
-        """, [polity_tolerance, display_start_year, display_end_year])
-
-        rows = cursor.fetchall()
+            """
+        with connection.cursor() as cursor:
+            cursor.execute(query, [polity_tolerance, display_year, display_year])
+            rows = cursor.fetchall()
+    else:
+        query += """
+            ;
+            """
+        with connection.cursor() as cursor:
+            cursor.execute(query, [polity_tolerance])
+            rows = cursor.fetchall()
 
     shapes = []
     for row in rows:
@@ -1627,8 +1637,8 @@ def get_polity_info(seshat_ids):
 
     return fetch_polity_info()
 
-def get_polity_shape_content(display_start_year, display_end_year):
-    shapes = get_shapes(display_start_year, display_end_year)
+def get_polity_shape_content(displayed_year=False):
+    shapes = get_shapes(displayed_year=displayed_year)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
     polity_info = get_polity_info(seshat_ids)
@@ -1656,7 +1666,7 @@ def map_view_initial(request):
         The inital view just loads the polities for the display_year.
     """
 
-    content = get_polity_shape_content(display_year, display_year)
+    content = get_polity_shape_content(displayed_year=display_year)
     
     return render(request,
                   'core/spatial_map.html',
@@ -1669,7 +1679,7 @@ def map_view_all(request):
         The view loads all polities for the range of years.
     """
 
-    content = get_polity_shape_content(earliest_year, latest_year)
+    content = get_polity_shape_content()
     
     return JsonResponse(content)
 
