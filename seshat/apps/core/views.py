@@ -65,7 +65,6 @@ from math import floor, ceil
 from django.contrib.gis.geos import GEOSGeometry
 from distinctipy import get_colors, get_hex
 
-import asyncio
 from asgiref.sync import sync_to_async
 
 def is_ajax(request):
@@ -1582,27 +1581,20 @@ async def map_view(request):
 
         return await sync_to_async(fetch_provinces)()
     
-    async def get_shapes():
-        def fetch_shapes():
-            return list(VideoShapefile.objects.values(
-                'seshat_id', 
-                'name',
-                'start_year',
-                'end_year',
-                'polity_start_year',
-                'polity_end_year',
-                'colour',
-                'area',
-                'geom'
-            ))
+    def get_shapes():
+        return list(VideoShapefile.objects.values(
+                                                    'seshat_id', 
+                                                    'name',
+                                                    'start_year',
+                                                    'end_year',
+                                                    'polity_start_year',
+                                                    'polity_end_year',
+                                                    'colour',
+                                                    'area',
+                                                    'geom'
+                                                  ))
 
-        return await sync_to_async(fetch_shapes)()
-
-    shapes, provinces, countries = await asyncio.gather(
-        get_shapes(),
-        get_provinces(),
-        get_provinces(selected_base_map_gadm='country')
-    )
+    shapes = await sync_to_async(get_shapes)()
 
     # Update shapes with polity_id for loading Seshat pages
     def get_polity_info(shape):
@@ -1629,8 +1621,8 @@ async def map_view(request):
                 print(f"Error fetching ID for shape {shape['name']}: {shape['seshat_id']}: {e}")
 
     content = {'shapes': shapes,
-               'provinces': provinces,
-               'countries': countries,
+               'provinces': await get_provinces(),
+               'countries': await get_provinces(selected_base_map_gadm='country'),
                'earliest_year': earliest_year,
                'display_year': display_year,
                'latest_year': latest_year,
