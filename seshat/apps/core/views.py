@@ -1533,10 +1533,11 @@ async def map_view(request):
     display_year = 0
     latest_year = 2014
 
+    # Define a simplification tolerance for faster loading of shapes at lower res
+    simplification_tolerance = 0.01
+
     async def get_provinces(selected_base_map_gadm='province'):
         # Get all the province or country shapes for the map base layer
-        # Define a simplification tolerance for faster loading of shapes at lower res
-        simplification_tolerance = 0.01
         provinces = []
 
         def fetch_provinces():
@@ -1582,17 +1583,39 @@ async def map_view(request):
         return await sync_to_async(fetch_provinces)()
     
     def get_shapes():
-        return list(VideoShapefile.objects.values(
-                                                    'seshat_id', 
-                                                    'name',
-                                                    'start_year',
-                                                    'end_year',
-                                                    'polity_start_year',
-                                                    'polity_end_year',
-                                                    'colour',
-                                                    'area',
-                                                    'geom'
-                                                  ))
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT
+                    seshat_id,
+                    name,
+                    start_year,
+                    end_year,
+                    polity_start_year,
+                    polity_end_year,
+                    colour,
+                    area,
+                    ST_Simplify(geom, %s) AS simplified_geometry
+                FROM
+                    core_videoshapefile;
+            """, [simplification_tolerance])
+
+            rows = cursor.fetchall()
+
+        shapes = []
+        for row in rows:
+            shapes.append({
+                'seshat_id': row[0],
+                'name': row[1],
+                'start_year': row[2],
+                'end_year': row[3],
+                'polity_start_year': row[4],
+                'polity_end_year': row[5],
+                'colour': row[6],
+                'area': row[7],
+                'geom': GEOSGeometry(row[8]).geojson
+            })
+
+        return shapes
 
     shapes = await sync_to_async(get_shapes)()
 
