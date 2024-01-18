@@ -1650,17 +1650,28 @@ def get_polity_shape_content(display_start_year, display_end_year):
 
     return content
 
-def map_view(request):
+def map_view_initial(request):
     """
         This view is used to display a map with polities plotted on it.
+        The inital view just loads the polities for the display_year.
     """
 
-    content = get_polity_shape_content(0, 0)
+    content = get_polity_shape_content(display_year, display_year)
     
     return render(request,
                   'core/spatial_map.html',
                   content
                   )
+
+def map_view_all(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The view loads all polities for the range of years.
+    """
+
+    content = get_polity_shape_content(earliest_year, latest_year)
+    
+    return JsonResponse(content)
 
 def provinces_and_countries_view(request):
     provinces = get_provinces(simplification_tolerance=province_tolerance)
