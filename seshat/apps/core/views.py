@@ -65,8 +65,6 @@ from math import floor, ceil
 from django.contrib.gis.geos import GEOSGeometry
 from distinctipy import get_colors, get_hex
 
-from asgiref.sync import sync_to_async
-
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
@@ -1533,7 +1531,7 @@ country_tolerance = 0.01
 province_tolerance = 0.01
 polity_tolerance = 0.07
 
-async def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
+def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
     # Get all the province or country shapes for the map base layer
     provinces = []
 
@@ -1577,7 +1575,7 @@ async def get_provinces(selected_base_map_gadm='province', simplification_tolera
 
         return provinces
 
-    return await sync_to_async(fetch_provinces)()
+    return fetch_provinces()
 
 def get_shapes():
     with connection.cursor() as cursor:
@@ -1615,7 +1613,7 @@ def get_shapes():
     return shapes
 
 # Update shapes with polity_id for loading Seshat pages
-async def get_polity_info(seshat_ids):
+def get_polity_info(seshat_ids):
     def fetch_polity_info():
         with connection.cursor() as cursor:
             cursor.execute(
@@ -1625,17 +1623,17 @@ async def get_polity_info(seshat_ids):
             rows = cursor.fetchall()
             return rows
 
-    return await sync_to_async(fetch_polity_info)()
+    return fetch_polity_info()
 
-async def map_view(request):
+def map_view(request):
     """
         This view is used to display a map with polities plotted on it.
     """
 
-    shapes = await sync_to_async(get_shapes)()
+    shapes = get_shapes()
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
-    polity_info = await get_polity_info(seshat_ids)
+    polity_info = get_polity_info(seshat_ids)
 
     seshat_id_page_id = {}
     for new_name, id, long_name in polity_info:
@@ -1657,7 +1655,7 @@ async def map_view(request):
                   content
                   )
 
-async def provinces_and_countries_view(request):
+def provinces_and_countries_view(request):
     provinces = await get_provinces(simplification_tolerance=province_tolerance)
     countries = await get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance)
 
