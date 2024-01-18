@@ -1582,7 +1582,17 @@ async def map_view(request):
         return await sync_to_async(fetch_provinces)()
     
     def get_shapes():
-        return list(VideoShapefile.objects.values('seshat_id', 'name'))
+        return list(VideoShapefile.objects.values(
+                                                    'seshat_id', 
+                                                    'name',
+                                                    'start_year',
+                                                    'end_year',
+                                                    'polity_start_year',
+                                                    'polity_end_year',
+                                                    'colour',
+                                                    'area',
+                                                    'geom'
+                                                  ))
 
     shapes = await sync_to_async(get_shapes)()
 
