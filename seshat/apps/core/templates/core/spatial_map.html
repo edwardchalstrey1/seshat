@@ -40,10 +40,10 @@
 
                 <div class="slidecontainer">
                     <label for="enterYear">Enter year:</label>
-                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled onchange="storeYear()">
+                    <input type="number" id="enterYear" name="enterYear" value="getDisplayYear()" style="width: 75px;" disabled onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
                     <button id="plusButton" type="button" onclick="adjustSliderUp()" disabled>+</button><br>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;" disabled><br>
+                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="getDisplayYear()" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;" disabled><br>
                     <label for="sliderDate">Selected year:</label>
                     <span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
@@ -535,18 +535,39 @@
         function storeYear() {
             var year = document.getElementById('enterYear').value;
             localStorage.setItem('displayedYear', year);
-            console.log('Storing year in local storage');
+            console.log('Stored year in local storage');
             console.log(year);
+            console.log(localStorage.getItem('displayedYear'));
+        }
+
+        function getDisplayYear() {
+            if (localStorage.getItem('displayedYear')) {
+                var displayYear = localStorage.getItem('displayedYear');
+                console.log('Set year from local storage');
+            } else {
+                var displayYear = "{{ display_year }}";
+                console.log('Set year from django');
+            }
+            console.log('Decided display year');
+            console.log(parseInt(displayYear));
+            return parseInt(displayYear);
         }
 
         window.addEventListener('load', function () {
-            var year = document.getElementById('enterYear').value;
+            var year = document.getElementById('dateSlide').value;
             var storedYear = localStorage.getItem('displayedYear');
-
+            console.log('Retreiving year from local storage');
+            console.log(storedYear);
+            console.log('Current selection:');
+            console.log(year);
             // Check if the year has changed
             if (year !== storedYear) {
-                // Change window.location.href
-                window.location.href = '/core/spatial_map/?year=' + year;
+                // document.getElementById('enterYear').value = localStorage.getItem('displayedYear');
+                // document.getElementById('dateSlide').value = localStorage.getItem('displayedYear');
+                // console.log('enterYear and dateSlide values changed');
+                // console.log(document.getElementById('enterYear').value);
+                // console.log(document.getElementById('dateSlide').value);
+                window.location.href = '/core/spatial_map/?year=' + storedYear;
                 console.log('window.location.href changed');
             }
         });
