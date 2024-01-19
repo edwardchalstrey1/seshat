@@ -40,10 +40,10 @@
 
                 <div class="slidecontainer">
                     <label for="enterYear">Enter year:</label>
-                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled>
+                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
                     <button id="plusButton" type="button" onclick="adjustSliderUp()" disabled>+</button><br>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities()" style="width: 300px;" disabled><br>
+                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;" disabled><br>
                     <label for="sliderDate">Selected year:</label>
                     <span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
@@ -76,6 +76,20 @@
         <div id="map" style="height: 75vh; flex: 1;"></div>
     </div>
     <script>
+
+        function storeYear() {
+            var year = document.getElementById('enterYear').value;
+            localStorage.setItem('displayedYear', year);
+        }
+
+        window.addEventListener('load', function () {
+            console.log('reload page');
+            var year = localStorage.getItem('displayedYear');
+            console.log(year);
+            if (year) {
+                window.location.href = '/core/spatial_map/?year=' + year;
+            }
+        });
 
         var displayedShapes = [];
 

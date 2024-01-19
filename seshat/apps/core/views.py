@@ -1663,7 +1663,10 @@ def map_view_initial(request):
         The inital view just loads the polities for the display_year.
     """
 
-    content = get_polity_shape_content(displayed_year=display_year)
+    # Use the display_year from the request parameters if present
+    # Otherwise use the default display_year (see above)
+    displayed_year = request.GET.get('year', display_year)
+    content = get_polity_shape_content(displayed_year=displayed_year)
     
     return render(request,
                   'core/spatial_map.html',
