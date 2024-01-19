@@ -34,6 +34,10 @@
                 </legend>
 
                 <div class="slidecontainer">
+                    
+                    <!-- Add a loading indicator -->
+                    <div id="loadingIndicator">Loading...</div>
+
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled>
                     <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
@@ -118,7 +122,8 @@
                     // Call plotPolities() after shapesData is updated
                     plotPolities();
 
-                    // Enable the buttons after the fetch request is done
+                    // Hide the loading indicator and enable the buttons after the fetch request is done
+                    document.getElementById('loadingIndicator').style.display = 'none';
                     document.getElementById('enterYear').disabled = false;
                     document.getElementById('minusButton').disabled = false;
                     document.getElementById('plusButton').disabled = false;
