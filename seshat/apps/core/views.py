@@ -1626,16 +1626,13 @@ def get_shapes(displayed_year="all"):
 
 # Update shapes with polity_id for loading Seshat pages
 def get_polity_info(seshat_ids):
-    def fetch_polity_info():
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT new_name, id, long_name FROM core_polity WHERE new_name IN %s",
-                [tuple(seshat_ids)]
-            )
-            rows = cursor.fetchall()
-            return rows
-
-    return fetch_polity_info()
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT new_name, id, long_name FROM core_polity WHERE new_name IN %s",
+            [tuple(seshat_ids)]
+        )
+        rows = cursor.fetchall()
+        return rows
 
 def get_polity_shape_content(displayed_year="all"):
     shapes = get_shapes(displayed_year=displayed_year)
