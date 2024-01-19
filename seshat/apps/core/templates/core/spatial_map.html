@@ -80,14 +80,20 @@
         function storeYear() {
             var year = document.getElementById('enterYear').value;
             localStorage.setItem('displayedYear', year);
+            console.log(year);
         }
 
         window.addEventListener('load', function () {
-            console.log('reload page');
-            var year = localStorage.getItem('displayedYear');
-            console.log(year);
-            if (year) {
-                window.location.href = '/core/spatial_map/?year=' + year;
+            // Check if the code has already run
+            if (!sessionStorage.getItem('hasRunOnce')) {
+                console.log('reload page');
+                var year = localStorage.getItem('displayedYear');
+                console.log(year);
+                if (year) {
+                    // Set the flag to true so the code doesn't run again
+                    sessionStorage.setItem('hasRunOnce', 'true');
+                    window.location.href = '/core/spatial_map/?year=' + year;
+                }
             }
         });
 
