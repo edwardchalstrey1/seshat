@@ -77,26 +77,6 @@
     </div>
     <script>
 
-        function storeYear() {
-            var year = document.getElementById('enterYear').value;
-            localStorage.setItem('displayedYear', year);
-            console.log(year);
-        }
-
-        window.addEventListener('load', function () {
-            // Check if the code has already run
-            if (!sessionStorage.getItem('hasRunOnce')) {
-                console.log('reload page');
-                var year = localStorage.getItem('displayedYear');
-                console.log(year);
-                if (year) {
-                    // Set the flag to true so the code doesn't run again
-                    sessionStorage.setItem('hasRunOnce', 'true');
-                    window.location.href = '/core/spatial_map/?year=' + year;
-                }
-            }
-        });
-
         var displayedShapes = [];
 
         // Load inital polity shapes for the displayed year
@@ -549,6 +529,25 @@
                 plotPolities();
                 // Update the color information in local storage for newly displayed shapes
                 updateColorInfoInLocalStorage(displayedShapes);
+            }
+        });
+
+        function storeYear() {
+            var year = document.getElementById('enterYear').value;
+            localStorage.setItem('displayedYear', year);
+            console.log('Storing year in local storage');
+            console.log(year);
+        }
+
+        window.addEventListener('load', function () {
+            var year = document.getElementById('enterYear').value;
+            var storedYear = localStorage.getItem('displayedYear');
+
+            // Check if the year has changed
+            if (year !== storedYear) {
+                // Change window.location.href
+                window.location.href = '/core/spatial_map/?year=' + year;
+                console.log('window.location.href changed');
             }
         });
 
