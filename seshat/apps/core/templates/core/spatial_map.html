@@ -89,10 +89,12 @@
                 },
             {% endfor %}
         ];
-        
+
+        // Load seshat_id_page_id dictionary
+        var seshatIdPageId = {{ seshat_id_page_id | safe }};
+
         // Load all polity shapes in background
         window.addEventListener('load', function () {
-            console.log("window.onload function is being called");
             fetch('/core/spatial_map_all/')
                 .then(response => response.json())
                 .then(data => {
@@ -109,6 +111,10 @@
                             area: shape.area
                         };
                     });
+
+                    // Update seshatIdPageId from the JSON response
+                    seshatIdPageId = data.seshat_id_page_id;
+
                     // Call plotPolities() after shapesData is updated
                     plotPolities();
                 });
@@ -216,8 +222,6 @@
                 });
             }
         }
-
-        var seshatIdPageId = {{ seshat_id_page_id | safe }};
 
         function plotPolities() {
 
