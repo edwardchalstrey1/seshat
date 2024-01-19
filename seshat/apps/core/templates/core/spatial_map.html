@@ -14,11 +14,12 @@
                 <legend>
                     <h3>Base Map</h3>
                 </legend>
-                <label><input type="radio" name="baseMap" value="cartobasic" onclick="switchBaseMap()" checked>Basic</label><br>
-                <label><input type="radio" name="baseMap" value="gadm" onclick="switchBaseMap()">Current borders</label><br>
-                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
-                <label for="baseMapOnly">Base map only</label>
-                <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
+                <label><input type="radio" name="baseMap" id="baseMapBasic" value="cartobasic" onclick="switchBaseMap()" checked>Basic</label><br>
+                <label><input type="radio" name="baseMap" id="baseMapOSM" value="osm"
+                        onclick="switchBaseMap()">OpenStreetMap</label><br>
+                <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()" disabled>Current borders</label>
+                <!-- Add a loading indicator for Current borders -->
+                <div id="baseMapCurrentLoadingIndicator" class="spinner"></div><br>
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
                 <label for="baseMapGADM">Current borders:</label>
@@ -30,22 +31,28 @@
             <p></p>
             <fieldset>
                 <legend>
-                    <h3>Show Polities</h3>
+                    <h3>Polities</h3>
+                    <!-- Add a loading indicator -->
+                    <div id="loadingIndicator">
+                        <div class="spinner"></div>
+                    </div>
                 </legend>
 
                 <div class="slidecontainer">
                     <label for="enterYear">Enter year:</label>
-                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;">
-                    <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
-                    <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities()" style="width: 300px;"><br>
+                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled>
+                    <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
+                    <button id="plusButton" type="button" onclick="adjustSliderUp()" disabled>+</button><br>
+                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities()" style="width: 300px;" disabled><br>
                     <label for="sliderDate">Selected year:</label>
                     <span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
-                    <button id="playButton" type="button" onclick="startPlay()">▶️</button>
-                    <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
+                    <button id="playButton" type="button" onclick="startPlay()" disabled>▶️</button>
+                    <button id="stopButton" type="button" onclick="stopPlay()" disabled>⏸</button><br>
                     <label for="playRate">Animation speed:</label>
-                    <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" onchange="plotPolities()"><br><br>
+                    <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" onchange="plotPolities()" disabled><br><br>
+                    <label for="baseMapOnly">Hide polities (inspect base map)</label>
+                    <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br><br>
                 </div>
                 <p>Click a polity to reveal information.</p>
                 <p>Reach polity pages with double click.</p>
@@ -117,6 +124,16 @@
 
                     // Call plotPolities() after shapesData is updated
                     plotPolities();
+
+                    // Hide the loading indicator and enable the buttons after the fetch request is done
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                    document.getElementById('enterYear').disabled = false;
+                    document.getElementById('minusButton').disabled = false;
+                    document.getElementById('plusButton').disabled = false;
+                    document.getElementById('dateSlide').disabled = false;
+                    document.getElementById('playButton').disabled = false;
+                    document.getElementById('stopButton').disabled = false;
+                    document.getElementById('playRate').disabled = false;
                 });
         });
 
@@ -141,6 +158,10 @@
                             country: shape.country
                         };
                     });
+
+                    // Enable the radio selection after the fetch request is done
+                    document.getElementById('baseMapCurrentLoadingIndicator').style.display = 'none';
+                    document.getElementById('baseMapCurrent').disabled = false;
                 });
         });
 
