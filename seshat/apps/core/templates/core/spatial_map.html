@@ -540,13 +540,12 @@
         }
 
         window.addEventListener('load', function () {
-            var year = document.getElementById('enterYear').value;
             var storedYear = localStorage.getItem('displayedYear');
-
-            // Check if the year has changed
-            if (year !== storedYear) {
+            var url = new URL(window.location.href);
+            var yearInUrl = url.searchParams.get('year');
+            if (storedYear !== yearInUrl) {
                 // Change window.location.href
-                window.location.href = '/core/spatial_map/?year=' + year;
+                window.location.href = '/core/spatial_map/?year=' + storedYear;
                 console.log('window.location.href changed');
             }
         });
