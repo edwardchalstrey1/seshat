@@ -1578,6 +1578,7 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
     return fetch_provinces()
 
 def get_shapes(displayed_year="all"):
+    print('loading shapes for ', displayed_year)
     query = """
             SELECT
                 seshat_id,
@@ -1647,10 +1648,13 @@ def get_polity_shape_content(displayed_year="all"):
             'long_name': long_name or "",
         }
 
+    if displayed_year == "all":
+        displayed_year = display_year 
+
     content = {
         'shapes': shapes,
         'earliest_year': earliest_year,
-        'display_year': display_year,
+        'display_year': displayed_year,
         'latest_year': latest_year,
         'seshat_id_page_id': seshat_id_page_id
     }
@@ -1666,6 +1670,7 @@ def map_view_initial(request):
     # Use the display_year from the request parameters if present
     # Otherwise use the default display_year (see above)
     displayed_year = request.GET.get('year', display_year)
+    print('loading shapes for ', displayed_year)
     content = get_polity_shape_content(displayed_year=displayed_year)
     
     return render(request,
@@ -1678,7 +1683,7 @@ def map_view_all(request):
         This view is used to display a map with polities plotted on it.
         The view loads all polities for the range of years.
     """
-
+    print('loading shapes for all years')
     content = get_polity_shape_content()
     
     return JsonResponse(content)
