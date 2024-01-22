@@ -1599,7 +1599,7 @@ def get_shapes(displayed_year="all"):
                 polity_start_year <= %s AND polity_end_year >= %s;
             """
         with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance, display_year, display_year])
+            cursor.execute(query, [polity_tolerance, displayed_year, displayed_year])
             rows = cursor.fetchall()
     else:
         query += """
