@@ -33,9 +33,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # CORE SETTINGS
 # ==============================================================================
 
-if not os.path.exists(local_env_path):
-    SECRET_KEY = config(
-        "SECRET_KEY", default="django-insecure$seshat.settings.local")
+SECRET_KEY = config(
+    "SECRET_KEY", default="django-insecure$seshat.settings.local")
 
 DEBUG = config("DEBUG", default=True, cast=bool)
 
