@@ -100,7 +100,10 @@
         // Load seshat_id_page_id dictionary
         var seshatIdPageId = {{ seshat_id_page_id | safe }};
 
-        // Load all polity shapes in background
+        var provinceShapeData;
+        var countryShapeData;
+
+        // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
             fetch('/core/spatial_map_all/')
                 .then(response => response.json())
@@ -134,14 +137,10 @@
                     document.getElementById('playButton').disabled = false;
                     document.getElementById('stopButton').disabled = false;
                     document.getElementById('playRate').disabled = false;
-                });
-        });
 
-        var provinceShapeData;
-        var countryShapeData;
-
-        window.addEventListener('load', function () {
-            fetch('/core/provinces_and_countries')
+                    // Start the second fetch after the first one is complete
+                    return fetch('/core/provinces_and_countries');
+                })
                 .then(response => response.json())
                 .then(data => {
                     provinceShapeData = data.provinces.map(function (shape) {
