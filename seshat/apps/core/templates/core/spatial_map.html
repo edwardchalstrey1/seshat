@@ -535,8 +535,6 @@
         function storeYear() {
             var year = document.getElementById('enterYear').value;
             localStorage.setItem('displayedYear', year);
-            console.log('Storing year in local storage');
-            console.log(year);
         }
 
         window.addEventListener('load', function () {
@@ -546,7 +544,6 @@
             if (storedYear !== yearInUrl) {
                 // Change window.location.href
                 window.location.href = '/core/spatial_map/?year=' + storedYear;
-                console.log('window.location.href changed');
             }
         });
 

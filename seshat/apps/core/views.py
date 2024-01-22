@@ -1578,7 +1578,6 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
     return fetch_provinces()
 
 def get_shapes(displayed_year="all"):
-    print('loading shapes for ', displayed_year)
     query = """
             SELECT
                 seshat_id,
