@@ -664,15 +664,30 @@ class SeshatCommon(models.Model):
 #     job_category = models.CharField(choices=job_category_annual_wages_choices)
 #     job_description = models.CharField(
 #         choices=job_description_annual_wages_choices)
+        
+class Religion(models.Model):
+    name = models.CharField(max_length=100, default="Religion")
+    religion_name = models.CharField(max_length=100, null=True, blank=True)
+    religion_family = models.CharField(max_length=100, blank=True, null=True)
+    religion_genus = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self) -> str:
+        """string for epresenting the model obj in Admin Site"""
+        if self.religion_name:
+            return self.religion_name
+        return self.name
 
 # Shapefile models
 
-class MacrostateShapefile(models.Model):
-    geom = models.MultiPolygonField()
-    name = models.CharField(max_length=50, null=True)
-    polity = models.CharField(max_length=50, null=True)
-    date_from = models.CharField(max_length=50, null=True)
-    date_to = models.CharField(max_length=50, null=True)
+# class MacrostateShapefile(models.Model):
+#     geom = models.MultiPolygonField()
+#     name = models.CharField(max_length=50, null=True)
+#     polity = models.CharField(max_length=50, null=True)
+#     date_from = models.CharField(max_length=50, null=True)
+#     date_to = models.CharField(max_length=50, null=True)
 
 class VideoShapefile(models.Model):
     geom = models.MultiPolygonField()
@@ -762,18 +777,3 @@ class GADMProvinces(models.Model):
 
     def __str__(self):
         return "Name: %s" % self.name
-    
-class Religion(models.Model):
-    name = models.CharField(max_length=100, default="Religion")
-    religion_name = models.CharField(max_length=100, null=True, blank=True)
-    religion_family = models.CharField(max_length=100, blank=True, null=True)
-    religion_genus = models.CharField(max_length=100, blank=True, null=True)
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self) -> str:
-        """string for epresenting the model obj in Admin Site"""
-        if self.religion_name:
-            return self.religion_name
-        return self.name
