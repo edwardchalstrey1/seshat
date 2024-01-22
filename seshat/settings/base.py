@@ -5,6 +5,11 @@ import os
 
 import django_heroku
 
+import environ
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
+
 import dj_database_url
 from decouple import Csv, config
 
@@ -16,6 +21,8 @@ MESSAGE_TAGS = {
         messages.WARNING: 'alert-warning',
         messages.ERROR: 'alert-danger',
 }
+
+local_env_path = str(Path.cwd()) + "/seshat/settings/.env"
 
 # base_dir is calculated based on this file (base.py) and then goes to parents above.
 BASE_DIR = Path(__file__).resolve().parent.parent
