@@ -1523,7 +1523,7 @@ def download_oldcsv(request, file_name):
 # Set some vars for the range of years to display
 # TODO: ensure these reflect the true extent of polity shape data
 earliest_year = -3400
-display_year = 0
+initial_displayed_year = 0
 latest_year = 2014
 
 # Define a simplification tolerance for faster loading of shapes at lower res
@@ -1648,7 +1648,7 @@ def get_polity_shape_content(displayed_year="all"):
         }
 
     if displayed_year == "all":
-        displayed_year = display_year 
+        displayed_year = initial_displayed_year 
 
     content = {
         'shapes': shapes,
@@ -1663,12 +1663,12 @@ def get_polity_shape_content(displayed_year="all"):
 def map_view_initial(request):
     """
         This view is used to display a map with polities plotted on it.
-        The inital view just loads the polities for the display_year.
+        The inital view just loads the polities for the initial_displayed_year.
     """
 
-    # Use the display_year from the request parameters if present
-    # Otherwise use the default display_year (see above)
-    displayed_year = request.GET.get('year', display_year)
+    # Use the year from the request parameters if present
+    # Otherwise use the default initial_displayed_year (see above)
+    displayed_year = request.GET.get('year', initial_displayed_year)
     print('loading shapes for ', displayed_year)
     content = get_polity_shape_content(displayed_year=displayed_year)
     
