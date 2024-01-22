@@ -33,8 +33,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # CORE SETTINGS
 # ==============================================================================
 
-SECRET_KEY = config(
-    "SECRET_KEY", default="django-insecure$seshat.settings.local")
+if not os.path.exists(local_env_path):
+    SECRET_KEY = config(
+        "SECRET_KEY", default="django-insecure$seshat.settings.local")
 
 DEBUG = config("DEBUG", default=True, cast=bool)
 
@@ -117,24 +118,25 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 #SOCIALACCOUNT_AUTO_SIGNUP = False
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': config('GOOGLE_APP_CLIENT_ID'),
-            'secret': config('GOOGLE_APP_SECRET_KEY'),
-            'redirect_uris': ['https://seshat-db.com/accounts/google/login/callback/'],
-           # 'key': ''
-         },
+if not os.path.exists(local_env_path):
+    SOCIALACCOUNT_PROVIDERS = {
+        'google': {
+            'APP': {
+                'client_id': config('GOOGLE_APP_CLIENT_ID'),
+                'secret': config('GOOGLE_APP_SECRET_KEY'),
+                'redirect_uris': ['https://seshat-db.com/accounts/google/login/callback/'],
+            # 'key': ''
+            },
 
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
+            'SCOPE': [
+                'profile',
+                'email',
+            ],
+            'AUTH_PARAMS': {
+                'access_type': 'online',
+            }
         }
     }
-}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -273,12 +275,13 @@ USE_TZ = True
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
 # Email config BACKUP:
-EMAIL_FROM_USER = config('EMAIL_FROM_USER')
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
+if not os.path.exists(local_env_path):
+    EMAIL_FROM_USER = config('EMAIL_FROM_USER')
+    EMAIL_HOST = config('EMAIL_HOST')
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = True
+    EMAIL_PORT = 587
 
 ######EMAIL_CONFIRMATION_BRANCH is the keyword that needs to be searched
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
