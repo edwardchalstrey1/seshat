@@ -1523,7 +1523,7 @@ def download_oldcsv(request, file_name):
 # Set some vars for the range of years to display
 # TODO: ensure these reflect the true extent of polity shape data
 earliest_year = -3400
-display_year = 0
+initial_displayed_year = 0
 latest_year = 2014
 
 # Define a simplification tolerance for faster loading of shapes at lower res
@@ -1598,7 +1598,7 @@ def get_shapes(displayed_year="all"):
                 polity_start_year <= %s AND polity_end_year >= %s;
             """
         with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance, display_year, display_year])
+            cursor.execute(query, [polity_tolerance, displayed_year, displayed_year])
             rows = cursor.fetchall()
     else:
         query += """
@@ -1647,10 +1647,13 @@ def get_polity_shape_content(displayed_year="all"):
             'long_name': long_name or "",
         }
 
+    if displayed_year == "all":
+        displayed_year = initial_displayed_year 
+
     content = {
         'shapes': shapes,
         'earliest_year': earliest_year,
-        'display_year': display_year,
+        'display_year': displayed_year,
         'latest_year': latest_year,
         'seshat_id_page_id': seshat_id_page_id
     }
@@ -1660,10 +1663,14 @@ def get_polity_shape_content(displayed_year="all"):
 def map_view_initial(request):
     """
         This view is used to display a map with polities plotted on it.
-        The inital view just loads the polities for the display_year.
+        The inital view just loads the polities for the initial_displayed_year.
     """
 
-    content = get_polity_shape_content(displayed_year=display_year)
+    # Use the year from the request parameters if present
+    # Otherwise use the default initial_displayed_year (see above)
+    displayed_year = request.GET.get('year', initial_displayed_year)
+    print('loading shapes for ', displayed_year)
+    content = get_polity_shape_content(displayed_year=displayed_year)
     
     return render(request,
                   'core/spatial_map.html',
@@ -1675,7 +1682,7 @@ def map_view_all(request):
         This view is used to display a map with polities plotted on it.
         The view loads all polities for the range of years.
     """
-
+    print('loading shapes for all years')
     content = get_polity_shape_content()
     
     return JsonResponse(content)
