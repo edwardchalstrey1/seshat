@@ -761,7 +761,9 @@ class GADMProvinces(models.Model):
     ENGTYPE_1=models.CharField(max_length=100, null=True)
 
     def __str__(self):
-        return "Name: %s" % self.nameclass Religion(models.Model):
+        return "Name: %s" % self.name
+    
+class Religion(models.Model):
     name = models.CharField(max_length=100, default="Religion")
     religion_name = models.CharField(max_length=100, null=True, blank=True)
     religion_family = models.CharField(max_length=100, blank=True, null=True)
