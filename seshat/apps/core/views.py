@@ -12,13 +12,15 @@ from django.template.loader import render_to_string
 from .tokens import account_activation_token
 from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+from django.utils.text import slugify
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.db import IntegrityError
+from django.db import IntegrityError, connection
 from django.db.models import Prefetch, F, Value, Q
 from django.db.models.functions import Replace
 
@@ -57,7 +59,7 @@ from ..general.models import Polity_research_assistant, Polity_duration
 from ..crisisdb.models import Power_transition
 
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, VideoShapefile
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -66,6 +68,9 @@ from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic
 
 from django.shortcuts import HttpResponse
 
+from math import floor, ceil
+from django.contrib.gis.geos import GEOSGeometry
+from distinctipy import get_colors, get_hex
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
@@ -2236,3 +2241,305 @@ def seshatcommentpart_create_view(request):
 
     return render(request, 'core/seshatcomments/seshatcommentpart_create.html', {'form': form})
 
+
+
+# Shapefile views
+
+# Set some vars for the range of years to display
+# TODO: ensure these reflect the true extent of polity shape data
+earliest_year = -3400
+initial_displayed_year = 0
+latest_year = 2014
+
+# Define a simplification tolerance for faster loading of shapes at lower res
+country_tolerance = 0.01
+province_tolerance = 0.01
+polity_tolerance = 0.07
+
+def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
+    # Get all the province or country shapes for the map base layer
+    provinces = []
+
+    def fetch_provinces():
+        # Use the appropriate SQL query based on the selected baseMapGADM value
+        if selected_base_map_gadm == 'country':
+            query = """
+                SELECT
+                    ST_Simplify(geom, %s) AS simplified_geometry,
+                    "COUNTRY"                
+                FROM
+                    core_gadmcountries;
+            """
+        elif selected_base_map_gadm == 'province':
+            query = """
+                SELECT
+                    ST_Simplify(geom, %s) AS simplified_geometry,
+                    "NAME_1",
+                    "ENGTYPE_1"                
+                FROM
+                    core_gadmprovinces;
+            """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query, [simplification_tolerance])
+            rows = cursor.fetchall()
+
+        for row in rows:
+            if row[0] != None:
+                if selected_base_map_gadm == 'country':
+                    provinces.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'country': row[1]
+                    })
+                elif selected_base_map_gadm == 'province':
+                    provinces.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'province': row[1],
+                        'province_type': row[2]
+                    })
+
+        return provinces
+
+    return fetch_provinces()
+
+def get_shapes(displayed_year="all"):
+    query = """
+            SELECT
+                seshat_id,
+                name,
+                start_year,
+                end_year,
+                polity_start_year,
+                polity_end_year,
+                colour,
+                area,
+                ST_Simplify(geom, %s) AS simplified_geometry
+            FROM
+                core_videoshapefile
+            """
+    if displayed_year != "all":
+        query += """
+            WHERE
+                polity_start_year <= %s AND polity_end_year >= %s;
+            """
+        with connection.cursor() as cursor:
+            cursor.execute(query, [polity_tolerance, displayed_year, displayed_year])
+            rows = cursor.fetchall()
+    else:
+        query += """
+            ;
+            """
+        with connection.cursor() as cursor:
+            cursor.execute(query, [polity_tolerance])
+            rows = cursor.fetchall()
+
+    shapes = []
+    for row in rows:
+        shapes.append({
+            'seshat_id': row[0],
+            'name': row[1],
+            'start_year': row[2],
+            'end_year': row[3],
+            'polity_start_year': row[4],
+            'polity_end_year': row[5],
+            'colour': row[6],
+            'area': row[7],
+            'geom': GEOSGeometry(row[8]).geojson
+        })
+
+    return shapes
+
+# Update shapes with polity_id for loading Seshat pages
+def get_polity_info(seshat_ids):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT new_name, id, long_name FROM core_polity WHERE new_name IN %s",
+            [tuple(seshat_ids)]
+        )
+        rows = cursor.fetchall()
+        return rows
+
+def get_polity_shape_content(displayed_year="all"):
+    shapes = get_shapes(displayed_year=displayed_year)
+
+    seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
+    polity_info = get_polity_info(seshat_ids)
+
+    seshat_id_page_id = {}
+    for new_name, id, long_name in polity_info:
+        seshat_id_page_id[new_name] = {
+            'id': id,
+            'long_name': long_name or "",
+        }
+
+    if displayed_year == "all":
+        displayed_year = initial_displayed_year 
+
+    content = {
+        'shapes': shapes,
+        'earliest_year': earliest_year,
+        'display_year': displayed_year,
+        'latest_year': latest_year,
+        'seshat_id_page_id': seshat_id_page_id
+    }
+
+    return content
+
+def map_view_initial(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The inital view just loads the polities for the initial_displayed_year.
+    """
+
+    # Use the year from the request parameters if present
+    # Otherwise use the default initial_displayed_year (see above)
+    displayed_year = request.GET.get('year', initial_displayed_year)
+    print('loading shapes for ', displayed_year)
+    content = get_polity_shape_content(displayed_year=displayed_year)
+    
+    return render(request,
+                  'core/spatial_map.html',
+                  content
+                  )
+
+def map_view_all(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The view loads all polities for the range of years.
+    """
+    print('loading shapes for all years')
+    content = get_polity_shape_content()
+    
+    return JsonResponse(content)
+
+def provinces_and_countries_view(request):
+    provinces = get_provinces(simplification_tolerance=province_tolerance)
+    countries = get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance)
+
+    content = {
+        'provinces': provinces,
+        'countries': countries,
+    }
+
+    return JsonResponse(content)
+
+def gadm_map_view(request):
+    # Define a simplification tolerance for faster loading of shapes at lower res
+    simplification_tolerance = 0.001
+
+    # Get the selected country from the request parameters
+    selected_country = request.GET.get('country', None)
+
+    def get_shapes():
+        shapes = []
+
+        # Build the SQL query based on the selected country
+        query = """
+            SELECT
+                ST_Simplify(geom, %s) AS simplified_geometry,
+                "NAME_0",
+                "ENGTYPE_1",
+                "NAME_1",
+                "ENGTYPE_2",
+                "NAME_2",
+                "ENGTYPE_3",
+                "NAME_3",
+                "ENGTYPE_4",
+                "NAME_4",
+                "ENGTYPE_5",
+                "NAME_5",
+                "COUNTRY",
+                "DISPUTEDBY"
+            FROM
+                core_gadmshapefile
+        """
+        
+        # Add a WHERE clause if a country is selected
+        if selected_country:
+            query += f' WHERE "COUNTRY"=%s;'
+
+            with connection.cursor() as cursor:
+                cursor.execute(query, [simplification_tolerance, selected_country])
+                rows = cursor.fetchall()
+
+            for row in rows:
+                if row[0] != None:
+                    shapes.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'name_0': row[1],
+                        'engtype_1': row[2],
+                        'name_1': row[3],
+                        'engtype_2': row[4],
+                        'name_2': row[5],
+                        'engtype_3': row[6],
+                        'name_3': row[7],
+                        'engtype_4': row[8],
+                        'name_4': row[9],
+                        'engtype_5': row[10],
+                        'name_5': row[11],
+                        'country': row[12],
+                        'disputedby': row[13]
+                    })
+        
+        # Load from the countries table when no specific country selected
+        else:
+            query = """
+                SELECT
+                    ST_Simplify(geom, %s) AS simplified_geometry,
+                    "COUNTRY"                
+                FROM
+                    core_gadmcountries;
+            """
+
+            with connection.cursor() as cursor:
+                cursor.execute(query, [simplification_tolerance])
+                rows = cursor.fetchall()
+
+            for row in rows:
+                if row[0] != None:
+                    shapes.append({
+                        'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                        'country': row[1]
+                    })
+                
+        return shapes
+
+    # Sanitize the selected_country for use as a cache key
+    sanitized_country = slugify(selected_country) if selected_country else "World"
+
+    # Try to get shapes from cache
+    cached_shapes = cache.get(sanitized_country)
+    
+    if cached_shapes is None:
+        # Shapes not in cache, retrieve and cache them
+        shapes = get_shapes()
+        cache.set(sanitized_country, shapes)
+        print("No cached for ", sanitized_country)
+    else:
+        # Shapes found in cache
+        shapes = cached_shapes
+        print("Used cached for ", sanitized_country)
+    
+    def get_countries():
+        # Build the SQL query based on the selected country
+        query = """
+            SELECT
+                "COUNTRY"
+            FROM
+                core_gadmcountries;
+        """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            rows = cursor.fetchall()
+
+        countries = [i for row in rows for i in row]
+        countries.sort()
+        return countries
+
+    content = {'shapes': shapes, 'countries': get_countries()}
+    
+    return render(request,
+                  'core/gadm_map.html',
+                  content
+                  )

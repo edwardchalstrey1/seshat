@@ -1,0 +1,275 @@
+{% extends "core/seshat-base.html" %}
+{% load leaflet_tags %}
+
+<head>
+    {% leaflet_js %}
+    {% leaflet_css %}
+</head>
+
+<body>
+    {% block content %}
+    <div style="display: flex;">
+        <div>
+            <fieldset>
+                <legend>
+                    <h3>Base Map</h3>
+                </legend>
+                <label><input type="radio" name="baseMap" value="carto" onclick="switchBaseMap()"checked>No labels (CartoDB)</label><br>
+                <label><input type="radio" name="baseMap" value="osm" onclick="switchBaseMap()">OpenStreetMap</label><br>
+            </fieldset>
+            <p></p>
+            <fieldset>
+                <legend>
+                    <h3>Select Country</h3>
+                </legend>
+                <select name="countrySelector" id="countrySelector" onchange="selectCountry()">
+                    <option value="">-- World --</option>
+                    <!-- Add options dynamically based on available countries -->
+                    {% for country in countries %}
+                        <option value="{{ country | escapejs | safe }}">{{ country | escapejs | safe }}</option>
+                    {% endfor %}
+                </select><br>
+                <p></p>
+                <button onclick="selectWorld()">World</button>
+                <p></p>
+                <p>Tip: Try double clicking a country!</p>
+            </fieldset>
+            <p></p>
+            <fieldset>
+                <legend>
+                    <h3>Map view</h3>
+                </legend>
+                <label><input type="radio" name="displayedData" value="historical" onclick="selectDisplayedData()"
+                        checked>Historical polities</label><br>
+                <label><input type="radio" name="displayedData" value="current" onclick="selectDisplayedData()">Current
+                    administrative areas</label><br>
+            </fieldset>
+        </div>
+        <div id="map" style="height: 75vh; flex: 1;"></div>
+    </div>
+    <script>
+
+        var map = L.map('map').setView([0, 0], 2);
+        var baseLayers = {
+            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'),
+            "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        };
+
+        var currentLayer = baseLayers.carto.addTo(map);
+
+        function switchBaseMap() {
+            var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
+            map.removeLayer(currentLayer);
+            currentLayer = baseLayers[selectedMap].addTo(map);
+        }
+
+        function selectDisplayedData() {
+            var selectedData = document.querySelector('input[name="displayedData"]:checked').value;
+            if (selectedData === 'gadm') {
+                window.location.href = '{% url "gadm_map" %}';
+            } else if (selectedData === 'macro') {
+                window.location.href = '{% url "spatial_map" %}'
+            } else {
+                window.location.href = '{% url "spatial_map" %}?data=' + selectedData;
+            }
+        }
+
+        function selectCountry() {
+            var selectedCountry = document.getElementById("countrySelector").value;
+            // Redirect to the same page with the selected country as a parameter
+            window.location.href = '{% url "gadm_map" %}?country=' + selectedCountry;
+        }
+
+        // Function to set the country dropdown to "-- World --"
+        function selectWorld() {
+            var countrySelector = document.getElementById("countrySelector");
+            countrySelector.value = "";
+            // Trigger the change event manually
+            countrySelector.dispatchEvent(new Event('change'));
+        }
+
+        {% for shape in shapes %}
+            var geometry = {{ shape.aggregated_geometry | safe }};
+            var name_0 = '{{ shape.name_0 | escapejs | safe }}';
+            var engtype_1 = '{{ shape.engtype_1 | escapejs | safe }}';
+            var name_1 = '{{ shape.name_1 | escapejs | safe }}';
+            var engtype_2 = '{{ shape.engtype_2 | escapejs | safe }}';
+            var name_2 = '{{ shape.name_2 | escapejs | safe }}';
+            var engtype_3 = '{{ shape.engtype_3 | escapejs | safe }}';
+            var name_3 = '{{ shape.name_3 | escapejs | safe }}';
+            var engtype_4 = '{{ shape.engtype_4 | escapejs | safe }}';
+            var name_4 = '{{ shape.name_4 | escapejs | safe }}';
+            var engtype_5 = '{{ shape.engtype_5 | escapejs | safe }}';
+            var name_5 = '{{ shape.name_5 | escapejs | safe }}';
+            var country = '{{ shape.country | escapejs | safe }}';
+            var disputedby = '{{ shape.disputedby | escapejs | safe }}';
+            // Ensure the geometry is not empty
+            if (geometry && geometry.type) {
+                if (geometry.type === "Polygon") {
+                    var coordinates = geometry.coordinates[0];
+                    // Swap latitude and longitude for each coordinate
+                    coordinates = coordinates.map(function (coord) {
+                        return [coord[1], coord[0]];
+                    });
+                    var polygon = L.polygon(coordinates).addTo(map);
+                    attachPopup(
+                        polygon,
+                        country,
+                        name_0,
+                        engtype_1,
+                        name_1,
+                        engtype_2,
+                        name_2,
+                        engtype_3,
+                        name_3,
+                        engtype_4,
+                        name_4,
+                        engtype_5,
+                        name_5,
+                        disputedby
+                    );
+                    attachDoubleClickEvent(polygon, country);
+                } else if (geometry.type === "MultiPolygon") {
+                    // Loop through each polygon and add it to the map
+                    for (var i = 0; i < geometry.coordinates.length; i++) {
+                        var coordinates = geometry.coordinates[i][0];
+                        // Swap latitude and longitude for each coordinate
+                        coordinates = coordinates.map(function (coord) {
+                            return [coord[1], coord[0]];
+                        });
+                        var polygon = L.polygon(coordinates).addTo(map);
+                        attachPopup(
+                            polygon,
+                            country,
+                            name_0,
+                            engtype_1,
+                            name_1,
+                            engtype_2,
+                            name_2,
+                            engtype_3,
+                            name_3,
+                            engtype_4,
+                            name_4,
+                            engtype_5,
+                            name_5,
+                            disputedby
+                        );
+                        attachDoubleClickEvent(polygon, country);
+                    }
+                }
+            }
+        {% endfor %}
+
+        // Function to attach a popup to the polygon
+        function attachPopup(
+                                polygon,
+                                country,
+                                name_0,
+                                engtype_1,
+                                name_1,
+                                engtype_2,
+                                name_2,
+                                engtype_3,
+                                name_3,
+                                engtype_4,
+                                name_4,
+                                engtype_5,
+                                name_5,
+                                disputedby
+                            ) {
+            // Only display name_0 when it differs from country
+            if (country==name_0){
+                name_0="";
+            }
+            var popupContent = `
+                <table>
+                    <tr>
+                        <th>${country}</th>
+                        <th>${name_0}</th>
+                    </tr>
+                    <tr>
+                        <td>${engtype_1}</td>
+                        <td>${name_1}</td>
+                    </tr>
+                    <tr>
+                        <td>${engtype_2}</td>
+                        <td>${name_2}</td>
+                    </tr>
+                    <tr>
+                        <td>${engtype_3}</td>
+                        <td>${name_3}</td>
+                    </tr>
+                    <tr>
+                        <td>${engtype_4}</td>
+                        <td>${name_4}</td>
+                    </tr>
+                    <tr>
+                        <td>${engtype_5}</td>
+                        <td>${name_5}</td>
+                    </tr>`;
+
+            // Conditionally include the "Disputed by" row
+            if (disputedby.trim() !== "") {
+                popupContent += `
+                    <tr>
+                        <td>Disputed by</td>
+                        <td>${disputedby}</td>
+                    </tr>`;
+            }
+
+            // Close the table tag
+            popupContent += '</table>';
+
+            // Bind the popup with the updated content
+            polygon.bindPopup(popupContent);
+        }
+
+        // Function to attach double-click event to the polygon to change the country dropdown
+        function attachDoubleClickEvent(polygon, country) {
+            polygon.on('dblclick', function () {
+                // Set the selected option in the dropdown
+                var countrySelector = document.getElementById("countrySelector");
+                var option = countrySelector.querySelector('option[value="' + country + '"]');
+                if (option) {
+                    option.selected = true;
+                    // Trigger the change event manually
+                    countrySelector.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+        
+         // Keep the country selection on the dropdown when the page is loaded (and radio selection)
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get the country parameter from the URL
+            var urlParams = new URLSearchParams(window.location.search);
+            var selectedCountry = urlParams.get('country');
+
+            // Set the selected option in the dropdown
+            var countrySelector = document.getElementById("countrySelector");
+            if (selectedCountry) {
+                var option = countrySelector.querySelector('option[value="' + selectedCountry + '"]');
+                if (option) {
+                    option.selected = true;
+                }
+            }
+
+            // Get the displayedData parameter from local storage
+            var displayedData = localStorage.getItem('displayedData');
+            if (displayedData) {
+                // Set the selected radio button based on the stored value
+                var radio = document.querySelector('input[name="displayedData"][value="' + displayedData + '"]');
+                if (radio) {
+                    radio.checked = true;
+                }
+            }
+        });
+
+        // Store the selected displayedData value in local storage
+        document.addEventListener("change", function () {
+            var displayedData = document.querySelector('input[name="displayedData"]:checked').value;
+            localStorage.setItem('displayedData', displayedData);
+        });
+
+    </script>
+    {% endblock %}
+</body>

@@ -1,4 +1,4 @@
-from django.db import models
+from django.contrib.gis.db import models
 from django.db.models.fields.related import ManyToManyField
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
@@ -665,8 +665,103 @@ class SeshatCommon(models.Model):
 #     job_description = models.CharField(
 #         choices=job_description_annual_wages_choices)
 
+# Shapefile models
 
-class Religion(models.Model):
+class MacrostateShapefile(models.Model):
+    geom = models.MultiPolygonField()
+    name = models.CharField(max_length=50, null=True)
+    polity = models.CharField(max_length=50, null=True)
+    date_from = models.CharField(max_length=50, null=True)
+    date_to = models.CharField(max_length=50, null=True)
+
+class VideoShapefile(models.Model):
+    geom = models.MultiPolygonField()
+    name=models.CharField(max_length=100)
+    polity=models.CharField(max_length=100)
+    wikipedia_name=models.CharField(max_length=100, null=True)
+    seshat_id=models.CharField(max_length=100)
+    area=models.FloatField()
+    start_year=models.IntegerField()
+    end_year=models.IntegerField()
+    polity_start_year=models.IntegerField()
+    polity_end_year=models.IntegerField()
+    colour=models.CharField(max_length=7)
+
+    def __str__(self):
+        return "Name: %s" % self.name
+
+class GADMShapefile(models.Model):
+    geom = models.MultiPolygonField()
+    UID=models.BigIntegerField()
+    GID_0=models.CharField(max_length=100, null=True)
+    NAME_0=models.CharField(max_length=100, null=True)
+    VARNAME_0=models.CharField(max_length=100, null=True)
+    GID_1=models.CharField(max_length=100, null=True)
+    NAME_1=models.CharField(max_length=100, null=True)
+    VARNAME_1=models.CharField(max_length=100, null=True)
+    NL_NAME_1=models.CharField(max_length=100, null=True)
+    ISO_1=models.CharField(max_length=100, null=True)
+    HASC_1=models.CharField(max_length=100, null=True)
+    CC_1=models.CharField(max_length=100, null=True)
+    TYPE_1=models.CharField(max_length=100, null=True)
+    ENGTYPE_1=models.CharField(max_length=100, null=True)
+    VALIDFR_1=models.CharField(max_length=100, null=True)
+    GID_2=models.CharField(max_length=100, null=True)
+    NAME_2=models.CharField(max_length=100, null=True)
+    VARNAME_2=models.CharField(max_length=100, null=True)
+    NL_NAME_2=models.CharField(max_length=100, null=True)
+    HASC_2=models.CharField(max_length=100, null=True)
+    CC_2=models.CharField(max_length=100, null=True)
+    TYPE_2=models.CharField(max_length=100, null=True)
+    ENGTYPE_2=models.CharField(max_length=100, null=True)
+    VALIDFR_2=models.CharField(max_length=100, null=True)
+    GID_3=models.CharField(max_length=100, null=True)
+    NAME_3=models.CharField(max_length=100, null=True)
+    VARNAME_3=models.CharField(max_length=100, null=True)
+    NL_NAME_3=models.CharField(max_length=100, null=True)
+    HASC_3=models.CharField(max_length=100, null=True)
+    CC_3=models.CharField(max_length=100, null=True)
+    TYPE_3=models.CharField(max_length=100, null=True)
+    ENGTYPE_3=models.CharField(max_length=100, null=True)
+    VALIDFR_3=models.CharField(max_length=100, null=True)
+    GID_4=models.CharField(max_length=100, null=True)
+    NAME_4=models.CharField(max_length=100, null=True)
+    VARNAME_4=models.CharField(max_length=100, null=True)
+    CC_4=models.CharField(max_length=100, null=True)
+    TYPE_4=models.CharField(max_length=100, null=True)
+    ENGTYPE_4=models.CharField(max_length=100, null=True)
+    VALIDFR_4=models.CharField(max_length=100, null=True)
+    GID_5=models.CharField(max_length=100, null=True)
+    NAME_5=models.CharField(max_length=100, null=True)
+    CC_5=models.CharField(max_length=100, null=True)
+    TYPE_5=models.CharField(max_length=100, null=True)
+    ENGTYPE_5=models.CharField(max_length=100, null=True)
+    GOVERNEDBY=models.CharField(max_length=100, null=True)
+    SOVEREIGN=models.CharField(max_length=100, null=True)
+    DISPUTEDBY=models.CharField(max_length=100, null=True)
+    REGION=models.CharField(max_length=100, null=True)
+    VARREGION=models.CharField(max_length=100, null=True)
+    COUNTRY=models.CharField(max_length=100, null=True)
+    CONTINENT=models.CharField(max_length=100, null=True)
+    SUBCONT=models.CharField(max_length=100, null=True)
+
+    def __str__(self):
+        return "Name: %s" % self.name
+    
+class GADMCountries(models.Model):
+    geom = models.MultiPolygonField()
+    COUNTRY=models.CharField(max_length=100, null=True)
+
+    def __str__(self):
+        return "Name: %s" % self.name
+    
+class GADMProvinces(models.Model):
+    geom = models.MultiPolygonField()
+    NAME_1=models.CharField(max_length=100, null=True)
+    ENGTYPE_1=models.CharField(max_length=100, null=True)
+
+    def __str__(self):
+        return "Name: %s" % self.nameclass Religion(models.Model):
     name = models.CharField(max_length=100, default="Religion")
     religion_name = models.CharField(max_length=100, null=True, blank=True)
     religion_family = models.CharField(max_length=100, blank=True, null=True)

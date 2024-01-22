@@ -73,6 +73,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     #'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
+    'django.contrib.gis',
+    'leaflet',
 
 ]
 
@@ -192,16 +194,33 @@ TEMPLATES = [
 # DATABASES['default'].update(db_from_env)
 
 # Qing data database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': 'localhost',
-        'PORT': 5432,
+
+# Use local db if .env present
+if os.path.exists(local_env_path):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': env('NAME'),
+            'USER': env('USER'),
+            'HOST': env('HOST'),
+            'PORT': env('PORT')
+        }
     }
-}
+
+    GEOGRAPHIC_DB = True
+
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': 'localhost',
+            'PORT': 5432,
+        }
+    }
+
 #DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
 # ==============================================================================
