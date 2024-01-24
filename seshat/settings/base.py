@@ -5,12 +5,12 @@ import os
 
 import django_heroku
 
-import dj_database_url
 import environ
 # Initialise environment variables
 env = environ.Env()
 environ.Env.read_env()
 
+import dj_database_url
 from decouple import Csv, config
 
 from django.contrib.messages import constants as messages
@@ -22,7 +22,6 @@ MESSAGE_TAGS = {
         messages.ERROR: 'alert-danger',
 }
 
-from pathlib import Path
 local_env_path = str(Path.cwd()) + "/seshat/settings/.env"
 
 # base_dir is calculated based on this file (base.py) and then goes to parents above.
@@ -68,6 +67,7 @@ INSTALLED_APPS = [
     "seshat.apps.general",
     "seshat.apps.sc",
     "seshat.apps.wf",
+    "seshat.apps.rt",
     "seshat.apps.crisisdb",
     "seshat.apps.seshat_api",
     "django_filters",
@@ -117,22 +117,25 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 #SOCIALACCOUNT_AUTO_SIGNUP = False
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        # 'APP': {
-        #     'client_id': '77017415274-u1f5efvo1ubkmp1uqc4h7otic27d5qmc.apps.googleusercontent.com',
-        #     'secret': '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',
-        #     'key': ''
-        # },
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
+if not os.path.exists(local_env_path):
+    SOCIALACCOUNT_PROVIDERS = {
+        'google': {
+            'APP': {
+                'client_id': config('GOOGLE_APP_CLIENT_ID'),
+                'secret': config('GOOGLE_APP_SECRET_KEY'),
+                'redirect_uris': ['https://seshat-db.com/accounts/google/login/callback/'],
+            # 'key': ''
+            },
+
+            'SCOPE': [
+                'profile',
+                'email',
+            ],
+            'AUTH_PARAMS': {
+                'access_type': 'online',
+            }
         }
     }
-}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
