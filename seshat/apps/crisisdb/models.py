@@ -141,10 +141,10 @@ VIOLENCE_TYPE_CHOICES = (
   ('assassination', 'assassination'), 
   ('compilation', 'compilation'), 
   ('terrorism', 'terrorism'), 
-  ('rampage', 'rampage'), 
+  #('rampage', 'rampage'), 
   ('insurrection', 'insurrection'), 
   ('mass suicide', 'mass suicide'), 
-  ('UNKNOWN_INPUT', 'UNKNOWN_INPUT'), 
+  #('UNKNOWN_INPUT', 'UNKNOWN_INPUT'), 
   ('unknown', 'unknown'), 
   ('revenge', 'revenge')
 )
@@ -196,6 +196,16 @@ def clean_times(self):
     if self.year_to and (self.year_to > date.today().year):
         raise ValidationError({
             'year_to': mark_safe('<span class="text-danger"> <i class="fa-solid fa-triangle-exclamation"></i>The end year is out of range!</span>'),
+        })
+
+def clean_times_light(self):
+    if (self.year_from and self.year_to) and self.year_from > self.year_to:
+        raise ValidationError({
+            'year_from':  mark_safe('<span class="text-danger"> <i class="fa-solid fa-triangle-exclamation"></i> The start year is bigger than the end year!</span>'),
+        })
+    if self.year_from and (self.year_from > date.today().year):
+        raise ValidationError({
+            'year_from':  mark_safe('<span class="text-danger"> <i class="fa-solid fa-triangle-exclamation"></i> The start year is out of range!</span>'),
         })
 
 ########## End of Function Definitions for CrisisDB Models
@@ -301,6 +311,12 @@ class Us_violence(models.Model):
             return self.narrative.replace('"', "'")
         else:
             return "No_Narrative"
+        
+    def show_source_details_without_quotes(self):
+        if self.source_details:
+            return self.source_details.replace('"', "'")
+        else:
+            return "No_source_details"
     
     # def show_states(self):
     #     list_of_locations = list(self.location.all())
@@ -367,7 +383,7 @@ class Crisis_consequence(SeshatCommon):
         return return_citations(self)
 
     def clean(self):
-        clean_times(self)
+        clean_times_light(self)
 
     def clean_name(self):
         return "crisis_consequence"
@@ -456,7 +472,7 @@ class Power_transition(SeshatCommon):
         return return_citations(self)
 
     def clean(self):
-        clean_times(self)
+        clean_times_light(self)
 
     def clean_name(self):
         return "power_transition"

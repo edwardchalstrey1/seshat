@@ -27,6 +27,8 @@ from django.core.paginator import Paginator
 
 from django.http import HttpResponse
 
+from ..general.mixins import PolityIdMixin
+
 import requests
 from requests.structures import CaseInsensitiveDict
 from django.apps import apps
@@ -34,7 +36,6 @@ from django.apps import apps
 from django.contrib import messages
 
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
-
 
 
 from .models import Ra, Polity_territory, Polity_population, Population_of_the_largest_settlement, Settlement_hierarchy, Administrative_level, Religious_level, Military_level, Professional_military_officer, Professional_soldier, Professional_priesthood, Full_time_bureaucrat, Examination_system, Merit_promotion, Specialized_government_building, Formal_legal_code, Judge, Court, Professional_lawyer, Irrigation_system, Drinking_water_supply_system, Market, Food_storage_site, Road, Bridge, Canal, Port, Mines_or_quarry, Mnemonic_device, Nonwritten_record, Written_record, Script, Non_phonetic_writing, Phonetic_alphabetic_writing, Lists_tables_and_classification, Calendar, Sacred_text, Religious_literature, Practical_literature, History, Philosophy, Scientific_literature, Fiction, Article, Token, Precious_metal, Foreign_coin, Indigenous_coin, Paper_currency, Courier, Postal_station, General_postal_service
@@ -179,7 +180,7 @@ def ra_meta_download(request):
 
         
 
-class Polity_territoryCreate(PermissionRequiredMixin, CreateView):
+class Polity_territoryCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Polity_territory
     form_class = Polity_territoryForm
     template_name = "sc/polity_territory/polity_territory_form.html"
@@ -316,7 +317,7 @@ def polity_territory_meta_download(request):
 
         
 
-class Polity_populationCreate(PermissionRequiredMixin, CreateView):
+class Polity_populationCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Polity_population
     form_class = Polity_populationForm
     template_name = "sc/polity_population/polity_population_form.html"
@@ -453,7 +454,7 @@ def polity_population_meta_download(request):
 
         
 
-class Population_of_the_largest_settlementCreate(PermissionRequiredMixin, CreateView):
+class Population_of_the_largest_settlementCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Population_of_the_largest_settlement
     form_class = Population_of_the_largest_settlementForm
     template_name = "sc/population_of_the_largest_settlement/population_of_the_largest_settlement_form.html"
@@ -590,7 +591,7 @@ def population_of_the_largest_settlement_meta_download(request):
 
         
 
-class Settlement_hierarchyCreate(PermissionRequiredMixin, CreateView):
+class Settlement_hierarchyCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Settlement_hierarchy
     form_class = Settlement_hierarchyForm
     template_name = "sc/settlement_hierarchy/settlement_hierarchy_form.html"
@@ -727,7 +728,7 @@ def settlement_hierarchy_meta_download(request):
 
         
 
-class Administrative_levelCreate(PermissionRequiredMixin, CreateView):
+class Administrative_levelCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Administrative_level
     form_class = Administrative_levelForm
     template_name = "sc/administrative_level/administrative_level_form.html"
@@ -864,7 +865,7 @@ def administrative_level_meta_download(request):
 
         
 
-class Religious_levelCreate(PermissionRequiredMixin, CreateView):
+class Religious_levelCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Religious_level
     form_class = Religious_levelForm
     template_name = "sc/religious_level/religious_level_form.html"
@@ -1001,7 +1002,7 @@ def religious_level_meta_download(request):
 
         
 
-class Military_levelCreate(PermissionRequiredMixin, CreateView):
+class Military_levelCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Military_level
     form_class = Military_levelForm
     template_name = "sc/military_level/military_level_form.html"
@@ -1062,32 +1063,32 @@ class Military_levelListView(generic.ListView):
         return context
 
 
-class Military_levelListViewAll(generic.ListView):
-    model = Military_level
-    template_name = "sc/military_level/military_level_list_all.html"
+# class Military_levelListViewAll(generic.ListView):
+#     model = Military_level
+#     template_name = "sc/military_level/military_level_list_all.html"
 
-    def get_absolute_url(self):
-        return reverse('military_levels_all')
+#     def get_absolute_url(self):
+#         return reverse('military_levels_all')
 
-    def get_queryset(self):
-        order = self.request.GET.get('orderby', 'year_from')
-        order2 = self.request.GET.get('orderby2', 'year_to')
-        #orders = [order, order2]
-        new_context = Military_level.objects.all().order_by(order, order2)
-        return new_context
+#     def get_queryset(self):
+#         order = self.request.GET.get('orderby', 'year_from')
+#         order2 = self.request.GET.get('orderby2', 'year_to')
+#         #orders = [order, order2]
+#         new_context = Military_level.objects.all().order_by(order, order2)
+#         return new_context
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["myvar"] = "Military Level"
-        context["var_main_desc"] = "Talking about hierarchical complexity, military levels records the military levels of a polity. same principle as with administrative levels. start with the commander-in-chief coded as: level 1, and work down to the private. even in primitive societies such as simple chiefdoms it is often possible to distinguish at least two levels – a commander and soldiers. a complex chiefdom would be coded three levels. the presence of warrior burials might be the basis for inferring the existence of a military organization. (the lowest military level is always the individual soldier)."
-        context["var_main_desc_source"] = "NOTHING"
-        context["var_section"] = "Social Complexity"
-        context["var_subsection"] = "Hierarchical Complexity"
-        context["inner_vars"] = {'military_level_from': {'min': 0, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The lower range of military level for a polity.', 'units': None, 'choices': None, 'null_meaning': None}, 'military_level_to': {'min': 0, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The upper range of military level for a polity.', 'units': None, 'choices': None, 'null_meaning': None}}
-        context["potential_cols"] = []
-        context['orderby'] = self.request.GET.get('orderby', 'year_from')
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["myvar"] = "Military Level"
+#         context["var_main_desc"] = "Talking about hierarchical complexity, military levels records the military levels of a polity. same principle as with administrative levels. start with the commander-in-chief coded as: level 1, and work down to the private. even in primitive societies such as simple chiefdoms it is often possible to distinguish at least two levels – a commander and soldiers. a complex chiefdom would be coded three levels. the presence of warrior burials might be the basis for inferring the existence of a military organization. (the lowest military level is always the individual soldier)."
+#         context["var_main_desc_source"] = "NOTHING"
+#         context["var_section"] = "Social Complexity"
+#         context["var_subsection"] = "Hierarchical Complexity"
+#         context["inner_vars"] = {'military_level_from': {'min': 0, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The lower range of military level for a polity.', 'units': None, 'choices': None, 'null_meaning': None}, 'military_level_to': {'min': 0, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The upper range of military level for a polity.', 'units': None, 'choices': None, 'null_meaning': None}}
+#         context["potential_cols"] = []
+#         context['orderby'] = self.request.GET.get('orderby', 'year_from')
 
-        return context
+#         return context
         
 class Military_levelDetailView(generic.DetailView):
     model = Military_level
@@ -1138,7 +1139,7 @@ def military_level_meta_download(request):
 
         
 
-class Professional_military_officerCreate(PermissionRequiredMixin, CreateView):
+class Professional_military_officerCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Professional_military_officer
     form_class = Professional_military_officerForm
     template_name = "sc/professional_military_officer/professional_military_officer_form.html"
@@ -1275,7 +1276,7 @@ def professional_military_officer_meta_download(request):
 
         
 
-class Professional_soldierCreate(PermissionRequiredMixin, CreateView):
+class Professional_soldierCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Professional_soldier
     form_class = Professional_soldierForm
     template_name = "sc/professional_soldier/professional_soldier_form.html"
@@ -1412,7 +1413,7 @@ def professional_soldier_meta_download(request):
 
         
 
-class Professional_priesthoodCreate(PermissionRequiredMixin, CreateView):
+class Professional_priesthoodCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Professional_priesthood
     form_class = Professional_priesthoodForm
     template_name = "sc/professional_priesthood/professional_priesthood_form.html"
@@ -1549,7 +1550,7 @@ def professional_priesthood_meta_download(request):
 
         
 
-class Full_time_bureaucratCreate(PermissionRequiredMixin, CreateView):
+class Full_time_bureaucratCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Full_time_bureaucrat
     form_class = Full_time_bureaucratForm
     template_name = "sc/full_time_bureaucrat/full_time_bureaucrat_form.html"
@@ -1686,7 +1687,7 @@ def full_time_bureaucrat_meta_download(request):
 
         
 
-class Examination_systemCreate(PermissionRequiredMixin, CreateView):
+class Examination_systemCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Examination_system
     form_class = Examination_systemForm
     template_name = "sc/examination_system/examination_system_form.html"
@@ -1823,7 +1824,7 @@ def examination_system_meta_download(request):
 
         
 
-class Merit_promotionCreate(PermissionRequiredMixin, CreateView):
+class Merit_promotionCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Merit_promotion
     form_class = Merit_promotionForm
     template_name = "sc/merit_promotion/merit_promotion_form.html"
@@ -1960,7 +1961,7 @@ def merit_promotion_meta_download(request):
 
         
 
-class Specialized_government_buildingCreate(PermissionRequiredMixin, CreateView):
+class Specialized_government_buildingCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Specialized_government_building
     form_class = Specialized_government_buildingForm
     template_name = "sc/specialized_government_building/specialized_government_building_form.html"
@@ -2097,7 +2098,7 @@ def specialized_government_building_meta_download(request):
 
         
 
-class Formal_legal_codeCreate(PermissionRequiredMixin, CreateView):
+class Formal_legal_codeCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Formal_legal_code
     form_class = Formal_legal_codeForm
     template_name = "sc/formal_legal_code/formal_legal_code_form.html"
@@ -2234,7 +2235,7 @@ def formal_legal_code_meta_download(request):
 
         
 
-class JudgeCreate(PermissionRequiredMixin, CreateView):
+class JudgeCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Judge
     form_class = JudgeForm
     template_name = "sc/judge/judge_form.html"
@@ -2371,7 +2372,7 @@ def judge_meta_download(request):
 
         
 
-class CourtCreate(PermissionRequiredMixin, CreateView):
+class CourtCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Court
     form_class = CourtForm
     template_name = "sc/court/court_form.html"
@@ -2508,7 +2509,7 @@ def court_meta_download(request):
 
         
 
-class Professional_lawyerCreate(PermissionRequiredMixin, CreateView):
+class Professional_lawyerCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Professional_lawyer
     form_class = Professional_lawyerForm
     template_name = "sc/professional_lawyer/professional_lawyer_form.html"
@@ -2645,7 +2646,7 @@ def professional_lawyer_meta_download(request):
 
         
 
-class Irrigation_systemCreate(PermissionRequiredMixin, CreateView):
+class Irrigation_systemCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Irrigation_system
     form_class = Irrigation_systemForm
     template_name = "sc/irrigation_system/irrigation_system_form.html"
@@ -2782,7 +2783,7 @@ def irrigation_system_meta_download(request):
 
         
 
-class Drinking_water_supply_systemCreate(PermissionRequiredMixin, CreateView):
+class Drinking_water_supply_systemCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Drinking_water_supply_system
     form_class = Drinking_water_supply_systemForm
     template_name = "sc/drinking_water_supply_system/drinking_water_supply_system_form.html"
@@ -2919,7 +2920,7 @@ def drinking_water_supply_system_meta_download(request):
 
         
 
-class MarketCreate(PermissionRequiredMixin, CreateView):
+class MarketCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Market
     form_class = MarketForm
     template_name = "sc/market/market_form.html"
@@ -3056,7 +3057,7 @@ def market_meta_download(request):
 
         
 
-class Food_storage_siteCreate(PermissionRequiredMixin, CreateView):
+class Food_storage_siteCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Food_storage_site
     form_class = Food_storage_siteForm
     template_name = "sc/food_storage_site/food_storage_site_form.html"
@@ -3193,7 +3194,7 @@ def food_storage_site_meta_download(request):
 
         
 
-class RoadCreate(PermissionRequiredMixin, CreateView):
+class RoadCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Road
     form_class = RoadForm
     template_name = "sc/road/road_form.html"
@@ -3330,7 +3331,7 @@ def road_meta_download(request):
 
         
 
-class BridgeCreate(PermissionRequiredMixin, CreateView):
+class BridgeCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Bridge
     form_class = BridgeForm
     template_name = "sc/bridge/bridge_form.html"
@@ -3467,7 +3468,7 @@ def bridge_meta_download(request):
 
         
 
-class CanalCreate(PermissionRequiredMixin, CreateView):
+class CanalCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Canal
     form_class = CanalForm
     template_name = "sc/canal/canal_form.html"
@@ -3604,7 +3605,7 @@ def canal_meta_download(request):
 
         
 
-class PortCreate(PermissionRequiredMixin, CreateView):
+class PortCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Port
     form_class = PortForm
     template_name = "sc/port/port_form.html"
@@ -3741,7 +3742,7 @@ def port_meta_download(request):
 
         
 
-class Mines_or_quarryCreate(PermissionRequiredMixin, CreateView):
+class Mines_or_quarryCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Mines_or_quarry
     form_class = Mines_or_quarryForm
     template_name = "sc/mines_or_quarry/mines_or_quarry_form.html"
@@ -3878,7 +3879,7 @@ def mines_or_quarry_meta_download(request):
 
         
 
-class Mnemonic_deviceCreate(PermissionRequiredMixin, CreateView):
+class Mnemonic_deviceCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Mnemonic_device
     form_class = Mnemonic_deviceForm
     template_name = "sc/mnemonic_device/mnemonic_device_form.html"
@@ -4015,7 +4016,7 @@ def mnemonic_device_meta_download(request):
 
         
 
-class Nonwritten_recordCreate(PermissionRequiredMixin, CreateView):
+class Nonwritten_recordCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Nonwritten_record
     form_class = Nonwritten_recordForm
     template_name = "sc/nonwritten_record/nonwritten_record_form.html"
@@ -4152,7 +4153,7 @@ def nonwritten_record_meta_download(request):
 
         
 
-class Written_recordCreate(PermissionRequiredMixin, CreateView):
+class Written_recordCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Written_record
     form_class = Written_recordForm
     template_name = "sc/written_record/written_record_form.html"
@@ -4289,7 +4290,7 @@ def written_record_meta_download(request):
 
         
 
-class ScriptCreate(PermissionRequiredMixin, CreateView):
+class ScriptCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Script
     form_class = ScriptForm
     template_name = "sc/script/script_form.html"
@@ -4426,7 +4427,7 @@ def script_meta_download(request):
 
         
 
-class Non_phonetic_writingCreate(PermissionRequiredMixin, CreateView):
+class Non_phonetic_writingCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Non_phonetic_writing
     form_class = Non_phonetic_writingForm
     template_name = "sc/non_phonetic_writing/non_phonetic_writing_form.html"
@@ -4563,7 +4564,7 @@ def non_phonetic_writing_meta_download(request):
 
         
 
-class Phonetic_alphabetic_writingCreate(PermissionRequiredMixin, CreateView):
+class Phonetic_alphabetic_writingCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Phonetic_alphabetic_writing
     form_class = Phonetic_alphabetic_writingForm
     template_name = "sc/phonetic_alphabetic_writing/phonetic_alphabetic_writing_form.html"
@@ -4700,7 +4701,7 @@ def phonetic_alphabetic_writing_meta_download(request):
 
         
 
-class Lists_tables_and_classificationCreate(PermissionRequiredMixin, CreateView):
+class Lists_tables_and_classificationCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Lists_tables_and_classification
     form_class = Lists_tables_and_classificationForm
     template_name = "sc/lists_tables_and_classification/lists_tables_and_classification_form.html"
@@ -4837,7 +4838,7 @@ def lists_tables_and_classification_meta_download(request):
 
         
 
-class CalendarCreate(PermissionRequiredMixin, CreateView):
+class CalendarCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Calendar
     form_class = CalendarForm
     template_name = "sc/calendar/calendar_form.html"
@@ -4974,7 +4975,7 @@ def calendar_meta_download(request):
 
         
 
-class Sacred_textCreate(PermissionRequiredMixin, CreateView):
+class Sacred_textCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Sacred_text
     form_class = Sacred_textForm
     template_name = "sc/sacred_text/sacred_text_form.html"
@@ -5111,7 +5112,7 @@ def sacred_text_meta_download(request):
 
         
 
-class Religious_literatureCreate(PermissionRequiredMixin, CreateView):
+class Religious_literatureCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Religious_literature
     form_class = Religious_literatureForm
     template_name = "sc/religious_literature/religious_literature_form.html"
@@ -5248,7 +5249,7 @@ def religious_literature_meta_download(request):
 
         
 
-class Practical_literatureCreate(PermissionRequiredMixin, CreateView):
+class Practical_literatureCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Practical_literature
     form_class = Practical_literatureForm
     template_name = "sc/practical_literature/practical_literature_form.html"
@@ -5385,7 +5386,7 @@ def practical_literature_meta_download(request):
 
         
 
-class HistoryCreate(PermissionRequiredMixin, CreateView):
+class HistoryCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = History
     form_class = HistoryForm
     template_name = "sc/history/history_form.html"
@@ -5522,7 +5523,7 @@ def history_meta_download(request):
 
         
 
-class PhilosophyCreate(PermissionRequiredMixin, CreateView):
+class PhilosophyCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Philosophy
     form_class = PhilosophyForm
     template_name = "sc/philosophy/philosophy_form.html"
@@ -5659,7 +5660,7 @@ def philosophy_meta_download(request):
 
         
 
-class Scientific_literatureCreate(PermissionRequiredMixin, CreateView):
+class Scientific_literatureCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Scientific_literature
     form_class = Scientific_literatureForm
     template_name = "sc/scientific_literature/scientific_literature_form.html"
@@ -5796,7 +5797,7 @@ def scientific_literature_meta_download(request):
 
         
 
-class FictionCreate(PermissionRequiredMixin, CreateView):
+class FictionCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Fiction
     form_class = FictionForm
     template_name = "sc/fiction/fiction_form.html"
@@ -5933,7 +5934,7 @@ def fiction_meta_download(request):
 
         
 
-class ArticleCreate(PermissionRequiredMixin, CreateView):
+class ArticleCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Article
     form_class = ArticleForm
     template_name = "sc/article/article_form.html"
@@ -6072,7 +6073,7 @@ def article_meta_download(request):
 
         
 
-class TokenCreate(PermissionRequiredMixin, CreateView):
+class TokenCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Token
     form_class = TokenForm
     template_name = "sc/token/token_form.html"
@@ -6209,7 +6210,7 @@ def token_meta_download(request):
 
         
 
-class Precious_metalCreate(PermissionRequiredMixin, CreateView):
+class Precious_metalCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Precious_metal
     form_class = Precious_metalForm
     template_name = "sc/precious_metal/precious_metal_form.html"
@@ -6346,7 +6347,7 @@ def precious_metal_meta_download(request):
 
         
 
-class Foreign_coinCreate(PermissionRequiredMixin, CreateView):
+class Foreign_coinCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Foreign_coin
     form_class = Foreign_coinForm
     template_name = "sc/foreign_coin/foreign_coin_form.html"
@@ -6483,7 +6484,7 @@ def foreign_coin_meta_download(request):
 
         
 
-class Indigenous_coinCreate(PermissionRequiredMixin, CreateView):
+class Indigenous_coinCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Indigenous_coin
     form_class = Indigenous_coinForm
     template_name = "sc/indigenous_coin/indigenous_coin_form.html"
@@ -6621,7 +6622,7 @@ def indigenous_coin_meta_download(request):
 
         
 
-class Paper_currencyCreate(PermissionRequiredMixin, CreateView):
+class Paper_currencyCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Paper_currency
     form_class = Paper_currencyForm
     template_name = "sc/paper_currency/paper_currency_form.html"
@@ -6758,7 +6759,7 @@ def paper_currency_meta_download(request):
 
         
 
-class CourierCreate(PermissionRequiredMixin, CreateView):
+class CourierCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Courier
     form_class = CourierForm
     template_name = "sc/courier/courier_form.html"
@@ -6895,7 +6896,7 @@ def courier_meta_download(request):
 
         
 
-class Postal_stationCreate(PermissionRequiredMixin, CreateView):
+class Postal_stationCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Postal_station
     form_class = Postal_stationForm
     template_name = "sc/postal_station/postal_station_form.html"
@@ -7032,7 +7033,7 @@ def postal_station_meta_download(request):
 
         
 
-class General_postal_serviceCreate(PermissionRequiredMixin, CreateView):
+class General_postal_serviceCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = General_postal_service
     form_class = General_postal_serviceForm
     template_name = "sc/general_postal_service/general_postal_service_form.html"
@@ -7657,6 +7658,15 @@ def dynamic_detail_view(request, pk, model_class, myvar, var_name_display):
 @user_passes_test(has_add_capital_permission, login_url='permission_denied')
 def dynamic_create_view(request, form_class, x_name, myvar, my_exp, var_section, var_subsection):
     # Retrieve the object based on the object_id
+
+    if x_name in ["largest_communication_distance", "fastest_individual_communication", "military_level"]:
+        x_name_with_from = x_name + "_from"
+        x_name_with_to = x_name + "_to"
+    else:
+        x_name_with_from = x_name
+        x_name_with_to = None
+
+
     if request.method == 'POST':
         # If the request method is POST, it means the form has been submitted
         my_form = form_class(request.POST)
@@ -7666,18 +7676,31 @@ def dynamic_create_view(request, form_class, x_name, myvar, my_exp, var_section,
             new_object = my_form.save()
             return redirect(f"{x_name}-detail", pk=new_object.id)  # Replace 'success_url_name' with your success URL
     else:
-        my_form = form_class()
+        polity_id_x = request.GET.get('polity_id_x')
+        my_form = form_class(initial= {'polity': polity_id_x,})
 
     # Define the context with the variables you want to pass to the template
-    context = {
-        'form': my_form,
-        'object': object,
-        'extra_var': my_form[x_name], 
-        "myvar": myvar,
-        "my_exp": my_exp,
-        'var_section': var_section,
-        'var_subsection': var_subsection,
-    }
+    if x_name in ["largest_communication_distance", "fastest_individual_communication", "military_level"]:
+        context = {
+            'form': my_form,
+            'object': object,
+            'extra_var': my_form[x_name_with_from], 
+            'extra_var2': my_form[x_name_with_to], 
+            "myvar": myvar,
+            "my_exp": my_exp,
+            'var_section': var_section,
+            'var_subsection': var_subsection,
+            }
+    else:
+        context = {
+            'form': my_form,
+            'object': object,
+            'extra_var': my_form[x_name], 
+            "myvar": myvar,
+            "my_exp": my_exp,
+            'var_section': var_section,
+            'var_subsection': var_subsection,
+        }
 
     return render(request, 'sc/sc_create.html', context)
 
@@ -7689,6 +7712,15 @@ def dynamic_create_view(request, form_class, x_name, myvar, my_exp, var_section,
 def dynamic_update_view(request, object_id, form_class, model_class, x_name, myvar, my_exp, var_section, var_subsection, delete_url_name):
     # Retrieve the object based on the object_id
     my_object = model_class.objects.get(id=object_id)
+
+
+    if x_name in ["largest_communication_distance", "fastest_individual_communication", "military_level"]:
+        x_name_with_from = x_name + "_from"
+        x_name_with_to = x_name + "_to"
+    else:
+        x_name_with_from = x_name
+        x_name_with_to = None
+
     #return_url = f"{x_name}s_all"
     if request.method == 'POST':
         # Bind the form to the POST data
@@ -7705,16 +7737,29 @@ def dynamic_update_view(request, object_id, form_class, model_class, x_name, myv
         my_form = form_class(instance=my_object)
 
         # Define the context with the variables you want to pass to the template
-        context = {
-            'form': my_form,
-            'object': my_object,
-            'delete_url': delete_url_name,
-            'extra_var': my_form[x_name], 
-            "myvar": myvar,
-            'var_section': var_section,
-            'var_subsection': var_subsection,
-            "my_exp": my_exp,
-        }
+        if x_name in ["largest_communication_distance", "fastest_individual_communication", "military_level"]:
+            context = {
+                'form': my_form,
+                'object': my_object,
+                'delete_url': delete_url_name,
+                'extra_var': my_form[x_name_with_from], 
+                'extra_var2': my_form[x_name_with_to], 
+                "myvar": myvar,
+                'var_section': var_section,
+                'var_subsection': var_subsection,
+                "my_exp": my_exp,
+            }
+        else:
+            context = {
+                'form': my_form,
+                'object': my_object,
+                'delete_url': delete_url_name,
+                'extra_var': my_form[x_name], 
+                "myvar": myvar,
+                'var_section': var_section,
+                'var_subsection': var_subsection,
+                "my_exp": my_exp,
+            }
 
     return render(request, 'sc/sc_update.html', context)
 
@@ -7723,13 +7768,21 @@ def dynamic_update_view(request, object_id, form_class, model_class, x_name, myv
 def generic_list_view(request, model_class, var_name, var_name_display, var_section, var_subsection, var_main_desc):
     # Retrieve a list of objects from the database (you can customize this query)
     object_list = model_class.objects.all()
-    extra_var_dict = {obj.id: obj.__dict__.get(var_name) for obj in object_list}
+    #extra_var_dict = {obj.id: obj.__dict__.get(var_name) for obj in object_list}
+    extra_var_dict = {obj.id: obj.show_value() for obj in object_list}
 
     orderby = request.GET.get('orderby', None)
 
     # Apply sorting if orderby is provided and is a valid field name
     if orderby and hasattr(model_class, orderby):
         object_list = object_list.order_by(orderby)
+
+    if var_name in ["largest_communication_distance", "fastest_individual_communication", "military_level"]:
+        var_name_with_from = var_name + "_from"
+        var_exp_new = f'The range of "{var_name_display}" for a polity.'
+    else:
+        var_name_with_from = var_name
+        var_exp_new = f'The absence or presence of "{var_name_display}" for a polity.'
 
 
     # Define any additional context variables you want to pass to the template
@@ -7743,7 +7796,7 @@ def generic_list_view(request, model_class, var_name, var_name_display, var_sect
         'metadownload_url':  f'{var_name}-metadownload',
         'list_all_url':  f'{var_name}s_all',
         'var_name_display': var_name_display,
-        'ordering_tag': f"?orderby={var_name}",
+        'ordering_tag': f"?orderby={var_name_with_from}",
         'var_section': var_section,
         'var_subsection': var_subsection,
         'var_main_desc': var_main_desc,
@@ -7763,7 +7816,7 @@ def generic_list_view(request, model_class, var_name, var_name_display, var_sect
             'max': None,
             'scale': None, 
             'var_exp_source': None, 
-            'var_exp': f'The absence or presence of "{var_name_display}" for a polity.',
+            'var_exp': var_exp_new,
             'units': None, 
             'choices': 'ABSENT_PRESENT_CHOICES', 
             'null_meaning': None}}
@@ -7787,14 +7840,32 @@ def generic_download(request, model_class, var_name):
 
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
 
+    if var_name in ["largest_communication_distance", "fastest_individual_communication", "military_level"]:
+        var_name_with_from = var_name + "_from"
+        var_name_with_to = var_name + "_to"
+    else:
+        var_name_with_from = var_name
+        var_name_with_to = None
+
     writer = csv.writer(response, delimiter='|')
-    writer.writerow(['variable_name', 'year_from', 'year_to', 'polity_name', 'polity_new_ID', 'polity_old_ID',
+    if var_name in ["largest_communication_distance", "fastest_individual_communication", "military_level"]:
+        writer.writerow(['variable_name', 'year_from', 'year_to', 'polity_name', 'polity_new_ID', 'polity_old_ID',
+                    var_name_with_from, var_name_with_to, 'confidence', 'is_disputed', 'is_uncertain', 'expert_checked', 'DRB_reviewed'])
+    else:
+        writer.writerow(['variable_name', 'year_from', 'year_to', 'polity_name', 'polity_new_ID', 'polity_old_ID',
                     var_name, 'confidence', 'is_disputed', 'is_uncertain', 'expert_checked', 'DRB_reviewed'])
     for obj in items:
-        dynamic_value = getattr(obj, var_name, '')
-        writer.writerow([obj.name, obj.year_from, obj.year_to,
-                         obj.polity.long_name, obj.polity.new_name, obj.polity.name, dynamic_value, obj.get_tag_display(), obj.is_disputed, obj.is_uncertain,
-                         obj.expert_reviewed, obj.drb_reviewed,])
+        if var_name in ["largest_communication_distance", "fastest_individual_communication", "military_level"]:
+            dynamic_value_from = getattr(obj, var_name_with_from, '')
+            dynamic_value_to = getattr(obj, var_name_with_to, '')
+            writer.writerow([obj.name, obj.year_from, obj.year_to,
+                            obj.polity.long_name, obj.polity.new_name, obj.polity.name, dynamic_value_from, dynamic_value_to, obj.get_tag_display(), obj.is_disputed, obj.is_uncertain,
+                            obj.expert_reviewed, obj.drb_reviewed,])
+        else:
+            dynamic_value = getattr(obj, var_name, '')
+            writer.writerow([obj.name, obj.year_from, obj.year_to,
+                            obj.polity.long_name, obj.polity.new_name, obj.polity.name, dynamic_value, obj.get_tag_display(), obj.is_disputed, obj.is_uncertain,
+                            obj.expert_reviewed, obj.drb_reviewed,])
 
     return response
 
@@ -7806,7 +7877,7 @@ def generic_metadata_download(request, var_name, var_name_display, var_section, 
     response['Content-Disposition'] = f'attachment; filename="metadata_{var_name}s.csv"'
     
     my_meta_data_dic = {'notes': 'No_Actual_note', 'main_desc': var_main_desc, 'main_desc_source': 'NOTHING', 'section': var_section, 'subsection': var_subsection}
-    my_meta_data_dic_inner_vars = {'general_postal_service': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': f'The absence or presence of {var_name_display} for a polity.', 'units': None, 'choices': 'ABSENT_PRESENT_CHOICES', 'null_meaning': None}}
+    my_meta_data_dic_inner_vars = {'general_postal_service': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': f'The {var_name_display} for a polity.', 'units': None, 'choices': 'ABSENT_PRESENT_CHOICES', 'null_meaning': None}}
 
     writer = csv.writer(response, delimiter='|')
     # bring in the meta data nedded

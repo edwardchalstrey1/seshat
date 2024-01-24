@@ -1,11 +1,11 @@
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
 
 from django.contrib.sites.shortcuts import get_current_site
-from seshat.apps.core.forms import SignUpForm, VariablehierarchyFormNew, CitationForm, ReferenceForm, SeshatCommentForm, SeshatCommentPartForm, PolityForm, CapitalForm, NgaForm
+from seshat.apps.core.forms import SignUpForm, VariablehierarchyFormNew, CitationForm, ReferenceForm, SeshatCommentForm, SeshatCommentPartForm, PolityForm, PolityUpdateForm, CapitalForm, NgaForm, SeshatCommentPartForm2, ReferenceFormSet
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
@@ -21,7 +21,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.db import IntegrityError, connection
-from django.db.models import Prefetch, F, Value
+from django.db.models import Prefetch, F, Value, Q
 from django.db.models.functions import Replace
 
 from django.views.decorators.http import require_GET
@@ -35,6 +35,9 @@ from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 import os
 
+from django.apps import apps
+
+from decouple import config
 
 
 from markupsafe import Markup, escape
@@ -42,6 +45,7 @@ from django.http import JsonResponse
 
 from django.core.mail import EmailMessage
 import html
+import datetime
 import csv
 
 import json
@@ -50,13 +54,16 @@ from django.urls import reverse, reverse_lazy
 
 from django.contrib.messages.views import SuccessMessageMixin
 
-from ..general.models import Polity_research_assistant
+from ..general.models import Polity_research_assistant, Polity_duration
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, VideoShapefile
+from ..crisisdb.models import Power_transition
+
+
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, VideoShapefile
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
-from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections, dic_of_all_vars_with_varhier, get_all_data_for_a_polity, polity_detail_data_collector, get_all_general_data_for_a_polity, get_all_sc_data_for_a_polity, get_all_wf_data_for_a_polity, get_all_crisis_cases_data_for_a_polity, get_all_power_transitions_data_for_a_polity
+from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections, dic_of_all_vars_with_varhier, get_all_data_for_a_polity, polity_detail_data_collector, get_all_general_data_for_a_polity, get_all_sc_data_for_a_polity, get_all_wf_data_for_a_polity, get_all_rt_data_for_a_polity, get_all_crisis_cases_data_for_a_polity, get_all_power_transitions_data_for_a_polity, give_polity_app_data
 
 
 from django.shortcuts import HttpResponse
@@ -86,7 +93,7 @@ def index(request):
 def four_o_four(request):
     return render(request, 'core/not_found_404.html')
 
-def seshatindex(request):
+def seshatindex2(request):
     context = {
         'insta': "Instabilities All Over the Place..",
         'trans': "Transitions All Over the Place",
@@ -596,15 +603,27 @@ class PolityCreate(PermissionRequiredMixin, CreateView):
     success_url = reverse_lazy('polities')
 
     def form_valid(self, form):
+        # Custom validation to check if a Polity with the same new_name already exists
+        new_name = form.cleaned_data['new_name']
+        existing_polity = Polity.objects.filter(new_name=new_name)
+
+        if existing_polity.exists():
+            messages.error(self.request, "A Polity with this new_name already exists.")
+            return self.form_invalid(form)
+
+        # Continue with the default behavior if validation passes
         return super().form_valid(form)
     
     def form_invalid(self, form):
-        return HttpResponseRedirect(reverse('seshat-index'))
+        #return HttpResponseRedirect(reverse('seshat-index'))
+        messages.error(self.request, "Form submission failed. Please check the form.")
+        # Redirect to the 'polities' page
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class PolityUpdate(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Polity
-    form_class = PolityForm
+    form_class = PolityUpdateForm
     template_name = "core/polity/polity_form.html"
     permission_required = 'core.add_capital'
     success_message = "You successfully updated the Polity."
@@ -777,7 +796,7 @@ class PolityListView1(SuccessMessageMixin, generic.ListView):
         return context
     
 
-class PolityListView(SuccessMessageMixin, generic.ListView):
+class PolityListViewX(SuccessMessageMixin, generic.ListView):
     model = Polity
     template_name = "core/polity/polity_list.html"
 
@@ -790,6 +809,13 @@ class PolityListView(SuccessMessageMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         all_ngas = Nga.objects.all()
         all_pols = Polity.objects.all().order_by('start_year')
+        pol_count = len(all_pols)
+        #import time
+        #start_time = time.time()
+
+        all_polities_g_sc_wf = give_polity_app_data()
+
+
         #all_nga_pol_rels  = Ngapolityrel.objects.all()
         all_world_regions = {}
         for a_nga in all_ngas:
@@ -823,6 +849,25 @@ class PolityListView(SuccessMessageMixin, generic.ListView):
         all_world_regions["Africa"].append("Southern Africa")
         all_world_regions["South Asia"].append("Southern India")
 
+        for a_polity in all_pols:
+            try:
+                #a_polity.has_general = has_general_data_for_polity(a_polity.id)
+                #a_polity.has_sc = has_sc_data_for_polity(a_polity.id)
+                #a_polity.has_wf = has_wf_data_for_polity(a_polity.id)
+                #a_polity.has_cc = has_crisis_cases_data_for_polity(a_polity.id)
+                #a_polity.has_pt = has_power_transition_data_for_polity(a_polity.id)
+                a_polity.has_g_sc_wf = all_polities_g_sc_wf[a_polity.id]
+                
+            except:
+                #a_polity.has_general = None
+                #a_polity.has_sc = None
+                #a_polity.has_wf = None
+                #a_polity.has_cc = None
+                #a_polity.has_pt = None
+                a_polity.has_g_sc_wf = None
+
+        #end_time = time.time()
+        #print('elapsed_time ', end_time-start_time)
 
         for a_world_region, all_its_sub_regions in all_world_regions.items():
             for a_subregion in all_its_sub_regions:
@@ -870,29 +915,300 @@ class PolityListView(SuccessMessageMixin, generic.ListView):
         for a_polity in all_pols:
             if a_polity not in nomad_polities and a_polity not in all_politys_on_the_polity_list_page:
                 nomad_polities.append(a_polity)
+
         ultimate_wregion_dic['Nomad Polities'][ "Nomad Land"] = nomad_polities
         context["sub_regions_details"] = sub_regions_details
         #context["all_nga_pol_rels"] = all_nga_pol_rels
         context["all_world_regions"] = all_world_regions
         context["ultimate_wregion_dic"] = ultimate_wregion_dic
         #print(ultimate_wregion_dic)
+        context['all_pols'] = all_pols
+        context["pol_count"] = pol_count
 
         #print(f"out of {len(all_pols)}: {len(all_politys_on_the_polity_list_page)} were taken care of.")
         
 
         return context
+    
+class PolityListViewLight(SuccessMessageMixin, generic.ListView):
+    model = Polity
+    template_name = "core/polity/polity_list_light.html"
+
+    def get_absolute_url(self):
+        return reverse('polities-light')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        import time
+        start_time = time.time()
+        all_srs_unsorted = Seshat_region.objects.all()
+        all_mrs_unsorted = Macro_region.objects.all()
+
+
+        custom_order = [5, 2, 11, 3, 4, 9, 10, 8, 7, 6, 1, 23, 24, 27, 26,25, 29,28, 31,33,32,30, ]  
+
+        custom_order_sr = [20, 18, 17, 15, 19, 16, 3, 4, 5, 7, 1, 2, 6, 43, 61, 62, 44, 45, 10, 13, 8, 9, 11, 12, 14, 58, 59, 38, 39, 37, 36, 40, 41, 42, 28, 29, 30, 26,25, 27,24, 22, 23, 21, 32, 31, 33, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57 ]
+
+        all_mrs = sorted(all_mrs_unsorted, key=lambda item: custom_order.index(item.id))
+        all_srs = sorted(all_srs_unsorted, key=lambda item: custom_order_sr.index(item.id))
+
+        all_pols = Polity.objects.all().order_by('start_year')
+        pol_count = len(all_pols)
+
+        ultimate_wregion_dic = {}
+        ultimate_wregion_dic_top = {}
+        for a_mr in all_mrs:
+            if a_mr not in ultimate_wregion_dic:
+                ultimate_wregion_dic[a_mr.name] = {}
+            if a_mr not in ultimate_wregion_dic_top:
+                ultimate_wregion_dic_top[a_mr.name] = {}
+            for a_sr in all_srs:
+                if a_sr.mac_region_id == a_mr.id:
+                    if a_sr.name not in ultimate_wregion_dic[a_mr.name]:
+                        ultimate_wregion_dic[a_mr.name][a_sr.name] = []
+                    if a_sr.name not in ultimate_wregion_dic_top[a_mr.name]:
+                        ultimate_wregion_dic_top[a_mr.name][a_sr.name] = [a_sr.subregions_list, 0]
+
+        #all_polities_g_sc_wf, freq_dic = give_polity_app_data()
+        #all_polities_g_sc_wf = give_polity_app_data()
+        freq_dic = {}
+        freq_dic["d"] = 0
+
+        for a_polity in all_pols:
+            if a_polity.home_seshat_region:
+                ultimate_wregion_dic[a_polity.home_seshat_region.mac_region.name][a_polity.home_seshat_region.name].append(a_polity)
+                ultimate_wregion_dic_top[a_polity.home_seshat_region.mac_region.name][a_polity.home_seshat_region.name][1] += 1
+            if a_polity.general_description:
+                freq_dic["d"] += 1
+
+        for a_polity in all_pols:
+            a_polity.has_g_sc_wf = None
+
+        context["ultimate_wregion_dic"] = ultimate_wregion_dic
+        context["ultimate_wregion_dic_top"] = ultimate_wregion_dic_top
+        context['all_pols'] = all_pols
+        context['all_srs'] = all_srs
+        context["pol_count"] = pol_count
+        freq_dic['pol_count'] = pol_count
+        context["freq_data"] = freq_dic
+
+        end_time = time.time()
+        print('elapsed_time ', end_time-start_time)
+
+        return context
+
+class PolityListView(SuccessMessageMixin, generic.ListView):
+    model = Polity
+    template_name = "core/polity/polity_list.html"
+
+    def get_absolute_url(self):
+        return reverse('polities')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        import time
+        start_time = time.time()
+        all_srs_unsorted = Seshat_region.objects.all()
+        all_mrs_unsorted = Macro_region.objects.all()
+
+        # 1 | World
+        # 2 | Africa
+        # 3 | Central and Northern Eurasia
+        # 4 | East Asia
+        # 5 | Europe
+        # 6 | South America
+        # 7 | North America
+        # 8 | Oceania-Australia
+        # 9 | South Asia
+        # 10 | Southeast Asia
+        # 11 | Southwest Asia
+
+        custom_order = [5, 2, 11, 3, 4, 9, 10, 8, 7, 6, 1, 23, 24, 27, 26,25, 29,28, 31,33,32,30, ]  
+
+        custom_order_sr = [20, 18, 17, 15, 19, 16, 3, 4, 5, 7, 1, 2, 6, 43, 61, 62, 44, 45, 10, 13, 8, 9, 11, 12, 14, 58, 59, 38, 39, 37, 36, 40, 41, 42, 28, 29, 30, 26,25, 27,24, 22, 23, 21, 32, 31, 33, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57 ]
+
+        all_mrs = sorted(all_mrs_unsorted, key=lambda item: custom_order.index(item.id))
+        all_srs = sorted(all_srs_unsorted, key=lambda item: custom_order_sr.index(item.id))
+
+        all_pols = Polity.objects.all().order_by('start_year')
+        pol_count = len(all_pols)
+
+        ultimate_wregion_dic = {}
+        ultimate_wregion_dic_top = {}
+        for a_mr in all_mrs:
+            if a_mr not in ultimate_wregion_dic:
+                ultimate_wregion_dic[a_mr.name] = {}
+            if a_mr not in ultimate_wregion_dic_top:
+                ultimate_wregion_dic_top[a_mr.name] = {}
+            for a_sr in all_srs:
+                if a_sr.mac_region_id == a_mr.id:
+                    if a_sr.name not in ultimate_wregion_dic[a_mr.name]:
+                        ultimate_wregion_dic[a_mr.name][a_sr.name] = []
+                    if a_sr.name not in ultimate_wregion_dic_top[a_mr.name]:
+                        ultimate_wregion_dic_top[a_mr.name][a_sr.name] = [a_sr.subregions_list, 0]
+
+        all_polities_g_sc_wf, freq_dic = give_polity_app_data()
+        #all_polities_g_sc_wf = give_polity_app_data()
+        #freq_dic = {}
+        freq_dic["d"] = 0
+
+        for a_polity in all_pols:
+            if a_polity.home_seshat_region:
+                ultimate_wregion_dic[a_polity.home_seshat_region.mac_region.name][a_polity.home_seshat_region.name].append(a_polity)
+                ultimate_wregion_dic_top[a_polity.home_seshat_region.mac_region.name][a_polity.home_seshat_region.name][1] += 1
+            if a_polity.general_description:
+                freq_dic["d"] += 1
+
+        for a_polity in all_pols:
+            try:
+                a_polity.has_g_sc_wf = all_polities_g_sc_wf[a_polity.id]
+            except:
+                a_polity.has_g_sc_wf = None
+
+            all_durations = {
+                "intr": [],
+                "gv": [],
+                "pt": [],
+                "color": "xyz",
+            }
+            all_durations["intr"] = [a_polity.start_year, a_polity.end_year]
+            # Pol_dur object
+            try:
+                Polity_duration_object = Polity_duration.objects.get(polity_id=a_polity.id)
+
+                polity_duration_coded = []
+                polity_duration_coded.extend([f'{Polity_duration_object.polity_year_from}, {Polity_duration_object.polity_year_to}'])
+                all_durations["gv"] = [Polity_duration_object.polity_year_from, Polity_duration_object.polity_year_to]
+            except:
+                polity_duration_coded = [-10000, 2000]
+
+            # Pow Trans Data
+            try:
+                Polity_pt_objects = Power_transition.objects.filter(polity_id=a_polity.id)
+
+                polity_duration_implied = []
+                pol_dur_min_list = []
+                pol_dur_max_list = []
+
+                for a_pt in Polity_pt_objects:
+                    if a_pt.year_from is not None:
+                        pol_dur_min_list.append(a_pt.year_from)
+                    if a_pt.year_to is not None:
+                        pol_dur_max_list.append(a_pt.year_to)
+
+                polity_duration_implied = [min(pol_dur_min_list), max(pol_dur_max_list)]
+                all_durations["pt"] = polity_duration_implied
+            except:
+                polity_duration_implied = [-10000, 2000]
+
+            a_polity.all_durations = all_durations
+            if all_durations["intr"] and all_durations["gv"] and all_durations["pt"]:
+                if (all_durations["intr"] == all_durations["gv"] == all_durations["pt"]):
+                    a_polity.color = "ggg"
+                elif (all_durations["intr"] == all_durations["gv"]):
+                    a_polity.color = "ggr"
+                elif (all_durations["intr"] == all_durations["pt"]):
+                    a_polity.color = "grg"
+                elif (all_durations["gv"] == all_durations["pt"]):
+                    a_polity.color = "rgg"
+            elif all_durations["intr"] and all_durations["gv"]:
+                if (all_durations["intr"] == all_durations["gv"]):
+                    a_polity.color = "ggm"
+                else:
+                    a_polity.color = "grm"
+            elif all_durations["intr"] and all_durations["pt"]:
+                if (all_durations["intr"] == all_durations["pt"]):
+                    a_polity.color = "gmg"
+                elif all_durations["intr"][0] == -10000:
+                    a_polity.color = "rmr"
+                else:
+                    a_polity.color = "gmr"
+            elif all_durations["intr"] and all_durations["intr"][0] == -10000:
+                a_polity.color = "rmm"
+            elif all_durations["intr"]:
+                a_polity.color = "gmm"
+                
+
+
+
+
+        context["ultimate_wregion_dic"] = ultimate_wregion_dic
+        context["ultimate_wregion_dic_top"] = ultimate_wregion_dic_top
+        context['all_pols'] = all_pols
+        context['all_srs'] = all_srs
+        context["pol_count"] = pol_count
+        freq_dic['pol_count'] = pol_count
+        context["freq_data"] = freq_dic
+
+        end_time = time.time()
+        print('elapsed_time ', end_time-start_time)
+
+        return context
+    
+
+class PolityListViewCommented(PermissionRequiredMixin, SuccessMessageMixin, generic.ListView):
+    model = Polity
+    template_name = "core/polity/polity_list_commented.html"
+    permission_required = 'core.add_capital'
+
+
+    def get_absolute_url(self):
+        return reverse('polities')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        #all_pols = Polity.objects.filter(private_comment__isnull=False).order_by('start_year')
+        all_pols = Polity.objects.exclude(Q(private_comment__isnull=True) | Q(private_comment=''))
+
+        pol_count = len(all_pols)
+
+        all_polities_g_sc_wf, freq_dic = give_polity_app_data()
+
+        for a_polity in all_pols:
+            try:
+                a_polity.has_g_sc_wf = all_polities_g_sc_wf[a_polity.id]
+            except:
+                a_polity.has_g_sc_wf = None
+
+        context['all_pols'] = all_pols
+        context["pol_count"] = pol_count
+
+        return context
+    
+
+
 
 class PolityDetailView(SuccessMessageMixin, generic.DetailView):
     model = Polity
     template_name = "core/polity/polity_detail.html"
 
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return get_object_or_404(Polity, pk=self.kwargs['pk'])
+        elif 'new_name' in self.kwargs:
+            new_name = self.kwargs['new_name']
+            try:
+                # Attempt to get the object by new_name, handle multiple objects returned
+                return Polity.objects.get(new_name=new_name)
+            except Polity.MultipleObjectsReturned:
+                # Handle the case of multiple objects with the same new_name
+                raise Http404("Multiple objects with the same new_name")
+            except Polity.DoesNotExist:
+                # Handle the case where no object with the given new_name is found
+                raise Http404("No Polity matches the given new_name")
+        else:
+            # Handle the case where neither pk nor new_name is provided
+            return None
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
             context["all_data"] = get_all_data_for_a_polity(self.object.pk, "crisisdb") 
-            context["all_general_data"] = get_all_general_data_for_a_polity(self.object.pk)
-            context["all_sc_data"] = get_all_sc_data_for_a_polity(self.object.pk)
-            context["all_wf_data"] = get_all_wf_data_for_a_polity(self.object.pk)
+            context["all_general_data"], context["has_any_general_data"] = get_all_general_data_for_a_polity(self.object.pk)
+            context["all_sc_data"], context["has_any_sc_data"] = get_all_sc_data_for_a_polity(self.object.pk)
+            context["all_wf_data"], context["has_any_wf_data"] = get_all_wf_data_for_a_polity(self.object.pk)
+            context["all_rt_data"], context["has_any_rt_data"] = get_all_rt_data_for_a_polity(self.object.pk)
             context["all_crisis_cases_data"] = get_all_crisis_cases_data_for_a_polity(self.object.pk)
             context["all_power_transitions_data"] = get_all_power_transitions_data_for_a_polity(self.object.pk)
             all_Ras = Polity_research_assistant.objects.filter(polity_id=self.object.pk)
@@ -918,6 +1234,79 @@ class PolityDetailView(SuccessMessageMixin, generic.DetailView):
             context["all_general_data"] = None
             context["all_sc_data"] = None
             context["all_wf_data"] = None
+            context["all_rt_data"] = None
+        ################# NEW
+        Polity_object = Polity.objects.get(id=self.object.pk)
+
+        # Get the related data
+        all_durations = {
+            "intr": [],
+            "gv": [],
+            "pt": [],
+            "color": "xyz",
+        }
+        try:
+            intrinsic_duration = f'Polity Intrinsic Duration: {Polity_object.start_year}, {Polity_object.end_year}'
+            all_durations["intr"] = [Polity_object.start_year, Polity_object.end_year]
+        except:
+            intrinsic_duration = [-10000, 2000]
+        # Pol_dur object
+        try:
+            Polity_duration_object = Polity_duration.objects.get(polity_id=self.object.pk)
+
+            polity_duration_coded = []
+            polity_duration_coded.extend([f'{Polity_duration_object.polity_year_from}, {Polity_duration_object.polity_year_to}'])
+            all_durations["gv"] = [Polity_duration_object.polity_year_from, Polity_duration_object.polity_year_to]
+        except:
+            polity_duration_coded = [-10000, 2000]
+
+        # Pow Trans Data
+        try:
+            Polity_pt_objects = Power_transition.objects.filter(polity_id=self.object.pk)
+
+            polity_duration_implied = []
+            pol_dur_min_list = []
+            pol_dur_max_list = []
+
+            for a_pt in Polity_pt_objects:
+                if a_pt.year_from is not None:
+                    pol_dur_min_list.append(a_pt.year_from)
+                if a_pt.year_to is not None:
+                    pol_dur_max_list.append(a_pt.year_to)
+
+            polity_duration_implied = [min(pol_dur_min_list), max(pol_dur_max_list)]
+            all_durations["pt"] = polity_duration_implied
+        except:
+            polity_duration_implied = [-10000, 2000]
+
+        if all_durations["intr"] and all_durations["gv"] and all_durations["pt"]:
+            if (all_durations["intr"] == all_durations["gv"] == all_durations["pt"]):
+               all_durations['color'] = "ggg"
+            elif (all_durations["intr"] == all_durations["gv"]):
+               all_durations['color'] = "ggr"
+            elif (all_durations["intr"] == all_durations["pt"]):
+               all_durations['color'] = "grg"
+            elif (all_durations["gv"] == all_durations["pt"]):
+               all_durations['color'] = "rgg"
+        elif all_durations["intr"] and all_durations["gv"]:
+            if (all_durations["intr"] == all_durations["gv"]):
+               all_durations['color'] = "ggm"
+            else:
+               all_durations['color'] = "grm"
+        elif all_durations["intr"] and all_durations["pt"]:
+            if (all_durations["intr"] == all_durations["pt"]):
+               all_durations['color'] = "gmg"
+            elif all_durations["intr"][0] == -10000:
+               all_durations['color'] = "rmr"
+            else:
+               all_durations['color'] = "gmr"
+        elif all_durations["intr"] and all_durations["intr"][0] == -10000:
+           all_durations['color'] = "rmm"
+        elif all_durations["intr"]:
+           all_durations['color'] = "gmm"
+
+        context["all_durations"] = all_durations
+        #####################
 
 
         #x = polity_detail_data_collector(self.object.pk)
@@ -1451,7 +1840,7 @@ def synczotero(request):
     print("Hallo Zotero")
 
     from pyzotero import zotero
-    zot = zotero.Zotero(1051264, 'group', 'VF5X3TCC3bUYov8Au5gCHf3a')
+    zot = zotero.Zotero(1051264, 'group', config('ZOTERO_API_KEY'))
     results = zot.everything(zot.top())
     #results = zot.top(limit=100)
 
@@ -1470,7 +1859,7 @@ def synczotero100(request):
     print("Hallo Zotero")
 
     from pyzotero import zotero
-    zot = zotero.Zotero(1051264, 'group', 'VF5X3TCC3bUYov8Au5gCHf3a')
+    zot = zotero.Zotero(1051264, 'group', config('ZOTERO_API_KEY'))
     #results = zot.everything(zot.top())
     results = zot.top(limit=100)
 
@@ -1517,6 +1906,342 @@ def download_oldcsv(request, file_name):
     response = FileResponse(open(file_path, 'rb'))
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
     return response
+
+
+
+def seshatindex(request):
+    app_names = ['general','sc', 'wf', 'crisisdb']  # Replace with your app name
+    context = {
+        'pols_data': [],
+        'general_data': [],
+        'sc_data': [], 
+        'wf_data': [],
+        'crisisdb': [],
+        'pt_data': [],
+        'cc_data': [],
+        'hs_data': [],
+        'sr_data': [],
+        'general_examples': [('Alternative Name', 'polity_alternative_names_all', 'Identity and Location'),
+                            ('Polity Peak Years', 'polity_peak_yearss_all', 'Temporal Bounds'), 
+                            ('Polity Capital', 'polity_capitals_all', 'Identity and Location'), 
+                            ('Polity Language', 'polity_languages_all', 'Language'),
+                            ('Polity Religion', 'polity_religions_all', 'Religion'),
+                            ('Degree of Centralization', 'polity_degree_of_centralizations_all', 'Temporal Bounds'),
+                            ('Succeeding Entity', 'polity_succeeding_entitys_all', 'Supra-cultural relations'),
+                            ('Relationship to Preceding Entity', 'polity_relationship_to_preceding_entitys_all', 'Supra-cultural relations'),
+                            ],
+
+        'sc_examples': [('Polity Territory', 'polity_territorys_all', 'Social Scale'), 
+                        ('Polity Population', 'polity_populations_all', 'Social Scale'), 
+                        ('Settlement Hierarchy', 'settlement_hierarchys_all', 'Hierarchical Complexity'), 
+                        ('Irrigation System', 'irrigation_systems_all', 'Specialized Buildings: polity owned'), 
+                        ('Merit Promotion', 'merit_promotions_all', 'Bureaucracy Characteristics'), 
+                        ('Formal Legal Code', 'formal_legal_codes_all', 'Law'), 
+                        ('Road', 'roads_all', 'Transport Infrastructure'), 
+                        ('Postal Station', 'postal_stations_all', 'Information / Postal System')],
+        'wf_examples': [('Bronze', 'bronzes_all', 'Military use of Metals'),
+                        ('Javelin', 'javelins_all', 'Projectiles'),
+                        ('Battle Axe', 'battle_axes_all', 'Handheld Weapons'),
+                        ('Sword', 'swords_all', 'Handheld Weapons'),
+                        ('Horse', 'horses_all', 'Animals used in warfare'),
+                        ('Small Vessels (canoes, etc)', 'small_vessels_canoes_etcs_all', 'Naval technology'),
+                        ('Shield', 'shields_all', 'Armor'),
+                        ('Wooden Palisade', 'small_vessels_canoes_etcs_all', 'Fortifications'),
+                        ]
+        #'crisisdb_examples': [],
+        #'pt_examples': [],
+        #'cc_examples': [],
+        #'sr_examples': [],
+
+        }
+    all_srs_unsorted = Seshat_region.objects.exclude(name="Somewhere")
+    all_mrs_unsorted = Macro_region.objects.exclude(name="World")
+    to_be_appended_y = [len(all_srs_unsorted), len(all_mrs_unsorted)] 
+    context['sr_data'] = to_be_appended_y
+
+    all_pols_count = Polity.objects.count()
+    to_be_appended_y = [all_pols_count, len(all_srs_unsorted)] 
+    context['pols_data'] = to_be_appended_y
+
+    eight_pols = Polity.objects.order_by('?')[:8]
+    context['eight_pols'] = eight_pols
+
+    eight_srs = Seshat_region.objects.exclude(name="Somewhere").order_by('?')[:8]
+    context['eight_srs'] = eight_srs
+
+
+
+  
+  
+
+    for app_name in app_names:
+        models = apps.get_app_config(app_name).get_models()
+        unique_politys = set()
+        number_of_variables = 0
+        number_of_rows_in_app = 0
+        app_key = app_name + "_data"
+        for model in models:
+            model_name = model.__name__
+            if model_name == "Ra":
+                continue
+            if  model_name.startswith("Us_violence"):
+                queryset_count = model.objects.count()
+
+                queryset = model.objects.all()
+
+                to_be_appended_xxxx = [queryset_count, 1,]
+                context['us_data'] = to_be_appended_xxxx
+                eight_uss = queryset.order_by('?')[:8]
+                context['eight_uss'] = eight_uss
+                continue
+            if  model_name.startswith("Us_"):
+                continue
+            if  model_name.startswith("Power_transition"):
+                queryset_count = model.objects.count()
+
+                queryset = model.objects.all()
+                politys = queryset.values_list('polity', flat=True).distinct()
+
+                to_be_appended_x = [queryset_count, 1, len(set(politys)),]
+                context['pt_data'] = to_be_appended_x
+                eight_pts = queryset.order_by('?')[:8]
+                context['eight_pts'] = eight_pts
+                continue
+            if  model_name.startswith("Crisis_consequence"):
+                queryset_count = model.objects.count()
+
+                queryset = model.objects.all()
+                politys = queryset.values_list('polity', flat=True).distinct()
+
+                to_be_appended_xx = [queryset_count, 1, len(set(politys)),]
+                context['cc_data'] = to_be_appended_xx
+                eight_ccs = queryset.order_by('?')[:8]
+                context['eight_ccs'] = eight_ccs
+                continue
+            if  model_name.startswith("Human_sacrifice"):
+                queryset_count = model.objects.count()
+
+                queryset = model.objects.all()
+                politys = queryset.values_list('polity', flat=True).distinct()
+
+                to_be_appended_xxx = [queryset_count, 1, len(set(politys)),]
+                context['hs_data'] = to_be_appended_xxx
+                eight_hss = queryset.order_by('?')[:8]
+                context['eight_hss'] = eight_hss
+                continue
+
+            queryset_count = model.objects.count()
+
+            queryset = model.objects.all()
+            politys = queryset.values_list('polity', flat=True).distinct()
+            unique_politys.update(politys)
+            number_of_variables += 1
+
+            number_of_rows_in_app += queryset_count
+
+        to_be_appended = [number_of_rows_in_app, number_of_variables, len(unique_politys),]
+
+        context[app_key] = to_be_appended
+
+    return render(request, 'core/seshat-index.html', context=context)
+
+
+def get_polity_data_single(polity_id):
+    from seshat.apps.crisisdb.models import Crisis_consequence, Power_transition, Human_sacrifice
+    from django.apps import apps
+
+    app_models_general = apps.get_app_config('general').get_models()
+    app_models_sc = apps.get_app_config('sc').get_models()
+    app_models_wf = apps.get_app_config('wf').get_models()
+
+    data = {
+        'g': 0,
+        'sc': 0,
+        'wf': 0,
+        'hs': 0,
+        'cc': 0,
+        'pt': 0,
+    }
+
+    for model in app_models_general:
+        if hasattr(model, 'polity_id') and model.objects.filter(polity_id=polity_id).exists():
+            data['g'] += model.objects.filter(polity_id=polity_id).count()
+
+    for model in app_models_sc:
+        if hasattr(model, 'polity_id') and model.objects.filter(polity_id=polity_id).exists():
+            data['sc'] += model.objects.filter(polity_id=polity_id).count()
+
+    for model in app_models_wf:
+        if hasattr(model, 'polity_id') and model.objects.filter(polity_id=polity_id).exists():
+            data['wf'] += model.objects.filter(polity_id=polity_id).count()
+
+    data['hs'] = Human_sacrifice.objects.filter(polity=polity_id).count()
+    data['cc'] = Crisis_consequence.objects.filter(polity=polity_id).count()
+    data['pt'] = Power_transition.objects.filter(polity=polity_id).count()
+
+    return data
+
+@permission_required('core.view_capital')
+def download_csv_all_polities(request):
+    # Create a response object with CSV content type
+    response = HttpResponse(content_type='text/csv')
+    current_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    file_name = f"polities_{current_datetime}.csv"
+
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+
+    # Create a CSV writer
+    writer = csv.writer(response, delimiter='|')
+
+    # type the headers
+    writer.writerow(['macro_region', 'home_seshat_region',  'polity_new_id', 'polity_old_id', 'polity_long_name', 'start_year', 'end_year', 'home_nga', 'G', "SC", "WF", "RT", "HS", "CC", "PT", 'polity_tag'])
+
+    items = Polity.objects.all()
+    coded_value_data, freq_data = give_polity_app_data()
+
+    for obj in items:
+        #coded_values_data = get_polity_data_single(obj.id)
+        #print(obj.id)
+        #print(type(obj))
+        if obj.home_seshat_region:
+            writer.writerow([obj.home_seshat_region.mac_region.name, obj.home_seshat_region.name, obj.new_name, obj.name, obj.long_name, obj.start_year, obj.end_year, obj.home_nga,  coded_value_data[obj.id]['g'], coded_value_data[obj.id]['sc'], coded_value_data[obj.id]['wf'], coded_value_data[obj.id]['rt'], coded_value_data[obj.id]['hs'], coded_value_data[obj.id]['cc'], coded_value_data[obj.id]['pt'], obj.get_polity_tag_display()])
+        else:
+            writer.writerow(["None", "None", obj.new_name, obj.name, obj.long_name, obj.start_year, obj.end_year, obj.home_nga,  coded_value_data[obj.id]['g'], coded_value_data[obj.id]['sc'], coded_value_data[obj.id]['wf'], coded_value_data[obj.id]['rt'], coded_value_data[obj.id]['hs'], coded_value_data[obj.id]['cc'], coded_value_data[obj.id]['pt'], obj.get_polity_tag_display()])
+
+    return response
+
+##### additions for the seshatcommentpart enhancement
+# views.py
+
+
+def get_or_create_citation(reference, page_from, page_to):
+    # Check if a matching citation already exists
+    existing_citation = Citation.objects.filter(
+        ref=reference,
+        page_from=page_from,
+        page_to=page_to
+    ).first()
+
+    # If a matching citation exists, return it; otherwise, create a new one
+    return existing_citation or Citation.objects.create(
+        ref=reference,
+        page_from=page_from,
+        page_to=page_to
+    )
+from django.shortcuts import render, redirect
+from .forms import SeshatCommentPartForm
+from .models import SeshatCommentPart, Citation
+
+def seshatcommentpart_create_view_old(request):
+    if request.method == 'POST':
+        form = SeshatCommentPartForm2(request.POST)
+        if form.is_valid():
+            comment_text = form.cleaned_data['comment_text']
+            reference = form.cleaned_data['reference']
+            page_from = form.cleaned_data['page_from']
+            page_to = form.cleaned_data['page_to']
+            comment_order = form.cleaned_data['comment_order']
+
+            # Get or create the Citation instance
+            citation = get_or_create_citation(reference, page_from, page_to)
+            user_logged_in = request.user
+
+            comment_instance = SeshatComment.objects.create(text='a new_comment_text')
+
+            try:
+                seshat_expert_instance = Seshat_Expert.objects.get(user=user_logged_in)
+            except Seshat_Expert.DoesNotExist:
+                seshat_expert_instance = None
+
+            # Create the SeshatCommentPart instance and associate the Citation
+            comment_part = SeshatCommentPart.objects.create(
+                comment=comment_instance,
+                comment_part_text=comment_text,
+                comment_order=comment_order,
+                comment_curator=seshat_expert_instance 
+            )
+            comment_part.comment_citations.add(citation)
+
+            return redirect('seshat-index')  # Redirect to a success page
+
+    else:
+        form = SeshatCommentPartForm2()
+
+    return render(request, 'core/seshatcomments/seshatcommentpart_create.html', {'form': form})
+
+
+# views.py
+from django.shortcuts import render, redirect
+from .models import SeshatCommentPart, Citation
+
+def seshatcommentpart_create_view(request):
+    if request.method == 'POST':
+        form = SeshatCommentPartForm2(request.POST)
+        if form.is_valid():
+            comment_text = form.cleaned_data['comment_text']
+            comment_order = form.cleaned_data['comment_order']
+            user_logged_in = request.user
+
+            comment_instance = SeshatComment.objects.create(text='a new_comment_text')
+
+            try:
+                seshat_expert_instance = Seshat_Expert.objects.get(user=user_logged_in)
+            except Seshat_Expert.DoesNotExist:
+                seshat_expert_instance = None
+
+            # Create the SeshatCommentPart instance
+            comment_part = SeshatCommentPart.objects.create(
+                comment=comment_instance,
+                comment_part_text=comment_text,
+                comment_order=comment_order,
+                comment_curator=seshat_expert_instance 
+            )
+
+            # Process the formset
+            reference_formset = ReferenceFormSet(request.POST, prefix='refs')
+            print("++++++ffffffff++++++++")
+            if reference_formset.is_valid():
+                print("Ahsaaaaant")
+            else:
+                print(f'Formset errors: {reference_formset.errors}, {reference_formset.non_form_errors()}')
+
+            if reference_formset.has_changed():
+                print("Ahsaaaaaaaaaaaaaaaaaant")
+            else:
+                print(f'Formset errors: {reference_formset.errors}, {reference_formset.non_form_errors()}')
+            print("++++++ffffffff++++++++")
+            for i, reference_form in enumerate(reference_formset):
+                if reference_form.is_valid():
+                    print("+++++++xxaaaaaaaaaxx+++++++")
+                    reference = reference_form.cleaned_data['ref']
+                    page_from = reference_form.cleaned_data['page_from']
+                    page_to = reference_form.cleaned_data['page_to']
+
+                    # Get or create the Citation instance
+                    #citation = get_or_create_citation(reference, page_from, page_to)
+                    citation, created = Citation.objects.get_or_create(
+                        ref=reference,
+                        page_from=int(page_from),
+                        page_to=int(page_to)
+                    )
+
+
+                    # Associate the Citation with the SeshatCommentPart
+                    comment_part.comment_citations.add(citation)
+                    print("+++++++xxxx+++++++")
+                    print("I am here::::::", citation)
+                else:
+                    print(f'Form errors: {reference_form.errors}')
+
+            return redirect('seshat-index')  # Redirect to a success page
+
+    else:
+        form = SeshatCommentPartForm2()
+
+    return render(request, 'core/seshatcomments/seshatcommentpart_create.html', {'form': form})
+
+
 
 # Shapefile views
 

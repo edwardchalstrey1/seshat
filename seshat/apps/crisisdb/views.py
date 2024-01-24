@@ -12,7 +12,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
-from django.db.models import F, CharField, ExpressionWrapper
+from django.db.models import F, Count, CharField, ExpressionWrapper
+from ..general.mixins import PolityIdMixin
 
 
 from django.http import HttpResponseRedirect, response, JsonResponse, HttpResponseForbidden
@@ -79,12 +80,16 @@ def get_citations_dropdown(request):
     # return dropdown template as JSON response
     return JsonResponse({'data': citations_list})
 
-class Crisis_consequenceCreate(PermissionRequiredMixin, CreateView):
+class Crisis_consequenceCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Crisis_consequence
     form_class = Crisis_consequenceForm
     success_url = reverse_lazy("crisis_consequences_all")
     template_name = "crisisdb/crisis_consequence/crisis_consequence_form.html"
     permission_required = 'core.add_capital'
+
+    def get_success_url(self):
+        polity_id = self.object.polity.id
+        return reverse('polity-detail-main', kwargs={'pk': polity_id}) + '#crisis_case_var'
 
     def get_absolute_url(self):
         return reverse('crisis_consequence-create')
@@ -107,6 +112,10 @@ class Crisis_consequenceUpdate(PermissionRequiredMixin, UpdateView):
     template_name = "crisisdb/crisis_consequence/crisis_consequence_form.html"
     permission_required = 'core.add_capital'
 
+    def get_success_url(self):
+        polity_id = self.object.polity.id
+        return reverse('polity-detail-main', kwargs={'pk': polity_id}) + '#crisis_case_var'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Z"
@@ -122,6 +131,10 @@ class Crisis_consequenceCreateHeavy(PermissionRequiredMixin, CreateView):
     success_url = reverse_lazy("crisis_consequences_all")
     template_name = "crisisdb/crisis_consequence/crisis_consequence_form_heavy.html"
     permission_required = 'core.add_capital'
+
+    def get_success_url(self):
+        polity_id = self.object.polity.id
+        return reverse('polity-detail-main', kwargs={'pk': polity_id}) + '#crisis_case_var'
 
     def get_absolute_url(self):
         return reverse('crisis_consequence-create')
@@ -143,6 +156,10 @@ class Crisis_consequenceUpdateHeavy(PermissionRequiredMixin, UpdateView):
     template_name = "crisisdb/crisis_consequence/crisis_consequence_form_heavy.html"
     permission_required = 'core.add_capital'
 
+    def get_success_url(self):
+        polity_id = self.object.polity.id
+        return reverse('polity-detail-main', kwargs={'pk': polity_id}) + '#crisis_case_var'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Z"
@@ -153,7 +170,7 @@ class Crisis_consequenceUpdateHeavy(PermissionRequiredMixin, UpdateView):
 
 class Crisis_consequenceDelete(PermissionRequiredMixin, DeleteView):
     model = Crisis_consequence
-    success_url = reverse_lazy('crisis_consequences')
+    success_url = reverse_lazy('crisis_consequences_all')
     template_name = "core/delete_general.html"
     permission_required = 'core.add_capital'
 
@@ -246,7 +263,12 @@ def crisis_consequence_download(request):
     items = Crisis_consequence.objects.all()
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="crisis_consequences.csv"'
+
+    current_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    file_name = f"crisis_consequences_{current_datetime}.csv"
+
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
 
     writer = csv.writer(response, delimiter='|')
     writer.writerow(['year_from', 'year_to',
@@ -287,12 +309,16 @@ def crisis_consequence_meta_download(request):
     return response
 ################################################
 
-class Power_transitionCreate(PermissionRequiredMixin, CreateView):
+class Power_transitionCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Power_transition
     form_class = Power_transitionForm
     success_url = reverse_lazy("power_transitions_all")
     template_name = "crisisdb/power_transition/power_transition_form.html"
     permission_required = 'core.add_capital'
+
+    def get_success_url(self):
+        polity_id = self.object.polity.id
+        return reverse('polity-detail-main', kwargs={'pk': polity_id}) + '#power_transition_var'
 
     def get_absolute_url(self):
         return reverse('power_transition-create')
@@ -311,8 +337,12 @@ class Power_transitionUpdate(PermissionRequiredMixin, UpdateView):
     model = Power_transition
     success_url = reverse_lazy('power_transitions_all')
     form_class = Power_transitionForm
-    template_name = "crisisdb/power_transition/power_transition_form.html"
+    template_name = "crisisdb/power_transition/power_transition_update.html"
     permission_required = 'core.add_capital'
+
+    def get_success_url(self):
+        polity_id = self.object.polity.id
+        return reverse('polity-detail-main', kwargs={'pk': polity_id}) + '#power_transition_var'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -328,6 +358,10 @@ class Power_transitionCreateHeavy(PermissionRequiredMixin, CreateView):
     success_url = reverse_lazy("power_transitions_all")
     template_name = "crisisdb/power_transition/power_transition_form_heavy.html"
     permission_required = 'core.add_capital'
+
+    def get_success_url(self):
+        polity_id = self.object.polity.id
+        return reverse('polity-detail-main', kwargs={'pk': polity_id}) + '#power_transition_var'
 
     def get_absolute_url(self):
         return reverse('power_transition-create')
@@ -349,6 +383,10 @@ class Power_transitionUpdateHeavy(PermissionRequiredMixin, UpdateView):
     template_name = "crisisdb/power_transition/power_transition_form_heavy.html"
     permission_required = 'core.add_capital'
 
+    def get_success_url(self):
+        polity_id = self.object.polity.id
+        return reverse('polity-detail-main', kwargs={'pk': polity_id}) + '#power_transition_var'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Z"
@@ -369,7 +407,7 @@ class Power_transitionListView(PermissionRequiredMixin, generic.ListView):
     template_name = "crisisdb/power_transition/power_transition_list.html"
     permission_required = 'core.add_capital'
 
-    #paginate_by = 50
+    paginate_by = 500
 
     def get_absolute_url(self):
         return reverse('power_transitions')
@@ -383,7 +421,7 @@ class Power_transitionListView(PermissionRequiredMixin, generic.ListView):
                 F('polity__home_nga__name'),
                 output_field=CharField()
             )
-        ).order_by(order, order2)
+        ).order_by(order2, order)
         return new_context
     
     
@@ -405,7 +443,7 @@ class Power_transitionListView(PermissionRequiredMixin, generic.ListView):
     
 class Power_transitionListViewAll(PermissionRequiredMixin, generic.ListView):
     model = Power_transition
-    template_name = "crisisdb/power_transition/power_transition_list_all.html"
+    template_name = "crisisdb/power_transition/power_transition_list_all_new.html"
     permission_required = 'core.add_capital'
     #paginate_by = 50
 
@@ -413,20 +451,56 @@ class Power_transitionListViewAll(PermissionRequiredMixin, generic.ListView):
         return reverse('power_transitions_all')
 
     def get_queryset(self):
-        #order = self.request.GET.get('orderby', 'year_from')
-        order = self.request.GET.get('orderby', 'home_nga')
+        order = self.request.GET.get('orderby', 'year_to')
         order2 = self.request.GET.get('orderby2', 'year_from')
-        #polity.home_nga.id
-        #orders = [order, order2]
-        new_context = Power_transition.objects.all().annotate(
-            home_nga=ExpressionWrapper(
-                F('polity__home_nga__name'),
-                output_field=CharField()
-            )
-        ).order_by(order, order2)
-        #.polity.home_nga.id
-        #new_context = Power_transition.objects.all().order_by(order, order2)
-        return new_context
+
+        new_context = Power_transition.objects.all().order_by(order2, order)
+
+        #grouped_dict = {}
+        pols_dict  = {}
+        for transition in new_context:
+            polity_id = transition.polity_id
+            if not polity_id:
+                polity_id = 0
+            if polity_id not in pols_dict:
+                try:
+                    pols_dict[polity_id] = {
+                        'polity_new_name': transition.polity.new_name,
+                        'polity_long_name': transition.polity.long_name,
+                        'polity_start_year': transition.polity.start_year,
+                        'polity_end_year': transition.polity.end_year,
+                        'trans_list': []
+                    }
+                except:
+                    pols_dict[0] = {
+                        'polity_new_name': "NO_NAME",
+                        'polity_long_name': "NO_LONG_NAME",
+                        'polity_start_year': -10000,
+                        'polity_end_year': 2000,
+                        'trans_list': []
+                        }
+
+            pols_dict[polity_id]['trans_list'].append({
+                'year_from': transition.year_from,
+                'year_to': transition.year_to,
+                'predecessor': transition.predecessor,
+                'successor': transition.successor,
+                'name': transition.name,
+                'trans_id': transition.id,
+
+
+                'overturn': transition.overturn,
+                'predecessor_assassination':  transition.predecessor_assassination,
+                'intra_elite': transition.intra_elite,
+                'military_revolt': transition.military_revolt,
+                'popular_uprising': transition.popular_uprising,
+                'separatist_rebellion': transition.separatist_rebellion,
+                'external_invasion': transition.external_invasion,
+                'external_interference': transition.external_interference,
+            })
+        #print(grouped_dict)
+
+        return pols_dict
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -453,7 +527,12 @@ def power_transition_download(request):
     items = Power_transition.objects.all()
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="power_transitions.csv"'
+
+    current_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    file_name = f"power_transitions_{current_datetime}.csv"
+
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
 
     writer = csv.writer(response, delimiter='|')
     writer.writerow(['year_from', 'year_to', 'predecessor', 'successor',
@@ -487,11 +566,15 @@ def power_transition_meta_download(request):
 
 ##################################
 
-class Human_sacrificeCreate(PermissionRequiredMixin, CreateView):
+class Human_sacrificeCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
     model = Human_sacrifice
     form_class = Human_sacrificeForm
     template_name = "crisisdb/human_sacrifice/human_sacrifice_form.html"
     permission_required = 'core.add_capital'
+
+    def get_success_url(self):
+        polity_id = self.object.polity.id
+        return reverse('polity-detail-main', kwargs={'pk': polity_id}) + '#hs_var'
 
     def get_absolute_url(self):
         return reverse('human_sacrifice-create')
@@ -541,6 +624,10 @@ class Human_sacrificeUpdate(PermissionRequiredMixin, UpdateView):
     form_class = Human_sacrificeForm
     template_name = "crisisdb/human_sacrifice/human_sacrifice_update.html"
     permission_required = 'core.add_capital'
+
+    def get_success_url(self):
+        polity_id = self.object.polity.id
+        return reverse('polity-detail-main', kwargs={'pk': polity_id}) + '#hs_var'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -629,7 +716,11 @@ def human_sacrifice_download(request):
     items = Human_sacrifice.objects.all()
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="human_sacrifices.csv"'
+
+    current_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    file_name = f"human_sacrifices_{current_datetime}.csv"
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
 
     writer = csv.writer(response, delimiter='|')
     writer.writerow(['variable_name', 'year_from', 'year_to',
@@ -3524,6 +3615,36 @@ class UsViolenceUpdateView(UpdateView):
 
 @permission_required('core.view_capital')
 def download_csv_all_american_violence(request):
+    #from bs4 import BeautifulSoup
+
+    response = HttpResponse(content_type='text/csv')
+    current_datetime = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    file_name = f"american_violence_data_{current_datetime}.csv"
+
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+
+    # Create a CSV writer
+    writer = csv.writer(response, delimiter='|')
+
+    # type the headers
+    writer.writerow(['id','date', 'type', 'subtypes', 'locations', 'fatality', 'sources', 'url_address', 'source_details', 'narrative'])
+    items = Us_violence.objects.all().order_by("id")
+    if items:
+        for obj in items:
+            #locations_text = BeautifulSoup(obj.show_locations(), 'html.parser').get_text()
+            locations_text = remove_html_tags(obj.show_locations())
+            short_data_sources_text = remove_html_tags(obj.show_short_data_sources())
+
+            writer.writerow([obj.id, obj.violence_date, obj.violence_type, obj.show_violence_subtypes(), locations_text, obj.fatalities,
+                        short_data_sources_text, obj.url_address, obj.source_details, obj.narrative,])
+
+
+    return response
+
+
+@permission_required('core.view_capital')
+def download_csv_all_american_violence2(request):
     #from bs4 import BeautifulSoup
 
     response = HttpResponse(content_type='text/csv')

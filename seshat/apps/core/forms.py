@@ -73,15 +73,17 @@ class CitationForm(forms.ModelForm):
 class PolityForm(forms.ModelForm):
     class Meta:
         model = Polity
-        fields = ('name', 'new_name', 'long_name', 'home_nga','start_year', 'end_year', 'general_description')
+        fields = ('name', 'new_name', 'long_name', 'start_year', 'end_year','home_seshat_region', 'polity_tag' ,'private_comment','general_description')
         labels = {
-        'name': '<b>Polity Id (Old)</b>',
-        'new_name': '<b>Polity Id (New)</b>',
-        'long_name': '<b>Long Name</b>',
-        'home_nga': '<b>Home NGA</b>',
-        'start_year': '<b>Start Year</b>',
-        'end_year': '<b>End Year</b>',
-        'general_description': '<b>General Description</b>',
+        'name': 'Polity ID (Old)',
+        'new_name': 'Polity ID (New)',
+        'long_name': 'Long Name',
+        'start_year': 'Start Year',
+        'end_year': 'End Year',
+        'home_seshat_region': 'Home Seshat Region',
+        'polity_tag': 'Polity Tag',
+        'private_comment': 'Private Comment (optional)',
+        'general_description': 'General Description of the Polity',
 
         }
         widgets = {
@@ -91,13 +93,48 @@ class PolityForm(forms.ModelForm):
                 attrs={'class': 'form-control mb-3', }),
             'long_name': forms.TextInput(
                 attrs={'class': 'form-control mb-3', }),
-            'home_nga': forms.Select(
-                attrs={'class': 'form-control form-select mb-3',}),
             'start_year': forms.NumberInput(
                 attrs={'class': 'form-control  mb-3 fw-bold', }),
             'end_year': forms.NumberInput(
+                attrs={'class': 'form-control mb-3 fw-bold', }),
+            'home_seshat_region': forms.Select(attrs={'class': 'form-control  js-example-basic-single form-select mb-3',}),
+            'polity_tag': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
+            'private_comment': forms.Textarea(attrs={'class': 'form-control', 'style': 'height: 100px', 'placeholder':'Add a private comment that will only be visible to Seshat experts and RAs.'}),
+            'general_description': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 265px', 'placeholder':'Add a general description (optional)'}),
+
+        }
+
+class PolityUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Polity
+        fields = ('name', 'new_name', 'long_name', 'start_year', 'end_year','home_seshat_region', 'polity_tag', 'private_comment','general_description')
+        labels = {
+        'name': 'Polity ID (Old)',
+        'new_name': 'Polity ID (New)',
+        'long_name': 'Long Name',
+        'start_year': 'Start Year',
+        'end_year': 'End Year',
+        'home_seshat_region': 'Home Seshat Region',
+        'polity_tag': 'Polity Tag',
+        'private_comment': 'Private Comment (optional)',
+        'general_description': 'General Description of the Polity',
+
+        }
+        widgets = {
+            'name': forms.TextInput(
+                attrs={'class': 'form-control mb-3', 'readonly': "True"}),
+            'new_name': forms.TextInput(
+                attrs={'class': 'form-control mb-3','readonly': "True" }),
+            'long_name': forms.TextInput(
+                attrs={'class': 'form-control mb-3', }),
+            'start_year': forms.NumberInput(
                 attrs={'class': 'form-control  mb-3 fw-bold', }),
-            'general_description': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 520px', 'placeholder':'Add a general description (optional)'}),
+            'end_year': forms.NumberInput(
+                attrs={'class': 'form-control mb-3 fw-bold', }),
+            'home_seshat_region': forms.Select(attrs={'class': 'form-control  js-example-basic-single form-select mb-3',}),
+            'polity_tag': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
+            'private_comment': forms.Textarea(attrs={'class': 'form-control', 'style': 'height: 100px', 'placeholder':'Add a private comment that will only be visible to seshat experts and RAs.'}),
+            'general_description': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 265px', 'placeholder':'Add a general description (optional)'}),
 
         }
 
@@ -185,6 +222,33 @@ class SeshatCommentPartForm(forms.ModelForm):
             'comment_citations': forms.SelectMultiple(attrs={'class': 'form-control mb-3 js-states js-example-basic-multiple', 'text':'citations[]' , 'style': 'height: 340px', 'multiple': 'multiple'}),
             'comment_curator': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
         }
+
+class ReferenceWithPageForm(forms.Form):
+    ref = forms.ModelChoiceField(
+        queryset=Reference.objects.all(),
+        #widget=forms.Select(attrs={'class': 'form-control form-select mb-3   js-example-basic-single', 'text':'ref'}),
+        label='ref'
+    ) 
+    # ref = forms.ModelChoiceField(
+    #     queryset=Reference.objects.all(),
+    #     widget=forms.Select(attrs={'class': 'form-control form-select mb-3  js-states js-example-basic-single'}),
+    #     label='ref'
+    # )    
+    page_from = forms.IntegerField(label='Page From', required=False)
+    page_to = forms.IntegerField(label='Page To', required=False)
+
+ReferenceFormSet = forms.formset_factory(ReferenceWithPageForm, extra=2)
+
+
+class SeshatCommentPartForm2(forms.Form):
+    comment_text = forms.CharField(label='Comment Text', widget=forms.Textarea(attrs={'class': 'form-control  mb-3 ', 'style': 'height: 200px',}))
+
+    formset = ReferenceFormSet(prefix='refs')
+    
+    #forms.ModelChoiceField(queryset=Reference.objects.all(), label='Reference')
+    comment_order = forms.IntegerField(label='Comment Order', required=False)
+    formset.management_form  # Include the management form
+
 
 
 class SignUpForm(UserCreationForm):

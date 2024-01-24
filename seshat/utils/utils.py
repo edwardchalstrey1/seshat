@@ -2,9 +2,14 @@ from seshat.apps.core.models import Polity, Variablehierarchy
 from seshat.apps.crisisdb.models import *
 import django.apps
 import pprint
-from seshat.apps.crisisdb.models import Crisis_consequence, Power_transition
-from django.contrib.contenttypes.models import ContentType
+from seshat.apps.crisisdb.models import Crisis_consequence, Power_transition, Human_sacrifice
 
+from django.contrib.contenttypes.models import ContentType
+from django.apps import apps
+
+from django.db.models import Q
+
+from ..apps.core.models import Polity
 import requests
 from requests.structures import CaseInsensitiveDict
 
@@ -202,6 +207,7 @@ def qing_vars_links_creator(vars_dic_for_here):
 
 
 def get_all_data_for_a_polity(polity_id, db_name):
+    #####
     all_vars = []
     a_huge_context_data_dic = {}
     for ct in ContentType.objects.all():
@@ -220,7 +226,7 @@ def get_all_data_for_a_polity(polity_id, db_name):
     return a_huge_context_data_dic
 
 
-def get_all_general_data_for_a_polity(polity_id):
+def get_all_general_data_for_a_polity_old(polity_id):
     a_huge_context_data_dic = {}
     for ct in ContentType.objects.all():
         m = ct.model_class()
@@ -230,17 +236,260 @@ def get_all_general_data_for_a_polity(polity_id):
                 a_huge_context_data_dic[m.__name__] = my_data
     return a_huge_context_data_dic
 
+# def has_general_data_for_polity(polity_id):
+#     if Polity_degree_of_centralization.objects.filter(polity=polity_id).exists() or Polity_utm_zone.objects.filter(polity=polity_id).exists():
+#         return
+#     for ct in ContentType.objects.filter(app_label='general'):
+#         m = ct.model_class()
+#         if m and m.__module__ == "seshat.apps.general.models":
+#             data_exists = m.objects.filter(polity=polity_id).exists()
+#             if data_exists:
+#                 return True
+#     return False
+
+
+def get_all_general_data_for_a_polity(polity_id):
+    app_name = 'general'  # Replace with your app name
+    models_1 = apps.get_app_config(app_name).get_models()
+    has_any_data = False
+
+
+    all_vars_grouped_g = {}
+    for model in models_1:
+        model_name = model.__name__
+        #print(f"--------xxxxxxxxxxxxx-----{model_name}, ")
+
+        if model_name in ["Ra", "Polity_editor", "Polity_research_assistant","Polity_expert", "XYZ"]:
+            continue
+        s_value = str(model().subsection())
+        ss_value = str(model().sub_subsection())
+
+        if s_value not in all_vars_grouped_g:
+            all_vars_grouped_g[s_value] = {}
+            if ss_value:
+                all_vars_grouped_g[s_value][ss_value] = {}
+            else:
+                all_vars_grouped_g[s_value]["None"] = {}
+        else:
+            if ss_value:
+                all_vars_grouped_g[s_value][ss_value] = {}
+            else:
+                all_vars_grouped_g[s_value]["None"] = {}
+    #print(all_vars_grouped_g.keys())
+    #########
+    #ll_vars_grouped = {}
+    for ct in ContentType.objects.all():
+        m = ct.model_class()
+        if m and m.__module__ == "seshat.apps.general.models":
+            my_data = m.objects.filter(polity = polity_id)
+            if m.__name__ in ["Ra", "Polity_editor", "Polity_research_assistant","Polity_expert"]:
+                continue
+            #print(f"--------xxxxxxxxxxxxx-----{m.__name__}, ")
+            if my_data:
+                has_any_data = True
+
+                my_s = m().subsection()
+                #print(f"-------------{my_s}, ")
+
+                if my_s:
+                    all_vars_grouped_g[my_s]["None"][m.__name__] = my_data
+                else:
+                    print(f"-------------{my_s},")
+            else:
+                my_s = m().subsection()
+
+                if my_s:
+                    all_vars_grouped_g[my_s]["None"][m.__name__] = None
+                else:
+                    print(f"--------xxx-----{my_s},")
+                #if "ra" not in m.__name__.lower() or "paper" not in m.__name__.lower():
+                #    print(f"------{m.subsection()}-------")
+    #print(all_vars_grouped_g)
+
+    return all_vars_grouped_g, has_any_data
+
 def get_all_sc_data_for_a_polity(polity_id):
-    a_huge_context_data_dic = {}
+    app_name = 'sc'  # Replace with your app name
+    models_1 = apps.get_app_config(app_name).get_models()
+    has_any_data = False
+
+    all_vars_grouped = {}
+    for model in models_1:
+        model_name = model.__name__
+        if model_name == "Ra":
+            continue
+        s_value = str(model().subsection())
+        ss_value = str(model().sub_subsection())
+
+        if s_value not in all_vars_grouped:
+            all_vars_grouped[s_value] = {}
+            if ss_value:
+                all_vars_grouped[s_value][ss_value] = {}
+            else:
+                all_vars_grouped[s_value]["None"] = {}
+        else:
+            if ss_value:
+                all_vars_grouped[s_value][ss_value] = {}
+            else:
+                all_vars_grouped[s_value]["None"] = {}
+    #print(all_vars_grouped.keys())
+    #########
+    #ll_vars_grouped = {}
     for ct in ContentType.objects.all():
         m = ct.model_class()
         if m and m.__module__ == "seshat.apps.sc.models":
             my_data = m.objects.filter(polity = polity_id)
+            if m.__name__ == "Ra":
+                continue
             if my_data:
-                a_huge_context_data_dic[m.__name__] = my_data
-    return a_huge_context_data_dic
+                has_any_data = True
+                my_s = m().subsection()
+                my_ss = m().sub_subsection()
+
+                if my_s and my_ss:
+                    all_vars_grouped[my_s][my_ss][m.__name__] = my_data
+                elif my_s:
+                    all_vars_grouped[my_s]["None"][m.__name__] = my_data
+                else:
+                    print(f"-------------{my_s}, {my_ss}")
+
+            else:
+                my_s = m().subsection()
+                my_ss = m().sub_subsection()
+
+                if my_s and my_ss:
+                    all_vars_grouped[my_s][my_ss][m.__name__] = my_data
+                elif my_s:
+                    all_vars_grouped[my_s]["None"][m.__name__] = my_data
+                else:
+                    print(f"--------xxx-----{my_s},")
+                #if "ra" not in m.__name__.lower() or "paper" not in m.__name__.lower():
+                #    print(f"------{m.subsection()}-------")
+    #print(all_vars_grouped)
+
+    return all_vars_grouped, has_any_data
+
+
+
+# def has_sc_data_for_polity(polity_id):
+#     for ct in ContentType.objects.filter(app_label='sc'):
+#         m = ct.model_class()
+#         #print(m)
+#         if m and m.__module__ == "seshat.apps.sc.models":
+#             data_exists = m.objects.filter(polity=polity_id).exists()
+#             if data_exists:
+#                 return True
+#     return False
 
 def get_all_wf_data_for_a_polity(polity_id):
+    app_name = 'wf'  # Replace with your app name
+    models_1 = apps.get_app_config(app_name).get_models()
+
+    has_any_data = False
+
+    all_vars_grouped_wf = {}
+    for model in models_1:
+        model_name = model.__name__
+
+        s_value = str(model().subsection())
+        ss_value = str(model().sub_subsection())
+
+        if s_value not in all_vars_grouped_wf:
+            all_vars_grouped_wf[s_value] = {}
+            if ss_value:
+                all_vars_grouped_wf[s_value][ss_value] = {}
+            else:
+                all_vars_grouped_wf[s_value]["None"] = {}
+        else:
+            if ss_value:
+                all_vars_grouped_wf[s_value][ss_value] = {}
+            else:
+                all_vars_grouped_wf[s_value]["None"] = {}
+    #print(all_vars_grouped_wf)
+    #########
+    #ll_vars_grouped = {}
+    for ct in ContentType.objects.all():
+        m = ct.model_class()
+        if m and m.__module__ == "seshat.apps.wf.models":
+            my_data = m.objects.filter(polity = polity_id)
+
+            #print(f"--------xxxxxxxxxxxxx-----{m.__name__}, ")
+            if my_data:
+                has_any_data = True
+                my_s = m().subsection()
+                #print(f"-------------{my_s}, ")
+
+                if my_s:
+                    all_vars_grouped_wf[my_s]["None"][m.__name__] = my_data
+                else:
+                    print(f"-------------{my_s},")
+            else:
+                my_s = m().subsection()
+
+                if my_s:
+                    all_vars_grouped_wf[my_s]["None"][m.__name__] = None
+                else:
+                    print(f"--------xxx-----{my_s},")
+                #if "ra" not in m.__name__.lower() or "paper" not in m.__name__.lower():
+                #    print(f"------{m.subsection()}-------")
+    #print(all_vars_grouped_wf)
+
+    return all_vars_grouped_wf, has_any_data
+
+
+def get_all_rt_data_for_a_polity(polity_id):
+    app_name = 'rt'  # Replace with your app name
+    models_1 = apps.get_app_config(app_name).get_models()
+
+    has_any_data = False
+    all_vars_grouped_rt = {}
+
+    for model in models_1:
+        model_name = model.__name__
+        if model_name in ["A_religion",]:
+            #print(f"Skipping excluded model: {model_name}")
+            continue
+
+        s_value = str(model().subsection())
+
+        if s_value not in all_vars_grouped_rt:
+            all_vars_grouped_rt[s_value] = {}
+            all_vars_grouped_rt[s_value]["None"] = {}
+        else:
+            all_vars_grouped_rt[s_value]["None"] = {}
+
+    for ct in ContentType.objects.filter(app_label='rt'):
+        mm = ct.model_class()
+        if mm and mm.__module__ == "seshat.apps.rt.models":
+            my_data = mm.objects.filter(polity=polity_id)
+            if mm.__name__ in ["A_religion",]:
+                print("Skipping Religion model")
+                continue
+
+            #print(f"Processing model: {mm.__name__}")
+            if my_data:
+                has_any_data = True
+                my_s = mm().subsection()
+                #print(f"Adding data for subsection: {my_s}")
+                if my_s:
+                    all_vars_grouped_rt[my_s]["None"][mm.__name__] = my_data
+                else:
+                    print(f"Invalid subsection for model: {mm.__name__}")
+            else:
+                my_s = mm().subsection()
+
+                if my_s:
+                    all_vars_grouped_rt[my_s]["None"][mm.__name__] = None
+                else:
+                    print(f"--------xxx-----{my_s},")
+
+    #print("Final grouped data keys:", all_vars_grouped_rt.keys())
+    return all_vars_grouped_rt, has_any_data
+
+
+
+#####################################################
+def get_all_wf_data_for_a_polity_old(polity_id):
     a_huge_context_data_dic = {}
     for ct in ContentType.objects.all():
         m = ct.model_class()
@@ -250,22 +499,236 @@ def get_all_wf_data_for_a_polity(polity_id):
                 a_huge_context_data_dic[m.__name__] = my_data
     return a_huge_context_data_dic
 
+# def has_wf_data_for_polity(polity_id):
+#     for ct in ContentType.objects.filter(app_label='wf'):
+#         m = ct.model_class()
+#         if m and m.__module__ == "seshat.apps.wf.models":
+#             data_exists = m.objects.filter(polity=polity_id).exists()
+#             if data_exists:
+#                 return True
+#     return False
+
 # get crsisi cocases data
 def get_all_crisis_cases_data_for_a_polity(polity_id):
     a_data_dic = {}
-    my_data = Crisis_consequence.objects.filter(polity = polity_id)
+    #my_data = Crisis_consequence.objects.filter(polity = polity_id)
+    my_data = Crisis_consequence.objects.filter(Q(polity=polity_id) | Q(other_polity=polity_id))
     if my_data:
         a_data_dic["crisis_cases"] = my_data
     #print(a_data_dic)
     return a_data_dic
 
+# def has_crisis_cases_data_for_polity(polity_id):
+#     return Crisis_consequence.objects.filter(polity=polity_id).exists()
+
 def get_all_power_transitions_data_for_a_polity(polity_id):
     a_data_dic = {}
     my_data = Power_transition.objects.filter(polity = polity_id)
     if my_data:
-        a_data_dic["crisis_cases"] = my_data
+        a_data_dic["power_transitions"] = my_data
     #print(a_data_dic)
     return a_data_dic
+
+# def has_power_transition_data_for_polity(polity_id):
+#     return Power_transition.objects.filter(polity=polity_id).exists()
+
+
+# def has_g_sc_wf_data_for_all_polities():
+#     import time
+#     start_time = time.time()
+
+#     print("ali")
+#     app_labels = ["general","sc", "wf"]
+#     polity_ids = Polity.objects.values_list('id', flat=True)  
+#     contain_dic = {}
+#     remiaining_general_pols = []
+#     for polity_id in polity_ids:
+#         data_exists_g = Polity_degree_of_centralization.objects.filter(polity=polity_id).exists() or Polity_utm_zone.objects.filter(polity=polity_id).exists()
+#         if data_exists_g:
+#             contain_dic[polity_id] = {
+#                 'g': True,
+#                 'sc': False,
+#                 'wf': False,
+#             }
+#             #print("hoooooooooooooooo")
+#         else:
+#             contain_dic[polity_id] = {
+#                 'g': False,
+#                 'sc': False,
+#                 'wf': False,
+#             }
+#             remiaining_general_pols.append(polity_id)
+            
+
+
+#     mid_time = time.time()
+#     elapsed_time = mid_time - start_time
+
+#     #print(f"Elapsed time (Mid): {elapsed_time} seconds---- {len(remiaining_general_pols)}")
+
+#     for polity_id in polity_ids:
+
+#         for ct in ContentType.objects.filter(app_label__in=app_labels):
+
+#             m = ct.model_class()
+
+#             midmid_time = time.time()
+#             elapsed_time = midmid_time - start_time
+#             #print(f"Elapsed time (MidMid): {elapsed_time} seconds")
+
+#             if m.__module__ == "seshat.apps.general.models":
+#                 if contain_dic[polity_id]['g']:
+#                     continue
+#                 contain_dic[polity_id]['g'] = m.objects.filter(polity=polity_id).exists()
+#             if m.__module__ == "seshat.apps.sc.models":
+#                 if contain_dic[polity_id]['sc']:
+#                     continue
+#                 contain_dic[polity_id]['sc']  = m.objects.filter(polity=polity_id).exists()
+#             if m.__module__ == "seshat.apps.wf.models":
+#                 if contain_dic[polity_id]['wf']:
+#                     continue
+#                 contain_dic[polity_id]['wf'] = m.objects.filter(polity=polity_id).exists()
+
+#     print("yaret")
+#     end_time = time.time()
+
+#     # Calculate the elapsed time
+#     elapsed_time = end_time - start_time
+
+#     print(f"Elapsed time: {elapsed_time} seconds")
+
+#     return contain_dic
+
+
+# def has_g_sc_wf_data_for_all_polities():
+#     import time
+#     from django.apps import apps
+
+
+#     start_time = time.time()
+
+#     #app_labels = ["general", "sc", "wf"]
+#     polity_ids = Polity.objects.values_list('id', flat=True)
+
+#     contain_dic = {}
+
+#     for polity_id in polity_ids:
+#         contain_dic[polity_id] = {'sc': False, }
+
+#     app_models = apps.get_app_config("sc").get_models()
+#     print(app_models)
+
+#     for model in app_models:
+#             all_sc_data = model.objects.all()
+
+#     for polity_id in polity_ids:   
+        
+#             print(model)
+#             if contain_dic[polity_id]['sc']:
+#                 break
+#             else:
+#                 data_exists = model.objects.filter(polity=polity_id).exists()
+#                 if data_exists:
+#                     contain_dic[polity_id]['sc'] = data_exists
+#                     print(model, polity_id)
+#                     break
+
+#             #contain_dic[polity_id]['sc'] = False
+        
+
+#     end_time = time.time()
+#     elapsed_time = end_time - start_time
+
+#     print(f"Elapsed time: {elapsed_time} seconds")
+
+#     return contain_dic
+
+
+
+def give_polity_app_data():
+    from django.apps import apps
+
+    contain_dic = {}
+    freq_dic = {
+            'g': 0,
+            'sc': 0,
+            'wf': 0,
+            'rt': 0,
+            'hs': 0,
+            'cc': 0,
+            'pt': 0,
+        }
+    unique_polity_ids_general = set()
+    unique_polity_ids_sc = set()
+    unique_polity_ids_wf = set()
+    unique_polity_ids_rt = set()
+
+
+
+    app_models_general = apps.get_app_config('general').get_models()
+    app_models_sc = apps.get_app_config('sc').get_models()
+    app_models_wf = apps.get_app_config('wf').get_models()
+    app_models_rt = apps.get_app_config('rt').get_models()
+
+
+    for model in app_models_general:
+        if hasattr(model, 'polity_id'):
+            polity_ids_general = model.objects.values_list('polity_id', flat=True).distinct()
+            unique_polity_ids_general.update(polity_ids_general)
+
+    for model in app_models_sc:
+        if hasattr(model, 'polity_id'):
+            polity_ids_sc = model.objects.values_list('polity_id', flat=True).distinct()
+            unique_polity_ids_sc.update(polity_ids_sc)
+
+    for model in app_models_wf:
+        if hasattr(model, 'polity_id'):
+            polity_ids_wf = model.objects.values_list('polity_id', flat=True).distinct()
+            unique_polity_ids_wf.update(polity_ids_wf)
+
+    for model in app_models_rt:
+        if hasattr(model, 'polity_id'):
+            polity_ids_rt = model.objects.values_list('polity_id', flat=True).distinct()
+            unique_polity_ids_rt.update(polity_ids_rt)
+
+    all_polity_ids = Polity.objects.values_list('id', flat=True)
+    for polity_id in all_polity_ids:
+        has_hs =  Human_sacrifice.objects.filter(polity=polity_id).exists()
+        if has_hs:
+            freq_dic["hs"] += 1
+        #has_cc =  Crisis_consequence.objects.filter(polity=polity_id).exists()
+        has_cc = Crisis_consequence.objects.filter(Q(polity=polity_id) | Q(other_polity=polity_id)).exists()
+        if has_cc:
+            freq_dic["cc"] += 1
+        has_pt =  Power_transition.objects.filter(polity=polity_id).exists()
+        if has_pt:
+            freq_dic["pt"] += 1
+
+            
+        contain_dic[polity_id] = {
+            'g': False,
+            'sc': False,
+            'wf': False,
+            'rt': False,
+            'hs': has_hs,
+            'cc': has_cc,
+            'pt': has_pt,
+        }
+        if polity_id in unique_polity_ids_general:
+            contain_dic[polity_id]["g"] = True
+            freq_dic["g"] += 1
+        if polity_id in unique_polity_ids_sc:
+            contain_dic[polity_id]["sc"] = True  
+            freq_dic["sc"] += 1      
+        if polity_id in unique_polity_ids_wf:
+            contain_dic[polity_id]["wf"] = True
+            freq_dic["wf"] += 1
+        if polity_id in unique_polity_ids_rt:
+            contain_dic[polity_id]["rt"] = True
+            freq_dic["rt"] += 1
+    #freq_dic["pol_count"] = len(all_polity_ids)
+
+    return contain_dic, freq_dic
 
 
 def polity_detail_data_collector(polity_id):
@@ -289,3 +752,13 @@ def polity_detail_data_collector(polity_id):
             final_response = {}
     #print(final_response)
     return final_response
+
+
+
+
+
+
+
+
+
+

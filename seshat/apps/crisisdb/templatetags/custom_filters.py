@@ -25,6 +25,28 @@ def replace_underscore_and_capitalize(value):
 def get_item_from_dic(dictionary, key):
     return dictionary.get(key)
 
+@register.filter
+def unique_descriptions(values):
+    unique_set = set()
+    result = []
+    
+    for value in values:
+        if value.description and value.description not in unique_set:
+            unique_set.add(value.description)
+            result.append(value.description)
+    
+    return result
+
+@register.filter
+def min_max_years(values):
+    if not values:
+        return ""
+
+    min_year = min(value.year_from for value in values)
+    max_year = max(value.year_to for value in values)
+
+    return f"{min_year} - {max_year}"
+
 # @register.filter
 # def make_references_look_nicer(value):
 #     value = value.replace("'", "&rsquo;")
@@ -135,7 +157,7 @@ import uuid
 
 @register.filter
 def make_references_look_nicer(value):
-    value = value.replace("'", "&rsquo;")
+    value = value.replace("'", "&rsquo;").replace("\n", "MJD_BNM_NEWLINE_TAG_XYZ")
     pattern = r'§REF§(.*?)§REF§'
     replacement = r"""<sup class="fs-6" id="sup_{ref_id}">
         <a href="#{ref_id}">[{ref_num}]</a>
@@ -163,8 +185,9 @@ def make_references_look_nicer(value):
     
     # Add the collected references at the end of the string in separate <p> tags with the color red
     if reference_data:
-        new_string += "<h6 class='pt-3 pb-0 text-secondary'><i class='fa-solid fa-bookmark fa-xs '></i> Reference(s): </h6>"
-        reference_tags = '\n'.join([f'<p id="{data["ref_id"]}" class="p-0 m-0 text-teal"><span class="fw-bold">  <a href="#sup_{data["ref_id"]}">[{data["ref_num"]}]</a></span>: <span class="fw-light">{reference}</span> </p>' for reference, data in reference_data.items()])
+        new_string += "<h6 class='pt-1 pb-0 text-secondary'><i class='fa-solid fa-bookmark fa-xs '></i> Reference(s): </h6>"
+        reference_tags = '\n'.join([f'<p id="{data["ref_id"]}" class="p-0 m-0 text-teal"><span class="fw-bold">  <a href="#sup_{data["ref_id"]}">[{data["ref_num"]}]</a></span>: <span style="font-size: 14px;">{reference.replace("MJD_BNM_NEWLINE_TAG_XYZ", " ")}</span> </p>' for reference, data in reference_data.items()])
         new_string += reference_tags
 
-    return new_string
+    paargraphed_new_str = new_string.replace("MJD_BNM_NEWLINE_TAG_XYZ", "<br>")
+    return paargraphed_new_str

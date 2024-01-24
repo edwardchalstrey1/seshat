@@ -73,11 +73,14 @@ AS = 'A*'
 P_TO_A = "P~A" 
 A_TO_P = "A~P" 
 
-POLITY_TAG_CHOICES = (('LEGACY', 'Legacy'),
-        ('POL_AFR_EAST', 'POL_AFR_EAST'),   # Africa ----> East Africa*
-        ('POL_AFR_WEST', 'POL_AFR_WEST'), # Africa ---->  West Africa
-        ('POL_AFR_SA', 'POL_AFR_SA'),    # Africa ----> Southern Africa*
-        ('POL_SA_SI', 'POL_SA_SI'),    # South Asia ----> Southern India*
+POLITY_TAG_CHOICES = (('LEGACY', 'Equinox 2020 Polities'),
+        ('POL_AFR_EAST', 'NEW East African Polities'),   # Africa ----> East Africa*
+        ('POL_AFR_WEST', 'NEW West African Polities'), # Africa ---->  West Africa
+        ('POL_AFR_SA', 'NEW Southern African Polities'),    # Africa ----> Southern Africa*
+        ('POL_SA_SI', 'NEW South East Indian Polities'),    # South Asia ----> Southern India*
+        ('CRISISDB_POLITIES', 'CrisisDB-specific Polities'),
+        ('OTHER_TAG', 'Other Polities'),
+
         )
 
 WORLD_REGION_CHOICES = (('Europe', 'Europe'),
@@ -107,6 +110,29 @@ Certainty = (
 def return_citations_for_comments(self):
     if self.comment_citations.all():
         return ', '.join(['<a href="' + citation.zoteroer() + '">' + citation.citation_short_title + ' </a>' for citation in self.comment_citations.all()[:2]])
+    
+
+class Macro_region(models.Model):
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ['name',]
+
+    def __str__(self):
+        return self.name
+
+class Seshat_region(models.Model):
+    name = models.CharField(max_length=100)
+    mac_region = models.ForeignKey(Macro_region, on_delete=models.SET_NULL, null=True, blank=True, related_name="mac_region")
+    subregions_list = models.CharField(max_length=500, blank=True, null=True)
+
+    class Meta:
+        ordering = ['mac_region__name', 'name']
+
+    def __str__(self):
+        if self.mac_region:
+            return f"{self.name} ({self.mac_region.name})"
+        return self.name
 
 
 class Nga(models.Model):
@@ -119,13 +145,15 @@ class Nga(models.Model):
     fao_country = models.CharField(max_length=100, blank=True, null=True)
     world_region = models.CharField(max_length=100, choices=WORLD_REGION_CHOICES, default="Europe", null=True, blank=True)
 
+    class Meta:
+        ordering = ['name']
+
     def get_absolute_url(self):
         return reverse('ngas')
 
     def __str__(self) -> str:
         """string for epresenting the model obj in Admin Site"""
         return self.name
-
 
 
 
@@ -136,8 +164,10 @@ class Polity(models.Model):
     long_name = models.CharField(max_length=200, blank=True, null=True)
     new_name = models.CharField(max_length=100, blank=True, null=True)
     home_nga = models.ForeignKey(Nga, on_delete=models.SET_NULL, null=True, blank=True, related_name="home_nga")
-    polity_tag = models.CharField(max_length=100, choices=POLITY_TAG_CHOICES, default="LEGACY", null=True, blank=True)
+    home_seshat_region = models.ForeignKey(Seshat_region, on_delete=models.SET_NULL, null=True, blank=True, related_name="home_seshat_region")
+    polity_tag = models.CharField(max_length=100, choices=POLITY_TAG_CHOICES, default="OTHER_TAG", null=True, blank=True)
     general_description = models.TextField(blank=True, null=True,)
+    private_comment = models.TextField(blank=True, null=True,)
 
     created_date = models.DateTimeField(
         auto_now_add=True, blank=True, null=True)
@@ -146,6 +176,15 @@ class Polity(models.Model):
     class Meta:
         verbose_name = 'polity'
         verbose_name_plural = 'polities'
+
+    def clean(self):
+        current_year = date.today().year
+        if self.start_year is not None and self.end_year is not None and self.start_year > self.end_year:
+            raise ValidationError("Start year cannot be greater than end year.")
+        if self.end_year is not None and self.end_year > current_year:
+            raise ValidationError("End year cannot be greater than the current year")
+        if self.start_year is not None and self.start_year > current_year:
+            raise ValidationError("Start year cannot be greater than the current year")
 
     def __str__(self) -> str:
         """string for epresenting the model obj in Admin Site"""
@@ -625,15 +664,30 @@ class SeshatCommon(models.Model):
 #     job_category = models.CharField(choices=job_category_annual_wages_choices)
 #     job_description = models.CharField(
 #         choices=job_description_annual_wages_choices)
+        
+class Religion(models.Model):
+    name = models.CharField(max_length=100, default="Religion")
+    religion_name = models.CharField(max_length=100, null=True, blank=True)
+    religion_family = models.CharField(max_length=100, blank=True, null=True)
+    religion_genus = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self) -> str:
+        """string for epresenting the model obj in Admin Site"""
+        if self.religion_name:
+            return self.religion_name
+        return self.name
 
 # Shapefile models
 
-class MacrostateShapefile(models.Model):
-    geom = models.MultiPolygonField()
-    name = models.CharField(max_length=50, null=True)
-    polity = models.CharField(max_length=50, null=True)
-    date_from = models.CharField(max_length=50, null=True)
-    date_to = models.CharField(max_length=50, null=True)
+# class MacrostateShapefile(models.Model):
+#     geom = models.MultiPolygonField()
+#     name = models.CharField(max_length=50, null=True)
+#     polity = models.CharField(max_length=50, null=True)
+#     date_from = models.CharField(max_length=50, null=True)
+#     date_to = models.CharField(max_length=50, null=True)
 
 class VideoShapefile(models.Model):
     geom = models.MultiPolygonField()
