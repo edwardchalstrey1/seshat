@@ -5,11 +5,6 @@ import os
 
 import django_heroku
 
-import environ
-# Initialise environment variables
-env = environ.Env()
-environ.Env.read_env()
-
 import dj_database_url
 from decouple import Csv, config
 
@@ -204,21 +199,7 @@ TEMPLATES = [
 # DATABASES['default'].update(db_from_env)
 
 # Qing data database
-
-# Use local db if .env present
-if os.path.exists(local_env_path):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'NAME': env('NAME'),
-            'USER': 'postgres',
-            'HOST': env('HOST'),
-            'PORT': env('PORT'),
-            'PASSWORD': env('PASSWORD')
-        }
-    }
-
-else:
+if not os.path.exists(local_env_path):
     DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -229,8 +210,6 @@ else:
             'PORT': 5432,
         }
     }
-
-GEOGRAPHIC_DB = True
 
 #DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
