@@ -2246,10 +2246,16 @@ def seshatcommentpart_create_view(request):
 # Shapefile views
 
 # Set some vars for the range of years to display
-# TODO: ensure these reflect the true extent of polity shape data
-earliest_year = -3400
-initial_displayed_year = 0
-latest_year = 2014
+def get_polity_year_range():
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT MIN(polity_start_year), MAX(polity_end_year) FROM core_videoshapefile"
+        )
+        row = cursor.fetchone()
+        return row[0], row[1]
+    
+earliest_year, latest_year = get_polity_year_range()
+initial_displayed_year = earliest_year
 
 # Define a simplification tolerance for faster loading of shapes at lower res
 country_tolerance = 0.01
