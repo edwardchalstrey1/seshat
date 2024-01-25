@@ -161,7 +161,16 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
 
     - <details><summary>macOS</summary>
 
-        [TODO]
+        - Add a password for the superuser with `psql -U postgres`:
+            ```
+                ALTER USER postgres WITH PASSWORD '<db_password>';
+            ```
+        - Locate `pg_hba.conf` if you don't know where it is
+            ```
+                psql -U postgres -c 'SHOW hba_file;'
+            ```
+        - Update postgres to use md5 with `nano /path/to/pg_hba.conf`
+            ![](img/pg_hba.conf.png)
         </details>
     - <details><summary>Ubuntu</summary>
 
@@ -169,7 +178,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
             ```
                 ALTER USER postgres WITH PASSWORD '<db_password>';
             ```
-        - Update postgres to use md5 with`sudo nano /etc/postgresql/16/main/pg_hba.conf`
+        - Update postgres to use md5 with `sudo nano /etc/postgresql/16/main/pg_hba.conf`
             ![](img/pg_hba.conf.png)
         - Reload postgres
             ```
