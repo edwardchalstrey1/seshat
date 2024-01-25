@@ -266,11 +266,13 @@ This page instructs software engineers how to set up a testing version of the Se
     ```
         scp -i /path/to/key.pem /path/to/dumpfile.dump azureuser@<public IP>:/home/azureuser/db_dumps/
     ```
-3. Follow the setup steps above for Ubuntu to install everything and create the db
+3. Upload the shape datasets described in [spatialdb.md](spatialdb.md) with SCP too if those database tables aren't already populated in the database the dump was created from
+4. Follow the setup steps above for Ubuntu to install everything and create the db
     - Save the db password for the postgres user in Azure key vault
     - When you clone the repo, check out the `azure` branch
     - Update `ALLOWED_HOSTS` in `seshat/settings/base.py` and `seshat/settings/local.py` with the IP address of the VM if different from what's saved there
-4. Update network security rules for the VM
+    - Populate spatial data tables by following [spatialdb.md](spatialdb.md) if needed
+5. Update network security rules for the VM
     - Go to "Network Security" on the VM in the Azure portal and add the default inbound security rules to allow:
         - HTTP (port 80)
         - HTTPS (port 443)
@@ -279,7 +281,7 @@ This page instructs software engineers how to set up a testing version of the Se
         ```
             sudo ufw allow 8000
         ```
-5. Run django
+6. Run django
     - SSH into the VM and activate the venv, then:
         ```
             gunicorn seshat.wsgi:application --config gunicorn.conf.py

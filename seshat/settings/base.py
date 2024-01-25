@@ -5,11 +5,6 @@ import os
 
 import django_heroku
 
-import environ
-# Initialise environment variables
-env = environ.Env()
-environ.Env.read_env()
-
 import dj_database_url
 from decouple import Csv, config
 
@@ -36,18 +31,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config(
     "SECRET_KEY", default="django-insecure$seshat.settings.local")
 
-# DEBUG = config("DEBUG", default=True, cast=bool)
-DEBUG = True
+DEBUG = config("DEBUG", default=True, cast=bool)
 
-# if DEBUG:
-#     MY_CURRENT_SERVER = "http://127.0.0.1:8000"
-# else:
-#     MY_CURRENT_SERVER = "https://www.majidbenam.com"
+if DEBUG:
+    MY_CURRENT_SERVER = "http://127.0.0.1:8000"
+else:
+    MY_CURRENT_SERVER = "https://www.majidbenam.com"
 
 #ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1,localhost", cast=Csv())
 ALLOWED_HOSTS = ['seshatdb.herokuapp.com', '127.0.0.1',
-                 'majidbenam.com', 'www.majidbenam.com', 'https://majidbenam.com',
-                 '20.68.162.158']
+                 'majidbenam.com', 'www.majidbenam.com', 'https://majidbenam.com']
 
 
 INSTALLED_APPS = [
@@ -204,21 +197,7 @@ TEMPLATES = [
 # DATABASES['default'].update(db_from_env)
 
 # Qing data database
-
-# Use local db if .env present
-if os.path.exists(local_env_path):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'NAME': env('NAME'),
-            'USER': 'postgres',
-            'HOST': env('HOST'),
-            'PORT': env('PORT'),
-            'PASSWORD': env('PASSWORD')
-        }
-    }
-
-else:
+if not os.path.exists(local_env_path):
     DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -229,8 +208,6 @@ else:
             'PORT': 5432,
         }
     }
-
-GEOGRAPHIC_DB = True
 
 #DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
