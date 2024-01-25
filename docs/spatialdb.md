@@ -17,15 +17,6 @@ To create a new shape dataset for use in the Seshat map explorer, you can do the
     - views at `seshat/apps/core/views.py`
     - template e.g. `seshat/apps/core/templates/core/spatial_map.html`
 
-## Macrostate shapefiles dataset
-
-1. Download and unzip the [Macrostate_Shapefiles](https://drive.google.com/file/d/16hC7usvuZa5KyzFg6T-_t4AJ7j_47IeM/view?usp=drive_link) dataset
-    - Note: this is a private drive link
-2. Populate `core_macrostateshapefile` table
-    ```
-        python manage.py populate_macrostate /path/to/data
-    ```
-
 ## RA curated dataset
 
 1. Download and unzip the [dataset](https://drive.google.com/file/d/1qrBnwSdIM2LLBsgVWtn0k1C_cO8l2FQR/view?usp=drive_link) dataset
