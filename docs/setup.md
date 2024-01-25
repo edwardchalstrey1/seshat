@@ -284,6 +284,8 @@ This page instructs software engineers how to set up a testing version of the Se
 6. Run django
     - SSH into the VM and activate the venv, then:
         ```
+            export DJANGO_SETTINGS_MODULE=seshat.settings.local
             gunicorn seshat.wsgi:application --config gunicorn.conf.py
         ```
+        Note: For some reason I could not get the `DJANGO_SETTINGS_MODULE` to be set via the `wsgi.py` correctly, so setting it manually here.
     - Go to `http://<public IP>:8000/`
