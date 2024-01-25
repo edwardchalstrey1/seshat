@@ -198,14 +198,14 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         ```
     - The presence of this file will ensure Django connects to your local database
 
-10. Ensure that database migrations have run for the "core" Django app:
+9. Ensure that database migrations have run for the "core" Django app:
     ```
         python manage.py migrate core
     ```
 
-11. If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in [spatialdb.md](spatialdb.md).
+10. If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in [spatialdb.md](spatialdb.md).
 
-12. Run Django
+11. Run Django
     - <details><summary>macOS</summary>
 
         ```
