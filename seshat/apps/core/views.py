@@ -1,3 +1,5 @@
+import sys
+
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
 
 from django.contrib.sites.shortcuts import get_current_site
@@ -2253,9 +2255,15 @@ def get_polity_year_range():
         )
         row = cursor.fetchone()
         return row[0], row[1]
-    
-earliest_year, latest_year = get_polity_year_range()
-initial_displayed_year = earliest_year
+
+# Calling this function will return the earliest and latest years in the polity
+# The function cannot be called before the database is migrated
+if 'migrate' not in sys.argv:
+    earliest_year, latest_year = get_polity_year_range()
+    initial_displayed_year = earliest_year
+else:
+    earliest_year, latest_year = 2014, 2014
+    initial_displayed_year = -3400
 
 # Define a simplification tolerance for faster loading of shapes at lower res
 country_tolerance = 0.01
