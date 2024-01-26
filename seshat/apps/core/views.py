@@ -2316,7 +2316,7 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
 
     return fetch_provinces()
 
-def get_shapes(displayed_year="all"):
+def get_polity_shapes(displayed_year="all"):
     query = """
             SELECT
                 seshat_id,
@@ -2374,7 +2374,7 @@ def get_polity_info(seshat_ids):
         return rows
 
 def get_polity_shape_content(displayed_year="all"):
-    shapes = get_shapes(displayed_year=displayed_year)
+    shapes = get_polity_shapes(displayed_year=displayed_year)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
     polity_info = get_polity_info(seshat_ids)
