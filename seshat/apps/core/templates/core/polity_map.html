@@ -305,6 +305,9 @@
                         if (displayedShapes.indexOf(shape.name) === -1) {
                             displayedShapes.push(shape.name);
                         }
+
+                        // adjust the map view to cover the geoJSON layer
+                        map.fitBounds(geoJSONLayer.getBounds());
                     }
                 });
             };
