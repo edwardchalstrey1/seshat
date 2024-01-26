@@ -144,4 +144,3 @@ urlpatterns += [
 urlpatterns += [path('core/spatial_map/', views.map_view_initial, name='spatial_map'),]
 urlpatterns += [path('core/spatial_map_all/', views.map_view_all, name='spatial_map_all'),]
 urlpatterns += [path('core/provinces_and_countries', views.provinces_and_countries_view, name='provinces_and_countries'),]
-urlpatterns += [path('core/polity_map/', views.polity_map_view, name='polity_map'),]

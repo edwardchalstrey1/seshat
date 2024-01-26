@@ -2449,15 +2449,3 @@ def provinces_and_countries_view(request):
     }
 
     return JsonResponse(content)
-
-def polity_map_view(request):
-    print("view called")
-    # seshat_id = request.GET.get('seshat_id', 'all')
-    seshat_id = "ni_oyo_emp_2"
-    content = get_polity_shape_content(seshat_id=seshat_id)
-    print(content['seshat_id_page_id'])
-
-    return render(request,
-                    'core/polity_map.html',
-                    content
-                    )

@@ -38,11 +38,11 @@
 
                 <div class="slidecontainer">
                     <label for="enterYear">Enter year:</label>
-                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;"">
+                    <input type="number" id="enterYear" name="enterYear" value="{{ content.display_year }}" style="width: 75px;"">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
                     <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}"
-                        max="{{ latest_year }}" value="{{ display_year }}" class="slider"
+                    <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}"
+                        max="{{ content.latest_year }}" value="{{ content.display_year }}" class="slider"
                         onchange="plotPolities()" style="width: 300px;"><br>
                     <label for="sliderDate">Selected year:</label>
                     <span id="sliderDate"></span><br><br>
@@ -70,7 +70,7 @@
         // Load inital polity shapes for the displayed year
         var shapesData = [
             // JavaScript object representing shape data
-            {% for shape in shapes %}
+            {% for shape in content.shapes %}
                 {
                     startYear: '{{ shape.start_year }}',
                     endYear: '{{ shape.end_year }}',
@@ -86,7 +86,7 @@
         ];
 
         // Load seshat_id_page_id dictionary
-        var seshatIdPageId = {{ seshat_id_page_id | safe }};
+        var seshatIdPageId = {{ content.seshat_id_page_id | safe }};
 
         var provinceShapeData;
         var countryShapeData;
@@ -243,7 +243,7 @@
                             displayStartYear = shape.polityStartYear + ' CE';
                         }
 
-                        if (parseInt(shape.polityEndYear) == {{ latest_year }}){
+                        if (parseInt(shape.polityEndYear) == {{ content.latest_year }}){
                             displayEndYear = 'Present';
                         } else {
                             if (parseInt(shape.polityEndYear) < 0) {
