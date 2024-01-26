@@ -2436,3 +2436,7 @@ def provinces_and_countries_view(request):
     }
 
     return JsonResponse(content)
+
+def polity_map_view(request):
+    print("view called")
+    return render(request, 'core/polity_map.html')
