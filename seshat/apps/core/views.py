@@ -1205,6 +1205,7 @@ class PolityDetailView(SuccessMessageMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['pk'] = self.kwargs['pk']
         try:
             context["all_data"] = get_all_data_for_a_polity(self.object.pk, "crisisdb") 
             context["all_general_data"], context["has_any_general_data"] = get_all_general_data_for_a_polity(self.object.pk)
