@@ -43,12 +43,12 @@
                 <div class="slidecontainer">
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;"
-                        disabled onchange="storeYear()">
+                        disabled">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
                     <button id="plusButton" type="button" onclick="adjustSliderUp()" disabled>+</button><br>
                     <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}"
                         max="{{ latest_year }}" value="{{ display_year }}" class="slider"
-                        onchange="plotPolities(); storeYear()" style="width: 300px;" disabled><br>
+                        onchange="plotPolities()" style="width: 300px;" disabled><br>
                     <label for="sliderDate">Selected year:</label>
                     <span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
@@ -494,21 +494,6 @@
                 plotPolities();
                 // Update the color information in local storage for newly displayed shapes
                 updateColorInfoInLocalStorage(displayedShapes);
-            }
-        });
-
-        function storeYear() {
-            var year = document.getElementById('enterYear').value;
-            localStorage.setItem('displayedYear', year);
-        }
-
-        window.addEventListener('load', function () {
-            var storedYear = localStorage.getItem('displayedYear');
-            var url = new URL(window.location.href);
-            var yearInUrl = url.searchParams.get('year');
-            if (storedYear !== yearInUrl) {
-                // Change window.location.href
-                window.location.href = '/core/polity_map/?year=' + storedYear;
             }
         });
 
