@@ -2389,19 +2389,15 @@ def get_polity_info(seshat_ids):
 def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     shapes = get_polity_shapes(displayed_year=displayed_year, seshat_id=seshat_id)
 
-    if seshat_id == "all":
-        seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
-        polity_info = get_polity_info(seshat_ids)
+    seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
+    polity_info = get_polity_info(seshat_ids)
 
-        seshat_id_page_id = {}
-        for new_name, id, long_name in polity_info:
-            seshat_id_page_id[new_name] = {
-                'id': id,
-                'long_name': long_name or "",
-            }
-    else:
-        seshat_id_page_id = {}
-        seshat_id_page_id['test'] = {'id': seshat_id, 'long_name': 'test'}
+    seshat_id_page_id = {}
+    for new_name, id, long_name in polity_info:
+        seshat_id_page_id[new_name] = {
+            'id': id,
+            'long_name': long_name or "",
+        }
 
     if displayed_year == "all":
         displayed_year = initial_displayed_year 
@@ -2457,8 +2453,9 @@ def provinces_and_countries_view(request):
 def polity_map_view(request):
     print("view called")
     # seshat_id = request.GET.get('seshat_id', 'all')
-    seshat_id = "337"
+    seshat_id = "ni_oyo_emp_2"
     content = get_polity_shape_content(seshat_id=seshat_id)
+    print(content['seshat_id_page_id'])
 
     return render(request,
                     'core/polity_map.html',
