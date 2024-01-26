@@ -7,11 +7,9 @@ register = template.Library()
 @register.inclusion_tag('core/polity_map.html')
 def polity_map(pk):
     page_id = str(pk)
-    seshat_id = get_seshat_id_from_page_id(page_id)
-    content = get_polity_shape_content(seshat_id=seshat_id)
-    return {'content': content}
-
-
-def get_seshat_id_from_page_id(page_id):
     polity = Polity.objects.get(id=page_id)
-    return polity.new_name
+    content = get_polity_shape_content(seshat_id=polity.new_name)
+    content['earliest_year'] = polity.start_year
+    content['latest_year'] = polity.end_year
+    content['display_year'] = polity.start_year
+    return {'content': content}
