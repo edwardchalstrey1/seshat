@@ -1205,6 +1205,7 @@ class PolityDetailView(SuccessMessageMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['pk'] = self.kwargs['pk']
         try:
             context["all_data"] = get_all_data_for_a_polity(self.object.pk, "crisisdb") 
             context["all_general_data"], context["has_any_general_data"] = get_all_general_data_for_a_polity(self.object.pk)
@@ -2316,7 +2317,12 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
 
     return fetch_provinces()
 
-def get_shapes(displayed_year="all"):
+def get_polity_shapes(displayed_year="all", seshat_id="all"):
+    """
+        This function returns the polity shapes for the map.
+        The shapes are simplified to reduce the size of the data.
+        Only one of displayed_year or seshat_id should be set not both.
+    """
     query = """
             SELECT
                 seshat_id,
@@ -2338,6 +2344,14 @@ def get_shapes(displayed_year="all"):
             """
         with connection.cursor() as cursor:
             cursor.execute(query, [polity_tolerance, displayed_year, displayed_year])
+            rows = cursor.fetchall()
+    elif seshat_id != "all":
+        query += """
+            WHERE
+                seshat_id = %s;
+            """
+        with connection.cursor() as cursor:
+            cursor.execute(query, [polity_tolerance, seshat_id])
             rows = cursor.fetchall()
     else:
         query += """
@@ -2373,8 +2387,8 @@ def get_polity_info(seshat_ids):
         rows = cursor.fetchall()
         return rows
 
-def get_polity_shape_content(displayed_year="all"):
-    shapes = get_shapes(displayed_year=displayed_year)
+def get_polity_shape_content(displayed_year="all", seshat_id="all"):
+    shapes = get_polity_shapes(displayed_year=displayed_year, seshat_id=seshat_id)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
     polity_info = get_polity_info(seshat_ids)
