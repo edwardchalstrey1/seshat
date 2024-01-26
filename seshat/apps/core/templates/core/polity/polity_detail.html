@@ -139,12 +139,13 @@
         <div class="col-md-12">
             <div class="row d-flex align-items-center mb-2">
                 <div class="col-md-8">
+                    <span class="fw-bolder fs-1 text-teal"><i class="fa-solid fa-star fa-sm"></i> {{ object.long_name }}</span>
+                    {% polity_map pk %}
+                </div>
+                <div class="col-md-8">
                     <div class="pb-0">
-                        <span class="h6 text-secondary" id="top_of_the_page">Home Seshat Region:</span> <span class="h6 text-dark">{{ object.home_seshat_region }}</span> 
-                        {% polity_map pk %}
+                        <span class="h6 text-secondary" id="top_of_the_page">Home Seshat Region:</span> <span class="h6 text-dark">{{ object.home_seshat_region }}</span>
                     </div>
-                    <span class="fw-bolder fs-1 text-teal"><i class="fa-solid fa-star fa-sm"></i> {{ object.long_name }}</span> 
-
 
                     <div class="py-2">
                         {% if object.general_description %}
