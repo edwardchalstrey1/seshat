@@ -11,5 +11,5 @@ def polity_map(pk):
     content = get_polity_shape_content(seshat_id=polity.new_name)
     content['earliest_year'] = polity.start_year
     content['latest_year'] = polity.end_year
-    content['display_year'] = polity.start_year
+    content['display_year'] = polity.start_year + round(((polity.end_year - polity.start_year) / 2))
     return {'content': content}
