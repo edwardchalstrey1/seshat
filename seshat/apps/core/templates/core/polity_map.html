@@ -42,21 +42,20 @@
 
                 <div class="slidecontainer">
                     <label for="enterYear">Enter year:</label>
-                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;"
-                        disabled">
-                    <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
-                    <button id="plusButton" type="button" onclick="adjustSliderUp()" disabled>+</button><br>
+                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;"">
+                    <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
+                    <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
                     <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}"
                         max="{{ latest_year }}" value="{{ display_year }}" class="slider"
-                        onchange="plotPolities()" style="width: 300px;" disabled><br>
+                        onchange="plotPolities()" style="width: 300px;"><br>
                     <label for="sliderDate">Selected year:</label>
                     <span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
-                    <button id="playButton" type="button" onclick="startPlay()" disabled>▶️</button>
-                    <button id="stopButton" type="button" onclick="stopPlay()" disabled>⏸</button><br>
+                    <button id="playButton" type="button" onclick="startPlay()">▶️</button>
+                    <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
                     <label for="playRate">Animation speed:</label>
                     <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider"
-                        onchange="plotPolities()" disabled><br><br>
+                        onchange="plotPolities()"><br><br>
                     <label for="baseMapOnly">Hide polities (inspect base map)</label>
                     <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br><br>
                 </div>
@@ -98,42 +97,7 @@
 
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
-            fetch('/core/polity_map_all/')
-                .then(response => response.json())
-                .then(data => {
-                    shapesData = data.shapes.map(function (shape) {
-                        return {
-                            startYear: shape.start_year,
-                            endYear: shape.end_year,
-                            polityStartYear: shape.polity_start_year,
-                            polityEndYear: shape.polity_end_year,
-                            geometry: shape.geom,
-                            name: shape.name,
-                            colour: shape.colour,
-                            seshatId: shape.seshat_id,
-                            area: shape.area
-                        };
-                    });
-
-                    // Update seshatIdPageId from the JSON response
-                    seshatIdPageId = data.seshat_id_page_id;
-
-                    // Call plotPolities() after shapesData is updated
-                    plotPolities();
-
-                    // Hide the loading indicator and enable the buttons after the fetch request is done
-                    document.getElementById('loadingIndicator').style.display = 'none';
-                    document.getElementById('enterYear').disabled = false;
-                    document.getElementById('minusButton').disabled = false;
-                    document.getElementById('plusButton').disabled = false;
-                    document.getElementById('dateSlide').disabled = false;
-                    document.getElementById('playButton').disabled = false;
-                    document.getElementById('stopButton').disabled = false;
-                    document.getElementById('playRate').disabled = false;
-
-                    // Start the second fetch after the first one is complete
-                    return fetch('/core/provinces_and_countries');
-                })
+            fetch('/core/provinces_and_countries')
                 .then(response => response.json())
                 .then(data => {
                     provinceShapeData = data.provinces.map(function (shape) {
