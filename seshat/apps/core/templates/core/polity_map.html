@@ -34,10 +34,6 @@
             <fieldset>
                 <legend>
                     <h3>Polities</h3>
-                    <!-- Add a loading indicator -->
-                    <div id="loadingIndicator">
-                        <div class="spinner"></div>
-                    </div>
                 </legend>
 
                 <div class="slidecontainer">
@@ -116,7 +112,6 @@
                     });
 
                     // Enable the radio selection after the fetch request is done
-                    document.getElementById('baseMapCurrentLoadingIndicator').style.display = 'none';
                     document.getElementById('baseMapCurrent').disabled = false;
                 });
         });
