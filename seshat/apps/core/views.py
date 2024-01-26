@@ -2408,7 +2408,7 @@ def map_view_initial(request):
     # Use the year from the request parameters if present
     # Otherwise use the default initial_displayed_year (see above)
     displayed_year = request.GET.get('year', initial_displayed_year)
-    print('loading shapes for ', displayed_year)
+    # print('loading shapes for ', displayed_year)
     content = get_polity_shape_content(displayed_year=displayed_year)
     
     return render(request,
@@ -2421,7 +2421,7 @@ def map_view_all(request):
         This view is used to display a map with polities plotted on it.
         The view loads all polities for the range of years.
     """
-    print('loading shapes for all years')
+    # print('loading shapes for all years')
     content = get_polity_shape_content()
     
     return JsonResponse(content)
