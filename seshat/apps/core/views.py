@@ -2316,7 +2316,12 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
 
     return fetch_provinces()
 
-def get_polity_shapes(displayed_year="all"):
+def get_polity_shapes(displayed_year="all", seshat_id="all"):
+    """
+        This function returns the polity shapes for the map.
+        The shapes are simplified to reduce the size of the data.
+        Only one of displayed_year or seshat_id should be set not both.
+    """
     query = """
             SELECT
                 seshat_id,
@@ -2338,6 +2343,14 @@ def get_polity_shapes(displayed_year="all"):
             """
         with connection.cursor() as cursor:
             cursor.execute(query, [polity_tolerance, displayed_year, displayed_year])
+            rows = cursor.fetchall()
+    elif seshat_id != "all":
+        query += """
+            WHERE
+                seshat_id = %s;
+            """
+        with connection.cursor() as cursor:
+            cursor.execute(query, [polity_tolerance, seshat_id])
             rows = cursor.fetchall()
     else:
         query += """
@@ -2439,4 +2452,15 @@ def provinces_and_countries_view(request):
 
 def polity_map_view(request):
     print("view called")
-    return render(request, 'core/polity_map.html')
+    # seshat_id = request.GET.get('seshat_id', 'all')
+    seshat_id = "337"
+    shapes = get_polity_shapes(seshat_id=seshat_id)
+
+    content = {
+        'shapes': shapes
+    }
+
+    return render(request,
+                    'core/polity_map.html',
+                    content
+                    )
