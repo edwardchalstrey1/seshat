@@ -79,6 +79,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 echo "export DJANGO_SETTINGS_MODULE=seshat.settings.local" >> venv/bin/activate
+sudo ufw allow 8000
 gunicorn seshat.wsgi:application --config gunicorn.conf.py &
 '''
 
