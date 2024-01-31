@@ -6,7 +6,7 @@ import pulumi_random as random
 from pulumi_azure import storage
 
 # Create an Azure Resource Group
-resource_group = resources.ResourceGroup("seshat-pulumi")
+resource_group = core.ResourceGroup('seshat-pulumi')
 
 # Create a network with a single subnet
 virtual_network = network.VirtualNetwork('virtualNetwork',
