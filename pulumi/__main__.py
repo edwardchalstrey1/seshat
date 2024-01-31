@@ -56,24 +56,12 @@ association = network.SubnetNetworkSecurityGroupAssociation('association',
     network_security_group_id=network_security_group.id,
 )
 
-# Create a network interface
+# Create a network interface and associate it with the subnet
 network_interface = network.NetworkInterface('networkInterface',
     resource_group_name=resource_group.name,
     ip_configurations=[{
         'name': 'webserver',
         'subnet_id': subnet.id,  # Use the new subnet
-        'private_ip_address_allocation': 'Dynamic',
-        'public_ip_address_id': public_ip.id,
-    }]
-)
-
-# Update the network interface to use the network security group
-network_interface = network.NetworkInterface('networkInterface',
-    resource_group_name=resource_group.name,
-    network_security_group_id=network_security_group.id,
-    ip_configurations=[{
-        'name': 'webserver',
-        'subnet_id': virtual_network.subnets[0].id,
         'private_ip_address_allocation': 'Dynamic',
         'public_ip_address_id': public_ip.id,
     }]
