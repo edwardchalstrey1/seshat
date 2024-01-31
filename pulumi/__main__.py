@@ -86,7 +86,7 @@ gunicorn seshat.wsgi:application --bind 0.0.0.0:8000 &
 vm = compute.LinuxVirtualMachine('vm',
     resource_group_name=resource_group.name,
     network_interface_ids=[network_interface.id],
-    size='Standard_D4plds_v5',
+    size='Standard_D2s_v3',
     source_image_reference={
         'publisher': 'Canonical',
         'offer': '0001-com-ubuntu-server-jammy',
