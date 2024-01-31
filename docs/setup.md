@@ -292,35 +292,48 @@ This page instructs software engineers how to set up a testing version of the Se
 
 ## Pulumi
 
-Setup steps to get what is in the `/pulumi` dir:
-```
-    pulumi new azure-python
-```
-- Chose sensible project name: `seshat-dev`
-- Chose default stack name
-- Chose `UKSouth` location
+### Pre-requisites
 
-How to run a full setup of the Seshat django app on Azure with Pulumi (from Mac) following [this guide](https://www.pulumi.com/docs/clouds/azure/get-started/begin/). Assume Python already installed. The region specified in the Pulumi code is "UKSouth".
-
-1. Install Pulumi
+1. [Install Pulumi](https://www.pulumi.com/docs/clouds/azure/get-started/begin/). e.g. on Mac:
     ```
         brew install pulumi/tap/pulumi
     ```
-2. Ensure logged in and that the subscription you will use comes up in the list of subscriptions printed out:
+2. Install the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+
+Use the configuration in `/pulumi` or set up from scratch:
+```
+    pulumi new azure-python
+```
+
+In `/pulumi` we:
+- Chose sensible project name: `seshat-dev`
+- Chose default stack name
+- Chose `UKSouth` location
+- Made custom edits to the config files for the Seshat app
+
+### Azure Setup
+
+How to run a full setup of the Seshat django app on Azure with Pulumi following [this guide](https://www.pulumi.com/docs/clouds/azure/get-started/begin/).
+
+- Assumes Python 3 already installed on local machine so you can use the venv.
+- The region specified in the Pulumi code is "UKSouth".
+
+1. Ensure logged in and that the subscription you will use comes up in the list of subscriptions printed out, then set to that subscription:
     ```
         az login
+        az account set --subscription "<subscription-id>"
     ```
-3. Activate Pulumi venv and install relevant package
+2. Activate Pulumi venv and install relevant package
     ```
         cd pulumi
         source venv/bin/activate
         pip install -r requirements.txt
     ```
-4. Configure Pulumi with your ssh public key:
+3. Configure Pulumi with your ssh public key:
     ```
         pulumi config set --secret sshPublicKey "$(cat ~/.ssh/id_rsa.pub)"
     ```
-5. Deploy the app
+4. Deploy the app
     ```
         pulumi up
     ```
