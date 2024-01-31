@@ -47,7 +47,7 @@ network_security_group = network.NetworkSecurityGroup('networkSecurityGroup',
 subnet = network.Subnet('subnet',
     resource_group_name=resource_group.name,
     virtual_network_name=virtual_network.name,
-    address_prefix='10.0.2.0/24',
+    address_prefixes=['10.0.2.0/24'],
     network_security_group_id=network_security_group.id,
 )
 
