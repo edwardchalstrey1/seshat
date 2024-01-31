@@ -313,4 +313,7 @@ How to run a full setup of the Seshat django app on Azure with Pulumi (from Mac)
     - Choose default stack name
     - Choose `UKSouth` location
     - A bunch of Python pacakges will be installed
-5.
+5. Configure Pulumi with your ssh public key:
+    ```
+        pulumi config set sshPublicKey <your-public-key>
+    ```
