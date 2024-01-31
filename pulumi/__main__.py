@@ -55,7 +55,7 @@ vm = compute.LinuxVirtualMachine('vm',
     disable_password_authentication=True,
     admin_ssh_key={
         'username': 'webadmin',
-        'public_key': pulumi.Config().require('sshPublicKey'),
+        'public_key': pulumi.Config().require_secret('sshPublicKey'),
     },
     custom_data=base64.b64encode('#!/bin/bash\n\
         sudo apt-get update\n\
