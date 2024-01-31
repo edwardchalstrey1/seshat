@@ -1,4 +1,5 @@
 import base64
+import os
 import pulumi
 from pulumi_azure import core, compute, network
 
@@ -18,8 +19,15 @@ virtual_network = network.VirtualNetwork('virtualNetwork',
 # Create a public IP
 public_ip = network.PublicIp('publicIp',
     resource_group_name=resource_group.name,
-    allocation_method='Dynamic'
+    location=resource_group.location,
+    allocation_method='Dynamic',
 )
+
+# Get the IP address as a string
+ip_address = public_ip.ip_address.apply(lambda ip: ip if ip is not None else '')
+
+# Set the ALLOWED_HOSTS environment variable (used by Django)
+os.environ['ALLOWED_HOSTS'] = ip_address
 
 # Create a network security group
 network_security_group = network.NetworkSecurityGroup('networkSecurityGroup',
