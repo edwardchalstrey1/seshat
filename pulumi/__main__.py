@@ -89,8 +89,8 @@ vm = compute.LinuxVirtualMachine('vm',
     size='Standard_D4plds_v5',
     source_image_reference={
         'publisher': 'Canonical',
-        'offer': 'UbuntuServer',
-        'sku': '22.04-LTS',
+        'offer': '0001-com-ubuntu-server-jammy',
+        'sku': '22_04-lts',
         'version': 'latest',
     },
     os_disk={
