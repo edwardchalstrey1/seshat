@@ -1,9 +1,5 @@
 import pulumi
 from pulumi_azure import core, compute, network
-from pulumi import Output
-import pulumi_azuread as azuread
-import pulumi_random as random
-from pulumi_azure import storage
 
 # Create an Azure Resource Group
 resource_group = core.ResourceGroup('seshat-pulumi')
