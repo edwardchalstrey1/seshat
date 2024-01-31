@@ -300,7 +300,7 @@ Setup steps to get what is in the `/pulumi` dir:
 - Chose default stack name
 - Chose `UKSouth` location
 
-How to run a full setup of the Seshat django app on Azure with Pulumi (from Mac) following [this guide](https://www.pulumi.com/docs/clouds/azure/get-started/begin/). Assume Python already installed with the venv set up as described above.
+How to run a full setup of the Seshat django app on Azure with Pulumi (from Mac) following [this guide](https://www.pulumi.com/docs/clouds/azure/get-started/begin/). Assume Python already installed. The region specified in the Pulumi code is "UKSouth".
 
 1. Install Pulumi
     ```
