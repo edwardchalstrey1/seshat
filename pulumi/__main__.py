@@ -35,6 +35,55 @@ network_interface = network.NetworkInterface('networkInterface',
     }]
 )
 
+# Create a network security group
+network_security_group = network.NetworkSecurityGroup('networkSecurityGroup',
+    resource_group_name=resource_group.name,
+    security_rules=[
+        {'name': 'ssh', 'priority': 1001, 'direction': 'Inbound',
+         'access': 'Allow', 'protocol': 'Tcp', 'source_port_range': '*',
+         'destination_port_range': '22', 'source_address_prefix': '*',
+         'destination_address_prefix': '*'},
+        {'name': 'http', 'priority': 1002, 'direction': 'Inbound',
+         'access': 'Allow', 'protocol': 'Tcp', 'source_port_range': '*',
+         'destination_port_range': '80', 'source_address_prefix': '*',
+         'destination_address_prefix': '*'},
+        {'name': 'https', 'priority': 1003, 'direction': 'Inbound',
+         'access': 'Allow', 'protocol': 'Tcp', 'source_port_range': '*',
+         'destination_port_range': '443', 'source_address_prefix': '*',
+         'destination_address_prefix': '*'},
+        {'name': 'django', 'priority': 1004, 'direction': 'Inbound',
+         'access': 'Allow', 'protocol': 'Tcp', 'source_port_range': '*',
+         'destination_port_range': '8000', 'source_address_prefix': '*',
+         'destination_address_prefix': '*'},
+    ]
+)
+
+# Update the network interface to use the network security group
+network_interface = network.NetworkInterface('networkInterface',
+    resource_group_name=resource_group.name,
+    network_security_group_id=network_security_group.id,
+    ip_configurations=[{
+        'name': 'webserver',
+        'subnet_id': virtual_network.subnets[0].id,
+        'private_ip_address_allocation': 'Dynamic',
+        'public_ip_address_id': public_ip.id,
+    }]
+)
+
+# Create a data script for the VM
+custom_data_script = '''#!/bin/bash
+sudo apt-get update
+sudo apt-get install -y python3 python3-pip postgresql postgresql-contrib gdal-bin libgdal-dev libgeos++-dev libgeos-c1v5 libgeos-dev libgeos-doc
+sudo apt-get install -y gunicorn
+git clone https://github.com/edwardchalstrey1/seshat
+cd seshat
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+echo "export DJANGO_SETTINGS_MODULE=seshat.settings.local" >> venv/bin/activate
+gunicorn seshat.wsgi:application --bind 0.0.0.0:8000 &
+'''
+
 # Create a VM
 vm = compute.LinuxVirtualMachine('vm',
     resource_group_name=resource_group.name,
@@ -57,13 +106,7 @@ vm = compute.LinuxVirtualMachine('vm',
         'username': 'webadmin',
         'public_key': pulumi.Config().require_secret('sshPublicKey'),
     },
-    custom_data=base64.b64encode('#!/bin/bash\n\
-        sudo apt-get update\n\
-        sudo apt-get install -y python3 python3-pip postgresql postgresql-contrib gdal-bin libgdal-dev libgeos++-dev libgeos-c1v5 libgeos-dev libgeos-doc\n\
-        git clone https://github.com/edwardchalstrey1/seshat\n\
-        cd seshat\n\
-        pip3 install -r requirements.txt\n\
-        python3 manage.py runserver 0.0.0.0:8000'.encode('ascii')).decode('ascii'),
+    custom_data=base64.b64encode(custom_data_script.encode('ascii')).decode('ascii'),
 )
 
 # Export the public IP address of the VM
