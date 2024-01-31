@@ -43,12 +43,17 @@ network_security_group = network.NetworkSecurityGroup('networkSecurityGroup',
     ]
 )
 
-# Create a subnet and associate it with the network security group
+# Create a subnet
 subnet = network.Subnet('subnet',
     resource_group_name=resource_group.name,
     virtual_network_name=virtual_network.name,
     address_prefixes=['10.0.2.0/24'],
-    network_security_group=network_security_group,
+)
+
+# Associate the network security group with the subnet
+association = network.SubnetNetworkSecurityGroupAssociation('association',
+    subnet_id=subnet.id,
+    network_security_group_id=network_security_group.id,
 )
 
 # Create a network interface
