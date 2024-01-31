@@ -100,10 +100,10 @@ vm = compute.LinuxVirtualMachine('vm',
     computer_name='webserver',
     admin_username='webadmin',
     disable_password_authentication=True,
-    admin_ssh_key={
+    admin_ssh_keys=[{
         'username': 'webadmin',
         'public_key': pulumi.Config().require_secret('sshPublicKey'),
-    },
+    }],
     custom_data=base64.b64encode(custom_data_script.encode('ascii')).decode('ascii'),
 )
 
