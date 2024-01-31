@@ -315,6 +315,7 @@ How to run a full setup of the Seshat django app on Azure with Pulumi (from Mac)
         cd pulumi
         source venv/bin/activate
         pip install pulumi-azure
+        pip install pulumi-azuread
     ```
 4. Configure Pulumi with your ssh public key:
     ```
