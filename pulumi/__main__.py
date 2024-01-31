@@ -1,3 +1,4 @@
+import base64
 import pulumi
 from pulumi_azure import core, compute, network
 
