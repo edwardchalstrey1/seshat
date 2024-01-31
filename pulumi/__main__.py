@@ -85,7 +85,7 @@ gunicorn seshat.wsgi:application --bind 0.0.0.0:8000 &
 # Create a VM
 vm = compute.LinuxVirtualMachine('vm',
     resource_group_name=resource_group.name,
-    network_interface=network_interface,
+    network_interface_id=network_interface.id,
     size='Standard_D4plds_v5',
     source_image_reference={
         'publisher': 'Canonical',
