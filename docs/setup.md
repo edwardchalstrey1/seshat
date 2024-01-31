@@ -289,3 +289,28 @@ This page instructs software engineers how to set up a testing version of the Se
         ```
         Note: For some reason I could not get the `DJANGO_SETTINGS_MODULE` to be set via the `wsgi.py` correctly, so setting it manually here.
     - Go to `http://<public IP>:8000/`
+
+## Pulumi
+
+TODO: this should probably be run steps not setup steps
+
+How to run a full setup of the Seshat django app on Azure with Pulumi (from Mac) following [this guide](https://www.pulumi.com/docs/clouds/azure/get-started/begin/). Assume Python already installed with the venv set up as described above.
+
+1. Install Pulumi
+    ```
+        brew install pulumi/tap/pulumi
+    ```
+2. Ensure logged in and that the subscription you will use comes up in the list of subscriptions printed out:
+    ```
+        az login
+    ```
+3. Make Pulumi dir and cd into it
+4. Setup
+    ```
+        pulumi new azure-python
+    ```
+    - Choose sensible project name: `seshat-dev`
+    - Choose default stack name
+    - Choose `UKSouth` location
+    - A bunch of Python pacakges will be installed
+5.
