@@ -48,11 +48,11 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ######EMAIL_CONFIRMATION_BRANCH is the keyword that needs to be searched
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-try:
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-except:
-    ALLOWED_HOSTS = []
+# try:
+#     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+# except:
+ALLOWED_HOSTS = []
 
-for ip in ['127.0.0.1', 'localhost', '20.68.162.158']:
+for ip in ['127.0.0.1', 'localhost', '20.68.162.158', '172.167.11.114']:
     if ip not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(ip)

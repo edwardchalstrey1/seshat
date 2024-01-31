@@ -23,12 +23,6 @@ public_ip = network.PublicIp('publicIp',
     allocation_method='Dynamic',
 )
 
-# Get the IP address as a string
-ip_address = public_ip.ip_address.apply(lambda ip: ip if ip is not None else '')
-
-# Set the ALLOWED_HOSTS environment variable (used by Django)
-os.environ['ALLOWED_HOSTS'] = ip_address
-
 # Create a network security group
 network_security_group = network.NetworkSecurityGroup('networkSecurityGroup',
     resource_group_name=resource_group.name,
@@ -76,8 +70,14 @@ network_interface = network.NetworkInterface('networkInterface',
     }]
 )
 
+# Get the IP address as a string
+# TODO: move this into the VM script and run in python
+# ip_address = public_ip.ip_address.apply(lambda ip: ip if ip is not None else '')
+# os.environ['ALLOWED_HOSTS'] = ip_address
+
 # Create a data script for the VM
 # TODO: Switch from pulumi branch to dev branch
+# Set the ALLOWED_HOSTS environment variable (used by Django)
 custom_data_script = '''#!/bin/bash
 sudo apt-get update
 sudo apt-get install -y python3 python3-pip postgresql postgresql-contrib gdal-bin libgdal-dev libgeos++-dev libgeos-c1v5 libgeos-dev libgeos-doc
