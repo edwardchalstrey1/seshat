@@ -48,7 +48,7 @@ subnet = network.Subnet('subnet',
     resource_group_name=resource_group.name,
     virtual_network_name=virtual_network.name,
     address_prefixes=['10.0.2.0/24'],
-    network_security_group_id=network_security_group.id,
+    network_security_group=network_security_group,
 )
 
 # Create a network interface
