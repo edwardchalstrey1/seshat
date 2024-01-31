@@ -20,12 +20,20 @@ public_ip = network.PublicIp('publicIp',
     allocation_method='Dynamic'
 )
 
+# Create a subnet and associate it with the network security group
+subnet = network.Subnet('subnet',
+    resource_group_name=resource_group.name,
+    virtual_network_name=virtual_network.name,
+    address_prefix='10.0.2.0/24',
+    network_security_group_id=network_security_group.id,
+)
+
 # Create a network interface
 network_interface = network.NetworkInterface('networkInterface',
     resource_group_name=resource_group.name,
     ip_configurations=[{
         'name': 'webserver',
-        'subnet_id': virtual_network.subnets[0].id,
+        'subnet_id': subnet.id,  # Use the new subnet
         'private_ip_address_allocation': 'Dynamic',
         'public_ip_address_id': public_ip.id,
     }]
