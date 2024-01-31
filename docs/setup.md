@@ -292,7 +292,13 @@ This page instructs software engineers how to set up a testing version of the Se
 
 ## Pulumi
 
-TODO: this should probably be run steps not setup steps
+Setup steps to get what is in the `/pulumi` dir:
+```
+    pulumi new azure-python
+```
+- Chose sensible project name: `seshat-dev`
+- Chose default stack name
+- Chose `UKSouth` location
 
 How to run a full setup of the Seshat django app on Azure with Pulumi (from Mac) following [this guide](https://www.pulumi.com/docs/clouds/azure/get-started/begin/). Assume Python already installed with the venv set up as described above.
 
@@ -304,16 +310,17 @@ How to run a full setup of the Seshat django app on Azure with Pulumi (from Mac)
     ```
         az login
     ```
-3. Make Pulumi dir and cd into it
-4. Setup
+3. Activate Pulumi venv and install relevant package
     ```
-        pulumi new azure-python
+        cd pulumi
+        source venv/bin/activate
+        pip install pulumi-azure
     ```
-    - Choose sensible project name: `seshat-dev`
-    - Choose default stack name
-    - Choose `UKSouth` location
-    - A bunch of Python pacakges will be installed
-5. Configure Pulumi with your ssh public key:
+4. Configure Pulumi with your ssh public key:
     ```
         pulumi config set --secret sshPublicKey "$(cat ~/.ssh/id_rsa.pub)"
+    ```
+5. Deploy the app
+    ```
+        pulumi up
     ```
