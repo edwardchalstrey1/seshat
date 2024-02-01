@@ -110,6 +110,7 @@ git checkout pulumi
 python3.8 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+pip install "django-geojson [field]"
 
 # Create .env file with database configuration
 echo "NAME=<seshat_db_name>
