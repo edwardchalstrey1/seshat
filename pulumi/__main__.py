@@ -100,8 +100,8 @@ sudo apt-get install -y libgdal-dev
 sudo apt install -y libgeos++-dev libgeos3.10.2
 sudo apt install -y libgeos-c1v5 libgeos-dev libgeos-doc
 
-git clone https://github.com/edwardchalstrey1/seshat ~/seshat
-cd seshat
+git clone https://github.com/edwardchalstrey1/seshat /home/webadmin/seshat
+cd /home/webadmin/seshat
 git checkout pulumi
 python3 -m venv venv
 source venv/bin/activate
