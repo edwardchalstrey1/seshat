@@ -82,8 +82,8 @@ custom_data_script = '''#!/bin/bash
 sudo apt-get update
 sudo apt-get install -y python3 python3-pip postgresql postgresql-contrib gdal-bin libgdal-dev libgeos++-dev libgeos-c1v5 libgeos-dev libgeos-doc
 sudo apt-get install -y gunicorn
-git clone https://github.com/edwardchalstrey1/seshat
-cd /seshat
+git clone https://github.com/edwardchalstrey1/seshat ~/seshat
+cd seshat
 git checkout pulumi
 python3 -m venv venv
 source venv/bin/activate
