@@ -79,6 +79,8 @@ network_interface = network.NetworkInterface('networkInterface',
 # TODO: Switch from pulumi branch to dev branch
 # Set the ALLOWED_HOSTS environment variable (used by Django)
 custom_data_script = '''#!/bin/bash
+
+# Install Python 3.8
 sudo apt update
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt install -y python3.8
@@ -86,20 +88,22 @@ sudo apt install -y python3.8-venv
 sudo apt-get install -y python3.8-dev
 sudo apt-get install -y g++
 
+# Install PostgreSQL 16
 sudo apt install -y gnupg2 wget vim
 sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
 sudo apt update
-
 sudo apt install -y postgresql-16 postgresql-contrib-16 postgresql-16-postgis-3 
 sudo systemctl start postgresql
 sudo systemctl enable postgresql
 
+# Install GDAL and GEOS
 sudo apt-get install -y gdal-bin
 sudo apt-get install -y libgdal-dev
 sudo apt install -y libgeos++-dev libgeos3.10.2
 sudo apt install -y libgeos-c1v5 libgeos-dev libgeos-doc
 
+# Clone Seshat
 git clone https://github.com/edwardchalstrey1/seshat /home/webadmin/seshat
 cd /home/webadmin/seshat
 git checkout pulumi
@@ -114,6 +118,7 @@ HOST=localhost
 PORT=5432
 PASSWORD=<db_password>" > /home/webadmin/seshat/seshat/settings/.env
 
+# Run django
 export DJANGO_SETTINGS_MODULE=seshat.settings.local
 gunicorn seshat.wsgi:application --config gunicorn.conf.py &
 '''
