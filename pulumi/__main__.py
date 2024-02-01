@@ -79,16 +79,34 @@ network_interface = network.NetworkInterface('networkInterface',
 # TODO: Switch from pulumi branch to dev branch
 # Set the ALLOWED_HOSTS environment variable (used by Django)
 custom_data_script = '''#!/bin/bash
-sudo apt-get update
-sudo apt-get install -y python3 python3-pip postgresql postgresql-contrib gdal-bin libgdal-dev libgeos++-dev libgeos-c1v5 libgeos-dev libgeos-doc
-sudo apt-get install -y gunicorn
+sudo apt update
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt install -y python3.8
+sudo apt install -y python3.8-venv
+sudo apt-get install -y python3.8-dev
+sudo apt-get install -y g++
+
+sudo apt install -y gnupg2 wget vim
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+sudo apt update
+
+sudo apt install -y postgresql-16 postgresql-contrib-16 postgresql-16-postgis-3 
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+sudo apt-get install -y gdal-bin
+sudo apt-get install -y libgdal-dev
+sudo apt install -y libgeos++-dev libgeos3.10.2
+sudo apt install -y libgeos-c1v5 libgeos-dev libgeos-doc
+
 git clone https://github.com/edwardchalstrey1/seshat ~/seshat
 cd seshat
 git checkout pulumi
 python3 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
-echo "export DJANGO_SETTINGS_MODULE=seshat.settings.local" >> venv/bin/activate
+export DJANGO_SETTINGS_MODULE=seshat.settings.local
 sudo ufw allow 8000
 gunicorn seshat.wsgi:application --config gunicorn.conf.py &
 '''
