@@ -7,14 +7,14 @@ from pulumi_azure import core, compute, network
 resource_group = core.ResourceGroup('seshat-pulumi', location='uksouth')
 
 # Create a network with a single subnet
-virtual_network = network.VirtualNetwork('virtualNetwork',
-    resource_group_name=resource_group.name,
-    address_spaces=['10.0.0.0/16'],
-    subnets=[{
-        'name': 'default',
-        'address_prefix': '10.0.1.0/24',
-    }]
-)
+# virtual_network = network.VirtualNetwork('virtualNetwork',
+#     resource_group_name=resource_group.name,
+#     address_spaces=['10.0.0.0/16'],
+#     subnets=[{
+#         'name': 'default',
+#         'address_prefix': '10.0.1.0/24',
+#     }]
+# )
 
 # Create a public IP
 public_ip = network.PublicIp('publicIp',
@@ -47,27 +47,38 @@ network_security_group = network.NetworkSecurityGroup('networkSecurityGroup',
 )
 
 # Create a subnet
-subnet = network.Subnet('subnet',
-    resource_group_name=resource_group.name,
-    virtual_network_name=virtual_network.name,
-    address_prefixes=['10.0.2.0/24'],
-)
+# subnet = network.Subnet('subnet',
+#     resource_group_name=resource_group.name,
+#     virtual_network_name=virtual_network.name,
+#     address_prefixes=['10.0.2.0/24'],
+# )
 
 # Associate the network security group with the subnet
-association = network.SubnetNetworkSecurityGroupAssociation('association',
-    subnet_id=subnet.id,
-    network_security_group_id=network_security_group.id,
-)
+# association = network.SubnetNetworkSecurityGroupAssociation('association',
+#     subnet_id=subnet.id,
+#     network_security_group_id=network_security_group.id,
+# )
 
 # Create a network interface and associate it with the subnet
+# network_interface = network.NetworkInterface('networkInterface',
+#     resource_group_name=resource_group.name,
+#     ip_configurations=[{
+#         'name': 'webserver',
+#         'subnet_id': subnet.id,  # Use the new subnet
+#         'private_ip_address_allocation': 'Dynamic',
+#         'public_ip_address_id': public_ip.id,
+#     }]
+# )
+
+# Create a network interface and associate it with the public IP
 network_interface = network.NetworkInterface('networkInterface',
     resource_group_name=resource_group.name,
     ip_configurations=[{
         'name': 'webserver',
-        'subnet_id': subnet.id,  # Use the new subnet
         'private_ip_address_allocation': 'Dynamic',
         'public_ip_address_id': public_ip.id,
-    }]
+    }],
+    network_security_group_id=network_security_group.id,  # Associate the NSG with the NIC
 )
 
 # Get the IP address as a string
