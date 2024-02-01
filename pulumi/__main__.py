@@ -4,7 +4,7 @@ import pulumi
 from pulumi_azure import core, compute, network
 
 # Create an Azure Resource Group
-resource_group = core.ResourceGroup('seshat-pulumi', location='UKSouth')
+resource_group = core.ResourceGroup('seshat-pulumi', location='uksouth')
 
 # Create a network with a single subnet
 virtual_network = network.VirtualNetwork('virtualNetwork',
