@@ -103,7 +103,7 @@ sudo apt install -y libgeos-c1v5 libgeos-dev libgeos-doc
 git clone https://github.com/edwardchalstrey1/seshat /home/webadmin/seshat
 cd /home/webadmin/seshat
 git checkout pulumi
-python3.8 -m venv seshat
+python3.8 -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 export DJANGO_SETTINGS_MODULE=seshat.settings.local
