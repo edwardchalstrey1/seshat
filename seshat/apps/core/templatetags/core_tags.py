@@ -1,4 +1,5 @@
 from django import template
+from django.db import connection
 from ..models import Polity
 from ..views import get_polity_shape_content
 
@@ -12,4 +13,17 @@ def polity_map(pk):
     content['earliest_year'] = polity.start_year
     content['latest_year'] = polity.end_year
     content['display_year'] = polity.start_year + round(((polity.end_year - polity.start_year) / 2))
+    content['capitals_info'] = get_polity_capitals(pk)
     return {'content': content}
+
+def get_polity_capitals(pk):
+    query = """
+            SELECT gpc.capital, cc.latitude, cc.longitude
+            FROM core_polity as cp, general_polity_capital as gpc, core_capital as cc
+            WHERE cp.id = gpc.polity_id
+            AND cc.name = gpc.capital
+            and cp.id=%s;
+            """
+    with connection.cursor() as cursor:
+        cursor.execute(query, [pk])
+        return cursor.fetchall()
