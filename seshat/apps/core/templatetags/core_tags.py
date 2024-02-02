@@ -18,7 +18,7 @@ def polity_map(pk):
 
 def get_polity_capitals(pk):
     query = """
-            SELECT gpc.capital, cc.latitude, cc.longitude
+            SELECT gpc.capital, CAST(cc.latitude AS FLOAT), CAST(cc.longitude AS FLOAT)
             FROM core_polity as cp, general_polity_capital as gpc, core_capital as cc
             WHERE cp.id = gpc.polity_id
             AND cc.name = gpc.capital
@@ -26,4 +26,5 @@ def get_polity_capitals(pk):
             """
     with connection.cursor() as cursor:
         cursor.execute(query, [pk])
-        return cursor.fetchall()
+        rows = cursor.fetchall()
+        return rows
