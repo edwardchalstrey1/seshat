@@ -327,7 +327,10 @@
                             }
 
                             // adjust the map view to cover the geoJSON layer
-                            map.fitBounds(geoJSONLayer.getBounds());
+                            // but not if there is > 1 shape dataset polity on this polity page
+                            if (displayedShapes.length == 1) {
+                                map.fitBounds(geoJSONLayer.getBounds());
+                            }
                         }
                     });
                 };
