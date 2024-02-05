@@ -34,9 +34,10 @@ def get_polity_capitals(pk):
         cap_dict['latitude'] = row[1]
         cap_dict['longitude'] = row[2]
         # Only a small number of capitals have a year_from or year_to
-        if row[3]:
-            cap_dict['year_from'] = row[3]
-        if row[4]:
-            cap_dict['year_to'] = row[4]
+        # TODO: None of the seshat pages with shape data currently have multiple capitals split by time
+        # if row[3]:
+        #     cap_dict['year_from'] = row[3]
+        # if row[4]:
+        #     cap_dict['year_to'] = row[4]
         capitals_info.append(cap_dict)
     return capitals_info
