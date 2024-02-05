@@ -378,6 +378,12 @@
                                     </table>
                                 `;
                                 marker.bindPopup(popupContent);
+                                marker.on('mouseover', function (e) {
+                                    this.openPopup();
+                                });
+                                marker.on('mouseout', function (e) {
+                                    this.closePopup();
+                                });
                             });
                         }
 
