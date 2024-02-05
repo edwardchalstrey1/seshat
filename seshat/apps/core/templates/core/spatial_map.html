@@ -2,6 +2,7 @@
 {% load leaflet_tags %}
 
 <head>
+    {% load leaflet_tags %}
     {% leaflet_js %}
     {% leaflet_css %}
 </head>
@@ -354,7 +355,10 @@
                         // Plot capital markers for those polities that have them
                         if (allCapitalsInfo[shape.seshatId]) {
                             allCapitalsInfo[shape.seshatId].forEach(function (capital) {
-                                var marker = L.marker([capital.latitude, capital.longitude]).addTo(map);
+                                var marker = L.circleMarker([capital.latitude, capital.longitude], {
+                                    color: shape.colour,
+                                    radius: 2
+                                }).addTo(map);
                                 marker.bindPopup(capital.capital);
                             });
                         }
