@@ -9,11 +9,16 @@ register = template.Library()
 def polity_map(pk):
     page_id = str(pk)
     polity = Polity.objects.get(id=page_id)
-    content = get_polity_shape_content(seshat_id=polity.new_name)
-    content['earliest_year'] = polity.start_year
-    content['latest_year'] = polity.end_year
-    content['display_year'] = polity.start_year + round(((polity.end_year - polity.start_year) / 2))
-    content['capitals_info'] = get_polity_capitals(pk)
+    try:
+        content = get_polity_shape_content(seshat_id=polity.new_name)
+        content['earliest_year'] = polity.start_year
+        content['latest_year'] = polity.end_year
+        content['display_year'] = polity.start_year + round(((polity.end_year - polity.start_year) / 2))
+        content['capitals_info'] = get_polity_capitals(pk)
+        content['include_polity_map'] = True
+    except:
+        content = {}
+        content['include_polity_map'] = False
     return {'content': content}
 
 def get_polity_capitals(pk):

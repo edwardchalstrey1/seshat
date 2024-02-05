@@ -2387,39 +2387,28 @@ def get_polity_info(seshat_ids):
         return rows
 
 def get_polity_shape_content(displayed_year="all", seshat_id="all"):
-    try:
-        shapes = get_polity_shapes(displayed_year=displayed_year, seshat_id=seshat_id)
+    shapes = get_polity_shapes(displayed_year=displayed_year, seshat_id=seshat_id)
 
-        seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
-        polity_info = get_polity_info(seshat_ids)
+    seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
+    polity_info = get_polity_info(seshat_ids)
 
-        seshat_id_page_id = {}
-        for new_name, id, long_name in polity_info:
-            seshat_id_page_id[new_name] = {
-                'id': id,
-                'long_name': long_name or "",
-            }
-
-        if displayed_year == "all":
-            displayed_year = initial_displayed_year 
-
-        content = {
-            'shapes': shapes,
-            'earliest_year': earliest_year,
-            'display_year': displayed_year,
-            'latest_year': latest_year,
-            'seshat_id_page_id': seshat_id_page_id,
-            'include_polity_map': True,
+    seshat_id_page_id = {}
+    for new_name, id, long_name in polity_info:
+        seshat_id_page_id[new_name] = {
+            'id': id,
+            'long_name': long_name or "",
         }
-    except:
-        content = {
-            'shapes': [],
-            'earliest_year': earliest_year,
-            'display_year': displayed_year,
-            'latest_year': latest_year,
-            'seshat_id_page_id': {},
-            'include_polity_map': False,
-        }
+
+    if displayed_year == "all":
+        displayed_year = initial_displayed_year 
+
+    content = {
+        'shapes': shapes,
+        'earliest_year': earliest_year,
+        'display_year': displayed_year,
+        'latest_year': latest_year,
+        'seshat_id_page_id': seshat_id_page_id
+    }
 
     return content
 
