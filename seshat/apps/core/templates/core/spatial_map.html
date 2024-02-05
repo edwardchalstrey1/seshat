@@ -238,6 +238,11 @@
 
             var selectedYear = document.getElementById('dateSlide').value;
 
+            // Load capital info if not already loaded
+            if (typeof allCapitalsInfo === 'undefined') {
+                var allCapitalsInfo = {{ all_capitals_info | safe }};
+            };
+
             // Remove all existing layers from the map
             map.eachLayer(function (layer) {
                 if (layer instanceof L.GeoJSON || layer instanceof L.CircleMarker) {
@@ -331,8 +336,16 @@
                                             <td>Area (est.)</td>
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
-                                    </table>
                                 `;
+                                if (allCapitalsInfo[shape.seshatId]) {
+                                    popupContent = popupContent + `
+                                            <tr>
+                                                <td>Capital: </td>
+                                                <td>${allCapitalsInfo[shape.seshatId].map(capital => capital.capital).join(', ')}</td>
+                                            </tr>
+                                        `;
+                                }
+                                popupContent = popupContent + `</table>`;
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
@@ -347,17 +360,12 @@
                             }
                         });
 
-                        // Load capital info if not already loaded
-                        if (typeof allCapitalsInfo === 'undefined') {
-                            var allCapitalsInfo = {{ all_capitals_info | safe }};
-                        }
-
                         // Plot capital markers for those polities that have them
                         if (allCapitalsInfo[shape.seshatId]) {
                             allCapitalsInfo[shape.seshatId].forEach(function (capital) {
                                 var marker = L.circleMarker([capital.latitude, capital.longitude], {
                                     color: shape.colour,
-                                    radius: 2
+                                    radius: 5
                                 }).addTo(map);
                                 marker.bindPopup(capital.capital);
                             });
