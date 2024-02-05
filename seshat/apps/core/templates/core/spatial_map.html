@@ -90,8 +90,6 @@
         // Load capital info
         var allCapitalsInfo = {{ all_capitals_info | safe }};
 
-        console.log(allCapitalsInfo);
-
         var provinceShapeData;
         var countryShapeData;
 
@@ -347,6 +345,19 @@
                                 window.location.href = '/core/polity/' + polityId;
                             }
                         });
+
+                        // Load capital info if not already loaded
+                        if (typeof allCapitalsInfo === 'undefined') {
+                            var allCapitalsInfo = {{ all_capitals_info | safe }};
+                        }
+
+                        // Plot capital markers for those polities that have them
+                        if (allCapitalsInfo[shape.seshatId]) {
+                            allCapitalsInfo[shape.seshatId].forEach(function (capital) {
+                                var marker = L.marker([capital.latitude, capital.longitude]).addTo(map);
+                                marker.bindPopup(capital.capital);
+                            });
+                        }
 
                         // Update the displayedShapes array
                         if (displayedShapes.indexOf(shape.name) === -1) {
