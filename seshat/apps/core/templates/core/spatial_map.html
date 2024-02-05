@@ -63,7 +63,7 @@
         <div id="map" style="height: 85vh; flex: 1;"></div>
     </div>
     <script>
-
+        
         var displayedShapes = [];
 
         // Load inital polity shapes for the displayed year
@@ -86,6 +86,11 @@
 
         // Load seshat_id_page_id dictionary
         var seshatIdPageId = {{ seshat_id_page_id | safe }};
+
+        // Load capital info
+        var allCapitalsInfo = {{ all_capitals_info | safe }};
+
+        console.log(allCapitalsInfo);
 
         var provinceShapeData;
         var countryShapeData;
