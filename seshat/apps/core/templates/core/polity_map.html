@@ -19,6 +19,7 @@
                         disabled>Current borders</label>
                 <!-- Add a loading indicator for Current borders -->
                 <div id="baseMapCurrentLoadingIndicator" class="spinner"></div><br>
+                <p>Mouse over capitals (circles).</p>
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
                 <label for="baseMapGADM">Current borders:</label>
@@ -59,7 +60,6 @@
     <script>
 
         var displayedShapes = [];
-
         // Load inital polity shapes for the displayed year
         var shapesData = [
             // JavaScript object representing shape data
@@ -77,6 +77,9 @@
                 },
             {% endfor %}
         ];
+
+        // Load capital info
+        var capitalsInfo = {{ content.capitals_info | safe }};
 
         // Load seshat_id_page_id dictionary
         var seshatIdPageId = {{ content.seshat_id_page_id | safe }};
@@ -291,6 +294,21 @@
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
+
+                        // Plot capital markers
+                        capitalsInfo.forEach(function (capital) {
+                            var marker = L.circleMarker([capital.latitude, capital.longitude], {
+                                color: shape.colour,
+                                radius: 5
+                            }).addTo(map);
+                            marker.bindPopup(capital.capital);
+                            marker.on('mouseover', function (e) {
+                                this.openPopup();
+                            });
+                            marker.on('mouseout', function (e) {
+                                this.closePopup();
+                            });
+                        });
 
                         // Add double-click event listener to GeoJSON layers
                         geoJSONLayer.on('dblclick', function (event) {

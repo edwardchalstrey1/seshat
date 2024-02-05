@@ -2,6 +2,7 @@
 {% load leaflet_tags %}
 
 <head>
+    {% load leaflet_tags %}
     {% leaflet_js %}
     {% leaflet_css %}
 </head>
@@ -55,7 +56,8 @@
                     <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br><br>
                 </div>
                 <p>Click a polity to reveal information.</p>
-                <p>Reach polity pages with double click.</p>
+                <p>Mouse over capitals (circles).</p>
+                <p>Double click to reach polity pages.</p>
             </fieldset>
             <p></p>
 
@@ -63,7 +65,7 @@
         <div id="map" style="height: 85vh; flex: 1;"></div>
     </div>
     <script>
-
+        
         var displayedShapes = [];
 
         // Load inital polity shapes for the displayed year
@@ -86,6 +88,9 @@
 
         // Load seshat_id_page_id dictionary
         var seshatIdPageId = {{ seshat_id_page_id | safe }};
+
+        // Load capital info
+        var allCapitalsInfo = {{ all_capitals_info | safe }};
 
         var provinceShapeData;
         var countryShapeData;
@@ -234,9 +239,14 @@
 
             var selectedYear = document.getElementById('dateSlide').value;
 
+            // Load capital info if not already loaded
+            if (typeof allCapitalsInfo === 'undefined') {
+                var allCapitalsInfo = {{ all_capitals_info | safe }};
+            };
+
             // Remove all existing layers from the map
             map.eachLayer(function (layer) {
-                if (layer instanceof L.GeoJSON) {
+                if (layer instanceof L.GeoJSON || layer instanceof L.CircleMarker) {
                     map.removeLayer(layer);
                 }
             });
@@ -327,8 +337,16 @@
                                             <td>Area (est.)</td>
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
-                                    </table>
                                 `;
+                                if (allCapitalsInfo[shape.seshatId]) {
+                                    popupContent = popupContent + `
+                                            <tr>
+                                                <td>Capital: </td>
+                                                <td>${allCapitalsInfo[shape.seshatId].map(capital => capital.capital).join(', ')}</td>
+                                            </tr>
+                                        `;
+                                }
+                                popupContent = popupContent + `</table>`;
                                 layer.bindPopup(popupContent);
                             }
                         }).addTo(map);
@@ -342,6 +360,33 @@
                                 window.location.href = '/core/polity/' + polityId;
                             }
                         });
+
+                        // Plot capital markers for those polities that have them
+                        if (allCapitalsInfo[shape.seshatId]) {
+                            allCapitalsInfo[shape.seshatId].forEach(function (capital) {
+                                var marker = L.circleMarker([capital.latitude, capital.longitude], {
+                                    color: shape.colour,
+                                    radius: 5
+                                }).addTo(map);
+                                popupContent = `
+                                    <table>
+                                        <tr>
+                                            <th>${capital.capital}</th>
+                                        </tr>
+                                        <tr>
+                                            <td>${shape.name}</td>
+                                        </tr>
+                                    </table>
+                                `;
+                                marker.bindPopup(popupContent);
+                                marker.on('mouseover', function (e) {
+                                    this.openPopup();
+                                });
+                                marker.on('mouseout', function (e) {
+                                    this.closePopup();
+                                });
+                            });
+                        }
 
                         // Update the displayedShapes array
                         if (displayedShapes.indexOf(shape.name) === -1) {
