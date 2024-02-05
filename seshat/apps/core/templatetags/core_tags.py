@@ -18,7 +18,7 @@ def polity_map(pk):
 
 def get_polity_capitals(pk):
     query = """
-            SELECT gpc.capital, CAST(cc.latitude AS FLOAT), CAST(cc.longitude AS FLOAT)
+            SELECT gpc.capital, CAST(cc.latitude AS FLOAT), CAST(cc.longitude AS FLOAT), gpc.year_from, gpc.year_to
             FROM core_polity as cp, general_polity_capital as gpc, core_capital as cc
             WHERE cp.id = gpc.polity_id
             AND cc.name = gpc.capital
@@ -33,5 +33,10 @@ def get_polity_capitals(pk):
         cap_dict['capital'] = row[0]
         cap_dict['latitude'] = row[1]
         cap_dict['longitude'] = row[2]
+        # Only a small number of capitals have a year_from or year_to
+        if row[3]:
+            cap_dict['year_from'] = row[3]
+        if row[4]:
+            cap_dict['year_to'] = row[4]
         capitals_info.append(cap_dict)
     return capitals_info
