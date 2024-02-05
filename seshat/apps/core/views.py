@@ -2387,28 +2387,39 @@ def get_polity_info(seshat_ids):
         return rows
 
 def get_polity_shape_content(displayed_year="all", seshat_id="all"):
-    shapes = get_polity_shapes(displayed_year=displayed_year, seshat_id=seshat_id)
+    try:
+        shapes = get_polity_shapes(displayed_year=displayed_year, seshat_id=seshat_id)
 
-    seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
-    polity_info = get_polity_info(seshat_ids)
+        seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
+        polity_info = get_polity_info(seshat_ids)
 
-    seshat_id_page_id = {}
-    for new_name, id, long_name in polity_info:
-        seshat_id_page_id[new_name] = {
-            'id': id,
-            'long_name': long_name or "",
+        seshat_id_page_id = {}
+        for new_name, id, long_name in polity_info:
+            seshat_id_page_id[new_name] = {
+                'id': id,
+                'long_name': long_name or "",
+            }
+
+        if displayed_year == "all":
+            displayed_year = initial_displayed_year 
+
+        content = {
+            'shapes': shapes,
+            'earliest_year': earliest_year,
+            'display_year': displayed_year,
+            'latest_year': latest_year,
+            'seshat_id_page_id': seshat_id_page_id,
+            'include_polity_map': True,
         }
-
-    if displayed_year == "all":
-        displayed_year = initial_displayed_year 
-
-    content = {
-        'shapes': shapes,
-        'earliest_year': earliest_year,
-        'display_year': displayed_year,
-        'latest_year': latest_year,
-        'seshat_id_page_id': seshat_id_page_id
-    }
+    except:
+        content = {
+            'shapes': [],
+            'earliest_year': earliest_year,
+            'display_year': displayed_year,
+            'latest_year': latest_year,
+            'seshat_id_page_id': {},
+            'include_polity_map': False,
+        }
 
     return content
 
@@ -2431,7 +2442,6 @@ def map_view_initial(request):
     # Use the year from the request parameters if present
     # Otherwise use the default initial_displayed_year (see above)
     displayed_year = request.GET.get('year', initial_displayed_year)
-    # print('loading shapes for ', displayed_year)
     content = get_polity_shape_content(displayed_year=displayed_year)
 
     # Load the capital cities for polities that have them
@@ -2448,7 +2458,6 @@ def map_view_all(request):
         This view is used to display a map with polities plotted on it.
         The view loads all polities for the range of years.
     """
-    # print('loading shapes for all years')
     content = get_polity_shape_content()
 
     # Load the capital cities for polities that have them
