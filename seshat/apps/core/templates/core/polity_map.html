@@ -59,7 +59,6 @@
     <script>
 
         var displayedShapes = [];
-
         // Load inital polity shapes for the displayed year
         var shapesData = [
             // JavaScript object representing shape data
@@ -77,6 +76,9 @@
                 },
             {% endfor %}
         ];
+
+        // Load capital info
+        var capitalsInfo = {{ content.capitals_info | safe }};
 
         // Load seshat_id_page_id dictionary
         var seshatIdPageId = {{ content.seshat_id_page_id | safe }};

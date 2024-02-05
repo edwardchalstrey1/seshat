@@ -24,7 +24,14 @@ def get_polity_capitals(pk):
             AND cc.name = gpc.capital
             and cp.id=%s;
             """
+    capitals_info = []
     with connection.cursor() as cursor:
         cursor.execute(query, [pk])
         rows = cursor.fetchall()
-        return rows
+    for row in rows:
+        cap_dict = {}
+        cap_dict['capital'] = row[0]
+        cap_dict['latitude'] = row[1]
+        cap_dict['longitude'] = row[2]
+        capitals_info.append(cap_dict)
+    return capitals_info
