@@ -367,7 +367,17 @@
                                     color: shape.colour,
                                     radius: 5
                                 }).addTo(map);
-                                marker.bindPopup(capital.capital);
+                                popupContent = `
+                                    <table>
+                                        <tr>
+                                            <th>${capital.capital}</th>
+                                        </tr>
+                                        <tr>
+                                            <td>${shape.name}</td>
+                                        </tr>
+                                    </table>
+                                `;
+                                marker.bindPopup(popupContent);
                             });
                         }
 
