@@ -319,6 +319,12 @@
         // Initial plot on page load
         plotPolities()
 
+        // Plot capital markers
+        capitalsInfo.forEach(function (capital) {
+            var marker = L.marker([capital.latitude, capital.longitude]).addTo(map);
+            marker.bindPopup(capital.capital);
+        });
+
         // Display slider value
         var slider = document.getElementById("dateSlide");
         var enterYearInput = document.getElementById("enterYear");
