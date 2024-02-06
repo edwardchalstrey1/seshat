@@ -1,8 +1,8 @@
 import base64
 import pulumi
-import subprocess
+# import subprocess
 from pulumi_azure import core, compute, network
-from pulumi_command import RemoteCopyFile
+from pulumi_command.remote import CopyFile
 
 # Create an Azure Resource Group
 resource_group = core.ResourceGroup('seshat-pulumi', location='uksouth')
@@ -181,7 +181,7 @@ with open(private_key_path, 'r') as file:
 # subprocess.run(f"scp -i {private_key} {dump_file} webadmin@{public_ip.ip_address}:~/seshat.dump", shell=True, check=True)
 
 ## With pulumi-command...
-copy = RemoteCopyFile('copyDumpFile',
+copy = CopyFile('copyDumpFile',
     connection=RemoteCopyFileConnectionArgs(
         host=public_ip.ip_address,
         user="webadmin",
