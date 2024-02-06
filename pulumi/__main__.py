@@ -1,6 +1,7 @@
 import base64
 import pulumi
 # import subprocess
+from os.path import expanduser
 from pulumi_azure import core, compute, network
 from pulumi_command.remote import CopyFile
 
@@ -171,7 +172,7 @@ config = pulumi.Config()
 dump_file = config.require('dumpFile')
 
 # Get the private key path from the config
-private_key_path = config.require('privateKey')
+private_key_path = expanduser(config.require('privateKey'))
 with open(private_key_path, 'r') as file:
     private_key = file.read()
 
@@ -182,7 +183,7 @@ with open(private_key_path, 'r') as file:
 
 ## With pulumi-command...
 copy = CopyFile('copyDumpFile',
-    connection=RemoteCopyFileConnectionArgs(
+    connection=pulumi.ConnectionArgs(
         host=public_ip.ip_address,
         user="webadmin",
         private_key=private_key,
