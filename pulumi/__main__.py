@@ -179,7 +179,10 @@ private_key_path = expanduser(config.require('privateKey'))
 # Copy database dump file to the VM
 
 ## With SCP...
-subprocess.run(f"scp -i {private_key_path} {dump_file} webadmin@{public_ip.ip_address}:~/seshat.dump", shell=True, check=True)
+cmd = pulumi.Output.all(private_key_path, dump_file, public_ip.ip_address).apply(
+    lambda args: f"scp -i {args[0]} {args[1]} webadmin@{args[2]}:~/seshat.dump"
+)
+cmd_result = cmd.apply(lambda cmd: subprocess.run(cmd, shell=True, check=True))
 
 ## With pulumi-command...
 ## Pulumi's Azure provider does not currently support CopyFile directly
