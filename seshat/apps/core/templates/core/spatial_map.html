@@ -13,25 +13,6 @@
         <div>
             <fieldset>
                 <legend>
-                    <h3>Base Map</h3>
-                </legend>
-                <label><input type="radio" name="baseMap" id="baseMapBasic" value="cartobasic" onclick="switchBaseMap()" checked>Basic</label><br>
-                <label><input type="radio" name="baseMap" id="baseMapOSM" value="osm"
-                        onclick="switchBaseMap()">OpenStreetMap</label><br>
-                <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()" disabled>Current borders</label>
-                <!-- Add a loading indicator for Current borders -->
-                <div id="baseMapCurrentLoadingIndicator" class="spinner"></div><br>
-            </fieldset>
-            <fieldset id="baseMapGADMFieldset">
-                <label for="baseMapGADM">Current borders:</label>
-                <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMap()">
-                    <option value="country">Countries</option>
-                    <option value="province">Provinces</option>
-                </select><br>
-            </fieldset>
-            <p></p>
-            <fieldset>
-                <legend>
                     <h3>Polities</h3>
                     <!-- Add a loading indicator -->
                     <div id="loadingIndicator">
@@ -52,15 +33,38 @@
                     <button id="stopButton" type="button" onclick="stopPlay()" disabled>⏸</button><br>
                     <label for="playRate">Animation speed:</label>
                     <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" onchange="plotPolities()" disabled><br><br>
-                    <label for="baseMapOnly">Hide polities (inspect base map)</label>
-                    <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br><br>
+                    <label for="showCapitals">Show capital cities</label>
+                    <input type="checkbox" id="showCapitals" name="showCapitals" onclick=plotPolities()><br><br>
                 </div>
-                <p>Click a polity to reveal information.</p>
-                <p>Mouse over capitals (circles).</p>
-                <p>Double click to reach polity pages.</p>
             </fieldset>
-            <p></p>
-
+            <p>Click polity to reveal information.</p>
+            <p>Double click to reach Seshat page.</p>
+            <p>Change the year or play animation.</p>
+            <p>Mouse over capital cities.</p>
+            <p>Try different base maps.</p>
+            <fieldset>
+                <legend>
+                    <h3>Base Map</h3>
+                </legend>
+                <label for="baseMapOnly">Base map only</label>
+                <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
+                <label><input type="radio" name="baseMap" id="baseMapBasic" value="cartobasic" onclick="switchBaseMap()"
+                        checked>Basic</label><br>
+                <label><input type="radio" name="baseMap" id="baseMapOSM" value="osm"
+                        onclick="switchBaseMap()">OpenStreetMap</label><br>
+                <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()"
+                        disabled>Current borders</label>
+                <!-- Add a loading indicator for Current borders -->
+                <div id="baseMapCurrentLoadingIndicator" class="spinner"></div><br>
+            </fieldset>
+            <fieldset id="baseMapGADMFieldset">
+                <label for="baseMapGADM">Current borders:</label>
+                <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMap()">
+                    <option value="country">Countries</option>
+                    <option value="province">Provinces</option>
+                </select><br>
+                <p>Click a country or province.</p>
+            </fieldset>
         </div>
         <div id="map" style="height: 85vh; flex: 1;"></div>
     </div>
@@ -361,31 +365,33 @@
                             }
                         });
 
-                        // Plot capital markers for those polities that have them
-                        if (allCapitalsInfo[shape.seshatId]) {
-                            allCapitalsInfo[shape.seshatId].forEach(function (capital) {
-                                var marker = L.circleMarker([capital.latitude, capital.longitude], {
-                                    color: shape.colour,
-                                    radius: 5
-                                }).addTo(map);
-                                popupContent = `
-                                    <table>
-                                        <tr>
-                                            <th>${capital.capital}</th>
-                                        </tr>
-                                        <tr>
-                                            <td>${shape.name}</td>
-                                        </tr>
-                                    </table>
-                                `;
-                                marker.bindPopup(popupContent);
-                                marker.on('mouseover', function (e) {
-                                    this.openPopup();
+                        // Plot capital cities for those polities that have them
+                        if (document.getElementById('showCapitals').checked) {
+                            if (allCapitalsInfo[shape.seshatId]) {
+                                allCapitalsInfo[shape.seshatId].forEach(function (capital) {
+                                    var marker = L.circleMarker([capital.latitude, capital.longitude], {
+                                        color: shape.colour,
+                                        radius: 5
+                                    }).addTo(map);
+                                    popupContent = `
+                                        <table>
+                                            <tr>
+                                                <th>${capital.capital}</th>
+                                            </tr>
+                                            <tr>
+                                                <td>${shape.name}</td>
+                                            </tr>
+                                        </table>
+                                    `;
+                                    marker.bindPopup(popupContent);
+                                    marker.on('mouseover', function (e) {
+                                        this.openPopup();
+                                    });
+                                    marker.on('mouseout', function (e) {
+                                        this.closePopup();
+                                    });
                                 });
-                                marker.on('mouseout', function (e) {
-                                    this.closePopup();
-                                });
-                            });
+                            }
                         }
 
                         // Update the displayedShapes array
