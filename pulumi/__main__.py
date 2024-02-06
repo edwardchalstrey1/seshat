@@ -151,3 +151,17 @@ vm = compute.LinuxVirtualMachine('vm',
 
 # Export the public IP address of the VM
 pulumi.export('publicIp', public_ip.ip_address)
+
+# Define a local-exec provisioner
+class FileTransfer(pulumi.ComponentResource):
+    def __init__(self, name, opts=None):
+        super().__init__('pkg:index:FileTransfer', name, {}, opts)
+
+        self.register_outputs({})
+
+# Create a new FileTransfer resource
+file_transfer = FileTransfer('file_transfer',
+    opts=pulumi.ResourceOptions(depends_on=[vm]))
+
+# Run scp in a local-exec provisioner
+pulumi.local.exec(f"scp -i ~/.ssh/id_rsa db_dump.sql webadmin@{public_ip.ip_address}:~/")
