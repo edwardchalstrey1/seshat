@@ -3,7 +3,6 @@ import pulumi
 import subprocess
 from os.path import expanduser
 from pulumi_azure import core, compute, network
-# from pulumi_command.remote import CopyFile
 
 # Create an Azure Resource Group
 resource_group = core.ResourceGroup('seshat-pulumi', location='uksouth')
@@ -173,25 +172,9 @@ dump_file = config.require('dumpFile')
 
 # Get the private key path from the config
 private_key_path = expanduser(config.require('privateKey'))
-# with open(private_key_path, 'r') as file:
-#     private_key = file.read()
 
 # Copy database dump file to the VM
-
-## With SCP...
 cmd = pulumi.Output.all(private_key_path, dump_file, public_ip.ip_address).apply(
     lambda args: f"scp -i {args[0]} {args[1]} webadmin@{args[2]}:~/seshat.dump"
 )
 cmd_result = cmd.apply(lambda cmd: subprocess.run(cmd, shell=True, check=True))
-
-## With pulumi-command...
-## Pulumi's Azure provider does not currently support CopyFile directly
-# copy = CopyFile('copyDumpFile',
-#     connection=pulumi.ConnectionArgs(
-#         host=public_ip.ip_address,
-#         user="webadmin",
-#         private_key=private_key,
-#     ),
-#     local_path=dump_file,
-#     remote_path="~/seshat.dump",
-# )
