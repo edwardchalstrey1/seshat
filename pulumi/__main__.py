@@ -163,5 +163,14 @@ class FileTransfer(pulumi.ComponentResource):
 file_transfer = FileTransfer('file_transfer',
     opts=pulumi.ResourceOptions(depends_on=[vm]))
 
+# Create a config object
+config = pulumi.Config()
+
+# Get the dump file path from the config
+dump_file = config.require('dumpFile')
+
+# Get the private key path from the config
+private_key = config.require('privateKey')
+
 # Run scp in a local-exec provisioner
-pulumi.local.exec(f"scp -i ~/.ssh/id_rsa db_dump.sql webadmin@{public_ip.ip_address}:~/")
+pulumi.local.exec(f"scp -i {private_key} {dump_file} webadmin@{public_ip.ip_address}:~/dumpfile.sql")

@@ -340,5 +340,5 @@ How to run a full setup of the Seshat django app on Azure with Pulumi following 
     ```
 5. Deploy the app
     ```
-        pulumi up
+        pulumi up --config privateKey=~/.ssh/id_rsa --config dumpFile=/path/to/dump.sql
     ```
