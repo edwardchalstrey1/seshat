@@ -334,7 +334,7 @@ How to run a full setup of the Seshat django app on Azure with Pulumi following 
         pulumi stack init seshat
         pulumi stack select seshat
     ```
-4. Configure Pulumi with your ssh public key:
+4. Configure Pulumi:
     ```
         pulumi config set --secret sshPublicKey "$(cat ~/.ssh/id_rsa.pub)"
         pulumi config set privateKey "~/.ssh/id_rsa"
