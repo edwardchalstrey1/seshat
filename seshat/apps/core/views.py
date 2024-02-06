@@ -2402,6 +2402,16 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     if displayed_year == "all":
         displayed_year = initial_displayed_year 
 
+    # TODO: Temp fix whilst polity start and end years don't match shape data
+    # If a polity page has > 1 shapes then use the earliest and latest years
+    # See polity_map in core_tags.py for more info
+    if seshat_id != "all":
+        earliest_year = min([shape['start_year'] for shape in shapes])
+        displayed_year = earliest_year
+        latest_year = max([shape['end_year'] for shape in shapes])
+    else:
+        earliest_year, latest_year = get_polity_year_range()
+
     content = {
         'shapes': shapes,
         'earliest_year': earliest_year,
