@@ -113,15 +113,15 @@ pip install -r requirements.txt
 pip install "django-geojson [field]"
 
 # Create .env file with database configuration
-echo "NAME=<seshat_db_name>
-USER=postgres
-HOST=localhost
-PORT=5432
-PASSWORD=<db_password>" > /home/webadmin/seshat/seshat/settings/.env
+# echo "NAME=<seshat_db_name>
+# USER=postgres
+# HOST=localhost
+# PORT=5432
+# PASSWORD=<db_password>" > /home/webadmin/seshat/seshat/settings/.env
 
-# Run django
-export DJANGO_SETTINGS_MODULE=seshat.settings.local
-gunicorn seshat.wsgi:application --config gunicorn.conf.py &
+# # Run django
+# export DJANGO_SETTINGS_MODULE=seshat.settings.local
+# gunicorn seshat.wsgi:application --config gunicorn.conf.py &
 '''
 
 # Create a VM
