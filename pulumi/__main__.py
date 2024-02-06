@@ -1,6 +1,6 @@
 import base64
-import os
 import pulumi
+import subprocess
 from pulumi_azure import core, compute, network
 
 # Create an Azure Resource Group
@@ -172,5 +172,5 @@ dump_file = config.require('dumpFile')
 # Get the private key path from the config
 private_key = config.require('privateKey')
 
-# Run scp in a local-exec provisioner
-pulumi.local.exec(f"scp -i {private_key} {dump_file} webadmin@{public_ip.ip_address}:~/dumpfile.sql")
+# Run scp using subprocess
+subprocess.run(f"scp -i {private_key} {dump_file} webadmin@{public_ip.ip_address}:~/dumpfile.sql", shell=True, check=True)
