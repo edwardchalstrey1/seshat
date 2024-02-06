@@ -2402,6 +2402,16 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     if displayed_year == "all":
         displayed_year = initial_displayed_year 
 
+    # TODO: Temp fix whilst polity start and end years don't match shape data
+    # If a polity page has > 1 shapes then use the earliest and latest years
+    # See polity_map in core_tags.py for more info
+    if seshat_id != "all":
+        earliest_year = min([shape['start_year'] for shape in shapes])
+        displayed_year = earliest_year
+        latest_year = max([shape['end_year'] for shape in shapes])
+    else:
+        earliest_year, latest_year = get_polity_year_range()
+
     content = {
         'shapes': shapes,
         'earliest_year': earliest_year,
@@ -2431,7 +2441,6 @@ def map_view_initial(request):
     # Use the year from the request parameters if present
     # Otherwise use the default initial_displayed_year (see above)
     displayed_year = request.GET.get('year', initial_displayed_year)
-    # print('loading shapes for ', displayed_year)
     content = get_polity_shape_content(displayed_year=displayed_year)
 
     # Load the capital cities for polities that have them
@@ -2448,7 +2457,6 @@ def map_view_all(request):
         This view is used to display a map with polities plotted on it.
         The view loads all polities for the range of years.
     """
-    # print('loading shapes for all years')
     content = get_polity_shape_content()
 
     # Load the capital cities for polities that have them
