@@ -65,7 +65,7 @@ In `/pulumi` we:
     ```
         scp -i ~/.ssh/id_rsa /path/to/dumpfile.dump webadmin@<VM IP adress>:~/seshat.dump
     ```
-7. SSH into the deployed VM and set up the database (copied from Ubuntu steps above) *TODO: move the below steps to be part of the Pulumi setup*
+7. SSH into the deployed VM and set up the database. *Note: we may eventually move the below manual steps to be part of the Pulumi automatedsetup*
     ```
         ssh -i ~/.ssh/id_rsa webadmin@<VM IP adress>
     ```
