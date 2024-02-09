@@ -106,7 +106,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 pip install "django-geojson [field]"
 
-# Create .env file with database configuration
+
+## TODO: Get the pulumi script to run the full setup
+# # Create .env file with database configuration
 # echo "NAME=<seshat_db_name>
 # USER=postgres
 # HOST=localhost
@@ -146,17 +148,18 @@ vm = compute.LinuxVirtualMachine('vm',
 # Export the public IP address of the VM
 pulumi.export('publicIp', public_ip.ip_address)
 
-# Create a config object
-config = pulumi.Config()
+## TODO: Get the pulumi script to run the full setup
+# # Create a config object
+# config = pulumi.Config()
 
-# Get the dump file path from the config
-dump_file = config.require('dumpFile')
+# # Get the dump file path from the config
+# dump_file = config.require('dumpFile')
 
-# Get the private key path from the config
-private_key_path = expanduser(config.require('privateKey'))
+# # Get the private key path from the config
+# private_key_path = expanduser(config.require('privateKey'))
 
-# Copy database dump file to the VM
-cmd = pulumi.Output.all(private_key_path, dump_file, public_ip.ip_address).apply(
-    lambda args: f"scp -i {args[0]} {args[1]} webadmin@{args[2]}:~/seshat.dump"
-)
-cmd_result = cmd.apply(lambda cmd: subprocess.run(cmd, shell=True, check=True))
+# # Copy database dump file to the VM
+# cmd = pulumi.Output.all(private_key_path, dump_file, public_ip.ip_address).apply(
+#     lambda args: f"scp -i {args[0]} {args[1]} webadmin@{args[2]}:~/seshat.dump"
+# )
+# cmd_result = cmd.apply(lambda cmd: subprocess.run(cmd, shell=True, check=True))
