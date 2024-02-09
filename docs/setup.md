@@ -337,10 +337,12 @@ How to run a full setup of the Seshat django app on Azure with Pulumi following 
 4. Configure Pulumi:
     ```
         pulumi config set --secret sshPublicKey "$(cat ~/.ssh/id_rsa.pub)"
-        pulumi config set privateKey "~/.ssh/id_rsa"
-        pulumi config set dumpFile "/path/to/dumpfile.dump"
     ```
     - TODO: `privateKey` and `dumpFile` paths are needed for SCP command, which currently isn't working via Pulumi, see manual steps below
+        ```
+            pulumi config set privateKey "~/.ssh/id_rsa"
+            pulumi config set dumpFile "/path/to/dumpfile.dump"
+        ```
 5. Deploy the app
     ```
         pulumi up
