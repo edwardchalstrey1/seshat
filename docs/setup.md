@@ -345,7 +345,56 @@ How to run a full setup of the Seshat django app on Azure with Pulumi following 
     ```
         pulumi up
     ```
-6. SCP:
+6. Upload db dump with SCP:
     ```
         scp -i ~/.ssh/id_rsa /path/to/dumpfile.dump webadmin@<VM IP adress>:~/seshat.dump
     ```
+7. SSH into the deployed VM and set up the database (copied from Ubuntu steps above) *TODO: move the below steps to be part of the Pulumi setup*
+    ```
+        ssh -i ~/.ssh/id_rsa webadmin@<VM IP adress>
+    ```
+    - Create db: open psql with `sudo -u postgres psql` and run:
+        ```
+            CREATE DATABASE <seshat_db_name>;
+        ```
+    - Add PostGIS to db: open psql with `sudo -u postgres psql -d <seshat_db_name>` and run:
+        ```
+            CREATE EXTENSION postgis;
+        ```
+    - Restore the db from dump:
+        ```
+            sudo psql -U postgres <seshat_db_name> < ~/seshat.dump
+        ```
+    - <details><summary>Add a password</summary>
+
+        - Add a password for the superuser with `sudo -u postgres psql`:
+            ```
+                ALTER USER postgres WITH PASSWORD '<db_password>';
+            ```
+        - Update postgres to use md5 with `sudo nano /etc/postgresql/16/main/pg_hba.conf`
+            ![](img/pg_hba.conf.png)
+        - Reload postgres
+            ```
+                sudo systemctl reload postgresql
+            ```
+        </details>
+    - Within the `seshat` repo, create a file called `seshat/settings/.env` with the db connection vars
+        - For example:
+            ```
+                NAME=<seshat_db_name>
+                USER=postgres
+                HOST=localhost
+                PORT=5432
+                PASSWORD=<db_password>
+            ```
+8. Run django
+    - Allow port 8000
+    ```
+        sudo ufw allow 8000
+        cd seshat
+        source venv/bin/activate
+        export DJANGO_SETTINGS_MODULE=seshat.settings.local
+        gunicorn seshat.wsgi:application --config gunicorn.conf.py
+    ```
+    - Go to `http://<public IP>:8000/`
+    
