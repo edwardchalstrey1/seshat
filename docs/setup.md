@@ -43,7 +43,7 @@ In `/pulumi` we:
         source venv/bin/activate
         pip install -r requirements.txt
     ```
-3. [Optional] Set up a Pulumi stack
+3. Set up a Pulumi stack
     ```
         pulumi stack init seshat
         pulumi stack select seshat
