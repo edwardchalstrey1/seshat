@@ -269,7 +269,6 @@ This page instructs software engineers how to set up a testing version of the Se
 3. Upload the shape datasets described in [spatialdb.md](spatialdb.md) with SCP too if those database tables aren't already populated in the database the dump was created from
 4. Follow the setup steps above for Ubuntu to install everything and create the db
     - Save the db password for the postgres user in Azure key vault
-    - When you clone the repo, check out the `azure` branch
     - Update `ALLOWED_HOSTS` in `seshat/settings/base.py` and `seshat/settings/local.py` with the IP address of the VM if different from what's saved there
     - Populate spatial data tables by following [spatialdb.md](spatialdb.md) if needed
 5. Update network security rules for the VM
