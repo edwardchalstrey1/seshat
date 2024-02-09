@@ -389,13 +389,14 @@ How to run a full setup of the Seshat django app on Azure with Pulumi following 
                 PASSWORD=<db_password>
             ```
 8. Run django
-    - Allow port 8000
-    ```
-        sudo ufw allow 8000
-        cd seshat
-        source venv/bin/activate
-        export DJANGO_SETTINGS_MODULE=seshat.settings.local
-        gunicorn seshat.wsgi:application --config gunicorn.conf.py
-    ```
+    - Open `seshat/settings/local.py` and add the created IP address to `ALLOWED_HOSTS`
+    - Configure and run
+        ```
+            sudo ufw allow 8000
+            cd seshat
+            source venv/bin/activate
+            export DJANGO_SETTINGS_MODULE=seshat.settings.local
+            gunicorn seshat.wsgi:application --config gunicorn.conf.py
+        ```
     - Go to `http://<public IP>:8000/`
     
