@@ -47,16 +47,9 @@ network_security_group = network.NetworkSecurityGroup('networkSecurityGroup',
     ]
 )
 
-# Create a subnet
-subnet = network.Subnet('subnet',
-    resource_group_name=resource_group.name,
-    virtual_network_name=virtual_network.name,
-    address_prefixes=['10.0.2.0/24'],
-)
-
 # Associate the network security group with the subnet
 association = network.SubnetNetworkSecurityGroupAssociation('association',
-    subnet_id=subnet.id,
+    subnet_id=virtual_network.subnets[0].id,  # Use the subnet from the virtual network
     network_security_group_id=network_security_group.id,
 )
 
@@ -65,7 +58,7 @@ network_interface = network.NetworkInterface('networkInterface',
     resource_group_name=resource_group.name,
     ip_configurations=[{
         'name': 'webserver',
-        'subnet_id': subnet.id,  # Use the new subnet
+        'subnet_id': virtual_network.subnets[0].id,  # Use the subnet from the virtual network
         'private_ip_address_allocation': 'Dynamic',
         'public_ip_address_id': public_ip.id,
     }]
