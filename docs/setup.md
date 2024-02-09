@@ -10,6 +10,7 @@ How to run a full setup of the Seshat django app on Azure with Pulumi based on [
 - The region specified in the Pulumi code is "UKSouth".
 - Also assumes that you have a Seshat database dump including all the spatial data already. The project [google drive](https://drive.google.com/drive/folders/1hRJ6HvHWqSjS7bUCGdXuabc4kD0H7q3_?usp=sharing) has this.
 - If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in [spatialdb.md](spatialdb.md).
+- **Note:** The setup is only partially automated with Pulumi currently. As you'll see below, subsequent steps are required to that involve SSH-ing into the created VM.
 
 ### Pre-requisites
 
