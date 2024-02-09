@@ -81,7 +81,8 @@ In `/pulumi` we:
         ```
             sudo psql -U postgres <seshat_db_name> < ~/seshat.dump
         ```
-    - <details><summary>Add a password</summary>
+    - Choose a password for Postgres. At Turing we have an Azure Key Vault set up under the project subscription where this can be saved (the one we have set up can be reused).
+    - <details><summary>Add the password</summary>
 
         - Add a password for the superuser with `sudo -u postgres psql`:
             ```
