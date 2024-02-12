@@ -1,7 +1,8 @@
-from django.test import TestCase
-from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces
-# from ..views import map_view_initial, map_view_all, provinces_and_countries_view
 from django.contrib.gis.geos import MultiPolygon, Polygon
+from django.test import TestCase, Client
+from django.urls import reverse
+from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces
+
 
 # Simple square polygon to use in geospatial data table tests
 square = MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (0, 0))))
@@ -48,18 +49,18 @@ class ModelTest(TestCase):
         self.assertIsInstance(gadm_provinces, GADMProvinces)
         self.assertEqual(gadm_provinces.NAME_1, "Test Province")
 
-# class ViewTest(TestCase):
-#     def setUp(self):
-#         self.client = Client()
+class ViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
 
-#     def test_map_view_initial(self):
-#         response = self.client.get(reverse('core/world_map/'))
-#         self.assertEqual(response.status_code, 200)
+    def test_map_view_initial(self):
+        response = self.client.get(reverse('core/world_map/'))
+        self.assertEqual(response.status_code, 200)
 
-#     def test_map_view_all(self):
-#         response = self.client.get(reverse('core/world_map_all/'))
-#         self.assertEqual(response.status_code, 200)
+    def test_map_view_all(self):
+        response = self.client.get(reverse('core/world_map_all/'))
+        self.assertEqual(response.status_code, 200)
 
-#     def test_provinces_and_countries_view(self):
-#         response = self.client.get(reverse('core/provinces_and_countries'))
-#         self.assertEqual(response.status_code, 200)
+    def test_provinces_and_countries_view(self):
+        response = self.client.get(reverse('core/provinces_and_countries'))
+        self.assertEqual(response.status_code, 200)
