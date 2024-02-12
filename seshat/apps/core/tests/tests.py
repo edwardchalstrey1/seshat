@@ -2,19 +2,21 @@ from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity
-from ..views import get_provinces, get_polity_shapes, get_polity_info, get_polity_shape_content, get_all_polity_capitals
+from ..views import get_polity_year_range, get_provinces, get_polity_shapes, get_polity_info, get_polity_shape_content, get_all_polity_capitals
 from ..templatetags.core_tags import get_polity_capitals, polity_map
 
 
 # Simple square polygon to use in geospatial data table tests
 square = MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (0, 0))))
 
-class ModelTest(TestCase):
-    """Test case for the models."""
+class ShapesTest(TestCase):
+    """Test case for the shape models and views."""
 
-    def test_video_shapefile_creation(self):
-        """Test the creation of a VideoShapefile instance."""
-        video_shapefile = VideoShapefile.objects.create(
+    def setUp(self):
+        """Set up the test client and Polity entry for the view functions."""
+        self.client = Client()
+        self.polity = Polity.objects.create(name='TestPolity', id=1, long_name='TestPolity', new_name='TestPolity')
+        self.video_shapefile = VideoShapefile.objects.create(
             geom=square,
             name="Test shape",
             polity="Test polity",
@@ -26,8 +28,13 @@ class ModelTest(TestCase):
             polity_end_year=2020,
             colour="#FFFFFF"
         )
-        self.assertIsInstance(video_shapefile, VideoShapefile)
-        self.assertEqual(video_shapefile.name, "Test shape")
+
+    # Model tests
+
+    def test_video_shapefile_creation(self):
+        """Test the creation of a VideoShapefile instance."""
+        self.assertIsInstance(self.video_shapefile, VideoShapefile)
+        self.assertEqual(self.video_shapefile.name, "Test shape")
 
     def test_gadm_shapefile_creation(self):
         """Test the creation of a GADMShapefile instance."""
@@ -57,14 +64,14 @@ class ModelTest(TestCase):
         self.assertIsInstance(gadm_provinces, GADMProvinces)
         self.assertEqual(gadm_provinces.NAME_1, "Test Province")
 
+    # View function tests
 
-class ViewTest(TestCase):
-    """Test case for the views."""
-
-    def setUp(self):
-        """Set up the test client and Polity entry for the view functions."""
-        self.client = Client()
-        self.polity = Polity.objects.create(name='TestPolity', id=1, long_name='TestPolity', new_name='TestPolity')
+    # def test_get_polity_year_range(self):
+    #     """Test the get_polity_year_range function."""
+    #     seshat_id = 'TestPolity'
+    #     expected_result = (2000, 2020)
+    #     result = get_polity_year_range(seshat_id)
+    #     self.assertEqual(result, expected_result)
 
     def test_get_polity_info(self):
         """Test the get_polity_info function."""
@@ -72,6 +79,18 @@ class ViewTest(TestCase):
         expected_result = [('TestPolity', 1, 'Test Polity')]
         result = get_polity_info(seshat_ids)
         self.assertEqual(result, expected_result)
+
+    # def test_get_polity_shape_content(self):
+    #     """Test the get_polity_shape_content function."""
+    #     result = get_polity_shape_content()
+    #     expected_result = {
+    #         'shapes': [{'seshat_id': 'TestPolity', 'start_year': 2000, 'end_year': 2020, 'geom': square}],
+    #         'earliest_year': 2000,
+    #         'display_year': 2000,
+    #         'latest_year': 2020,
+    #         'seshat_id_page_id': {'TestPolity': {'id': 1, 'long_name': 'TestPolity'}}
+    #     }
+    #     self.assertEqual(result, expected_result)
 
     # def test_map_view_initial(self):
     #     """Test the initial map view."""
