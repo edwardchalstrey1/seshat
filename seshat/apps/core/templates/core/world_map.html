@@ -101,7 +101,7 @@
 
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
-            fetch('/core/spatial_map_all/')
+            fetch('/core/world_map_all/')
                 .then(response => response.json())
                 .then(data => {
                     shapesData = data.shapes.map(function (shape) {
@@ -520,7 +520,7 @@
             var yearInUrl = url.searchParams.get('year');
             if (storedYear !== yearInUrl) {
                 // Change window.location.href
-                window.location.href = '/core/spatial_map/?year=' + storedYear;
+                window.location.href = '/core/world_map/?year=' + storedYear;
             }
         });
 

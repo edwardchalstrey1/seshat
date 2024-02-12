@@ -15,7 +15,7 @@ To create a new shape dataset for use in the Seshat map explorer, you can do the
     - Add a new header on this page to document here how this works
 4. Create a new view and update the the map template with the necessary logic to use this dataset
     - views at `seshat/apps/core/views.py`
-    - template e.g. `seshat/apps/core/templates/core/spatial_map.html`
+    - template e.g. `seshat/apps/core/templates/core/world_map.html`
 
 ## RA curated dataset
 

@@ -2448,7 +2448,7 @@ def map_view_initial(request):
     content['all_capitals_info'] = caps
     
     return render(request,
-                  'core/spatial_map.html',
+                  'core/world_map.html',
                   content
                   )
 
