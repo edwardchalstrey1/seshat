@@ -19,7 +19,7 @@
                         <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
                         <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}"
                             max="{{ content.latest_year }}" value="{{ content.display_year }}" class="slider"
-                            onchange="plotPolities()" style="width: 300px;"><br>
+                            onchange="plotSinglePolity()" style="width: 300px;"><br>
                         <label for="sliderDate">Selected year:</label>
                         <span id="sliderDate"></span><br><br>
                         <label for="playButton">Run animation:</label>
@@ -27,7 +27,7 @@
                         <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
                         <label for="playRate">Animation speed:</label>
                         <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider"
-                            onchange="plotPolities()"><br><br>
+                            onchange="plotSinglePolity()"><br><br>
                     </div>
                 </fieldset>
             </div>
@@ -37,7 +37,7 @@
                     <br>
                     <h5>Base Map:</h5>
                     <label for="baseMapOnly">Base map only</label>
-                    <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br><br>
+                    <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotSinglePolity()><br><br>
                     <label><input type="radio" name="baseMap" id="baseMapBasic" value="cartobasic" onclick="switchBaseMap()"
                             checked>Basic</label><br>
                     <label><input type="radio" name="baseMap" id="baseMapOSM" value="osm"
@@ -126,7 +126,7 @@
             var provinceLayers = []; // Keep track of province layers to remove them later
             switchBaseMap()
 
-            function plotPolities() {
+            function plotSinglePolity() {
 
                 var selectedYear = document.getElementById('dateSlide').value;
 
@@ -270,7 +270,7 @@
             }
 
             // Initial plot on page load
-            plotPolities()
+            plotSinglePolity()
 
             // Display slider value
             var slider = document.getElementById("dateSlide");
@@ -303,7 +303,7 @@
                 var urlParams = new URLSearchParams(window.location.search);
 
                 // Trigger filtering when the page refreshes
-                plotPolities();
+                plotSinglePolity();
 
             });
 
@@ -313,7 +313,7 @@
                     // Update the slider value
                     slider.value = enterYearInput.value;
                     updateSliderOutput();
-                    plotPolities();
+                    plotSinglePolity();
                 }
             });
 
