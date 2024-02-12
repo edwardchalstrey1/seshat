@@ -8,6 +8,7 @@ from ..templatetags.core_tags import get_polity_capitals, polity_map
 
 # Simple square polygon to use in geospatial data table tests
 square = MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (0, 0))))
+geojson_square = GEOSGeometry(square).geojson
 
 class ShapesTest(TestCase):
     """Test case for the shape models and views."""
@@ -83,10 +84,20 @@ class ShapesTest(TestCase):
     def test_get_provinces(self):
         """Test the get_provinces function."""
         province_result = get_provinces(selected_base_map_gadm='province')
-        province_expected_result = 
+        province_expected_result = [{'aggregated_geometry': {
+                                         "type": "MultiPolygon",
+                                         "coordinates": square,
+                                         'province': 'Test Province',
+                                         'province_type': 'Test Type'}
+                                    }]
+        country_expected_result = [{'aggregated_geometry': {
+                                         "type": "MultiPolygon",
+                                         "coordinates": square,
+                                         'country': 'Test Country'}
+                                    }]
         country_result = get_provinces(selected_base_map_gadm='country')
-        self.assertEqual(province_result, [])
-        self.assertEqual(country_result, [])
+        self.assertEqual(province_result, province_expected_result)
+        self.assertEqual(country_result, country_expected_result)
 
     # def test_get_polity_shape_content(self):
     #     """Test the get_polity_shape_content function."""
