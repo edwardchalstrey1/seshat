@@ -432,8 +432,6 @@
             enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
             updateSliderOutput(); // Update the displayed year
             plotPolities();
-            // Update the color information in local storage for newly displayed shapes
-            updateColorInfoInLocalStorage(displayedShapes);
         }
 
         function adjustSliderDown() {
@@ -441,21 +439,6 @@
             enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
             updateSliderOutput(); // Update the displayed year
             plotPolities();
-            // Update the color information in local storage for newly displayed shapes
-            updateColorInfoInLocalStorage(displayedShapes);
-        }
-
-        function updateColorInfoInLocalStorage(updatedShapes) {
-            var colorInfo = {};
-
-            // Only update color information for the specified shapes
-            shapesData.forEach(function (shape) {
-                if (updatedShapes.indexOf(shape.name) !== -1) {
-                    colorInfo[shape.name] = shape.colour;
-                }
-            });
-
-            localStorage.setItem('colorInfo', JSON.stringify(colorInfo));
         }
 
         var playInterval;
@@ -485,8 +468,6 @@
                 enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
                 updateSliderOutput(); // Update the displayed year
                 plotPolities();
-                // Update the color information in local storage for newly displayed shapes
-                updateColorInfoInLocalStorage(displayedShapes);
 
                 // Stop playing when the slider reaches its maximum value
                 if (slider.value >= parseInt(slider.max)) {
@@ -513,18 +494,6 @@
             // Get the country parameter from the URL
             var urlParams = new URLSearchParams(window.location.search);
 
-            // Retrieve color information from local storage
-            var colorInfo = localStorage.getItem('colorInfo');
-            if (colorInfo) {
-                colorInfo = JSON.parse(colorInfo);
-                shapesData.forEach(function (shape) {
-                    var storedColor = colorInfo[shape.name];
-                    if (storedColor) {
-                        shape.colour = storedColor;
-                    }
-                });
-            }
-
             // Trigger filtering when the page refreshes
             plotPolities();
 
@@ -537,8 +506,6 @@
                 slider.value = enterYearInput.value;
                 updateSliderOutput();
                 plotPolities();
-                // Update the color information in local storage for newly displayed shapes
-                updateColorInfoInLocalStorage(displayedShapes);
             }
         });
 
