@@ -241,16 +241,6 @@
                                 });
                             });
 
-                            // Add double-click event listener to GeoJSON layers
-                            geoJSONLayer.on('dblclick', function (event) {
-                                // Check if the shape has a corresponding seshat_id
-                                if (shape.seshatId in seshatIdPageId) {
-                                    // Redirect to the corresponding URL
-                                    var polityId = seshatIdPageId[shape.seshatId]['id'];
-                                    window.location.href = '/core/polity/' + polityId;
-                                }
-                            });
-
                             // Update the displayedShapes array
                             if (displayedShapes.indexOf(shape.name) === -1) {
                                 displayedShapes.push(shape.name);
