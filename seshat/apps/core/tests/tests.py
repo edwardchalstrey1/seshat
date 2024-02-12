@@ -54,13 +54,13 @@ class ViewTest(TestCase):
         self.client = Client()
 
     def test_map_view_initial(self):
-        response = self.client.get(reverse('core/world_map/'))
+        response = self.client.get(reverse('world_map/'))
         self.assertEqual(response.status_code, 200)
 
     def test_map_view_all(self):
-        response = self.client.get(reverse('core/world_map_all/'))
+        response = self.client.get(reverse('world_map_all/'))
         self.assertEqual(response.status_code, 200)
 
     def test_provinces_and_countries_view(self):
-        response = self.client.get(reverse('core/provinces_and_countries'))
+        response = self.client.get(reverse('provinces_and_countries'))
         self.assertEqual(response.status_code, 200)
