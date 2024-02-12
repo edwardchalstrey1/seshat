@@ -1,3 +1,12 @@
+from django.contrib.gis.geos import MultiPolygon, Polygon
+from django.test import TestCase, Client
+from django.urls import reverse
+from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces
+
+
+# Simple square polygon to use in geospatial data table tests
+square = MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (0, 0))))
+
 class ModelTest(TestCase):
     """Test case for the models."""
 
