@@ -69,7 +69,7 @@ class ViewTest(TestCase):
     def test_get_polity_info(self):
         """Test the get_polity_info function."""
         seshat_ids = ['TestPolity']
-        expected_result = [{'new_name': 'TestPolity', 'id': 1, 'long_name': 'Test Polity'}]
+        expected_result = [('TestPolity', 1, 'Test Polity')]
         result = get_polity_info(seshat_ids)
         self.assertEqual(result, expected_result)
 
