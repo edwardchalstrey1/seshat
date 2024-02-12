@@ -28,6 +28,20 @@ class ShapesTest(TestCase):
             polity_end_year=2020,
             colour="#FFFFFF"
         )
+        self.gadm_shapefile = GADMShapefile.objects.create(
+            geom=square,
+            UID=123456789,
+            NAME_0="Test shape"
+        )
+        self.province = GADMProvinces.objects.create(
+            geom=square,
+            NAME_1="Test Province",
+            ENGTYPE_1="Test Type"
+        )
+        self.country = GADMCountries.objects.create(
+            geom=square,
+            COUNTRY="Test Country"
+        )
 
     # Model tests
 
@@ -38,30 +52,17 @@ class ShapesTest(TestCase):
 
     def test_gadm_shapefile_creation(self):
         """Test the creation of a GADMShapefile instance."""
-        gadm_shapefile = GADMShapefile.objects.create(
-            geom=square,
-            UID=123456789,
-            NAME_0="Test shape"
-        )
-        self.assertIsInstance(gadm_shapefile, GADMShapefile)
+        self.assertIsInstance(gadm_shapefile, self.gadm_shapefile)
         self.assertEqual(gadm_shapefile.NAME_0, "Test shape")
 
     def test_gadm_countries_creation(self):
         """Test the creation of a GADMCountries instance."""
-        gadm_countries = GADMCountries.objects.create(
-            geom=square,
-            COUNTRY="Test Country"
-        )
-        self.assertIsInstance(gadm_countries, GADMCountries)
+        self.assertIsInstance(gadm_countries, self.country)
         self.assertEqual(gadm_countries.COUNTRY, "Test Country")
 
     def test_gadm_provinces_creation(self):
         """Test the creation of a GADMProvinces instance."""
-        gadm_provinces = GADMProvinces.objects.create(
-            geom=square,
-            NAME_1="Test Province"
-        )
-        self.assertIsInstance(gadm_provinces, GADMProvinces)
+        self.assertIsInstance(gadm_provinces, self.province)
         self.assertEqual(gadm_provinces.NAME_1, "Test Province")
 
     # View function tests
@@ -78,6 +79,13 @@ class ShapesTest(TestCase):
         expected_result = [('TestPolity', 1, 'TestPolity')]
         result = get_polity_info(seshat_ids)
         self.assertEqual(result, expected_result)
+
+    def test_get_provinces(self):
+        """Test the get_provinces function."""
+        province_result = get_provinces(selected_base_map_gadm='province')
+        country_result = get_provinces(selected_base_map_gadm='country')
+        self.assertEqual(province_result, [])
+        self.assertEqual(country_result, [])
 
     # def test_get_polity_shape_content(self):
     #     """Test the get_polity_shape_content function."""
