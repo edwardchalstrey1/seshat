@@ -211,6 +211,12 @@ cython_debug/
 #.idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/django
+
+# Ed's bits
 data
 database_dumps
 seshat/staticfiles
+pulumi/logs
+scripts
+.DS_Store
+*.ipynb
