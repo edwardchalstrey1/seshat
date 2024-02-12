@@ -52,18 +52,18 @@ class ShapesTest(TestCase):
 
     def test_gadm_shapefile_creation(self):
         """Test the creation of a GADMShapefile instance."""
-        self.assertIsInstance(gadm_shapefile, self.gadm_shapefile)
+        self.assertIsInstance(self.gadm_shapefile, GADMShapefile)
         self.assertEqual(gadm_shapefile.NAME_0, "Test shape")
 
     def test_gadm_countries_creation(self):
         """Test the creation of a GADMCountries instance."""
-        self.assertIsInstance(gadm_countries, self.country)
+        self.assertIsInstance(self.gadm_countries, GADMCountries)
         self.assertEqual(gadm_countries.COUNTRY, "Test Country")
 
     def test_gadm_provinces_creation(self):
         """Test the creation of a GADMProvinces instance."""
-        self.assertIsInstance(gadm_provinces, self.province)
-        self.assertEqual(gadm_provinces.NAME_1, "Test Province")
+        self.assertIsInstance(self.gadm_provinces, GADMProvinces)
+        self.assertEqual(self.gadm_provinces.NAME_1, "Test Province")
 
     # View function tests
 
@@ -83,6 +83,7 @@ class ShapesTest(TestCase):
     def test_get_provinces(self):
         """Test the get_provinces function."""
         province_result = get_provinces(selected_base_map_gadm='province')
+        province_expected_result = 
         country_result = get_provinces(selected_base_map_gadm='country')
         self.assertEqual(province_result, [])
         self.assertEqual(country_result, [])
