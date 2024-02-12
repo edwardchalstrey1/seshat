@@ -1,6 +1,6 @@
 from django.test import TestCase
-from .models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces
-from .views import map_view_initial, map_view_all, provinces_and_countries_view
+from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces
+from ..views import map_view_initial, map_view_all, provinces_and_countries_view
 
 # Create your tests here.
 class ModelTest(TestCase):
