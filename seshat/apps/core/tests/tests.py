@@ -19,7 +19,7 @@ class ShapesTest(TestCase):
         self.video_shapefile = VideoShapefile.objects.create(
             geom=square,
             name="Test shape",
-            polity="Test polity",
+            polity="Testpolity",
             seshat_id="Test seshat_id",
             area=100.0,
             start_year=2000,
@@ -66,12 +66,12 @@ class ShapesTest(TestCase):
 
     # View function tests
 
-    # def test_get_polity_year_range(self):
-    #     """Test the get_polity_year_range function."""
-    #     seshat_id = 'TestPolity'
-    #     expected_result = (2000, 2020)
-    #     result = get_polity_year_range(seshat_id)
-    #     self.assertEqual(result, expected_result)
+    def test_get_polity_year_range(self):
+        """Test the get_polity_year_range function."""
+        seshat_id = 'TestPolity'
+        expected_result = (2000, 2020)
+        result = get_polity_year_range(seshat_id)
+        self.assertEqual(result, expected_result)
 
     def test_get_polity_info(self):
         """Test the get_polity_info function."""
