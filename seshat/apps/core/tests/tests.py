@@ -2,6 +2,8 @@ from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces
+from ..views import get_provinces, get_polity_shapes, get_polity_info, get_polity_shape_content, get_all_polity_capitals
+from ..templatetags.core_tags import get_polity_capitals, polity_map
 
 
 # Simple square polygon to use in geospatial data table tests
