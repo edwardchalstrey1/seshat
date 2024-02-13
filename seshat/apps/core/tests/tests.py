@@ -51,8 +51,8 @@ class ShapesTest(TestCase):
         )
         self.capital = Capital.objects.create(
             name="Test Capital",
-            latitude=0.0,
-            longitude=0.0
+            latitude=51.567522,
+            longitude=-0.1294531
         )
         self.polity_capital = Polity_capital.objects.create(
             name="Test Polity",
@@ -159,12 +159,17 @@ class ShapesTest(TestCase):
     def test_get_polity_capitals(self):
         """Test the get_polity_capitals function."""
         result = get_polity_capitals(self.pk)
-        self.assertEqual(result, [{'Capital': 'Test Capital', 'Latitude': 0.0, 'Longitude': 0.0}])
+        self.assertEqual(result, [{'Capital': 'Test Capital', 'Latitude': 51.567522, 'Longitude': -0.1294531}])
         
     # def test_get_all_polity_capitals(self):
     #     """Test the get_all_polity_capitals function."""
     #     result = get_all_polity_capitals()
     #     self.assertEqual(result, [])
+        
+    # def test_polity_map(self):
+    #     """Test the polity_map template tag."""
+    #     result = polity_map(self.pk)
+    #     self.assertEqual(result['content']['include_polity_map'], True)
 
     # def test_map_view_initial(self):
     #     """Test the initial map view."""
