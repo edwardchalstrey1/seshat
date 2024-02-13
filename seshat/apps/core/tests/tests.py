@@ -1,4 +1,4 @@
-from django.contrib.gis.geos import MultiPolygon, Polygon
+from django.contrib.gis.geos import MultiPolygon, Polygon, GEOSGeometry
 from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity
@@ -86,13 +86,13 @@ class ShapesTest(TestCase):
         province_result = get_provinces(selected_base_map_gadm='province')
         province_expected_result = [{'aggregated_geometry': {
                                          "type": "MultiPolygon",
-                                         "coordinates": square,
+                                         "coordinates": geojson_square,
                                          'province': 'Test Province',
                                          'province_type': 'Test Type'}
                                     }]
         country_expected_result = [{'aggregated_geometry': {
                                          "type": "MultiPolygon",
-                                         "coordinates": square,
+                                         "coordinates": geojson_square,
                                          'country': 'Test Country'}
                                     }]
         country_result = get_provinces(selected_base_map_gadm='country')
