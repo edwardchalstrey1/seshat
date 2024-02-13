@@ -113,7 +113,7 @@ class ShapesTest(TestCase):
     def test_get_polity_info(self):
         """Test the get_polity_info function."""
         seshat_ids = ['Test seshat_id']
-        expected_result = [('TestPolity', 1, 'TestPolity')]
+        expected_result = [('Test seshat_id', 1, 'TestPolity')]
         result = get_polity_info(seshat_ids)
         self.assertEqual(result, expected_result)
 
@@ -133,7 +133,7 @@ class ShapesTest(TestCase):
             'earliest_year': 2000,
             'display_year': 2000,
             'latest_year': 2020,
-            'seshat_id_page_id': {'TestPolity': {'id': 1, 'long_name': 'TestPolity'}}
+            'seshat_id_page_id': {'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}}
         }
         full_result = get_polity_shape_content()
         shapes_result = full_result['shapes'][0]
