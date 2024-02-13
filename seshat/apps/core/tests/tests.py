@@ -82,8 +82,8 @@ class ShapesTest(TestCase):
 
     def test_get_provinces(self):
         """Test the get_provinces function."""
-        province_result = get_provinces(selected_base_map_gadm='province')
-        country_result = get_provinces(selected_base_map_gadm='country')
+        province_result = get_provinces(selected_base_map_gadm='province')[0]  # The function returns a list of dictionaries
+        country_result = get_provinces(selected_base_map_gadm='country')[0]  # Only one province and country in the setup data
 
         # Because a simplification_tolerance is used when get_provinces loads the shapefiles, the geometries are not exactly the same
         # So we can't compare the results directly to the expected results, remove the geometries from the results and compare the rest
