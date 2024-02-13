@@ -89,17 +89,21 @@ class ShapesTest(TestCase):
         self.assertEqual(province_result, province_expected_result)
         self.assertEqual(country_result, country_expected_result)
 
-    # def test_get_polity_shapes(self):
-    #     """Test the get_polity_shapes function."""
-    #     expected_result = {
-    #         'shapes': [{'seshat_id': 'TestPolity', 'start_year': 2000, 'end_year': 2020, 'geom': square}],
-    #         'earliest_year': 2000,
-    #         'display_year': 2000,
-    #         'latest_year': 2020,
-    #         'seshat_id_page_id': {'TestPolity': {'id': 1, 'long_name': 'TestPolity'}}
-    #     }
-    #     result = get_polity_shapes()
-    #     self.assertEqual(result, expected_result)
+    def test_get_polity_shapes(self):
+        """Test the get_polity_shapes function."""
+        result = get_polity_shapes()[0]  # Only one province and country in the setup data
+        result.pop('geom')  # Remove the geometry from the result (see explanation in test_get_provinces)
+        expected_result = {
+            'seshat_id': 'TestPolity',
+            'name': 'TestPolity',
+            'start_year': 2000,
+            'end_year': 2020,
+            'polity_start_year': 2000,
+            'polity_end_year': 2020,
+            'colour': "#FFFFFF",
+            'area': 100.0
+        }
+        self.assertEqual(result, expected_result)
         
     def test_get_polity_info(self):
         """Test the get_polity_info function."""
