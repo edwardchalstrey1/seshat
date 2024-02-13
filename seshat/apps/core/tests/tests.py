@@ -55,7 +55,8 @@ class ShapesTest(TestCase):
             longitude=0.0
         )
         self.polity_capital = Polity_capital.objects.create(
-            name="Test Capital",
+            name="Test Polity",
+            capital="Test Capital",
             year_from=2000,
             year_to=2020,
             polity_id = self.pk
