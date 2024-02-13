@@ -1,7 +1,8 @@
 from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.test import TestCase, Client
 from django.urls import reverse
-from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity
+from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity, Capital
+from ...general.models import Polity_capital
 from ..views import get_polity_year_range, get_provinces, get_polity_shapes, get_polity_info, get_polity_shape_content, get_all_polity_capitals
 from ..templatetags.core_tags import get_polity_capitals, polity_map
 
@@ -15,9 +16,10 @@ class ShapesTest(TestCase):
     def setUp(self):
         """Set up the test client and Polity entry for the view functions."""
         self.client = Client()
+        self.pk = 1
         self.polity = Polity.objects.create(
             name='TestPolity',
-            id=1,
+            id=self.pk,
             long_name='TestPolity',
             new_name='Test seshat_id'
         )
@@ -46,6 +48,17 @@ class ShapesTest(TestCase):
         self.country = GADMCountries.objects.create(
             geom=square,
             COUNTRY="Test Country"
+        )
+        self.capital = CoreCapital.objects.create(
+            name="Test Capital",
+            latitude=0.0,
+            longitude=0.0
+        )
+        self.polity_capital = Polity_capital.objects.create(
+            name="Test Capital",
+            year_from=2000,
+            year_to=2020,
+            polity_id = self.pk
         )
 
     # Model tests
@@ -141,6 +154,11 @@ class ShapesTest(TestCase):
         full_result.pop('shapes')  # Test the rest of the result separately
         self.assertEqual(shapes_result, shapes_expected_result)
         self.assertEqual(full_result, rest_expected_result)
+
+    def test_get_polity_capitals(self):
+        """Test the get_polity_capitals function."""
+        result = get_polity_capitals(self.pk)
+        self.assertEqual(result, [{'Capital': 'Test Capital', 'Latitude': 0.0, 'Longitude': 0.0}])
         
     # def test_get_all_polity_capitals(self):
     #     """Test the get_all_polity_capitals function."""
