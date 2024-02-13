@@ -90,8 +90,8 @@ class ShapesTest(TestCase):
         province_result.pop('aggregated_geometry')
         country_result.pop('aggregated_geometry')
         
-        province_expected_result = [{'province': 'Test Province', 'province_type': 'Test Type'}]
-        country_expected_result = [{'country': 'Test Country'}]
+        province_expected_result = {'province': 'Test Province', 'province_type': 'Test Type'}
+        country_expected_result = {'country': 'Test Country'}
         
         self.assertEqual(province_result, province_expected_result)
         self.assertEqual(country_result, country_expected_result)
