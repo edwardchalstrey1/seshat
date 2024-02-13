@@ -2256,15 +2256,6 @@ def get_polity_year_range():
         row = cursor.fetchone()
         return row[0], row[1]
 
-# Calling this function will return the earliest and latest years in the polity
-# The function cannot be called before the database is migrated
-if 'migrate' not in sys.argv:
-    earliest_year, latest_year = get_polity_year_range()
-    initial_displayed_year = earliest_year
-else:
-    earliest_year, latest_year = 2014, 2014
-    initial_displayed_year = -3400
-
 # Define a simplification tolerance for faster loading of shapes at lower res
 country_tolerance = 0.01
 province_tolerance = 0.01
@@ -2399,6 +2390,15 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
             'long_name': long_name or "",
         }
 
+    # Calling this function will return the earliest and latest years in the polity
+    # The function cannot be called before the database is migrated
+    if 'migrate' not in sys.argv:
+        earliest_year, latest_year = get_polity_year_range()
+        initial_displayed_year = earliest_year
+    else:
+        earliest_year, latest_year = 2014, 2014
+        initial_displayed_year = -3400
+
     if displayed_year == "all":
         displayed_year = initial_displayed_year 
 
@@ -2437,6 +2437,13 @@ def map_view_initial(request):
         This view is used to display a map with polities plotted on it.
         The inital view just loads the polities for the initial_displayed_year.
     """
+
+    # Calling this function will return the earliest and latest years in the polity
+    # The function cannot be called before the database is migrated
+    if 'migrate' not in sys.argv:
+        initial_displayed_year, latest_year = get_polity_year_range()
+    else:
+        initial_displayed_year = -3400
 
     # Use the year from the request parameters if present
     # Otherwise use the default initial_displayed_year (see above)
