@@ -15,7 +15,12 @@ class ShapesTest(TestCase):
     def setUp(self):
         """Set up the test client and Polity entry for the view functions."""
         self.client = Client()
-        self.polity = Polity.objects.create(name='TestPolity', id=1, long_name='TestPolity', new_name='TestPolity')
+        self.polity = Polity.objects.create(
+            name='TestPolity',
+            id=1,
+            long_name='TestPolity',
+            new_name='Test seshat_id'
+        )
         self.video_shapefile = VideoShapefile.objects.create(
             geom=square,
             name="Test shape",
@@ -107,7 +112,7 @@ class ShapesTest(TestCase):
         
     def test_get_polity_info(self):
         """Test the get_polity_info function."""
-        seshat_ids = ['TestPolity']
+        seshat_ids = ['Test seshat_id']
         expected_result = [('TestPolity', 1, 'TestPolity')]
         result = get_polity_info(seshat_ids)
         self.assertEqual(result, expected_result)
