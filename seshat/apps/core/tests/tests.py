@@ -49,7 +49,7 @@ class ShapesTest(TestCase):
             geom=square,
             COUNTRY="Test Country"
         )
-        self.capital = CoreCapital.objects.create(
+        self.capital = Capital.objects.create(
             name="Test Capital",
             latitude=0.0,
             longitude=0.0
