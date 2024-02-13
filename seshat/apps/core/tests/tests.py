@@ -112,17 +112,30 @@ class ShapesTest(TestCase):
         result = get_polity_info(seshat_ids)
         self.assertEqual(result, expected_result)
 
-    # def test_get_polity_shape_content(self):
-    #     """Test the get_polity_shape_content function."""
-    #     expected_result = {
-    #     'shapes': shapes,
-    #     'earliest_year': earliest_year,
-    #     'display_year': displayed_year,
-    #     'latest_year': latest_year,
-    #     'seshat_id_page_id': seshat_id_page_id
-    #     }
-    #     result = get_polity_shape_content()
-    #     self.assertEqual(result, expected_result)
+    def test_get_polity_shape_content(self):
+        """Test the get_polity_shape_content function."""
+        shapes_expected_result = {
+            'seshat_id': 'Test seshat_id',
+            'name': 'Test shape',
+            'start_year': 2000,
+            'end_year': 2020,
+            'polity_start_year': 2000,
+            'polity_end_year': 2020,
+            'colour': "#FFFFFF",
+            'area': 100.0
+        }
+        rest_expected_result = {
+            'earliest_year': 2000,
+            'display_year': 2000,
+            'latest_year': 2020,
+            'seshat_id_page_id': {'TestPolity': {'id': 1, 'long_name': 'TestPolity'}}
+        }
+        full_result = get_polity_shape_content()
+        shapes_result = full_result['shapes'][0]
+        shapes_result.pop('geom')
+        full_result.pop('shapes')
+        self.assertEqual(shapes_result, shapes_expected_result)
+        self.assertEqual(full_result, rest_expected_result)
         
     # def test_get_all_polity_capitals(self):
     #     """Test the get_all_polity_capitals function."""
