@@ -73,13 +73,6 @@ class ShapesTest(TestCase):
         result = get_polity_year_range()
         self.assertEqual(result, expected_result)
 
-    def test_get_polity_info(self):
-        """Test the get_polity_info function."""
-        seshat_ids = ['TestPolity']
-        expected_result = [('TestPolity', 1, 'TestPolity')]
-        result = get_polity_info(seshat_ids)
-        self.assertEqual(result, expected_result)
-
     def test_get_provinces(self):
         """Test the get_provinces function."""
         province_result = get_provinces(selected_base_map_gadm='province')[0]  # The function returns a list of dictionaries
@@ -96,6 +89,25 @@ class ShapesTest(TestCase):
         self.assertEqual(province_result, province_expected_result)
         self.assertEqual(country_result, country_expected_result)
 
+    # def test_get_polity_shapes(self):
+    #     """Test the get_polity_shapes function."""
+    #     expected_result = {
+    #         'shapes': [{'seshat_id': 'TestPolity', 'start_year': 2000, 'end_year': 2020, 'geom': square}],
+    #         'earliest_year': 2000,
+    #         'display_year': 2000,
+    #         'latest_year': 2020,
+    #         'seshat_id_page_id': {'TestPolity': {'id': 1, 'long_name': 'TestPolity'}}
+    #     }
+    #     result = get_polity_shapes()
+    #     self.assertEqual(result, expected_result)
+        
+    def test_get_polity_info(self):
+        """Test the get_polity_info function."""
+        seshat_ids = ['TestPolity']
+        expected_result = [('TestPolity', 1, 'TestPolity')]
+        result = get_polity_info(seshat_ids)
+        self.assertEqual(result, expected_result)
+
     # def test_get_polity_shape_content(self):
     #     """Test the get_polity_shape_content function."""
     #     result = get_polity_shape_content()
@@ -107,6 +119,11 @@ class ShapesTest(TestCase):
     #         'seshat_id_page_id': {'TestPolity': {'id': 1, 'long_name': 'TestPolity'}}
     #     }
     #     self.assertEqual(result, expected_result)
+        
+    # def test_get_all_polity_capitals(self):
+    #     """Test the get_all_polity_capitals function."""
+    #     result = get_all_polity_capitals()
+    #     self.assertEqual(result, [])
 
     # def test_map_view_initial(self):
     #     """Test the initial map view."""
