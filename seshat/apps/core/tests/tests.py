@@ -137,8 +137,8 @@ class ShapesTest(TestCase):
         }
         full_result = get_polity_shape_content()
         shapes_result = full_result['shapes'][0]
-        shapes_result.pop('geom')
-        full_result.pop('shapes')
+        shapes_result.pop('geom')  # Remove the geometry from the result (see explanation in test_get_provinces)
+        full_result.pop('shapes')  # Test the rest of the result separately
         self.assertEqual(shapes_result, shapes_expected_result)
         self.assertEqual(full_result, rest_expected_result)
         
