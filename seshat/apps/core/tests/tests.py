@@ -94,8 +94,8 @@ class ShapesTest(TestCase):
         result = get_polity_shapes()[0]  # Only one province and country in the setup data
         result.pop('geom')  # Remove the geometry from the result (see explanation in test_get_provinces)
         expected_result = {
-            'seshat_id': 'TestPolity',
-            'name': 'TestPolity',
+            'seshat_id': 'Test seshat_id',
+            'name': 'Test shape',
             'start_year': 2000,
             'end_year': 2020,
             'polity_start_year': 2000,
@@ -114,14 +114,14 @@ class ShapesTest(TestCase):
 
     # def test_get_polity_shape_content(self):
     #     """Test the get_polity_shape_content function."""
-    #     result = get_polity_shape_content()
     #     expected_result = {
-    #         'shapes': [{'seshat_id': 'TestPolity', 'start_year': 2000, 'end_year': 2020, 'geom': square}],
-    #         'earliest_year': 2000,
-    #         'display_year': 2000,
-    #         'latest_year': 2020,
-    #         'seshat_id_page_id': {'TestPolity': {'id': 1, 'long_name': 'TestPolity'}}
+    #     'shapes': shapes,
+    #     'earliest_year': earliest_year,
+    #     'display_year': displayed_year,
+    #     'latest_year': latest_year,
+    #     'seshat_id_page_id': seshat_id_page_id
     #     }
+    #     result = get_polity_shape_content()
     #     self.assertEqual(result, expected_result)
         
     # def test_get_all_polity_capitals(self):
