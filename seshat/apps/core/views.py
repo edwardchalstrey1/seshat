@@ -2259,7 +2259,8 @@ def get_polity_year_range():
 
 def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
     """
-        Get all the province or country shapes for the map base layer
+        Get all the province or country shapes for the map base layer.
+        Note: we have to use raw SQL query to make use of the ST_Simplify function.
     """
 
     provinces = []
@@ -2324,6 +2325,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_toler
         Setting displayed_year to a year will return polities that were active in that year.
         Setting seshat_id to the value of the seshat_id will result in only the shapes for that polity being returned.
         Note: seshat_id in VideoShapeFile is new_name in Polity.
+        Note: we have to use raw SQL query to make use of the ST_Simplify function.
     """
     if displayed_year != "all" and seshat_id != "all":
         raise ValueError("Only one of displayed_year or seshat_id should be set not both.")
