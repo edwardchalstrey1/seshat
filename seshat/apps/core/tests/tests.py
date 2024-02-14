@@ -161,11 +161,16 @@ class ShapesTest(TestCase):
         result = get_polity_capitals(self.pk)
         self.assertEqual(result, [{'capital': 'Test Capital', 'latitude': 51.567522, 'longitude': -0.1294531}])
         
-    # def test_get_all_polity_capitals(self):
-    #     """Test the get_all_polity_capitals function."""
-    #     result = get_all_polity_capitals()
-    #     self.assertEqual(result, [])
-        
+    def test_get_all_polity_capitals(self):
+        """Test the get_all_polity_capitals function."""
+        result = get_all_polity_capitals()
+        self.assertEqual(result,
+                        {'Test seshat_id': [
+                                {'capital': 'Test Capital', 'latitude': 51.567522, 'longitude': -0.1294531}
+                            ]
+                        }
+        )
+
     # def test_polity_map(self):
     #     """Test the polity_map template tag."""
     #     result = polity_map(self.pk)
