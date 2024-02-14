@@ -16,6 +16,7 @@
     ```
 2. Run tests for apps
     ```
-        python manage.py test <app name>
+        python manage.py test <app name> --keepdb
     ```
     - Where `<app name>` is e.g. `seshat.apps.core` (or leave this off to run all tests)
+    - `--keepdb` if you haven't changed the setup
