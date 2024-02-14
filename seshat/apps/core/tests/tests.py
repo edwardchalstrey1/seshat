@@ -7,10 +7,6 @@ from ..views import get_polity_year_range, get_provinces, get_polity_info, get_p
 from ..templatetags.core_tags import get_polity_capitals, polity_map
 
 
-# Simple square polygon to use in geospatial data table tests
-square = MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (0, 0))))
-geo_square = GEOSGeometry(square).geojson
-
 class ShapesTest(TestCase):
     """Test case for the shape models and views."""
 
@@ -18,6 +14,9 @@ class ShapesTest(TestCase):
         """Set up the test client and Polity entry for the view functions."""
         self.client = Client()
         self.pk = 1
+        # Simple square polygon to use in geospatial data table tests
+        self.square = MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (0, 0))))
+        self.geo_square = GEOSGeometry(self.square).geojson
         self.polity = Polity.objects.create(
             name='TestPolity',
             id=self.pk,
@@ -25,7 +24,7 @@ class ShapesTest(TestCase):
             new_name='Test seshat_id'
         )
         self.video_shapefile = VideoShapefile.objects.create(
-            geom=square,
+            geom=self.square,
             name="Test shape",
             polity="Testpolity",
             seshat_id="Test seshat_id",
@@ -37,17 +36,17 @@ class ShapesTest(TestCase):
             colour="#FFFFFF"
         )
         self.gadm_shapefile = GADMShapefile.objects.create(
-            geom=square,
+            geom=self.square,
             UID=123456789,
             NAME_0="Test shape"
         )
         self.province = GADMProvinces.objects.create(
-            geom=square,
+            geom=self.square,
             NAME_1="Test Province",
             ENGTYPE_1="Test Type"
         )
         self.country = GADMCountries.objects.create(
-            geom=square,
+            geom=self.square,
             COUNTRY="Test Country"
         )
         self.capital = Capital.objects.create(
@@ -98,8 +97,8 @@ class ShapesTest(TestCase):
         province_result = get_provinces(selected_base_map_gadm='province', simplification_tolerance=0)
         country_result = get_provinces(selected_base_map_gadm='country', simplification_tolerance=0)
         
-        province_expected_result = [{'aggregated_geometry': geo_square, 'province': 'Test Province', 'province_type': 'Test Type'}]
-        country_expected_result = [{'aggregated_geometry': geo_square, 'country': 'Test Country'}]
+        province_expected_result = [{'aggregated_geometry': self.geo_square, 'province': 'Test Province', 'province_type': 'Test Type'}]
+        country_expected_result = [{'aggregated_geometry': self.geo_square, 'country': 'Test Country'}]
         
         self.assertEqual(province_result, province_expected_result)
         self.assertEqual(country_result, country_expected_result)
@@ -124,7 +123,7 @@ class ShapesTest(TestCase):
                     'polity_end_year': 2020,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': geo_square
+                    'geom': self.geo_square
                 }
             ],
             'earliest_year': 2000,
