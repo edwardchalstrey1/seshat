@@ -113,28 +113,27 @@ class ShapesTest(TestCase):
 
     def test_get_polity_shape_content(self):
         """Test the get_polity_shape_content function."""
-        shapes_expected_result = {
-            'seshat_id': 'Test seshat_id',
-            'name': 'Test shape',
-            'start_year': 2000,
-            'end_year': 2020,
-            'polity_start_year': 2000,
-            'polity_end_year': 2020,
-            'colour': "#FFFFFF",
-            'area': 100.0
-        }
-        rest_expected_result = {
+        expected_result = {
+            'shapes': [
+                {
+                    'seshat_id': 'Test seshat_id',
+                    'name': 'Test shape',
+                    'start_year': 2000,
+                    'end_year': 2020,
+                    'polity_start_year': 2000,
+                    'polity_end_year': 2020,
+                    'colour': "#FFFFFF",
+                    'area': 100.0,
+                    'geom': geo_square
+                }
+            ],
             'earliest_year': 2000,
             'display_year': 2000,
             'latest_year': 2020,
             'seshat_id_page_id': {'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}}
         }
-        full_result = get_polity_shape_content()
-        shapes_result = full_result['shapes'][0]
-        shapes_result.pop('geom')  # Remove the geometry from the result (see explanation in test_get_provinces)
-        full_result.pop('shapes')  # Test the rest of the result separately
-        self.assertEqual(shapes_result, shapes_expected_result)
-        self.assertEqual(full_result, rest_expected_result)
+        result = get_polity_shape_content()
+        self.assertEqual(result, expected_result)
 
     def test_get_polity_capitals(self):
         """Test the get_polity_capitals function."""
