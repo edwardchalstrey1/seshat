@@ -61,7 +61,7 @@ from ..general.models import Polity_research_assistant, Polity_duration
 from ..crisisdb.models import Power_transition
 
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, VideoShapefile
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, VideoShapefile, GADMCountries, GADMProvinces
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -2247,8 +2247,10 @@ def seshatcommentpart_create_view(request):
 
 # Shapefile views
 
-# Set some vars for the range of years to display
 def get_polity_year_range():
+    """
+        Get the earliest and latest years for all polities in the video shapefile data
+    """
     result = VideoShapefile.objects.aggregate(
         min_year=Min('polity_start_year'), 
         max_year=Max('polity_end_year')
@@ -2256,9 +2258,11 @@ def get_polity_year_range():
     return result['min_year'], result['max_year']
 
 def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
-    # Get all the province or country shapes for the map base layer
-    provinces = []
+    """
+        Get all the province or country shapes for the map base layer
+    """
 
+    provinces = []
     # Use the appropriate SQL query based on the selected baseMapGADM value
     if selected_base_map_gadm == 'country':
         query = """
@@ -2300,6 +2304,9 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
 
 # Update shapes with polity_id for loading Seshat pages
 def get_polity_info(seshat_ids):
+    """
+        Get polity info for the given seshat_ids
+    """
     with connection.cursor() as cursor:
         cursor.execute(
             "SELECT new_name, id, long_name FROM core_polity WHERE new_name IN %s",
@@ -2416,7 +2423,9 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_toler
     return content
 
 def get_all_polity_capitals():
-    """Get capital cities for polities that have them"""
+    """
+        Get capital cities for polities that have them.
+    """
     from seshat.apps.core.templatetags.core_tags import get_polity_capitals
     all_capitals_info = {}
     for polity in Polity.objects.all():
