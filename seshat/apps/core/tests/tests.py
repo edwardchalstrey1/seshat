@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity, Capital
 from ...general.models import Polity_capital
-from ..views import get_polity_year_range, get_provinces, get_polity_shapes, get_polity_info, get_polity_shape_content, get_all_polity_capitals
+from ..views import get_polity_year_range, get_provinces, get_polity_info, get_polity_shape_content, get_all_polity_capitals
 from ..templatetags.core_tags import get_polity_capitals, polity_map
 
 
