@@ -164,7 +164,7 @@ class ShapesTest(TestCase):
                 'Test seshat_id 2': {'id': 2, 'long_name': 'TestPolity2'}
             }
         }
-        result = get_polity_shape_content()
+        result = get_polity_shape_content(polity_tolerance=0)
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_single_year(self):
@@ -193,7 +193,7 @@ class ShapesTest(TestCase):
                 'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
             }
         }
-        result = get_polity_shape_content(displayed_year=2000)
+        result = get_polity_shape_content(displayed_year=2000, polity_tolerance=0)
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_single_seshat_id(self):
@@ -222,7 +222,7 @@ class ShapesTest(TestCase):
                 'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
             }
         }
-        result = get_polity_shape_content(seshat_id='Test seshat_id')
+        result = get_polity_shape_content(seshat_id='Test seshat_id', polity_tolerance=0)
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_displayed_year_and_seshat_id_both_set(self):

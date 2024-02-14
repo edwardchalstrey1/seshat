@@ -2256,11 +2256,6 @@ def get_polity_year_range():
         row = cursor.fetchone()
         return row[0], row[1]
 
-# Define a simplification tolerance for faster loading of shapes at lower res
-country_tolerance = 0.01
-province_tolerance = 0.01
-polity_tolerance = 0.07
-
 def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
     # Get all the province or country shapes for the map base layer
     provinces = []
@@ -2317,7 +2312,7 @@ def get_polity_info(seshat_ids):
         rows = cursor.fetchall()
         return rows
 
-def get_polity_shape_content(displayed_year="all", seshat_id="all"):
+def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_tolerance=0.07):
     """
         This function returns the polity shapes and other content for the map.
         The shapes are simplified (polity_tolerance) to reduce the size of the data.
@@ -2450,7 +2445,9 @@ def map_view_initial(request):
     # Use the year from the request parameters if present
     # Otherwise use the default initial_displayed_year (see above)
     displayed_year = request.GET.get('year', initial_displayed_year)
-    content = get_polity_shape_content(displayed_year=displayed_year)
+    # Define a simplification tolerance for faster loading of shapes at lower res
+    polity_tolerance = 0.07
+    content = get_polity_shape_content(displayed_year=displayed_year, polity_tolerance=polity_tolerance)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2466,7 +2463,9 @@ def map_view_all(request):
         This view is used to display a map with polities plotted on it.
         The view loads all polities for the range of years.
     """
-    content = get_polity_shape_content()
+    # Define a simplification tolerance for faster loading of shapes at lower res
+    polity_tolerance = 0.07
+    content = get_polity_shape_content(polity_tolerance=polity_tolerance)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2475,6 +2474,9 @@ def map_view_all(request):
     return JsonResponse(content)
 
 def provinces_and_countries_view(request):
+    # Define a simplification tolerance for faster loading of shapes at lower res
+    country_tolerance = 0.01
+    province_tolerance = 0.01
     provinces = get_provinces(simplification_tolerance=province_tolerance)
     countries = get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance)
 
