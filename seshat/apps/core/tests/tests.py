@@ -252,10 +252,10 @@ class ShapesTest(TestCase):
         result = polity_map(self.pk)
         self.assertEqual(result['content']['include_polity_map'], True)
 
-    # def test_map_view_initial(self):
-    #     """Test the initial map view."""
-    #     response = self.client.get(reverse('world_map'))
-    #     self.assertEqual(response.status_code, 200)
+    def test_map_view_initial(self):
+        """Test the initial map view."""
+        response = self.client.get(reverse('world_map'))
+        self.assertEqual(response.status_code, 200)
 
     # def test_map_view_all(self):
     #     """Test the map view with all data."""

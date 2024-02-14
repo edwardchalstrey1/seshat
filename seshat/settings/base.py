@@ -7,6 +7,7 @@ import django_heroku
 
 import dj_database_url
 from decouple import Csv, config
+import sys
 
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
@@ -296,6 +297,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 #STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+if 'test' in sys.argv:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # We might need to turn these on in production!
 # STATICFILES_FINDERS = (
