@@ -23,7 +23,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.db import IntegrityError, connection
-from django.db.models import Prefetch, F, Value, Q
+from django.db.models import Prefetch, F, Value, Q, Min, Max
 from django.db.models.functions import Replace
 
 from django.views.decorators.http import require_GET
@@ -2249,12 +2249,11 @@ def seshatcommentpart_create_view(request):
 
 # Set some vars for the range of years to display
 def get_polity_year_range():
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT MIN(polity_start_year), MAX(polity_end_year) FROM core_videoshapefile"
-        )
-        row = cursor.fetchone()
-        return row[0], row[1]
+    result = VideoShapefile.objects.aggregate(
+        min_year=Min('polity_start_year'), 
+        max_year=Max('polity_end_year')
+    )
+    return result['min_year'], result['max_year']
 
 def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
     # Get all the province or country shapes for the map base layer
