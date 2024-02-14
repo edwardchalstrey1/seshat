@@ -257,12 +257,12 @@ class ShapesTest(TestCase):
         response = self.client.get(reverse('world_map'))
         self.assertEqual(response.status_code, 200)
 
-    # def test_map_view_all(self):
-    #     """Test the map view with all data."""
-    #     response = self.client.get(reverse('world_map_all'))
-    #     self.assertEqual(response.status_code, 200)
+    def test_map_view_all(self):
+        """Test the map view with all data."""
+        response = self.client.get(reverse('world_map_all'))
+        self.assertEqual(response.status_code, 200)
 
-    # def test_provinces_and_countries_view(self):
-    #     """Test the provinces and countries view."""
-    #     response = self.client.get(reverse('provinces_and_countries'))
-    #     self.assertEqual(response.status_code, 200)
+    def test_provinces_and_countries_view(self):
+        """Test the provinces and countries view."""
+        response = self.client.get(reverse('provinces_and_countries'))
+        self.assertEqual(response.status_code, 200)
