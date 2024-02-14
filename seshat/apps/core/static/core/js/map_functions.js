@@ -10,14 +10,14 @@ function adjustSliderUp() {
     slider.value = Number(slider.value) + 1;
     enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
     updateSliderOutput(); // Update the displayed year
-    plotPolities();
+    plotPolities(); // This function is defined differently in the world_map and polity_map templates
 }
 
 function adjustSliderDown() {
     slider.value = Number(slider.value) - 1;
     enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
     updateSliderOutput(); // Update the displayed year
-    plotPolities();
+    plotPolities(); // This function is defined differently in the world_map and polity_map templates
 }
 
 function startPlay() {
@@ -43,7 +43,7 @@ function startPlay() {
         slider.value = Number(slider.value) + 1;
         enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
         updateSliderOutput(); // Update the displayed year
-        plotPolities();
+        plotPolities(); // This function is defined differently in the world_map and polity_map templates
 
         // Stop playing when the slider reaches its maximum value
         if (slider.value >= parseInt(slider.max)) {
