@@ -51,3 +51,6 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ALLOWED_HOSTS = ['127.0.0.1',
                  'localhost',
                  '20.68.162.158']
+
+if 'test' in sys.argv:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
