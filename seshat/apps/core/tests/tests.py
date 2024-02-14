@@ -247,10 +247,10 @@ class ShapesTest(TestCase):
                         }
         )
 
-    # def test_polity_map(self):
-    #     """Test the polity_map template tag."""
-    #     result = polity_map(self.pk)
-    #     self.assertEqual(result['content']['include_polity_map'], True)
+    def test_polity_map(self):
+        """Test the polity_map template tag."""
+        result = polity_map(self.pk)
+        self.assertEqual(result['content']['include_polity_map'], True)
 
     # def test_map_view_initial(self):
     #     """Test the initial map view."""
