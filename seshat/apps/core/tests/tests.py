@@ -256,6 +256,8 @@ class ShapesTest(TestCase):
         """Test the initial map view."""
         response = self.client.get(reverse('world_map'))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Polities')
+        self.assertContains(response, 'Base Map')
 
     def test_map_view_all(self):
         """Test the map view with all data."""
