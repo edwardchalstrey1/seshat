@@ -12,6 +12,7 @@ class ShapesTest(TestCase):
 
     def setUp(self):
         """Set up the test client and Polity entry for the view functions."""
+        self.maxDiff = None
         self.client = Client()
         self.pk = 1
         # Simple square polygon to use in geospatial data table tests
@@ -164,6 +165,32 @@ class ShapesTest(TestCase):
             }
         }
         result = get_polity_shape_content()
+        self.assertEqual(result, expected_result)
+
+    def test_get_polity_shape_content_single_year(self):
+        """Test the get_polity_shape_content function."""
+        expected_result = {
+            'shapes': [
+                {
+                    'seshat_id': 'Test seshat_id',
+                    'name': 'Test shape',
+                    'start_year': 2000,
+                    'end_year': 2020,
+                    'polity_start_year': 2000,
+                    'polity_end_year': 2020,
+                    'colour': "#FFFFFF",
+                    'area': 100.0,
+                    'geom': self.geo_square
+                }
+            ],
+            'earliest_year': 0,  # This is the earliest year in the database, not the earliest year of the polity
+            'display_year': 2000,
+            'latest_year': 2020,
+            'seshat_id_page_id': {
+                'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
+            }
+        }
+        result = get_polity_shape_content(displayed_year=2000)
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_displayed_year_and_seshat_id_both_set(self):
