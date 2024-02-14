@@ -1,4 +1,4 @@
-from django.contrib.gis.geos import MultiPolygon, Polygon
+from django.contrib.gis.geos import MultiPolygon, Polygon, GEOSGeometry
 from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity, Capital
@@ -9,6 +9,7 @@ from ..templatetags.core_tags import get_polity_capitals, polity_map
 
 # Simple square polygon to use in geospatial data table tests
 square = MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (0, 0))))
+geo_square = GEOSGeometry(square).geojson
 
 class ShapesTest(TestCase):
     """Test case for the shape models and views."""
@@ -97,8 +98,8 @@ class ShapesTest(TestCase):
         province_result = get_provinces(selected_base_map_gadm='province', simplification_tolerance=0)
         country_result = get_provinces(selected_base_map_gadm='country', simplification_tolerance=0)
         
-        province_expected_result = [{'aggregated_geometry': square, 'province': 'Test Province', 'province_type': 'Test Type'}]
-        country_expected_result = [{'aggregated_geometry': square, 'country': 'Test Country'}]
+        province_expected_result = [{'aggregated_geometry': geo_square, 'province': 'Test Province', 'province_type': 'Test Type'}]
+        country_expected_result = [{'aggregated_geometry': geo_square, 'country': 'Test Country'}]
         
         self.assertEqual(province_result, province_expected_result)
         self.assertEqual(country_result, country_expected_result)
