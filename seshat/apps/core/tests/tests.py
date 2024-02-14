@@ -168,7 +168,10 @@ class ShapesTest(TestCase):
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_single_year(self):
-        """Test the get_polity_shape_content function."""
+        """
+            Test the get_polity_shape_content function for a single year.
+            This gets run when loading one year of the world map whilst waiting for the rest of the data to load.
+        """
         expected_result = {
             'shapes': [
                 {
@@ -191,6 +194,35 @@ class ShapesTest(TestCase):
             }
         }
         result = get_polity_shape_content(displayed_year=2000)
+        self.assertEqual(result, expected_result)
+
+    def test_get_polity_shape_content_single_seshat_id(self):
+        """
+            Test the get_polity_shape_content function for a single polity.
+            This gets run for the polity_map view.
+        """
+        expected_result = {
+            'shapes': [
+                {
+                    'seshat_id': 'Test seshat_id',
+                    'name': 'Test shape',
+                    'start_year': 2000,
+                    'end_year': 2020,
+                    'polity_start_year': 2000,
+                    'polity_end_year': 2020,
+                    'colour': "#FFFFFF",
+                    'area': 100.0,
+                    'geom': self.geo_square
+                }
+            ],
+            'earliest_year': 2000,  # This is the earliest year of the polity
+            'display_year': 2000,
+            'latest_year': 2020,
+            'seshat_id_page_id': {
+                'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
+            }
+        }
+        result = get_polity_shape_content(seshat_id='Test seshat_id')
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_displayed_year_and_seshat_id_both_set(self):
