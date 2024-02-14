@@ -19,4 +19,4 @@
         python manage.py test <app name> --keepdb
     ```
     - Where `<app name>` is e.g. `seshat.apps.core` (or leave this off to run all tests)
-    - `--keepdb` if you haven't changed the setup
+    - `--keepdb` ensures you can rerun tests quickly if the setup hasn't changed
