@@ -70,8 +70,7 @@ network_interface = network.NetworkInterface('networkInterface',
 # os.environ['ALLOWED_HOSTS'] = ip_address
 
 # Create a data script for the VM
-# TODO: Switch from pulumi branch to dev branch
-# Set the ALLOWED_HOSTS environment variable (used by Django)
+# TODO: Set the ALLOWED_HOSTS environment variable (used by Django)
 custom_data_script = '''#!/bin/bash
 
 # Install Python 3.8
