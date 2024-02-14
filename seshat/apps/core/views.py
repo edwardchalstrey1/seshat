@@ -2303,18 +2303,15 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
 
     return provinces
 
-# Update shapes with polity_id for loading Seshat pages
 def get_polity_info(seshat_ids):
     """
         Get polity info for the given seshat_ids
     """
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT new_name, id, long_name FROM core_polity WHERE new_name IN %s",
-            [tuple(seshat_ids)]
-        )
-        rows = cursor.fetchall()
-        return rows
+    polity_info = []
+    polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
+    for polity_dict in list(polities):
+        polity_info.append((polity_dict['new_name'], polity_dict['id'], polity_dict['long_name']))
+    return polity_info
 
 def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_tolerance=0.07):
     """
