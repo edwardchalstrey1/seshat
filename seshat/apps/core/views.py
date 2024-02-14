@@ -2307,11 +2307,8 @@ def get_polity_info(seshat_ids):
     """
         Get polity info for the given seshat_ids
     """
-    polity_info = []
     polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
-    for polity_dict in list(polities):
-        polity_info.append((polity_dict['new_name'], polity_dict['id'], polity_dict['long_name']))
-    return polity_info
+    return [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
 
 def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_tolerance=0.07):
     """
