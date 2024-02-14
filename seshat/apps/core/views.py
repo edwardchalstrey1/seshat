@@ -2307,66 +2307,6 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
 
     return fetch_provinces()
 
-def get_polity_shapes(displayed_year="all", seshat_id="all"):
-    """
-        This function returns the polity shapes for the map.
-        The shapes are simplified to reduce the size of the data.
-        Only one of displayed_year or seshat_id should be set not both.
-    """
-    query = """
-            SELECT
-                seshat_id,
-                name,
-                start_year,
-                end_year,
-                polity_start_year,
-                polity_end_year,
-                colour,
-                area,
-                ST_Simplify(geom, %s) AS simplified_geometry
-            FROM
-                core_videoshapefile
-            """
-    if displayed_year != "all":
-        query += """
-            WHERE
-                polity_start_year <= %s AND polity_end_year >= %s;
-            """
-        with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance, displayed_year, displayed_year])
-            rows = cursor.fetchall()
-    elif seshat_id != "all":
-        query += """
-            WHERE
-                seshat_id = %s;
-            """
-        with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance, seshat_id])
-            rows = cursor.fetchall()
-    else:
-        query += """
-            ;
-            """
-        with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance])
-            rows = cursor.fetchall()
-
-    shapes = []
-    for row in rows:
-        shapes.append({
-            'seshat_id': row[0],
-            'name': row[1],
-            'start_year': row[2],
-            'end_year': row[3],
-            'polity_start_year': row[4],
-            'polity_end_year': row[5],
-            'colour': row[6],
-            'area': row[7],
-            'geom': GEOSGeometry(row[8]).geojson
-        })
-
-    return shapes
-
 # Update shapes with polity_id for loading Seshat pages
 def get_polity_info(seshat_ids):
     with connection.cursor() as cursor:
@@ -2378,6 +2318,70 @@ def get_polity_info(seshat_ids):
         return rows
 
 def get_polity_shape_content(displayed_year="all", seshat_id="all"):
+    """
+        This function returns the polity shapes and other content for the map.
+        The shapes are simplified (polity_tolerance) to reduce the size of the data.
+        Only one of displayed_year or seshat_id should be set not both.
+        Setting displayed_year to "all" will return all polities.
+        Setting displayed_year to a year will return polities that were active in that year.
+        Setting seshat_id to the value of the seshat_id will result in only the shapes for that polity being returned.
+        Note: seshat_id in VideoShapeFile is new_name in Polity.
+    """
+    def get_polity_shapes(displayed_year="all", seshat_id="all"):
+        query = """
+                SELECT
+                    seshat_id,
+                    name,
+                    start_year,
+                    end_year,
+                    polity_start_year,
+                    polity_end_year,
+                    colour,
+                    area,
+                    ST_Simplify(geom, %s) AS simplified_geometry
+                FROM
+                    core_videoshapefile
+                """
+        if displayed_year != "all":
+            query += """
+                WHERE
+                    polity_start_year <= %s AND polity_end_year >= %s;
+                """
+            with connection.cursor() as cursor:
+                cursor.execute(query, [polity_tolerance, displayed_year, displayed_year])
+                rows = cursor.fetchall()
+        elif seshat_id != "all":
+            query += """
+                WHERE
+                    seshat_id = %s;
+                """
+            with connection.cursor() as cursor:
+                cursor.execute(query, [polity_tolerance, seshat_id])
+                rows = cursor.fetchall()
+        else:
+            query += """
+                ;
+                """
+            with connection.cursor() as cursor:
+                cursor.execute(query, [polity_tolerance])
+                rows = cursor.fetchall()
+
+        shapes = []
+        for row in rows:
+            shapes.append({
+                'seshat_id': row[0],
+                'name': row[1],
+                'start_year': row[2],
+                'end_year': row[3],
+                'polity_start_year': row[4],
+                'polity_end_year': row[5],
+                'colour': row[6],
+                'area': row[7],
+                'geom': GEOSGeometry(row[8]).geojson
+            })
+
+        return shapes
+
     shapes = get_polity_shapes(displayed_year=displayed_year, seshat_id=seshat_id)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
