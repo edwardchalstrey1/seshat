@@ -135,6 +135,10 @@ class ShapesTest(TestCase):
         result = get_polity_shape_content()
         self.assertEqual(result, expected_result)
 
+    def test_get_polity_shape_content_displayed_year_and_seshat_id_both_set(self):
+        """Test that a ValueError is raised if both displayed_year and seshat_id are set."""
+        self.assertRaises(ValueError, get_polity_shape_content, displayed_year=2000, seshat_id='Test seshat_id')
+
     def test_get_polity_capitals(self):
         """Test the get_polity_capitals function."""
         result = get_polity_capitals(self.pk)

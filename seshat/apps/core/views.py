@@ -2327,6 +2327,9 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         Setting seshat_id to the value of the seshat_id will result in only the shapes for that polity being returned.
         Note: seshat_id in VideoShapeFile is new_name in Polity.
     """
+    if displayed_year != "all" and seshat_id != "all":
+        raise ValueError("Only one of displayed_year or seshat_id should be set not both.")
+
     query = """
             SELECT
                 seshat_id,
