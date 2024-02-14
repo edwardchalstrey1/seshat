@@ -23,6 +23,12 @@ class ShapesTest(TestCase):
             long_name='TestPolity',
             new_name='Test seshat_id'
         )
+        Polity.objects.create(
+            name='TestPolity2',
+            id=2,
+            long_name='TestPolity2',
+            new_name='Test seshat_id 2'
+        )
         self.video_shapefile = VideoShapefile.objects.create(
             geom=self.square,
             name="Test shape",
@@ -33,6 +39,18 @@ class ShapesTest(TestCase):
             end_year=2020,
             polity_start_year=2000,
             polity_end_year=2020,
+            colour="#FFFFFF"
+        )
+        VideoShapefile.objects.create(
+            geom=self.square,
+            name="Test shape 2",
+            polity="Testpolity2",
+            seshat_id="Test seshat_id 2",
+            area=100.0,
+            start_year=0,
+            end_year=1000,
+            polity_start_year=0,
+            polity_end_year=1000,
             colour="#FFFFFF"
         )
         self.gadm_shapefile = GADMShapefile.objects.create(
@@ -88,7 +106,7 @@ class ShapesTest(TestCase):
 
     def test_get_polity_year_range(self):
         """Test the get_polity_year_range function."""
-        expected_result = (2000, 2020)
+        expected_result = (0, 2020)
         result = get_polity_year_range()
         self.assertEqual(result, expected_result)
 
@@ -124,12 +142,26 @@ class ShapesTest(TestCase):
                     'colour': "#FFFFFF",
                     'area': 100.0,
                     'geom': self.geo_square
+                },
+                {
+                    'seshat_id': 'Test seshat_id 2',
+                    'name': 'Test shape 2',
+                    'start_year': 0,
+                    'end_year': 1000,
+                    'polity_start_year': 0,
+                    'polity_end_year': 1000,
+                    'colour': "#FFFFFF",
+                    'area': 100.0,
+                    'geom': self.geo_square
                 }
             ],
-            'earliest_year': 2000,
-            'display_year': 2000,
+            'earliest_year': 0,
+            'display_year': 0,
             'latest_year': 2020,
-            'seshat_id_page_id': {'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}}
+            'seshat_id_page_id': {
+                'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'},
+                'Test seshat_id 2': {'id': 2, 'long_name': 'TestPolity2'}
+            }
         }
         result = get_polity_shape_content()
         self.assertEqual(result, expected_result)
