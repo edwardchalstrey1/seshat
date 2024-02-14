@@ -124,8 +124,11 @@ class ShapesTest(TestCase):
         
     def test_get_polity_info(self):
         """Test the get_polity_info function."""
-        seshat_ids = ['Test seshat_id']
-        expected_result = [('Test seshat_id', 1, 'TestPolity')]
+        seshat_ids = ['Test seshat_id', 'Test seshat_id 2']
+        expected_result = [
+                            ('Test seshat_id', 1, 'TestPolity'),
+                            ('Test seshat_id 2', 2, 'TestPolity2')
+                          ]
         result = get_polity_info(seshat_ids)
         self.assertEqual(result, expected_result)
 
