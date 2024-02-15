@@ -6,7 +6,7 @@ on:
   workflow_run:
     workflows: ["Build docker image for testing code"]
     types:
-      - completed
+      - success
 
 jobs:
   test_core:
