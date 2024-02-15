@@ -9,6 +9,7 @@ import sys
 #MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 # Databases
+# We use the local database for development and the GitHub Actions database for testing
 if os.getenv('GITHUB_ACTIONS') == 'true':
     DATABASES = {
         'default': {
@@ -37,15 +38,15 @@ else:
         }
     }
 
-# Shapefile spatial stuff
-GEOGRAPHIC_DB = True
+    # Shapefile spatial stuff
+    GEOGRAPHIC_DB = True
 
-if sys.platform.startswith('darwin'): # macOS
-    GDAL_LIBRARY_PATH = '/opt/homebrew/opt/gdal/lib/libgdal.dylib'
-    GEOS_LIBRARY_PATH = '/opt/homebrew/opt/geos/lib/libgeos_c.dylib'
-else: # linux
-    GDAL_LIBRARY_PATH = '/usr/lib/libgdal.so'
-    GEOS_LIBRARY_PATH = '/usr/lib/aarch64-linux-gnu/libgeos_c.so'
+    if sys.platform.startswith('darwin'): # macOS
+        GDAL_LIBRARY_PATH = '/opt/homebrew/opt/gdal/lib/libgdal.dylib'
+        GEOS_LIBRARY_PATH = '/opt/homebrew/opt/geos/lib/libgeos_c.dylib'
+    else: # linux
+        GDAL_LIBRARY_PATH = '/usr/lib/libgdal.so'
+        GEOS_LIBRARY_PATH = '/usr/lib/aarch64-linux-gnu/libgeos_c.so'
 
 django_settings_module = os.environ.get('DJANGO_SETTINGS_MODULE')
 
