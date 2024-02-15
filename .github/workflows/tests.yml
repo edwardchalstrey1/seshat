@@ -25,7 +25,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install "django-geojson [field]"
-        export DJANGO_SETTINGS_MODULE=seshat.settings.local
     - name: Run tests
       run: |
+        export DJANGO_SETTINGS_MODULE=seshat.settings.local
         python manage.py test seshat.apps.core --keepdb
