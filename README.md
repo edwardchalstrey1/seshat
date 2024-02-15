@@ -19,7 +19,7 @@ Follow the steps on [docs/setup](docs/setup.md).
 
 ## Tests and checks
 
-On this fork, currently GH actions is set up to run django tests for the following apps when pushing or PR-ing to the `develop` branch:
+On this fork, currently GH actions is set up to run django tests for the following apps when pushing or PR-ing to the `dev` branch:
 - Core
 
 See [docs/testing](docs/testing.md) on how to run locally.
