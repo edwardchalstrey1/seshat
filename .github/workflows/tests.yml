@@ -42,8 +42,8 @@ jobs:
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -c 'SELECT 1'
     - name: Set max_locks_per_transaction for the current session
-        run: |
-            PGPASSWORD=postgres psql -h localhost -U postgres -d github_actions -c 'SET max_locks_per_transaction = 256;'
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -d github_actions -c 'SET max_locks_per_transaction = 256;'
     - name: Run tests
       run: |
         export DJANGO_SETTINGS_MODULE=seshat.settings.local
