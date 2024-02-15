@@ -40,7 +40,7 @@ jobs:
         pip install "django-geojson [field]"
     - name: Check PostgreSQL connectivity
       run: |
-        psql -h postgres -U postgres -c 'SELECT 1'
+        psql -h localhost -U postgres -c 'SELECT 1'
     - name: Run tests
       run: |
         export DJANGO_SETTINGS_MODULE=seshat.settings.local
