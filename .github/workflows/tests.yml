@@ -1,0 +1,30 @@
+---
+name: Test code
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+
+jobs:
+  test_core:
+    strategy:
+      matrix:
+        os: ['ubuntu-latest']
+        python-version: ['3.8']
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name:
+        Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install "django-geojson [field]"
+    - name: Run tests
+      run: |
+        python manage.py test seshat.apps.core --keepdb
