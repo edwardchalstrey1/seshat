@@ -1,11 +1,12 @@
 ---
 name: Test code
 
+# Triggers the workflow on push or pull request to dev branch, see test_docker.yml
 on:
-  push:
-    branches: [dev]
-  pull_request:
-    branches: [dev]
+  workflow_run:
+    workflows: ["Build docker image for testing code"]
+    types:
+      - completed
 
 jobs:
   test_core:
@@ -16,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     services:
       postgres:
-        image: postgis/postgis
+        image: docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
