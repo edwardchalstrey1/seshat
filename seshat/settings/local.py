@@ -24,6 +24,18 @@ DATABASES = {
     }
 }
 
+if os.getenv('GITHUB_ACTIONS') == 'true':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'github_actions',
+            'USER': 'postgres',
+            'HOST': 'postgres',
+            'PORT': '5432',
+            'PASSWORD': 'postgres'
+        }
+    }
+
 # Shapefile spatial stuff
 GEOGRAPHIC_DB = True
 
