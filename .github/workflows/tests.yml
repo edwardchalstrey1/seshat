@@ -30,6 +30,10 @@ jobs:
     - name:
         Install dependencies
       run: |
+        sudo apt-get install gdal-bin -y
+        sudo apt-get install libgdal-dev -y
+        sudo apt install libgeos++-dev libgeos3.10.2 -y
+        sudo apt install libgeos-c1v5 libgeos-dev libgeos-doc -y
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install "django-geojson [field]"
