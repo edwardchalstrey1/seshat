@@ -41,13 +41,9 @@ jobs:
     - name: Check PostgreSQL connectivity
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -c 'SELECT 1'
-    - name: Set max_locks_per_transaction so that tests can run without running out of memory
-      run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -d github_actions -c 'ALTER SYSTEM SET max_locks_per_transaction = 256;'
-        PGPASSWORD=postgres psql -h localhost -U postgres -c 'SELECT pg_reload_conf();'
-    - name: Restart PostgreSQL service to apply changes to max_locks_per_transaction
-      run: |
-        sudo systemctl restart postgresql
+    - name: Set max_locks_per_transaction for the current session
+        run: |
+            PGPASSWORD=postgres psql -h localhost -U postgres -d github_actions -c 'SET max_locks_per_transaction = 256;'
     - name: Run tests
       run: |
         export DJANGO_SETTINGS_MODULE=seshat.settings.local
