@@ -6,7 +6,7 @@ RUN echo "max_locks_per_transaction = 256" >> /var/lib/postgresql/data/postgresq
 RUN apt-get update -y
 
 # Install the packages
-RUN apt-get install -y gdal-bin libgdal-dev libgeos++-dev libgeos3.10.2 libgeos-c1v5 libgeos-dev libgeos-doc
+RUN apt-get install -y gdal-bin libgdal-dev libgeos++-dev libgeos-c1v5 libgeos-dev libgeos-doc
 
 # Install pip
 RUN apt-get install -y python3-pip
