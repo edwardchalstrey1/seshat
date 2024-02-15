@@ -45,6 +45,9 @@ jobs:
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -d github_actions -c 'ALTER SYSTEM SET max_locks_per_transaction = 256;'
         PGPASSWORD=postgres psql -h localhost -U postgres -c 'SELECT pg_reload_conf();'
+    - name: Restart PostgreSQL service to apply changes to max_locks_per_transaction
+      run: |
+        sudo systemctl restart postgresql
     - name: Run tests
       run: |
         export DJANGO_SETTINGS_MODULE=seshat.settings.local
