@@ -24,7 +24,6 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-        command: ["postgres", "-c", "max_locks_per_transaction=256"]
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
@@ -42,6 +41,10 @@ jobs:
     - name: Check PostgreSQL connectivity
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -c 'SELECT 1'
+    - name: Set max_locks_per_transaction so that tests can run without running out of memory
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -d github_actions -c 'ALTER SYSTEM SET max_locks_per_transaction = 256;'
+        PGPASSWORD=postgres psql -h localhost -U postgres -c 'SELECT pg_reload_conf();'
     - name: Run tests
       run: |
         export DJANGO_SETTINGS_MODULE=seshat.settings.local
