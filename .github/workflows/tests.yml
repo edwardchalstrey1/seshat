@@ -3,10 +3,10 @@ name: Test code
 
 # Triggers the workflow on push or pull request to dev branch, see test_docker.yml
 on:
-  workflow_run:
-    workflows: ["Build docker image for testing code"]
-    types:
-      - success
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
 
 jobs:
   test_core:
