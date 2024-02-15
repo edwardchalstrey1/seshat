@@ -13,17 +13,6 @@ environ.Env.read_env()
 
 
 # Databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': env('NAME'),
-        'USER': 'postgres',
-        'HOST': env('HOST'),
-        'PORT': env('PORT'),
-        'PASSWORD': env('PASSWORD')
-    }
-}
-
 if os.getenv('GITHUB_ACTIONS') == 'true':
     DATABASES = {
         'default': {
@@ -33,6 +22,17 @@ if os.getenv('GITHUB_ACTIONS') == 'true':
             'HOST': 'postgres',
             'PORT': '5432',
             'PASSWORD': 'postgres'
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': env('NAME'),
+            'USER': 'postgres',
+            'HOST': env('HOST'),
+            'PORT': env('PORT'),
+            'PASSWORD': env('PASSWORD')
         }
     }
 
