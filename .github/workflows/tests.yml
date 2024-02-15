@@ -15,16 +15,6 @@ jobs:
         python-version: ['3.8']
         os: ['ubuntu-latest']
     runs-on: ${{ matrix.os }}
-    services:
-      postgres:
-        image: docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: github_actions
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
     - name: Login to GitHub Packages
       uses: docker/login-action@v1
@@ -32,6 +22,10 @@ jobs:
         registry: docker.pkg.github.com
         username: ${{ github.actor }}
         password: ${{ secrets.GH_TOKEN }}
+    - name: Pull and run Docker image
+      run: |
+        docker pull docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
+        docker run -d -p 5432:5432 --name postgres docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
       with:
