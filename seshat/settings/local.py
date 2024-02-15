@@ -4,13 +4,9 @@ from .base import *
 import environ
 import os
 import sys
-# Initialise environment variables
-env = environ.Env()
-environ.Env.read_env()
 
 #MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 #MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
-
 
 # Databases
 if os.getenv('GITHUB_ACTIONS') == 'true':
@@ -25,6 +21,11 @@ if os.getenv('GITHUB_ACTIONS') == 'true':
         }
     }
 else:
+
+    # Initialise environment variables
+    env = environ.Env()
+    environ.Env.read_env()
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
