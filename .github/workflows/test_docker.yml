@@ -1,5 +1,5 @@
 ---
-name: Build docker image for testing code
+name: test_docker
 
 on:
   push:

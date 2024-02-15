@@ -1,12 +1,12 @@
 ---
-name: Test code
+name: test_code
 
 # Triggers the workflow on push or pull request to dev branch, see test_docker.yml
 on:
-  push:
-    branches: [dev]
-  pull_request:
-    branches: [dev]
+  workflow_run:
+    workflows: ["test_docker"]
+    types:
+      - completed
 
 jobs:
   test_core:
