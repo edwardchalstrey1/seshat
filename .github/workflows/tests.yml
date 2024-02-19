@@ -26,6 +26,9 @@ jobs:
       run: |
         sleep 10
         docker exec seshat_testing psql -h localhost -U postgres -c 'SELECT 1'
+    - name: Check environment variables in Docker container
+      run: |
+        docker exec seshat_testing env
     - name: Run tests
       run: |
         docker exec seshat_testing python3 /seshat/manage.py test seshat.apps.core --keepdb
