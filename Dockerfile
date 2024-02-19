@@ -1,6 +1,6 @@
 FROM postgis/postgis
 
-RUN echo "max_locks_per_transaction = 256" >> /var/lib/postgresql/data/postgresql.conf
+RUN echo "max_locks_per_transaction = 256" >> /var/lib/postgresql/data/db-files/postgresql.conf
 
 # Update the package lists for upgrades for packages that need upgrading, as well as new packages that have just come to the repositories.
 RUN apt-get update -y
