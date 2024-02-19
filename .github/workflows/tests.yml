@@ -10,6 +10,16 @@ on:
 jobs:
   test_core:
     runs-on: 'ubuntu-latest'
+    steps:
+    - uses: actions/checkout@v3
+    - name: Login to GitHub Packages
+      uses: docker/login-action@v1
+      with:
+        registry: docker.pkg.github.com
+        username: ${{ github.actor }}
+        password: ${{ secrets.GH_TOKEN }}
+    - name: Pull Docker image
+      run: docker pull docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
     services:
       postgres:
         image: docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
@@ -25,14 +35,6 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         volumes:
           - ${{ github.workspace }}:/seshat
-    steps:
-    - uses: actions/checkout@v3
-    - name: Login to GitHub Packages
-      uses: docker/login-action@v1
-      with:
-        registry: docker.pkg.github.com
-        username: ${{ github.actor }}
-        password: ${{ secrets.GH_TOKEN }}
     - name: Check PostgreSQL connectivity
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -c 'SELECT 1'
