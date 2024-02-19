@@ -30,6 +30,7 @@ jobs:
         docker ps
     - name: Check postrgres is running
       run: |
+        sleep 10
         docker exec seshat_testing pg_isready
     - name: Check exit status
       run: |
