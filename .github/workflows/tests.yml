@@ -30,6 +30,12 @@ jobs:
     - name: Output Docker container logs
       run: |
         docker logs seshat_testing
+    - name: docker ps
+      run: |
+        docker ps
+    - name: Check exit status
+      run: |
+        docker inspect --format='{{.State.ExitCode}}' seshat_testing
     - name: Check PostgreSQL connectivity
       run: |
         docker exec seshat_testing psql -h localhost -U postgres -c 'SELECT 1'
