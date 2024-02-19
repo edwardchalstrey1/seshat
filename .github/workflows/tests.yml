@@ -28,9 +28,6 @@ jobs:
     - name: docker ps
       run: |
         docker ps
-    - name: Check postgres server logs
-      run: |
-        docker exec seshat_testing cat /var/log/postgresql/postgresql-16-main.log
     - name: Check postrgres is running
       run: |
         docker exec seshat_testing pg_isready
