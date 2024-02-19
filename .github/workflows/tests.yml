@@ -22,13 +22,6 @@ jobs:
       run: |
         docker pull docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
         docker run -d -p 5432:5432 -v ${{ github.workspace }}:/seshat -e DJANGO_SETTINGS_MODULE=seshat.settings.local -e POSTGRES_PASSWORD=postgres -e PGDATA=/var/lib/postgresql/data/db-files/ -e GITHUB_ACTIONS='true' --name seshat_testing docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
-    - name: Check PostgreSQL connectivity
-      run: |
-        sleep 10
-        docker exec seshat_testing psql -h localhost -U postgres -c 'SELECT 1'
-    - name: Check environment variables in Docker container
-      run: |
-        docker exec seshat_testing env
     - name: Run tests
       run: |
         docker exec seshat_testing python3 /seshat/manage.py test seshat.apps.core --keepdb
