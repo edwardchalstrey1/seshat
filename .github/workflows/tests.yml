@@ -9,7 +9,24 @@ on:
 
 jobs:
   test_core:
-    runs-on: ['ubuntu-latest']
+    strategy:
+      matrix:
+        python-version: ['3.8']
+        os: ['ubuntu-latest']
+    runs-on: ${{ matrix.os }}
+    services:
+      postgres:
+        image: docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: github_actions
+          PGDATA: '/var/lib/postgresql/data/db-files/'
+          DJANGO_SETTINGS_MODULE: seshat.settings.local
+
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
     - uses: actions/checkout@v3
     - name: Login to GitHub Packages
@@ -18,28 +35,6 @@ jobs:
         registry: docker.pkg.github.com
         username: ${{ github.actor }}
         password: ${{ secrets.GH_TOKEN }}
-    - name: Pull and run Docker image
-      run: |
-        docker pull docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
-        docker run -d -p 5432:5432 -v ${{ github.workspace }}:/seshat -e DJANGO_SETTINGS_MODULE=seshat.settings.local -e POSTGRES_PASSWORD=postgres -e PGDATA=/var/lib/postgresql/data/db-files/ --name seshat_testing docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
-    - name: Increase max_locks_per_transaction
-      run: |
-        docker exec seshat_testing /bin/bash -c 'echo "max_locks_per_transaction = 256" >> /var/lib/postgresql/data/db-files/postgresql.conf'
-    - name: Output Docker container logs
-      run: |
-        docker logs seshat_testing
-    - name: docker ps
-      run: |
-        docker ps
-    - name: Check postgres server logs
-      run: |
-        docker exec seshat_testing cat /var/log/postgresql/postgresql-16-main.log
-    - name: Check postrgres is running
-      run: |
-        docker exec seshat_testing pg_isready
-    - name: Check exit status
-      run: |
-        docker inspect --format='{{.State.ExitCode}}' seshat_testing
     - name: Check PostgreSQL connectivity
       run: |
         docker exec seshat_testing psql -h localhost -U postgres -c 'SELECT 1'
