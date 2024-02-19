@@ -4,25 +4,39 @@ from .base import *
 import environ
 import os
 import sys
-# Initialise environment variables
-env = environ.Env()
-environ.Env.read_env()
 
 #MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 #MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
-
 
 # Databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': env('NAME'),
-        'USER': 'postgres',
-        'HOST': env('HOST'),
-        'PORT': env('PORT'),
-        'PASSWORD': env('PASSWORD')
+# We use the local database for development and the GitHub Actions database for testing
+if os.getenv('GITHUB_ACTIONS') == 'true':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'github_actions',
+            'USER': 'postgres',
+            'HOST': 'localhost',
+            'PORT': '5432',
+            'PASSWORD': 'postgres'
+        }
     }
-}
+else:
+
+    # Initialise environment variables
+    env = environ.Env()
+    environ.Env.read_env()
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': env('NAME'),
+            'USER': 'postgres',
+            'HOST': env('HOST'),
+            'PORT': env('PORT'),
+            'PASSWORD': env('PASSWORD')
+        }
+    }
 
 # Shapefile spatial stuff
 GEOGRAPHIC_DB = True
@@ -32,7 +46,10 @@ if sys.platform.startswith('darwin'): # macOS
     GEOS_LIBRARY_PATH = '/opt/homebrew/opt/geos/lib/libgeos_c.dylib'
 else: # linux
     GDAL_LIBRARY_PATH = '/usr/lib/libgdal.so'
-    GEOS_LIBRARY_PATH = '/usr/lib/aarch64-linux-gnu/libgeos_c.so'
+    if os.getenv('GITHUB_ACTIONS') == 'true':
+        GEOS_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgeos_c.so'
+    else:
+        GEOS_LIBRARY_PATH = '/usr/lib/aarch64-linux-gnu/libgeos_c.so'
 
 django_settings_module = os.environ.get('DJANGO_SETTINGS_MODULE')
 

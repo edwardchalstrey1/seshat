@@ -113,7 +113,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 #SOCIALACCOUNT_AUTO_SIGNUP = False
 
-if not os.path.exists(local_env_path):
+if not os.path.exists(local_env_path) and not os.getenv('GITHUB_ACTIONS') == 'true':
     SOCIALACCOUNT_PROVIDERS = {
         'google': {
             'APP': {
@@ -198,7 +198,7 @@ TEMPLATES = [
 # DATABASES['default'].update(db_from_env)
 
 # Qing data database
-if not os.path.exists(local_env_path):
+if not os.path.exists(local_env_path) and not os.getenv('GITHUB_ACTIONS') == 'true':
     DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -255,7 +255,7 @@ USE_TZ = True
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
 # Email config BACKUP:
-if not os.path.exists(local_env_path):
+if not os.path.exists(local_env_path) and not os.getenv('GITHUB_ACTIONS') == 'true':
     EMAIL_FROM_USER = config('EMAIL_FROM_USER')
     EMAIL_HOST = config('EMAIL_HOST')
     EMAIL_HOST_USER = config('EMAIL_HOST_USER')
