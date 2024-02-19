@@ -29,12 +29,12 @@ jobs:
           POSTGRES_DB: github_actions
           PGDATA: '/var/lib/postgresql/data/db-files/'
           DJANGO_SETTINGS_MODULE: seshat.settings.local
-
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         volumes:
           - ${{ github.workspace }}:/seshat
+    steps:
     - name: Check PostgreSQL connectivity
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -c 'SELECT 1'
