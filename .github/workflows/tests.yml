@@ -28,7 +28,8 @@ jobs:
         docker pull docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
         docker run -d -p 5432:5432 -v ${{ github.workspace }}:/seshat -e DJANGO_SETTINGS_MODULE=seshat.settings.local -e POSTGRES_PASSWORD=postgres -e PGDATA=/var/lib/postgresql/data/db-files/ --name seshat_testing docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
     - name: Output Docker container logs
-        run: docker logs seshat_testing
+      run: |
+        docker logs seshat_testing
     - name: Check PostgreSQL connectivity
       run: |
         docker exec seshat_testing psql -h localhost -U postgres -c 'SELECT 1'
