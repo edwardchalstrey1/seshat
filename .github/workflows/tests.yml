@@ -9,7 +9,25 @@ on:
     branches: [dev]
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Login to GitHub Packages
+      uses: docker/login-action@v1
+      with:
+        registry: docker.pkg.github.com
+        username: ${{ github.actor }}
+        password: ${{ secrets.GH_TOKEN }}
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
   test_core:
+    needs: build
     strategy:
       matrix:
         python-version: ['3.8']
