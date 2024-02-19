@@ -9,11 +9,7 @@ on:
 
 jobs:
   test_core:
-    strategy:
-      matrix:
-        python-version: ['3.8']
-        os: ['ubuntu-latest']
-    runs-on: ${{ matrix.os }}
+    runs-on: 'ubuntu-latest'
     services:
       postgres:
         image: docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
@@ -27,6 +23,8 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        volumes:
+          - ${{ github.workspace }}:/seshat
     steps:
     - uses: actions/checkout@v3
     - name: Login to GitHub Packages
@@ -40,5 +38,4 @@ jobs:
         PGPASSWORD=postgres psql -h localhost -U postgres -c 'SELECT 1'
     - name: Run tests
       run: |
-        export DJANGO_SETTINGS_MODULE=seshat.settings.local
-        python manage.py test seshat.apps.core --keepdb
+        docker exec postgres python3 /seshat/manage.py test seshat.apps.core --keepdb
