@@ -23,8 +23,8 @@
 
 ## CI
 
-GitHub actions is set up to run on this repo. It requires a custom Docker image because the PostgreSQL `max_locks_per_transaction` had to be increased for memory reasons, in order to run the django tests. See `.github/workflows` and the `Dockerfile`.
+GitHub actions is set up to run on this repo. It uses a custom Docker image that gets built on every push or PR to `dev` if the Dockerfile has changed. See `.github/workflows` and the `Dockerfile`. The tests (`.github/workflows/tests.yml`) and any subsequently introduced workflows should always run on push/PR to `dev`.
 
-To push the docker image using the GH action workflow, I first did the following:
+To set up pushing the docker image using the GH action workflow, I first did the following:
 - Generated a new GitHub token with the `read:packages` and `write:packages` scopes. Under my `Settings > Developer settings > Personal access tokens` (classic token).
 - Stored the GitHub token as a secret in the Seshat GitHub repository, `Settings > Secrets`, named `GH_TOKEN`.
