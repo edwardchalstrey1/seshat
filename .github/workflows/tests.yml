@@ -37,7 +37,8 @@ jobs:
         password: ${{ secrets.GH_TOKEN }}
     - name: Check PostgreSQL connectivity
       run: |
-        docker exec seshat_testing psql -h localhost -U postgres -c 'SELECT 1'
+        PGPASSWORD=postgres psql -h localhost -U postgres -c 'SELECT 1'
     - name: Run tests
       run: |
-        docker exec seshat_testing python3 /seshat/manage.py test seshat.apps.core --keepdb
+        export DJANGO_SETTINGS_MODULE=seshat.settings.local
+        python manage.py test seshat.apps.core --keepdb
