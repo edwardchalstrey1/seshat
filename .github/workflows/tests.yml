@@ -47,7 +47,7 @@ jobs:
         docker run -d -p 5432:5432 -v ${{ github.workspace }}:/seshat -e DJANGO_SETTINGS_MODULE=seshat.settings.local -e POSTGRES_PASSWORD=postgres -e PGDATA=/var/lib/postgresql/data/db-files/ --name seshat_testing docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
     - name: Increase max_locks_per_transaction
       run: |
-        docker exec -it seshat_testing /bin/bash -c 'echo "max_locks_per_transaction = 256" >> /var/lib/postgresql/data/db-files/postgresql.conf'
+        docker exec seshat_testing /bin/bash -c 'echo "max_locks_per_transaction = 256" >> /var/lib/postgresql/data/db-files/postgresql.conf'
     - name: Output Docker container logs
       run: |
         docker logs seshat_testing
