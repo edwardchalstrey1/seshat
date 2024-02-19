@@ -32,4 +32,4 @@ jobs:
         docker exec seshat_testing psql -h localhost -U postgres -c 'SELECT 1'
     - name: Run tests
       run: |
-        docker exec seshat_testing python /seshat/manage.py test seshat.apps.core --keepdb
+        docker exec seshat_testing python3 /seshat/manage.py test seshat.apps.core --keepdb
