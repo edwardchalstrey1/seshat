@@ -9,7 +9,6 @@ on:
 
 jobs:
   test_core:
-    needs: build
     strategy:
       matrix:
         python-version: ['3.8']
