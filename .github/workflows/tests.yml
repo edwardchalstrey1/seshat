@@ -26,10 +26,10 @@ jobs:
     - name: Pull and run Docker image
       run: |
         docker pull docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
-        docker run -d -p 5432:5432 -v ${{ github.workspace }}:/workspace -e DJANGO_SETTINGS_MODULE=seshat.settings.local --name postgres docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
+        docker run -d -p 5432:5432 -v ${{ github.workspace }}:seshat -e DJANGO_SETTINGS_MODULE=seshat.settings.local --name postgres docker.pkg.github.com/edwardchalstrey1/seshat/tests-image:latest
     - name: Check PostgreSQL connectivity
       run: |
         docker exec postgres psql -h localhost -U postgres -c 'SELECT 1'
     - name: Run tests
       run: |
-        docker exec postgres python /workspace/manage.py test seshat.apps.core --keepdb
+        docker exec postgres python seshat/manage.py test seshat.apps.core --keepdb
