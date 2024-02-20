@@ -94,7 +94,7 @@ class ShapesTest(TestCase):
         )
         Polity_capital.objects.create(
             name="TestPolity2",
-            capital="Test Capital 2"
+            capital="Test Capital 2",
             polity_id=2
         )
         Polity_capital.objects.create(
