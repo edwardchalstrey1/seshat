@@ -23,7 +23,18 @@ def polity_map(pk):
         # content['earliest_year'] = polity.start_year
         # content['latest_year'] = polity.end_year
         # content['display_year'] = polity.start_year + round(((polity.end_year - polity.start_year) / 2))
-        content['capitals_info'] = get_polity_capitals(pk)
+
+        capitals_info = get_polity_capitals(pk)
+        # Set the start and end years to be the same as the polity where missing
+        modified_caps = capitals_info
+        i = 0
+        for capital_info in capitals_info:
+            if capital_info['year_from'] == None:
+                modified_caps[i]['year_from'] = polity.start_year
+            if capital_info['year_to'] == None:
+                modified_caps[i]['year_to'] = polity.end_year
+            i+=1
+        content['capitals_info'] = modified_caps
         content['include_polity_map'] = True
     except:
         content = {}
@@ -45,11 +56,21 @@ def get_polity_capitals(pk):
                 capital_info['capital'] = capital.name
                 capital_info['latitude'] = float(capital.latitude)
                 capital_info['longitude'] = float(capital.longitude)
-                # Only a small number of capitals have a year_from or year_to
-                # TODO: None of the seshat pages with shape data currently have multiple capitals split by time
-                # if polity_capital.year_from and polity_capital.year_to:
-                #     capital_info['year_from'] = polity_capital.year_from
-                #     capital_info['year_to'] = polity_capital.year_to
+
+                if polity_capital.year_from == 0:
+                    capital_info['year_from'] = 0
+                elif polity_capital.year_from is not None:
+                    capital_info['year_from'] = polity_capital.year_from
+                else:
+                    capital_info['year_from'] = None
+                
+                if polity_capital.year_to == 0:
+                    capital_info['year_to'] = 0
+                elif polity_capital.year_to is not None:
+                    capital_info['year_to'] = polity_capital.year_to
+                else:
+                    capital_info['year_to'] = None
+                
                 capitals_info.append(capital_info)
     
     return capitals_info

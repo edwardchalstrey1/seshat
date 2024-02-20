@@ -275,13 +275,22 @@
                                         </tr>
                                 `;
                                 if (allCapitalsInfo[shape.seshatId]) {
-                                    popupContent = popupContent + `
+                                    if (allCapitalsInfo[shape.seshatId]['year_from'] <= selectedYearInt && allCapitalsInfo[shape.seshatId]['year_to'] >= selectedYearInt) {
+                                        popupContent = popupContent + `
                                             <tr>
                                                 <td>Capital: </td>
                                                 <td>${allCapitalsInfo[shape.seshatId].map(capital => capital.capital).join(', ')}</td>
                                             </tr>
                                         `;
-                                }
+                                    
+                                        popupContent = popupContent + `
+                                                <tr>
+                                                    <td>Capital: </td>
+                                                    <td>${allCapitalsInfo[shape.seshatId].map(capital => capital.capital).join(', ')}</td>
+                                                </tr>
+                                            `;
+                                    };
+                                };
                                 popupContent = popupContent + `</table>`;
                                 layer.bindPopup(popupContent);
                             }
