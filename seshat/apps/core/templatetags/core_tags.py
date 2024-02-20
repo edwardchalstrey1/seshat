@@ -8,7 +8,7 @@ from ..views import get_polity_shape_content
 register = template.Library()
 
 @register.inclusion_tag('core/polity_map.html')
-def polity_map(pk, tolerance='default'):
+def polity_map(pk):
     """
         This function is used by the polity_map template and gets the specific polity shape data and capital information.
         Sets include_polity_map to False if there is no shape data.
@@ -24,14 +24,11 @@ def polity_map(pk, tolerance='default'):
         # content['latest_year'] = polity.end_year
         # content['display_year'] = polity.start_year + round(((polity.end_year - polity.start_year) / 2))
 
-        if tolerance == 'default':  # Used for testing
-            capitals_info = get_polity_capitals(pk)
-        else:
-            capitals_info = get_polity_capitals(pk, polity_tolerance=tolerance)
+        capitals_info = get_polity_capitals(pk)
         # Set the start and end years to be the same as the polity where missing
         modified_caps = capitals_info
         i = 0
-        for capital_info in caps:
+        for capital_info in capitals_info:
             if capital_info['year_from'] == None:
                 modified_caps[i]['year_from'] = polity.start_year
             if capital_info['year_to'] == None:

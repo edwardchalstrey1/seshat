@@ -306,7 +306,7 @@ class ShapesTest(TestCase):
                 ]
             }
         }
-        result = polity_map(self.pk, tolerance=0)
+        result = polity_map(self.pk)
         self.assertEqual(result, expected_result)
 
     def test_map_view_initial(self):
