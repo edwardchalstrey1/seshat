@@ -2422,19 +2422,25 @@ def get_all_polity_capitals():
     """
         Get capital cities for polities that have them.
     """
+    import pprint as pp
     from seshat.apps.core.templatetags.core_tags import get_polity_capitals
     all_capitals_info = {}
     for polity in Polity.objects.all():
         caps = get_polity_capitals(polity.id)
-        if caps:
-            all_capitals_info[polity.new_name] = caps
-            # Set the start and end years to be the same as the polity where missing
-            for capital_info in caps:
-                if not capital_info['year_from']:
-                    capital_info['year_from'] = polity.start_year
-                if not capital_info['year_to']:
-                    capital_info['year_to'] = polity.end_year
 
+        if caps:
+            # Set the start and end years to be the same as the polity where missing
+            modified_caps = caps
+            i = 0
+            for capital_info in caps:
+                if capital_info['year_from'] == None:
+                    modified_caps[i]['year_from'] = polity.start_year
+                if capital_info['year_to'] == None:
+                    modified_caps[i]['year_to'] = polity.end_year
+                i+=1
+            all_capitals_info[polity.new_name] = modified_caps
+    pp.pprint(all_capitals_info)
+    print('done')
     return all_capitals_info
 
 def map_view_initial(request):
