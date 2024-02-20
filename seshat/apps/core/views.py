@@ -2400,7 +2400,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_toler
 
     # TODO: Temp fix whilst polity start and end years don't match shape data
     # If a polity page has > 1 shapes then use the earliest and latest years
-    # See polity_map in core_tags.py for more info
+    # See polity_map in templatetags/core_tags.py for more info
     if seshat_id != "all":
         earliest_year = min([shape['start_year'] for shape in shapes])
         displayed_year = earliest_year
@@ -2428,6 +2428,13 @@ def get_all_polity_capitals():
         caps = get_polity_capitals(polity.id)
         if caps:
             all_capitals_info[polity.new_name] = caps
+            # Set the start and end years to be the same as the polity where missing
+            for capital_info in caps:
+                if not capital_info['year_from']:
+                    capital_info['year_from'] = polity.start_year
+                if not capital_info['year_to']:
+                    capital_info['year_to'] = polity.end_year
+
     return all_capitals_info
 
 def map_view_initial(request):

@@ -28,7 +28,9 @@ class ShapesTest(TestCase):
             name='TestPolity2',
             id=2,
             long_name='TestPolity2',
-            new_name='Test seshat_id 2'
+            new_name='Test seshat_id 2',
+            start_year=-100,
+            end_year=1100
         )
         self.video_shapefile = VideoShapefile.objects.create(
             geom=self.square,
@@ -73,12 +75,34 @@ class ShapesTest(TestCase):
             latitude=51.567522,
             longitude=-0.1294531
         )
+        Capital.objects.create(
+            name="Test Capital 2",
+            latitude=51.567523,
+            longitude=-0.1294532
+        )
+        Capital.objects.create(
+            name="Test Capital 2A",
+            latitude=51.567523,
+            longitude=-0.1294532
+        )
         self.polity_capital = Polity_capital.objects.create(
-            name="Test Polity",
+            name="TestPolity",
             capital="Test Capital",
             year_from=2000,
             year_to=2020,
             polity_id = self.pk
+        )
+        Polity_capital.objects.create(
+            name="TestPolity2",
+            capital="Test Capital 2"
+            polity_id=2
+        )
+        Polity_capital.objects.create(
+            name="TestPolity2",
+            capital="Test Capital 2A",
+            year_from=0,
+            year_to=100,
+            polity_id=2
         )
 
     # Model tests
@@ -235,14 +259,21 @@ class ShapesTest(TestCase):
     def test_get_polity_capitals(self):
         """Test the get_polity_capitals function."""
         result = get_polity_capitals(self.pk)
-        self.assertEqual(result, [{'capital': 'Test Capital', 'latitude': 51.567522, 'longitude': -0.1294531}])
+        self.assertEqual(result,
+                        [{'capital': 'Test Capital', 'latitude': 51.567522, 'longitude': -0.1294531, 'year_from': 2000, 'year_to': 2020}]
+                        )
         
     def test_get_all_polity_capitals(self):
         """Test the get_all_polity_capitals function."""
         result = get_all_polity_capitals()
         self.assertEqual(result,
                         {'Test seshat_id': [
-                                {'capital': 'Test Capital', 'latitude': 51.567522, 'longitude': -0.1294531}
+                                {'capital': 'Test Capital', 'latitude': 51.567522, 'longitude': -0.1294531, 'year_from': 2000, 'year_to': 2020}
+                            ]
+                        },
+                        {'Test seshat_id 2': [
+                                {'capital': 'Test Capital 2', 'latitude': 51.567523, 'longitude': -0.1294532, 'year_from': -100, 'year_to': 1000},
+                                {'capital': 'Test Capital 2A', 'latitude': 51.567523, 'longitude': -0.1294532, 'year_from': 0, 'year_to': 100}
                             ]
                         }
         )

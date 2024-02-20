@@ -45,11 +45,14 @@ def get_polity_capitals(pk):
                 capital_info['capital'] = capital.name
                 capital_info['latitude'] = float(capital.latitude)
                 capital_info['longitude'] = float(capital.longitude)
-                # Only a small number of capitals have a year_from or year_to
-                # TODO: None of the seshat pages with shape data currently have multiple capitals split by time
-                # if polity_capital.year_from and polity_capital.year_to:
-                #     capital_info['year_from'] = polity_capital.year_from
-                #     capital_info['year_to'] = polity_capital.year_to
+                if polity_capital.year_from:
+                    capital_info['year_from'] = polity_capital.year_from
+                else:
+                    capital_info['year_from'] = False
+                if polity_capital.year_to:
+                    capital_info['year_to'] = polity_capital.year_to
+                else:
+                    capital_info['year_to'] = False
                 capitals_info.append(capital_info)
     
     return capitals_info
