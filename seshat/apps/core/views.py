@@ -2422,7 +2422,6 @@ def get_all_polity_capitals():
     """
         Get capital cities for polities that have them.
     """
-    import pprint as pp
     from seshat.apps.core.templatetags.core_tags import get_polity_capitals
     all_capitals_info = {}
     for polity in Polity.objects.all():
@@ -2439,8 +2438,7 @@ def get_all_polity_capitals():
                     modified_caps[i]['year_to'] = polity.end_year
                 i+=1
             all_capitals_info[polity.new_name] = modified_caps
-    pp.pprint(all_capitals_info)
-    print('done')
+
     return all_capitals_info
 
 def map_view_initial(request):

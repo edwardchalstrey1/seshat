@@ -269,11 +269,10 @@ class ShapesTest(TestCase):
         self.assertEqual(result,
                         {'Test seshat_id': [
                                 {'capital': 'Test Capital', 'latitude': 51.567522, 'longitude': -0.1294531, 'year_from': 2000, 'year_to': 2020}
-                            ]
-                        },
-                        {'Test seshat_id 2': [
-                                {'capital': 'Test Capital 2', 'latitude': 51.567523, 'longitude': -0.1294532, 'year_from': -100, 'year_to': 1000},
-                                {'capital': 'Test Capital 2A', 'latitude': 51.567523, 'longitude': -0.1294532, 'year_from': 0, 'year_to': 100}
+                            ],
+                        'Test seshat_id 2': [
+                                {'capital': 'Test Capital 2A', 'latitude': 51.567523, 'longitude': -0.1294532, 'year_from': 0, 'year_to': 100},
+                                {'capital': 'Test Capital 2', 'latitude': 51.567523, 'longitude': -0.1294532, 'year_from': -100, 'year_to': 1100}
                             ]
                         }
         )
