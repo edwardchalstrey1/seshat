@@ -32,6 +32,14 @@ class ShapesTest(TestCase):
             start_year=-100,
             end_year=1100
         )
+        Polity.objects.create(
+            name='TestPolity3',
+            id=3,
+            long_name='TestPolity3',
+            new_name='Test seshat_id 3',
+            start_year=-100,
+            end_year=1100
+        )
         self.video_shapefile = VideoShapefile.objects.create(
             geom=self.square,
             name="Test shape",
@@ -307,6 +315,16 @@ class ShapesTest(TestCase):
             }
         }
         result = polity_map(self.pk)
+        self.assertEqual(result, expected_result)
+
+    def test_polity_map_no_content(self):
+        """Test the polity_map func when polity has no shapes associated."""
+        expected_result = {
+            'content': {
+                'include_polity_map': False
+            }
+        }
+        result = polity_map(3)
         self.assertEqual(result, expected_result)
 
     def test_map_view_initial(self):
