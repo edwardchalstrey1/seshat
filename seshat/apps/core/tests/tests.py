@@ -280,29 +280,31 @@ class ShapesTest(TestCase):
     def test_polity_map(self):
         """Test the polity_map template tag."""
         expected_result = {
-            'shapes': [
-                {
-                    'seshat_id': 'Test seshat_id',
-                    'name': 'Test shape',
-                    'start_year': 2000,
-                    'end_year': 2020,
-                    'polity_start_year': 2000,
-                    'polity_end_year': 2020,
-                    'colour': "#FFFFFF",
-                    'area': 100.0,
-                    'geom': self.geo_square
-                }
-            ],
-            'earliest_year': 2000,  # This is the earliest year of the polity
-            'display_year': 2000,
-            'latest_year': 2020,
-            'seshat_id_page_id': {
-                'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
-            },
-            'include_polity_map': True,
-            'capitals_info': [
-                {'capital': 'Test Capital', 'latitude': 51.567522, 'longitude': -0.1294531, 'year_from': 2000, 'year_to': 2020}
-            ]
+            'content': {
+                'shapes': [
+                    {
+                        'seshat_id': 'Test seshat_id',
+                        'name': 'Test shape',
+                        'start_year': 2000,
+                        'end_year': 2020,
+                        'polity_start_year': 2000,
+                        'polity_end_year': 2020,
+                        'colour': "#FFFFFF",
+                        'area': 100.0,
+                        'geom': self.geo_square
+                    }
+                ],
+                'earliest_year': 2000,  # This is the earliest year of the polity
+                'display_year': 2000,
+                'latest_year': 2020,
+                'seshat_id_page_id': {
+                    'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
+                },
+                'include_polity_map': True,
+                'capitals_info': [
+                    {'capital': 'Test Capital', 'latitude': 51.567522, 'longitude': -0.1294531, 'year_from': 2000, 'year_to': 2020}
+                ]
+            }
         }
         result = polity_map(self.pk, tolerance=0)
         self.assertEqual(result, expected_result)
