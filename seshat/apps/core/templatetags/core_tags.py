@@ -45,14 +45,14 @@ def get_polity_capitals(pk):
                 capital_info['capital'] = capital.name
                 capital_info['latitude'] = float(capital.latitude)
                 capital_info['longitude'] = float(capital.longitude)
-                if polity_capital.year_from:
+                if polity_capital.year_from is not None:
                     capital_info['year_from'] = polity_capital.year_from
                 else:
-                    capital_info['year_from'] = False
-                if polity_capital.year_to:
+                    capital_info['year_from'] = None
+                if polity_capital.year_to is not None:
                     capital_info['year_to'] = polity_capital.year_to
                 else:
-                    capital_info['year_to'] = False
+                    capital_info['year_to'] = None
                 capitals_info.append(capital_info)
     
     return capitals_info
