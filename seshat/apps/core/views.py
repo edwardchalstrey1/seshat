@@ -2257,7 +2257,7 @@ def get_polity_year_range():
     )
     return result['min_year'], result['max_year']
 
-def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
+def get_provinces(selected_base_map_gadm='province'):
     """
         Get all the province or country shapes for the map base layer.
         Note: we have to use raw SQL query to make use of the ST_Simplify function.
@@ -2268,7 +2268,7 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
     if selected_base_map_gadm == 'country':
         query = """
             SELECT
-                ST_Simplify(geom, %s) AS simplified_geometry,
+                geom,
                 "COUNTRY"                
             FROM
                 core_gadmcountries;
@@ -2276,7 +2276,7 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
     elif selected_base_map_gadm == 'province':
         query = """
             SELECT
-                ST_Simplify(geom, %s) AS simplified_geometry,
+                geom,
                 "NAME_1",
                 "ENGTYPE_1"                
             FROM
@@ -2284,7 +2284,7 @@ def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.
         """
 
     with connection.cursor() as cursor:
-        cursor.execute(query, [simplification_tolerance])
+        cursor.execute(query)
         rows = cursor.fetchall()
 
     for row in rows:
@@ -2487,10 +2487,8 @@ def map_view_all(request):
 
 def provinces_and_countries_view(request):
     # Define a simplification tolerance for faster loading of shapes at lower res
-    country_tolerance = 0.01
-    province_tolerance = 0.01
-    provinces = get_provinces(simplification_tolerance=province_tolerance)
-    countries = get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance)
+    provinces = get_provinces()
+    countries = get_provinces(selected_base_map_gadm='country')
 
     content = {
         'provinces': provinces,
