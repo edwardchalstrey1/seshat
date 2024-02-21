@@ -698,6 +698,22 @@ class VideoShapefile(models.Model):
     def __str__(self):
         return "Name: %s" % self.name
 
+class VideoShapefileLowRes(models.Model):
+    geom = models.MultiPolygonField()
+    name=models.CharField(max_length=100)
+    polity=models.CharField(max_length=100)
+    wikipedia_name=models.CharField(max_length=100, null=True)
+    seshat_id=models.CharField(max_length=100)
+    area=models.FloatField()
+    start_year=models.IntegerField()
+    end_year=models.IntegerField()
+    polity_start_year=models.IntegerField()
+    polity_end_year=models.IntegerField()
+    colour=models.CharField(max_length=7)
+
+    def __str__(self):
+        return "Name: %s" % self.name
+
 class GADMShapefile(models.Model):
     geom = models.MultiPolygonField()
     UID=models.BigIntegerField()
