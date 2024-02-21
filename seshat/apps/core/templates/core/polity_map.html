@@ -219,7 +219,15 @@
                             });
 
                             // Plot capital markers       
-                            var markers = L.markerClusterGroup();
+                            var markers = L.markerClusterGroup({
+                                iconCreateFunction: function(cluster) {
+                                    return L.divIcon({
+                                        html: '<div style="background-color:' + shape.colour + '; color: #fff; border-radius: 50%; text-align: center; line-height: 40px;"><b>' + cluster.getChildCount() + '</b></div>',
+                                        className: 'myClusterIcon',
+                                        iconSize: L.point(40, 40)
+                                    });
+                                }
+                            });
                             capitalsInfo.forEach(function (capital) {
                                 // If the capital existed in the selected year (or years not specified)
                                 if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
