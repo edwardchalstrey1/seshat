@@ -2260,32 +2260,14 @@ def get_polity_year_range():
 def get_provinces(selected_base_map_gadm='province'):
     """
         Get all the province or country shapes for the map base layer.
-        Note: we have to use raw SQL query to make use of the ST_Simplify function.
     """
 
     provinces = []
-    # Use the appropriate SQL query based on the selected baseMapGADM value
+    # Use the appropriate Django ORM query based on the selected baseMapGADM value
     if selected_base_map_gadm == 'country':
-        query = """
-            SELECT
-                geom,
-                "COUNTRY"                
-            FROM
-                core_gadmcountries;
-        """
+        rows = GADMCountries.objects.values_list('geom', 'COUNTRY')
     elif selected_base_map_gadm == 'province':
-        query = """
-            SELECT
-                geom,
-                "NAME_1",
-                "ENGTYPE_1"                
-            FROM
-                core_gadmprovinces;
-        """
-
-    with connection.cursor() as cursor:
-        cursor.execute(query)
-        rows = cursor.fetchall()
+        rows = GADMProvinces.objects.values_list('geom', 'NAME_1', 'ENGTYPE_1')
 
     for row in rows:
         if row[0] != None:
