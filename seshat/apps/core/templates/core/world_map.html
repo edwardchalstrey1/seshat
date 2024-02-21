@@ -57,7 +57,10 @@
                 <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()"
                         disabled>Current borders</label>
                 <!-- Add a loading indicator for Current borders -->
-                <div id="baseMapCurrentLoadingIndicator" class="spinner"></div><br>
+                <div id="baseMapCurrentLoadingIndicator">
+                    <p>Loading current borders...</p>
+                    <div class="spinner"></div>
+                </div><br>
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
                 <label for="baseMapGADM">Current borders:</label>
