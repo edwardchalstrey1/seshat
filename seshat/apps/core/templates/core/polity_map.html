@@ -211,7 +211,14 @@
                                 }
                             }).addTo(map);
 
-                            // Plot capital markers                  
+                            // Delete previously added capital markers
+                            map.eachLayer(function (layer) {
+                                if (layer instanceof L.MarkerClusterGroup) {
+                                    map.removeLayer(layer);
+                                }
+                            });
+
+                            // Plot capital markers       
                             var markers = L.markerClusterGroup();
                             capitalsInfo.forEach(function (capital) {
                                 // If the capital existed in the selected year (or years not specified)
