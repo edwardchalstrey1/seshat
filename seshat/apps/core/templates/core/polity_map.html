@@ -222,17 +222,27 @@
                             capitalsInfo.forEach(function (capital) {
                                 // If the capital existed in the selected year (or years not specified)
                                 if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
-                                    var marker = L.circleMarker([capital.latitude, capital.longitude], {
-                                        color: shape.colour,
-                                        radius: 5
+                                    var myIcon = L.icon({
+                                        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                                        shadowUrl: null,
+                                        iconSize: [25, 41],
+                                        iconAnchor: [12, 41],
+                                        popupAnchor: [1, -34],
+                                        tooltipAnchor: [16, -28]
+                                    });
+
+                                    var marker = L.marker([capital.latitude, capital.longitude], {
+                                        icon: myIcon,
+                                        shadowUrl: null,
                                     }).addTo(map);
+
+                                    marker.bindTooltip(capital.capital, {
+                                        permanent: true,
+                                        direction: "top",
+                                        offset: L.point({x: 0, y: 0})
+                                    });
+
                                     marker.bindPopup(capital.capital);
-                                    marker.on('mouseover', function (e) {
-                                        this.openPopup();
-                                    });
-                                    marker.on('mouseout', function (e) {
-                                        this.closePopup();
-                                    });
                                 };
                             });
 
