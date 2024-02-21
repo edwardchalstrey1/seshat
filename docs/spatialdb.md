@@ -40,7 +40,7 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
     ```{SQL}
         INSERT INTO core_gadmcountries (geom, "COUNTRY")
         SELECT 
-            COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Union(geom)) AS geom,
+            COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Simplify(ST_Union(geom), 0.001)) AS geom,
             "COUNTRY"
         FROM 
             core_gadmshapefile
@@ -51,7 +51,7 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
     ```{SQL}
         INSERT INTO core_gadmprovinces (geom, "NAME_1", "ENGTYPE_1")
         SELECT 
-            COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Union(geom)) AS geom,
+            COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Simplify(ST_Union(geom), 0.001)) AS geom,
             "NAME_1",
             "ENGTYPE_1"
         FROM 
@@ -60,4 +60,4 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
             "NAME_1", "ENGTYPE_1";
     ```
 
-The 0.01 value is the simplification tolerance. Using a lower value will increase the resolution of the shapes used, but result in slower loading in the django app.
+The 0.01 value is the simplification tolerance. Using a lower value will increase the resolution of the shapes used, but result in slower loading in the django app. Some smaller countries/provinces cannot be simplified with 0.01, so try 0.001.
