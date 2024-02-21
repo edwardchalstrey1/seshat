@@ -40,7 +40,7 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
     ```{SQL}
         INSERT INTO core_gadmcountries (geom, "COUNTRY")
         SELECT 
-            ST_Simplify(ST_Union(geom), 0.01) AS geom,
+            COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Union(geom)) AS geom,
             "COUNTRY"
         FROM 
             core_gadmshapefile
@@ -51,7 +51,7 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
     ```{SQL}
         INSERT INTO core_gadmprovinces (geom, "NAME_1", "ENGTYPE_1")
         SELECT 
-            ST_Simplify(ST_Union(geom), 0.01) AS geom,
+            COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Union(geom)) AS geom,
             "NAME_1",
             "ENGTYPE_1"
         FROM 
