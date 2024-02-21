@@ -214,7 +214,8 @@
                                 // If the capital existed in the selected year (or years not specified)
                                 if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
                                     var marker = L.circleMarker([capital.latitude, capital.longitude], {
-                                        fillOpacity: 0.8,
+                                        fillOpacity: 0,
+                                        color: shape.colour,
                                     }).addTo(map);
 
                                     marker.bindTooltip(capital.capital, {
