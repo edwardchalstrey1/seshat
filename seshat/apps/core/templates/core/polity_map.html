@@ -4,6 +4,9 @@
     {% leaflet_js %}
     {% leaflet_css %}
     {% load static %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 </head>
 
 <body>
@@ -45,7 +48,10 @@
                     <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()"
                             disabled>Current borders</label>
                     <!-- Add a loading indicator for Current borders -->
-                    <div id="baseMapCurrentLoadingIndicator" class="spinner"></div><br>
+                    <div id="baseMapCurrentLoadingIndicator">
+                        <p><sub>Loading current borders...</sub></p>
+                        <div class="spinner"></div>
+                    </div><br>
                 </fieldset>
                 <fieldset id="baseMapGADMFieldset">
                     <label for="baseMapGADM">Current borders:</label>
@@ -145,15 +151,6 @@
                 if (!document.getElementById('baseMapOnly').checked) {
                     shapesData.forEach(function (shape) {
 
-                        // Make shapes that lack a linked Seshat page stand out
-                        if (shape.seshatId in seshatIdPageId) {
-                            var borderColour = shape.colour;
-                            var borderWeight = 0;
-                        } else {
-                            var borderColour = shape.colour;
-                            var borderWeight = 0;
-                        }
-
                         // If the shape spans the selected year
                         if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
 
@@ -186,8 +183,8 @@
                                 style: function (feature) {
                                     return {
                                         fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                        color: borderColour,  // Set the border color
-                                        weight: borderWeight,  // Set the border weight
+                                        color: shape.colour,  // Set the border color
+                                        weight: 0,  // Set the border weight
                                         fillOpacity: 0.5  // Set the fill opacity
                                     };
                                 },
@@ -214,24 +211,42 @@
                                 }
                             }).addTo(map);
 
-                            // Plot capital markers
-                            
+                            // Delete previously added capital markers
+                            map.eachLayer(function (layer) {
+                                if (layer instanceof L.MarkerClusterGroup) {
+                                    map.removeLayer(layer);
+                                }
+                            });
+
+                            // Plot capital markers       
+                            var markers = L.markerClusterGroup({
+                                iconCreateFunction: function(cluster) {
+                                    return L.divIcon({
+                                        html: '<div style="background-color:' + shape.colour + '; color: #fff; border-radius: 50%; text-align: center; line-height: 40px;"><b>' + cluster.getChildCount() + '</b></div>',
+                                        className: 'myClusterIcon',
+                                        iconSize: L.point(40, 40)
+                                    });
+                                }
+                            });
                             capitalsInfo.forEach(function (capital) {
                                 // If the capital existed in the selected year (or years not specified)
                                 if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
                                     var marker = L.circleMarker([capital.latitude, capital.longitude], {
-                                        color: shape.colour,
-                                        radius: 5
-                                    }).addTo(map);
+                                        fillOpacity: 0,
+                                        color: 'transparent',
+                                    });
+                                    marker.bindTooltip(capital.capital, {
+                                        permanent: true,
+                                        direction: "top",
+                                        offset: L.point({ x: 0, y: 0 })
+                                    });
+
                                     marker.bindPopup(capital.capital);
-                                    marker.on('mouseover', function (e) {
-                                        this.openPopup();
-                                    });
-                                    marker.on('mouseout', function (e) {
-                                        this.closePopup();
-                                    });
+                                    markers.addLayer(marker); // add each marker to the MarkerClusterGroup
                                 };
                             });
+
+                    map.addLayer(markers); // add the MarkerClusterGroup to the map
 
                             // Update the displayedShapes array
                             if (displayedShapes.indexOf(shape.name) === -1) {

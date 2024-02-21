@@ -17,7 +17,8 @@
                     <h3>Polities</h3>
                     <!-- Add a loading indicator -->
                     <div id="loadingIndicator">
-                        <div class="spinner"></div>
+                        <p><sub>Loading polities for all years...</sub></p>
+                        <div class="spinner"></div>                   
                     </div>
                 </legend>
 
@@ -56,7 +57,10 @@
                 <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()"
                         disabled>Current borders</label>
                 <!-- Add a loading indicator for Current borders -->
-                <div id="baseMapCurrentLoadingIndicator" class="spinner"></div><br>
+                <div id="baseMapCurrentLoadingIndicator">
+                    <p>Loading current borders...</p>
+                    <div class="spinner"></div>
+                </div><br>
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
                 <label for="baseMapGADM">Current borders:</label>
@@ -198,15 +202,6 @@
             if (!document.getElementById('baseMapOnly').checked){
                 shapesData.forEach(function (shape) {
 
-                    // Make shapes that lack a linked Seshat page stand out
-                    if (shape.seshatId in seshatIdPageId) {
-                        var borderColour = shape.colour;
-                        var borderWeight = 0;
-                    } else {
-                        var borderColour = shape.colour;
-                        var borderWeight = 0;
-                    }
-
                     // If the shape spans the selected year
                     if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
                         
@@ -239,8 +234,8 @@
                             style: function (feature) {
                                 return {
                                     fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                    color: borderColour,  // Set the border color
-                                    weight: borderWeight,  // Set the border weight
+                                    color: shape.colour,  // Set the border color
+                                    weight: 0,  // Set the border weight
                                     fillOpacity: 0.5  // Set the fill opacity
                                 };
                             },

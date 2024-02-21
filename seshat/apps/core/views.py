@@ -2257,35 +2257,17 @@ def get_polity_year_range():
     )
     return result['min_year'], result['max_year']
 
-def get_provinces(selected_base_map_gadm='province', simplification_tolerance=0.01):
+def get_provinces(selected_base_map_gadm='province'):
     """
         Get all the province or country shapes for the map base layer.
-        Note: we have to use raw SQL query to make use of the ST_Simplify function.
     """
 
     provinces = []
-    # Use the appropriate SQL query based on the selected baseMapGADM value
+    # Use the appropriate Django ORM query based on the selected baseMapGADM value
     if selected_base_map_gadm == 'country':
-        query = """
-            SELECT
-                ST_Simplify(geom, %s) AS simplified_geometry,
-                "COUNTRY"                
-            FROM
-                core_gadmcountries;
-        """
+        rows = GADMCountries.objects.values_list('geom', 'COUNTRY')
     elif selected_base_map_gadm == 'province':
-        query = """
-            SELECT
-                ST_Simplify(geom, %s) AS simplified_geometry,
-                "NAME_1",
-                "ENGTYPE_1"                
-            FROM
-                core_gadmprovinces;
-        """
-
-    with connection.cursor() as cursor:
-        cursor.execute(query, [simplification_tolerance])
-        rows = cursor.fetchall()
+        rows = GADMProvinces.objects.values_list('geom', 'NAME_1', 'ENGTYPE_1')
 
     for row in rows:
         if row[0] != None:
@@ -2487,10 +2469,8 @@ def map_view_all(request):
 
 def provinces_and_countries_view(request):
     # Define a simplification tolerance for faster loading of shapes at lower res
-    country_tolerance = 0.01
-    province_tolerance = 0.01
-    provinces = get_provinces(simplification_tolerance=province_tolerance)
-    countries = get_provinces(selected_base_map_gadm='country', simplification_tolerance=country_tolerance)
+    provinces = get_provinces()
+    countries = get_provinces(selected_base_map_gadm='country')
 
     content = {
         'provinces': provinces,

@@ -145,8 +145,8 @@ class ShapesTest(TestCase):
 
     def test_get_provinces(self):
         """Test the get_provinces function."""
-        province_result = get_provinces(selected_base_map_gadm='province', simplification_tolerance=0)
-        country_result = get_provinces(selected_base_map_gadm='country', simplification_tolerance=0)
+        province_result = get_provinces(selected_base_map_gadm='province')
+        country_result = get_provinces(selected_base_map_gadm='country')
         
         province_expected_result = [{'aggregated_geometry': self.geo_square, 'province': 'Test Province', 'province_type': 'Test Type'}]
         country_expected_result = [{'aggregated_geometry': self.geo_square, 'country': 'Test Country'}]
