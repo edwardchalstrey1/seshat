@@ -2292,70 +2292,37 @@ def get_polity_info(seshat_ids):
     polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
     return [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
 
-def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_tolerance=0.07):
+def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     """
         This function returns the polity shapes and other content for the map.
-        The shapes are simplified (polity_tolerance) to reduce the size of the data.
         Only one of displayed_year or seshat_id should be set not both.
         Setting displayed_year to "all" will return all polities.
         Setting displayed_year to a year will return polities that were active in that year.
         Setting seshat_id to the value of the seshat_id will result in only the shapes for that polity being returned.
-        Note: seshat_id in VideoShapeFile is new_name in Polity.
-        Note: we have to use raw SQL query to make use of the ST_Simplify function.
+        Note: seshat_id in VideoShapefile is new_name in Polity.
     """
     if displayed_year != "all" and seshat_id != "all":
         raise ValueError("Only one of displayed_year or seshat_id should be set not both.")
 
-    query = """
-            SELECT
-                seshat_id,
-                name,
-                start_year,
-                end_year,
-                polity_start_year,
-                polity_end_year,
-                colour,
-                area,
-                ST_Simplify(geom, %s) AS simplified_geometry
-            FROM
-                core_videoshapefile
-            """
     if displayed_year != "all":
-        query += """
-            WHERE
-                polity_start_year <= %s AND polity_end_year >= %s;
-            """
-        with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance, displayed_year, displayed_year])
-            rows = cursor.fetchall()
+        rows = VideoShapefile.objects.filter(polity_start_year__lte=displayed_year, polity_end_year__gte=displayed_year)
     elif seshat_id != "all":
-        query += """
-            WHERE
-                seshat_id = %s;
-            """
-        with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance, seshat_id])
-            rows = cursor.fetchall()
+        rows = VideoShapefile.objects.filter(seshat_id=seshat_id)
     else:
-        query += """
-            ;
-            """
-        with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance])
-            rows = cursor.fetchall()
+        rows = VideoShapefile.objects.all()
 
     shapes = []
     for row in rows:
         shapes.append({
-            'seshat_id': row[0],
-            'name': row[1],
-            'start_year': row[2],
-            'end_year': row[3],
-            'polity_start_year': row[4],
-            'polity_end_year': row[5],
-            'colour': row[6],
-            'area': row[7],
-            'geom': GEOSGeometry(row[8]).geojson
+            'seshat_id': row.seshat_id,
+            'name': row.name,
+            'start_year': row.start_year,
+            'end_year': row.end_year,
+            'polity_start_year': row.polity_start_year,
+            'polity_end_year': row.polity_end_year,
+            'colour': row.colour,
+            'area': row.area,
+            'geom': row.simplified_geom.geojson
         })
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
@@ -2368,8 +2335,6 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_toler
             'long_name': long_name or "",
         }
 
-    # Calling this function will return the earliest and latest years in the polity
-    # The function cannot be called before the database is migrated
     if 'migrate' not in sys.argv:
         earliest_year, latest_year = get_polity_year_range()
         initial_displayed_year = earliest_year
@@ -2380,9 +2345,6 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_toler
     if displayed_year == "all":
         displayed_year = initial_displayed_year 
 
-    # TODO: Temp fix whilst polity start and end years don't match shape data
-    # If a polity page has > 1 shapes then use the earliest and latest years
-    # See polity_map in templatetags/core_tags.py for more info
     if seshat_id != "all":
         earliest_year = min([shape['start_year'] for shape in shapes])
         displayed_year = earliest_year
@@ -2439,9 +2401,8 @@ def map_view_initial(request):
     # Use the year from the request parameters if present
     # Otherwise use the default initial_displayed_year (see above)
     displayed_year = request.GET.get('year', initial_displayed_year)
-    # Define a simplification tolerance for faster loading of shapes at lower res
-    polity_tolerance = 0.07
-    content = get_polity_shape_content(displayed_year=displayed_year, polity_tolerance=polity_tolerance)
+
+    content = get_polity_shape_content(displayed_year=displayed_year)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2457,9 +2418,7 @@ def map_view_all(request):
         This view is used to display a map with polities plotted on it.
         The view loads all polities for the range of years.
     """
-    # Define a simplification tolerance for faster loading of shapes at lower res
-    polity_tolerance = 0.07
-    content = get_polity_shape_content(polity_tolerance=polity_tolerance)
+    content = get_polity_shape_content()
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2468,7 +2427,6 @@ def map_view_all(request):
     return JsonResponse(content)
 
 def provinces_and_countries_view(request):
-    # Define a simplification tolerance for faster loading of shapes at lower res
     provinces = get_provinces()
     countries = get_provinces(selected_base_map_gadm='country')
 
