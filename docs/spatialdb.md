@@ -33,6 +33,14 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
         UPDATE core_videoshapefile 
         SET simplified_geom = COALESCE(ST_Simplify(geom, 0.2), ST_Simplify(geom, 0.07));
     ```
+4. To adjust the tolerance you can then do the following, where `X` and `Y` are the new simplification tolerances:
+    ```{SQL}
+        UPDATE core_videoshapefile
+        SET simplified_geom = NULL;
+
+        UPDATE core_videoshapefile 
+        SET simplified_geom = COALESCE(ST_Simplify(geom, X), ST_Simplify(geom, Y));
+    ```
 
 
 ## GADM
