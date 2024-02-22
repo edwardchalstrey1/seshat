@@ -2,6 +2,121 @@
 
 This page instructs software engineers how to get started working with the Django codebase and PostgreSQL database for the "core" Seshat webapp. It assumes the engineer has access to a dumpfile of the Seshat "core" database.
 
+## Azure cloud setup with Pulumi
+
+How to run a full setup of the Seshat django app on Azure with Pulumi based on [this guide](https://www.pulumi.com/docs/clouds/azure/get-started/begin/).
+
+- Assumes Python 3 already installed on local machine so you can use the venv.
+- The region specified in the Pulumi code is "UKSouth".
+- Also assumes that you have a Seshat database dump including all the spatial data already. The project [google drive](https://drive.google.com/drive/folders/1hRJ6HvHWqSjS7bUCGdXuabc4kD0H7q3_?usp=sharing) has this.
+- If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in [spatialdb.md](spatialdb.md).
+- **Note:** The setup is only partially automated with Pulumi currently. As you'll see below, subsequent steps are required to that involve SSH-ing into the created VM.
+
+### Pre-requisites
+
+1. [Install Pulumi](https://www.pulumi.com/docs/clouds/azure/get-started/begin/). e.g. on Mac:
+    ```
+        brew install pulumi/tap/pulumi
+    ```
+2. Install the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+
+Use the configuration in `/pulumi` or set up from scratch:
+```
+    pulumi new azure-python
+```
+
+In `/pulumi` we:
+- Chose sensible project name: `seshat-dev`
+- Chose default stack name
+- Chose `UKSouth` location
+- Made custom edits to the config files for the Seshat app
+
+### Setup
+
+1. Ensure logged in and that the subscription you will use comes up in the list of subscriptions printed out, then set to that subscription:
+    ```
+        az login
+        az account set --subscription "<subscription-id>"
+    ```
+2. Activate Pulumi venv and install relevant package
+    ```
+        cd pulumi
+        source venv/bin/activate
+        pip install -r requirements.txt
+    ```
+3. Set up a Pulumi stack
+    ```
+        pulumi stack init seshat
+        pulumi stack select seshat
+    ```
+4. Configure Pulumi:
+    ```
+        pulumi config set --secret sshPublicKey "$(cat ~/.ssh/id_rsa.pub)"
+    ```
+    - TODO: `privateKey` and `dumpFile` paths are needed for SCP command, which currently isn't working via Pulumi, see manual steps below
+        <!-- ```
+            pulumi config set privateKey "~/.ssh/id_rsa"
+            pulumi config set dumpFile "/path/to/dumpfile.dump"
+        ``` -->
+5. Deploy the app
+    ```
+        pulumi up
+    ```
+6. Upload db dump with SCP:
+    ```
+        scp -i ~/.ssh/id_rsa /path/to/dumpfile.dump webadmin@<VM IP adress>:~/seshat.dump
+    ```
+7. SSH into the deployed VM and set up the database. *Note: we may eventually move the below manual steps to be part of the Pulumi automatedsetup*
+    ```
+        ssh -i ~/.ssh/id_rsa webadmin@<VM IP adress>
+    ```
+    - Create db: open psql with `sudo -u postgres psql` and run:
+        ```
+            CREATE DATABASE <seshat_db_name>;
+        ```
+    - Add PostGIS to db: open psql with `sudo -u postgres psql -d <seshat_db_name>` and run:
+        ```
+            CREATE EXTENSION postgis;
+        ```
+    - Choose a password for Postgres. At Turing we have an Azure Key Vault set up under the project subscription where this can be saved (the one we have set up can be reused).
+    - <details><summary>Add the password</summary>
+
+        - Add a password for the superuser with `sudo -u postgres psql`:
+            ```
+                ALTER USER postgres WITH PASSWORD '<db_password>';
+            ```
+        - Update postgres to use md5 with `sudo nano /etc/postgresql/16/main/pg_hba.conf`
+            ![](img/pg_hba.conf.png)
+        - Reload postgres
+            ```
+                sudo systemctl reload postgresql
+            ```
+        </details>
+    - Restore the db from dump:
+        ```
+            sudo psql -U postgres <seshat_db_name> < ~/seshat.dump
+        ```
+    - Within the `seshat` repo, create a file called `seshat/settings/.env` with the db connection vars
+        - For example:
+            ```
+                NAME=<seshat_db_name>
+                USER=postgres
+                HOST=localhost
+                PORT=5432
+                PASSWORD=<db_password>
+            ```
+8. Run django
+    - Open `seshat/settings/local.py` and add the created IP address to `ALLOWED_HOSTS`
+    - Configure and run
+        ```
+            sudo ufw allow 8000
+            cd seshat
+            source venv/bin/activate
+            export DJANGO_SETTINGS_MODULE=seshat.settings.local
+            gunicorn seshat.wsgi:application --config gunicorn.conf.py
+        ```
+    - Go to `http://<public IP>:8000/`
+
 ## Local setup
 
 Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on the Mac.
@@ -245,47 +360,3 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
             - Go to http://192.168.64.3:8000/ in a browser (where `192.168.64.3` is the IP address)
             </details>
     
-
-
-
-## Azure setup
-
-This page instructs software engineers how to set up a testing version of the Seshat website on MS Azure. You'll need an account on Azure and to have set up and credited a subscription. These are the steps followed at The Alan Turing Institute:
-
-1. Create an Ubuntu 22.04 VM:
-    - e.g. `Standard D4plds v5 (4 vcpus, 8 GiB memory)`
-    - Choose a 64GB disk
-    - Choose ssh as access method and download private key on VM creation
-    - Keep the user as the default `azureuser`
-    - Change key permissions: `chmod 400 /path/to/key.pem`
-    - SSH in like:
-        ```
-            ssh -i /path/to/key.pem azureuser@<public IP>
-        ```
-2. Upload the database dump with SCP:
-    ```
-        scp -i /path/to/key.pem /path/to/dumpfile.dump azureuser@<public IP>:/home/azureuser/db_dumps/
-    ```
-3. Upload the shape datasets described in [spatialdb.md](spatialdb.md) with SCP too if those database tables aren't already populated in the database the dump was created from
-4. Follow the setup steps above for Ubuntu to install everything and create the db
-    - Save the db password for the postgres user in Azure key vault
-    - When you clone the repo, check out the `azure` branch
-    - Update `ALLOWED_HOSTS` in `seshat/settings/base.py` and `seshat/settings/local.py` with the IP address of the VM if different from what's saved there
-    - Populate spatial data tables by following [spatialdb.md](spatialdb.md) if needed
-5. Update network security rules for the VM
-    - Go to "Network Security" on the VM in the Azure portal and add the default inbound security rules to allow:
-        - HTTP (port 80)
-        - HTTPS (port 443)
-        - Custom one for port 8000
-    - SSH into the VM and run:
-        ```
-            sudo ufw allow 8000
-        ```
-6. Run django
-    - SSH into the VM and activate the venv, then:
-        ```
-            export DJANGO_SETTINGS_MODULE=seshat.settings.local
-            gunicorn seshat.wsgi:application --config gunicorn.conf.py
-        ```
-        Note: For some reason I could not get the `DJANGO_SETTINGS_MODULE` to be set via the `wsgi.py` correctly, so setting it manually here.
-    - Go to `http://<public IP>:8000/`

@@ -49,7 +49,9 @@ else: # linux
     if os.getenv('GITHUB_ACTIONS') == 'true':
         GEOS_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgeos_c.so'
     else:
-        GEOS_LIBRARY_PATH = '/usr/lib/aarch64-linux-gnu/libgeos_c.so'
+        # TODO: find a way to specify this based on the VM: aarch64 or x86_64
+        # GEOS_LIBRARY_PATH = '/usr/lib/aarch64-linux-gnu/libgeos_c.so'
+        GEOS_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgeos_c.so'
 
 django_settings_module = os.environ.get('DJANGO_SETTINGS_MODULE')
 
@@ -66,8 +68,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 ALLOWED_HOSTS = ['127.0.0.1',
-                 'localhost',
-                 '20.68.162.158']
+                 'localhost']
 
 if 'test' in sys.argv:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
