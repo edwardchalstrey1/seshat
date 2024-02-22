@@ -15,7 +15,7 @@ To create a new shape dataset for use in the Seshat map explorer, you can do the
     - Add a new header on this page to document here how this works
 4. Create a new view and update the the map template with the necessary logic to use this dataset
     - views at `seshat/apps/core/views.py`
-    - template e.g. `seshat/apps/core/templates/core/spatial_map.html`
+    - template e.g. `seshat/apps/core/templates/core/world_map.html`
 
 ## RA curated dataset
 
@@ -27,6 +27,20 @@ To create a new shape dataset for use in the Seshat map explorer, you can do the
     ```
 
 This will create a row for each shape. The `end_year` of a shape is calculated to be the `start_year` of the next shape for that polity minus one, for the last shape it is the same as the `start_year`. The final shape will last just one year, but this is fine, often there will be no actual difference in the shape from previous years, this is just how the dataset represents the last year of a polity. Instead of having a shape for every single year, they have a new one each time it changes in size and for the last year.
+
+3. To create simplified versions of the polity shapes for faster loading by django, go into the database (`psql -U postgres -d <seshat_db_name>`) and run the following query:
+    ```{SQL}
+        UPDATE core_videoshapefile 
+        SET simplified_geom = ST_Simplify(geom, 0.07);
+    ```
+4. If you want to adjust the tolerance you can then do the following, where `X` new simplification tolerances:
+    ```{SQL}
+        UPDATE core_videoshapefile
+        SET simplified_geom = NULL;
+
+        UPDATE core_videoshapefile 
+        SET simplified_geom = ST_Simplify(geom, X);
+    ```
 
 
 ## GADM
@@ -40,7 +54,7 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
     ```{SQL}
         INSERT INTO core_gadmcountries (geom, "COUNTRY")
         SELECT 
-            ST_Union(geom) AS geom,
+            COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Simplify(ST_Union(geom), 0.001)) AS geom,
             "COUNTRY"
         FROM 
             core_gadmshapefile
@@ -51,7 +65,7 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
     ```{SQL}
         INSERT INTO core_gadmprovinces (geom, "NAME_1", "ENGTYPE_1")
         SELECT 
-            ST_Union(geom) AS geom,
+            COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Simplify(ST_Union(geom), 0.001)) AS geom,
             "NAME_1",
             "ENGTYPE_1"
         FROM 
@@ -59,3 +73,5 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
         GROUP BY 
             "NAME_1", "ENGTYPE_1";
     ```
+
+The 0.01 value is the simplification tolerance. Using a lower value will increase the resolution of the shapes used, but result in slower loading in the django app. Some smaller countries/provinces cannot be simplified with 0.01, so try 0.001.

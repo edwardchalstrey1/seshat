@@ -16,3 +16,10 @@ Follow the steps on [docs/setup](docs/setup.md).
     - ATI VM is set up currently under the `Sustainable Scholarly Communities around Data and Software` subscription
 4. Merge branch into `dev` on this fork
 5. Repeat the above until satisfied, then PR `dev` to upstream `dev` branch
+
+## Tests and checks
+
+On this fork, currently GH actions is set up to run django tests for the following apps when pushing or PR-ing to the `dev` branch:
+- Core
+
+See [docs/testing](docs/testing.md) on how to run locally.

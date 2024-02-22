@@ -3,6 +3,10 @@
 <head>
     {% leaflet_js %}
     {% leaflet_css %}
+    {% load static %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 </head>
 
 <body>
@@ -44,7 +48,10 @@
                     <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()"
                             disabled>Current borders</label>
                     <!-- Add a loading indicator for Current borders -->
-                    <div id="baseMapCurrentLoadingIndicator" class="spinner"></div><br>
+                    <div id="baseMapCurrentLoadingIndicator">
+                        <p><sub>Loading current borders...</sub></p>
+                        <div class="spinner"></div>
+                    </div><br>
                 </fieldset>
                 <fieldset id="baseMapGADMFieldset">
                     <label for="baseMapGADM">Current borders:</label>
@@ -56,6 +63,7 @@
                 <p></p>
             </div>
         </div>
+        <script src="{% static 'core/js/map_functions.js' %}"></script>
         <script>
 
             var displayedShapes = [];
@@ -124,74 +132,7 @@
             var provinceLayers = []; // Keep track of province layers to remove them later
             switchBaseMap()
 
-            function switchBaseMap() {
-                var selectedMap = document.querySelector('input[name="baseMap"]:checked').value;
-                var base = document.getElementById("baseMapGADM").value
-
-                if (base == 'province') {
-                    var baseShapeData = provinceShapeData;
-                } else if (base == 'country') {
-                    var baseShapeData = countryShapeData;
-                }
-
-                // Only show "Current borders" select for GADM
-                var baseMapGADMFieldset = document.getElementById("baseMapGADMFieldset");
-                if (selectedMap == 'gadm') {
-                    baseMapGADMFieldset.style.display = "block"
-                } else {
-                    baseMapGADMFieldset.style.display = "none"
-                }
-
-                // Remove all province layers
-                provinceLayers.forEach(function (layer) {
-                    map.removeLayer(layer);
-                });
-
-                // Clear the provinceLayers array
-                provinceLayers = [];
-
-                map.removeLayer(currentLayer);
-
-                if (selectedMap === 'osm') {
-                    currentLayer = baseLayers.osm.addTo(map);
-                } else {
-                    currentLayer = baseLayers.carto.addTo(map);
-                }
-
-                if (selectedMap === 'gadm') {
-                    // Add countries or provinces to the base map
-                    baseShapeData.forEach(function (shape) {
-                        // Ensure the geometry is not empty
-                        if (shape.geometry && shape.geometry.type) {
-                            // Loop through each polygon and add it to the map
-                            for (var i = 0; i < shape.geometry.coordinates.length; i++) {
-                                var coordinates = shape.geometry.coordinates[i][0];
-                                // Swap latitude and longitude for each coordinate
-                                coordinates = coordinates.map(function (coord) {
-                                    return [coord[1], coord[0]];
-                                });
-                                var polygon = L.polygon(coordinates).addTo(map);
-                                if (base == 'province') {
-                                    polygon.bindPopup(`${shape.province} (${shape.provinceType})`);
-                                } else if (base == 'country') {
-                                    polygon.bindPopup(shape.country);
-                                }
-                                // Set the style using the style method
-                                polygon.setStyle({
-                                    fillColor: 'white',   // Set the fill color based on the "colour" field
-                                    color: 'black',       // Set the border color
-                                    weight: 1,            // Set the border weight
-                                    fillOpacity: 1        // Set the fill opacity
-                                });
-                                polygon.bringToBack(); // Move the province layers to back so they are always behind polity shapes
-                                provinceLayers.push(polygon); // Add the layer to the array
-                            }
-                        }
-                    });
-                }
-            }
-
-            function plotPolities() {
+            function plotPolities() {  // This function is defined differently in the world_map template
 
                 var selectedYear = document.getElementById('dateSlide').value;
 
@@ -209,18 +150,6 @@
                 // Don't plot them if "Base map only" checkbox selected
                 if (!document.getElementById('baseMapOnly').checked) {
                     shapesData.forEach(function (shape) {
-
-                        // Make shapes that lack a linked Seshat page stand out
-                        if (shape.seshatId in seshatIdPageId) {
-                            var borderColour = shape.colour;
-                            var borderWeight = 0;
-                        } else {
-                            // Ed's note: I'm not convinced polity borders look good
-                            var borderColour = shape.colour;
-                            var borderWeight = 0;
-                            // var borderColour = 'red';
-                            // var borderWeight = 1;
-                        }
 
                         // If the shape spans the selected year
                         if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
@@ -254,8 +183,8 @@
                                 style: function (feature) {
                                     return {
                                         fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                        color: borderColour,  // Set the border color
-                                        weight: borderWeight,  // Set the border weight
+                                        color: shape.colour,  // Set the border color
+                                        weight: 0,  // Set the border weight
                                         fillOpacity: 0.5  // Set the fill opacity
                                     };
                                 },
@@ -267,21 +196,9 @@
                                                         <th></th>
                                                     </tr>
                                             `;
-                                    if (shape.seshatId in seshatIdPageId) {
-                                        longName = seshatIdPageId[shape.seshatId]['long_name'];
-                                        if (longName == '') {
-                                            longName = '[Page empty]'
-                                        }
-                                        popupContent = popupContent + `
-                                                    <tr>
-                                                        <td>Seshat Page</td>
-                                                        <td>${longName}</td>
-                                                    </tr>
-                                                `;
-                                    }
                                     popupContent = popupContent + `
                                                     <tr>
-                                                        <td>Range</td>
+                                                        <td>Duration</td>
                                                         <td>${displayStartYear} to ${displayEndYear}</td>
                                                     </tr>
                                                     <tr>
@@ -294,30 +211,42 @@
                                 }
                             }).addTo(map);
 
-                            // Plot capital markers
-                            capitalsInfo.forEach(function (capital) {
-                                var marker = L.circleMarker([capital.latitude, capital.longitude], {
-                                    color: shape.colour,
-                                    radius: 5
-                                }).addTo(map);
-                                marker.bindPopup(capital.capital);
-                                marker.on('mouseover', function (e) {
-                                    this.openPopup();
-                                });
-                                marker.on('mouseout', function (e) {
-                                    this.closePopup();
-                                });
-                            });
-
-                            // Add double-click event listener to GeoJSON layers
-                            geoJSONLayer.on('dblclick', function (event) {
-                                // Check if the shape has a corresponding seshat_id
-                                if (shape.seshatId in seshatIdPageId) {
-                                    // Redirect to the corresponding URL
-                                    var polityId = seshatIdPageId[shape.seshatId]['id'];
-                                    window.location.href = '/core/polity/' + polityId;
+                            // Delete previously added capital markers
+                            map.eachLayer(function (layer) {
+                                if (layer instanceof L.MarkerClusterGroup) {
+                                    map.removeLayer(layer);
                                 }
                             });
+
+                            // Plot capital markers       
+                            var markers = L.markerClusterGroup({
+                                iconCreateFunction: function(cluster) {
+                                    return L.divIcon({
+                                        html: '<div style="background-color:' + shape.colour + '; color: #fff; border-radius: 50%; text-align: center; line-height: 40px;"><b>' + cluster.getChildCount() + '</b></div>',
+                                        className: 'myClusterIcon',
+                                        iconSize: L.point(40, 40)
+                                    });
+                                }
+                            });
+                            capitalsInfo.forEach(function (capital) {
+                                // If the capital existed in the selected year (or years not specified)
+                                if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
+                                    var marker = L.circleMarker([capital.latitude, capital.longitude], {
+                                        fillOpacity: 0,
+                                        color: 'transparent',
+                                    });
+                                    marker.bindTooltip(capital.capital, {
+                                        permanent: true,
+                                        direction: "top",
+                                        offset: L.point({ x: 0, y: 0 })
+                                    });
+
+                                    marker.bindPopup(capital.capital);
+                                    markers.addLayer(marker); // add each marker to the MarkerClusterGroup
+                                };
+                            });
+
+                    map.addLayer(markers); // add the MarkerClusterGroup to the map
 
                             // Update the displayedShapes array
                             if (displayedShapes.indexOf(shape.name) === -1) {
@@ -350,85 +279,8 @@
                 enterYearInput.value = slider.value;
             }
 
-            function updateSliderOutput() {
-                if (slider.value < 0) {
-                    output.innerHTML = Math.abs(slider.value) + ' BCE';
-                } else {
-                    output.innerHTML = slider.value + ' CE';
-                }
-            }
-
-            function adjustSliderUp() {
-                slider.value = Number(slider.value) + 1;
-                enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
-                updateSliderOutput(); // Update the displayed year
-                plotPolities();
-                // Update the color information in local storage for newly displayed shapes
-                updateColorInfoInLocalStorage(displayedShapes);
-            }
-
-            function adjustSliderDown() {
-                slider.value = Number(slider.value) - 1;
-                enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
-                updateSliderOutput(); // Update the displayed year
-                plotPolities();
-                // Update the color information in local storage for newly displayed shapes
-                updateColorInfoInLocalStorage(displayedShapes);
-            }
-
-            function updateColorInfoInLocalStorage(updatedShapes) {
-                var colorInfo = {};
-
-                // Only update color information for the specified shapes
-                shapesData.forEach(function (shape) {
-                    if (updatedShapes.indexOf(shape.name) !== -1) {
-                        colorInfo[shape.name] = shape.colour;
-                    }
-                });
-
-                localStorage.setItem('colorInfo', JSON.stringify(colorInfo));
-            }
-
             var playInterval;
             var playRateInput = document.getElementById("playRate");
-
-            function startPlay() {
-                stopPlay(); // Clear existing interval before starting a new one
-
-                var animationSpeed = parseFloat(playRateInput.value);
-                if (animationSpeed == 1) {
-                    var yearsPerSecond = 1;
-                } else if (animationSpeed == 2) {
-                    var yearsPerSecond = 5;
-                } else if (animationSpeed == 3) {
-                    var yearsPerSecond = 20;
-                } else if (animationSpeed == 4) {
-                    var yearsPerSecond = 50;
-                } else if (animationSpeed == 5) {
-                    var yearsPerSecond = 100;
-                }
-
-                var milliseconds = 1 / (yearsPerSecond / 1000);
-
-                playInterval = setInterval(function () {
-                    // Increment the slider value by 1
-                    slider.value = Number(slider.value) + 1;
-                    enterYearInput.value = slider.value; // Sync enterYear input with dateSlide value
-                    updateSliderOutput(); // Update the displayed year
-                    plotPolities();
-                    // Update the color information in local storage for newly displayed shapes
-                    updateColorInfoInLocalStorage(displayedShapes);
-
-                    // Stop playing when the slider reaches its maximum value
-                    if (slider.value >= parseInt(slider.max)) {
-                        stopPlay();
-                    }
-                }, milliseconds); // Interval based on user input
-            }
-
-            function stopPlay() {
-                clearInterval(playInterval);
-            }
 
             // Add event listener to stop playing when adjusting the slider manually
             slider.addEventListener("input", stopPlay);
@@ -444,18 +296,6 @@
                 // Get the country parameter from the URL
                 var urlParams = new URLSearchParams(window.location.search);
 
-                // Retrieve color information from local storage
-                var colorInfo = localStorage.getItem('colorInfo');
-                if (colorInfo) {
-                    colorInfo = JSON.parse(colorInfo);
-                    shapesData.forEach(function (shape) {
-                        var storedColor = colorInfo[shape.name];
-                        if (storedColor) {
-                            shape.colour = storedColor;
-                        }
-                    });
-                }
-
                 // Trigger filtering when the page refreshes
                 plotPolities();
 
@@ -468,8 +308,6 @@
                     slider.value = enterYearInput.value;
                     updateSliderOutput();
                     plotPolities();
-                    // Update the color information in local storage for newly displayed shapes
-                    updateColorInfoInLocalStorage(displayedShapes);
                 }
             });
 
