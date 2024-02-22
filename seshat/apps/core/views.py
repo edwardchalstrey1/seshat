@@ -2299,62 +2299,30 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         Setting displayed_year to "all" will return all polities.
         Setting displayed_year to a year will return polities that were active in that year.
         Setting seshat_id to the value of the seshat_id will result in only the shapes for that polity being returned.
-        Note: seshat_id in VideoShapeFile is new_name in Polity.
-        Note: we have to use raw SQL query to make use of the ST_Simplify function.
+        Note: seshat_id in VideoShapefile is new_name in Polity.
     """
     if displayed_year != "all" and seshat_id != "all":
         raise ValueError("Only one of displayed_year or seshat_id should be set not both.")
 
-    query = """
-            SELECT
-                seshat_id,
-                name,
-                start_year,
-                end_year,
-                polity_start_year,
-                polity_end_year,
-                colour,
-                area,
-                simplified_geom
-            FROM
-                core_videoshapefile
-            """
     if displayed_year != "all":
-        query += """
-            WHERE
-                polity_start_year <= %s AND polity_end_year >= %s;
-            """
-        with connection.cursor() as cursor:
-            cursor.execute(query, [displayed_year, displayed_year])
-            rows = cursor.fetchall()
+        rows = VideoShapefile.objects.filter(polity_start_year__lte=displayed_year, polity_end_year__gte=displayed_year)
     elif seshat_id != "all":
-        query += """
-            WHERE
-                seshat_id = %s;
-            """
-        with connection.cursor() as cursor:
-            cursor.execute(query, [seshat_id])
-            rows = cursor.fetchall()
+        rows = VideoShapefile.objects.filter(seshat_id=seshat_id)
     else:
-        query += """
-            ;
-            """
-        with connection.cursor() as cursor:
-            cursor.execute(query)
-            rows = cursor.fetchall()
+        rows = VideoShapefile.objects.all()
 
     shapes = []
     for row in rows:
         shapes.append({
-            'seshat_id': row[0],
-            'name': row[1],
-            'start_year': row[2],
-            'end_year': row[3],
-            'polity_start_year': row[4],
-            'polity_end_year': row[5],
-            'colour': row[6],
-            'area': row[7],
-            'geom': GEOSGeometry(row[8]).geojson
+            'seshat_id': row.seshat_id,
+            'name': row.name,
+            'start_year': row.start_year,
+            'end_year': row.end_year,
+            'polity_start_year': row.polity_start_year,
+            'polity_end_year': row.polity_end_year,
+            'colour': row.colour,
+            'area': row.area,
+            'geom': row.simplified_geom.geojson
         })
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
@@ -2367,8 +2335,6 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
             'long_name': long_name or "",
         }
 
-    # Calling this function will return the earliest and latest years in the polity
-    # The function cannot be called before the database is migrated
     if 'migrate' not in sys.argv:
         earliest_year, latest_year = get_polity_year_range()
         initial_displayed_year = earliest_year
@@ -2379,9 +2345,6 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     if displayed_year == "all":
         displayed_year = initial_displayed_year 
 
-    # TODO: Temp fix whilst polity start and end years don't match shape data
-    # If a polity page has > 1 shapes then use the earliest and latest years
-    # See polity_map in templatetags/core_tags.py for more info
     if seshat_id != "all":
         earliest_year = min([shape['start_year'] for shape in shapes])
         displayed_year = earliest_year
