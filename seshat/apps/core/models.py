@@ -684,6 +684,7 @@ class Religion(models.Model):
 
 class VideoShapefile(models.Model):
     geom = models.MultiPolygonField()
+    simplified_geom = models.MultiPolygonField(null=True)
     name=models.CharField(max_length=100)
     polity=models.CharField(max_length=100)
     wikipedia_name=models.CharField(max_length=100, null=True)
