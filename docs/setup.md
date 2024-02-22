@@ -78,10 +78,6 @@ In `/pulumi` we:
         ```
             CREATE EXTENSION postgis;
         ```
-    - Restore the db from dump:
-        ```
-            sudo psql -U postgres <seshat_db_name> < ~/seshat.dump
-        ```
     - Choose a password for Postgres. At Turing we have an Azure Key Vault set up under the project subscription where this can be saved (the one we have set up can be reused).
     - <details><summary>Add the password</summary>
 
@@ -96,6 +92,10 @@ In `/pulumi` we:
                 sudo systemctl reload postgresql
             ```
         </details>
+    - Restore the db from dump:
+        ```
+            sudo psql -U postgres <seshat_db_name> < ~/seshat.dump
+        ```
     - Within the `seshat` repo, create a file called `seshat/settings/.env` with the db connection vars
         - For example:
             ```
