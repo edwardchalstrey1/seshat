@@ -2292,10 +2292,9 @@ def get_polity_info(seshat_ids):
     polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
     return [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
 
-def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_tolerance=0.07):
+def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     """
         This function returns the polity shapes and other content for the map.
-        The shapes are simplified (polity_tolerance) to reduce the size of the data.
         Only one of displayed_year or seshat_id should be set not both.
         Setting displayed_year to "all" will return all polities.
         Setting displayed_year to a year will return polities that were active in that year.
@@ -2316,7 +2315,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_toler
                 polity_end_year,
                 colour,
                 area,
-                ST_Simplify(geom, %s) AS simplified_geometry
+                simplified_geom
             FROM
                 core_videoshapefile
             """
@@ -2326,7 +2325,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_toler
                 polity_start_year <= %s AND polity_end_year >= %s;
             """
         with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance, displayed_year, displayed_year])
+            cursor.execute(query, [displayed_year, displayed_year])
             rows = cursor.fetchall()
     elif seshat_id != "all":
         query += """
@@ -2334,14 +2333,14 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all", polity_toler
                 seshat_id = %s;
             """
         with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance, seshat_id])
+            cursor.execute(query, [seshat_id])
             rows = cursor.fetchall()
     else:
         query += """
             ;
             """
         with connection.cursor() as cursor:
-            cursor.execute(query, [polity_tolerance])
+            cursor.execute(query)
             rows = cursor.fetchall()
 
     shapes = []
@@ -2439,9 +2438,8 @@ def map_view_initial(request):
     # Use the year from the request parameters if present
     # Otherwise use the default initial_displayed_year (see above)
     displayed_year = request.GET.get('year', initial_displayed_year)
-    # Define a simplification tolerance for faster loading of shapes at lower res
-    polity_tolerance = 0.07
-    content = get_polity_shape_content(displayed_year=displayed_year, polity_tolerance=polity_tolerance)
+
+    content = get_polity_shape_content(displayed_year=displayed_year)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2457,9 +2455,7 @@ def map_view_all(request):
         This view is used to display a map with polities plotted on it.
         The view loads all polities for the range of years.
     """
-    # Define a simplification tolerance for faster loading of shapes at lower res
-    polity_tolerance = 0.07
-    content = get_polity_shape_content(polity_tolerance=polity_tolerance)
+    content = get_polity_shape_content()
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2468,7 +2464,6 @@ def map_view_all(request):
     return JsonResponse(content)
 
 def provinces_and_countries_view(request):
-    # Define a simplification tolerance for faster loading of shapes at lower res
     provinces = get_provinces()
     countries = get_provinces(selected_base_map_gadm='country')
 
