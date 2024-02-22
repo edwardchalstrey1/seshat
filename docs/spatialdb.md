@@ -31,15 +31,15 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
 3. To create simplified versions of the polity shapes for faster loading by django, go into the database (`psql -U postgres -d <seshat_db_name>`) and run the following query:
     ```{SQL}
         UPDATE core_videoshapefile 
-        SET simplified_geom = COALESCE(ST_Simplify(geom, 0.2), ST_Simplify(geom, 0.07));
+        SET simplified_geom = ST_Simplify(geom, 0.07);
     ```
-4. To adjust the tolerance you can then do the following, where `X` and `Y` are the new simplification tolerances:
+4. If you want to adjust the tolerance you can then do the following, where `X` new simplification tolerances:
     ```{SQL}
         UPDATE core_videoshapefile
         SET simplified_geom = NULL;
 
         UPDATE core_videoshapefile 
-        SET simplified_geom = COALESCE(ST_Simplify(geom, X), ST_Simplify(geom, Y));
+        SET simplified_geom = ST_Simplify(geom, X);
     ```
 
 
