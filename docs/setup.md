@@ -54,10 +54,10 @@ In `/pulumi` we:
         pulumi config set --secret sshPublicKey "$(cat ~/.ssh/id_rsa.pub)"
     ```
     - TODO: `privateKey` and `dumpFile` paths are needed for SCP command, which currently isn't working via Pulumi, see manual steps below
-        ```
+        <!-- ```
             pulumi config set privateKey "~/.ssh/id_rsa"
             pulumi config set dumpFile "/path/to/dumpfile.dump"
-        ```
+        ``` -->
 5. Deploy the app
     ```
         pulumi up
