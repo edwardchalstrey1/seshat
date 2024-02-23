@@ -138,7 +138,7 @@
 
                 // Remove all existing layers from the map
                 map.eachLayer(function (layer) {
-                    if (layer instanceof L.GeoJSON) {
+                    if (layer instanceof L.GeoJSON || layer instanceof L.MarkerClusterGroup || layer instanceof L.CircleMarker) {
                         map.removeLayer(layer);
                     }
                 });
@@ -210,13 +210,6 @@
                                     layer.bindPopup(popupContent);
                                 }
                             }).addTo(map);
-
-                            // Delete previously added capital markers
-                            map.eachLayer(function (layer) {
-                                if (layer instanceof L.MarkerClusterGroup) {
-                                    map.removeLayer(layer);
-                                }
-                            });
 
                             // Plot capital markers       
                             var markers = L.markerClusterGroup({
