@@ -35,6 +35,13 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
+    <!-- Multiple Select Select2 JavaScript -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- Added for dynamicdropdowns in sections -->
+    {% block dynamicdropdownjs %} {% endblock %}
+
     {% load leaflet_tags %}
     {% leaflet_js %}
     {% leaflet_css %}
@@ -44,8 +51,29 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
 </head>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Nunito Sans', sans-serif;
+    }
 
-<body>
+    .wrapper {
+        min-height: 100vh;
+        /* Minimum height to cover the full viewport height */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .inner-content {
+        flex-grow: 1;
+        /* Allow content to grow and fill remaining space */
+        /* Add any additional styles for your content here */
+    }
+</style>
+<body style="background-color: #fffdf2;">
+    <div class="wrapper">
+    <div class="inner-content">
     {% include "core/partials/_navbar.html" %}
     {% block content %}
     <div style="display: flex;">
@@ -466,4 +494,6 @@
     </script>
     {% endblock %}
     {% include "core/partials/_footer_bar.html" %}
+    </div>
+    </div>
 </body>
