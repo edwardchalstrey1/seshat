@@ -217,6 +217,7 @@ data
 database_dumps
 seshat/staticfiles
 pulumi/logs
+pulumi/Pulumi.seshat.yaml
 scripts
 .DS_Store
 *.ipynb
