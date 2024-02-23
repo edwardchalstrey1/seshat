@@ -18,7 +18,12 @@ class Command(BaseCommand):
         VideoShapefile.objects.all().delete()
 
         # Get the start and end years for each shape
-        name_years = get_polity_start_end_years(dir)
+        # Load a file called name_years.json kept in the same dir as the geojson files.
+        # Loads a dict of polity names and their start and end years.
+        # The values are lists of the form [[first_start_year, first_end_year], [second_start_year, second_end_year], ...]
+        name_years_path = os.path.join(dir, 'name_years.json')
+        with open(name_years_path, 'r') as f:
+            name_years = json.load(f)
 
         # Dict of all the shape years for a given polity
         polity_years = {}
@@ -105,16 +110,6 @@ class Command(BaseCommand):
                         )
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported data from {filename}'))
-
-    def get_polity_start_end_years(dir):
-        """
-            Load a file called name_years.json kept in the same dir as the geojson files.
-            Returns a dict of polity names and their start and end years.
-            The values are lists of the form [[first_start_year, first_end_year], [second_start_year, second_end_year], ...]
-        """
-        file_path = os.path.join(dir, 'name_years.json')
-        with open(file_path, 'r') as f:
-            return json.load(f)
 
 
 def polity_colour_mapping(polities):
