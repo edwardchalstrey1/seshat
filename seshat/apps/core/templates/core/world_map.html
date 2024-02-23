@@ -306,7 +306,10 @@
                             if (allCapitalsInfo[shape.seshatId]) {
                                 allCapitalsInfo[shape.seshatId].forEach(function (capital) {
                                     var marker = L.circleMarker([capital.latitude, capital.longitude], {
-                                        color: shape.colour,
+                                        color: 'black', // Set the border color
+                                        fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                        weight: 2,  // Set the border weight
+                                        fillOpacity: 0.5,  // Set the fill opacity
                                         radius: 5
                                     }).addTo(map);
                                     popupContent = `
