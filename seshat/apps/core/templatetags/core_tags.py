@@ -16,7 +16,6 @@ def polity_map(pk):
     """
     page_id = str(pk)
     polity = Polity.objects.get(id=page_id)
-    peak_years = Polity_peak_years.objects.get(polity_id=page_id)
     try:
         content = get_polity_shape_content(seshat_id=polity.new_name)
         # TODO: Temp commented out whilst polity start and end years don't match shape data
@@ -39,6 +38,7 @@ def polity_map(pk):
         content['include_polity_map'] = True
 
         # Set the default display year to be the peak year
+        peak_years = Polity_peak_years.objects.get(polity_id=page_id)
         content['display_year'] = peak_years.peak_year_from
     except:
         content = {}
