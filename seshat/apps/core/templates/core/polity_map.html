@@ -168,14 +168,10 @@
                                 displayStartYear = shape.polityStartYear + ' CE';
                             }
 
-                            if (parseInt(shape.polityEndYear) == {{ content.latest_year }}){
-                                displayEndYear = 'Present';
+                            if (parseInt(shape.polityEndYear) < 0) {
+                                displayEndYear = Math.abs(parseInt(shape.polityEndYear)) + ' BCE';
                             } else {
-                                if (parseInt(shape.polityEndYear) < 0) {
-                                    displayEndYear = Math.abs(parseInt(shape.polityEndYear)) + ' BCE';
-                                } else {
-                                    displayEndYear = shape.polityEndYear + ' CE';
-                                }
+                                displayEndYear = shape.polityEndYear + ' CE';
                             }
 
                             // Add shape
