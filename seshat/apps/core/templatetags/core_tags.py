@@ -2,7 +2,7 @@ from django import template
 from django.db import connection
 from django.db.models import F
 from ..models import Polity, Capital
-from ...general.models import Polity_capital
+from ...general.models import Polity_capital, Polity_peak_years
 from ..views import get_polity_shape_content
 
 register = template.Library()
@@ -16,6 +16,7 @@ def polity_map(pk):
     """
     page_id = str(pk)
     polity = Polity.objects.get(id=page_id)
+    peak_years = Polity_peak_years.objects.get(polity_id=page_id)
     try:
         content = get_polity_shape_content(seshat_id=polity.new_name)
         # TODO: Temp commented out whilst polity start and end years don't match shape data
@@ -36,6 +37,9 @@ def polity_map(pk):
             i+=1
         content['capitals_info'] = modified_caps
         content['include_polity_map'] = True
+
+        # Set the default display year to be the peak year
+        content['display_year'] = peak_years.peak_year_from
     except:
         content = {}
         content['include_polity_map'] = False
