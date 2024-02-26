@@ -2,7 +2,7 @@ from django import template
 from django.db import connection
 from django.db.models import F
 from ..models import Polity, Capital
-from ...general.models import Polity_capital
+from ...general.models import Polity_capital, Polity_peak_years
 from ..views import get_polity_shape_content
 
 register = template.Library()
@@ -36,6 +36,10 @@ def polity_map(pk):
             i+=1
         content['capitals_info'] = modified_caps
         content['include_polity_map'] = True
+
+        # Set the default display year to be the peak year
+        peak_years = Polity_peak_years.objects.get(polity_id=page_id)
+        content['display_year'] = peak_years.peak_year_from
     except:
         content = {}
         content['include_polity_map'] = False

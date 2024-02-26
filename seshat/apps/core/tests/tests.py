@@ -2,7 +2,7 @@ from django.contrib.gis.geos import MultiPolygon, Polygon, GEOSGeometry
 from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity, Capital
-from ...general.models import Polity_capital
+from ...general.models import Polity_capital, Polity_peak_years
 from ..views import get_polity_year_range, get_provinces, get_polity_info, get_polity_shape_content, get_all_polity_capitals
 from ..templatetags.core_tags import get_polity_capitals, polity_map
 
@@ -113,6 +113,11 @@ class ShapesTest(TestCase):
             year_from=0,
             year_to=100,
             polity_id=2
+        )
+        Polity_peak_years.objects.create(
+            polity_id=self.pk,
+            peak_year_from=2001,
+            peak_year_to=2002
         )
 
     # Model tests
@@ -305,7 +310,7 @@ class ShapesTest(TestCase):
                     }
                 ],
                 'earliest_year': 2000,  # This is the earliest year of the polity
-                'display_year': 2000,
+                'display_year': 2001,
                 'latest_year': 2020,
                 'seshat_id_page_id': {
                     'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
