@@ -1,14 +1,84 @@
-{% extends "core/seshat-base.html" %}
 {% load leaflet_tags %}
+{% load humanize %}
+{% load static %}
 
 <head>
+    {% block title %}
+    <title>Seshat World Map</title>
+    {% endblock %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Be+Vietnam+Pro:wght@400;600;900&family=Lobster&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Mochiy+Pop+P+One&family=Neonderthaw&display=swap"
+        rel="stylesheet" />
+    <link rel="icon" type="image/png" href="http://seshatdatabank.info/databrowser/img/seshat-icon.png" />
+    <link rel="shortcut icon" href="#" />
+    
+    <!-- Datatbales for Srting tables -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css" />
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    
+    <script src="https://kit.fontawesome.com/3299560c1d.js" crossorigin="anonymous"></script>
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script> -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous"> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'core/treeview.css' %}">
+    <!-- jQury minified -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <!-- Multiple Select Select2 JavaScript -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- Added for dynamicdropdowns in sections -->
+    {% block dynamicdropdownjs %} {% endblock %}
+
     {% load leaflet_tags %}
     {% leaflet_js %}
     {% leaflet_css %}
     {% load static %}
-</head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
-<body>
+</head>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Nunito Sans', sans-serif;
+    }
+
+    .wrapper {
+        min-height: 100vh;
+        /* Minimum height to cover the full viewport height */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .inner-content {
+        flex-grow: 1;
+        /* Allow content to grow and fill remaining space */
+        /* Add any additional styles for your content here */
+    }
+    .leaflet-popup-content-wrapper {
+        width: 320px;
+    }
+
+</style>
+<body style="background-color: #fffdf2;">
+    <div class="wrapper">
+    <div class="inner-content">
+    {% include "core/partials/_navbar.html" %}
     {% block content %}
     <div style="display: flex;">
         <div>
@@ -42,7 +112,7 @@
             <p>Click polity to reveal information.</p>
             <p>Double click to reach Seshat page.</p>
             <p>Change the year or play animation.</p>
-            <p>Mouse over capital cities.</p>
+            <p>Show capital city coordinates.</p>
             <p>Try different base maps.</p>
             <fieldset>
                 <legend>
@@ -189,7 +259,7 @@
 
             // Remove all existing layers from the map
             map.eachLayer(function (layer) {
-                if (layer instanceof L.GeoJSON || layer instanceof L.CircleMarker) {
+                if (layer instanceof L.GeoJSON || layer instanceof L.MarkerClusterGroup || layer instanceof L.CircleMarker) {
                     map.removeLayer(layer);
                 }
             });
@@ -304,29 +374,49 @@
                         // Plot capital cities for those polities that have them
                         if (document.getElementById('showCapitals').checked) {
                             if (allCapitalsInfo[shape.seshatId]) {
-                                allCapitalsInfo[shape.seshatId].forEach(function (capital) {
-                                    var marker = L.circleMarker([capital.latitude, capital.longitude], {
-                                        color: shape.colour,
-                                        radius: 5
-                                    }).addTo(map);
-                                    popupContent = `
-                                        <table>
-                                            <tr>
-                                                <th>${capital.capital}</th>
-                                            </tr>
-                                            <tr>
-                                                <td>${shape.name}</td>
-                                            </tr>
-                                        </table>
-                                    `;
-                                    marker.bindPopup(popupContent);
-                                    marker.on('mouseover', function (e) {
-                                        this.openPopup();
-                                    });
-                                    marker.on('mouseout', function (e) {
-                                        this.closePopup();
-                                    });
+                                // Plot capital markers       
+                                var markers = L.markerClusterGroup({
+                                    iconCreateFunction: function (cluster) {
+                                        return L.divIcon({
+                                            html: '<div style="background-color:' + shape.colour + '; color: #fff; border-radius: 50%; text-align: center; line-height: 40px;"><b>' + cluster.getChildCount() + '</b></div>',
+                                            className: 'myClusterIcon',
+                                            iconSize: L.point(40, 40)
+                                        });
+                                    }
                                 });
+                                allCapitalsInfo[shape.seshatId].forEach(function (capital) {                          
+                                    // If the capital existed in the selected year (or years not specified)
+                                    if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
+                                            popupContent = `
+                                            <table>
+                                                <tr>
+                                                    <th>${capital.capital}</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>${shape.name}</td>
+                                                </tr>
+                                            </table>
+                                        `;
+                                        var marker = L.circleMarker([capital.latitude, capital.longitude], {
+                                            color: 'black', // Set the border color
+                                            fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                            weight: 2,  // Set the border weight
+                                            fillOpacity: 0.5,  // Set the fill opacity
+                                            radius: 5
+                                        });
+                                        marker.bindTooltip(popupContent, {
+                                            permanent: true,
+                                            direction: "top",
+                                            offset: L.point({ x: 0, y: 0 })
+                                        });
+
+                                        marker.bindPopup(popupContent);
+                                        markers.addLayer(marker); // add each marker to the MarkerClusterGroup
+                                    };
+                                });
+
+                                map.addLayer(markers); // add the MarkerClusterGroup to the map
+
                             }
                         }
 
@@ -399,4 +489,7 @@
 
     </script>
     {% endblock %}
+    </div>
+    {% include "core/partials/_footer_bar.html" %}
+    </div>
 </body>

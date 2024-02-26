@@ -138,7 +138,7 @@
 
                 // Remove all existing layers from the map
                 map.eachLayer(function (layer) {
-                    if (layer instanceof L.GeoJSON) {
+                    if (layer instanceof L.GeoJSON || layer instanceof L.MarkerClusterGroup || layer instanceof L.CircleMarker) {
                         map.removeLayer(layer);
                     }
                 });
@@ -211,13 +211,6 @@
                                 }
                             }).addTo(map);
 
-                            // Delete previously added capital markers
-                            map.eachLayer(function (layer) {
-                                if (layer instanceof L.MarkerClusterGroup) {
-                                    map.removeLayer(layer);
-                                }
-                            });
-
                             // Plot capital markers       
                             var markers = L.markerClusterGroup({
                                 iconCreateFunction: function(cluster) {
@@ -232,8 +225,11 @@
                                 // If the capital existed in the selected year (or years not specified)
                                 if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
                                     var marker = L.circleMarker([capital.latitude, capital.longitude], {
-                                        fillOpacity: 0,
-                                        color: 'transparent',
+                                        color: 'black', // Set the border color
+                                        fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                        weight: 2,  // Set the border weight
+                                        fillOpacity: 0.5,  // Set the fill opacity
+                                        radius: 5
                                     });
                                     marker.bindTooltip(capital.capital, {
                                         permanent: true,
@@ -246,7 +242,7 @@
                                 };
                             });
 
-                    map.addLayer(markers); // add the MarkerClusterGroup to the map
+                            map.addLayer(markers); // add the MarkerClusterGroup to the map
 
                             // Update the displayedShapes array
                             if (displayedShapes.indexOf(shape.name) === -1) {
