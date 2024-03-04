@@ -36,13 +36,18 @@ def polity_map(pk):
             i+=1
         content['capitals_info'] = modified_caps
         content['include_polity_map'] = True
-
-        # Set the default display year to be the peak year
-        peak_years = Polity_peak_years.objects.get(polity_id=page_id)
-        content['display_year'] = peak_years.peak_year_from
     except:
         content = {}
         content['include_polity_map'] = False
+
+    if content['include_polity_map']:
+        # Update the default display year to be the peak year (if it exists)
+        try:
+            peak_years = Polity_peak_years.objects.get(polity_id=page_id)
+            content['display_year'] = peak_years.peak_year_from
+        except:
+            pass
+    
     return {'content': content}
 
 def get_polity_capitals(pk):

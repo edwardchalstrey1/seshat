@@ -309,8 +309,8 @@ class ShapesTest(TestCase):
                         'geom': self.geo_square
                     }
                 ],
-                'earliest_year': 2000,  # This is the earliest year of the polity
-                'display_year': 2001,
+                'earliest_year': 2000,
+                'display_year': 2001,  # This is the peak year of the polity
                 'latest_year': 2020,
                 'seshat_id_page_id': {
                     'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
@@ -322,6 +322,39 @@ class ShapesTest(TestCase):
             }
         }
         result = polity_map(self.pk)
+        self.assertEqual(result, expected_result)
+
+    def test_polity_map_no_peak_year_set(self):
+        """Test the polity_map template tag for a polity that has no peak year set."""
+        expected_result = {
+            'content': {
+                'shapes': [
+                    {
+                        'seshat_id': 'Test seshat_id 2',
+                        'name': 'Test shape 2',
+                        'start_year': 0,
+                        'end_year': 1000,
+                        'polity_start_year': 0,  # Note: this is taken from the shape objectm, not the polity object (they don't match in this test case)
+                        'polity_end_year': 1000,
+                        'colour': "#FFFFFF",
+                        'area': 100.0,
+                        'geom': self.geo_square
+                    }
+                ],
+                'earliest_year': 0,
+                'display_year': 0,
+                'latest_year': 1000,
+                'seshat_id_page_id': {
+                    'Test seshat_id 2': {'id': 2, 'long_name': 'TestPolity2'}
+                },
+                'include_polity_map': True,
+                'capitals_info': [
+                    {'capital': 'Test Capital 2A', 'latitude': 51.567523, 'longitude': -0.1294532, 'year_from': 0, 'year_to': 100},
+                    {'capital': 'Test Capital 2', 'latitude': 51.567523, 'longitude': -0.1294532, 'year_from': -100, 'year_to': 1100}
+                ]
+            }
+        }
+        result = polity_map(2)
         self.assertEqual(result, expected_result)
 
     def test_polity_map_no_content(self):
