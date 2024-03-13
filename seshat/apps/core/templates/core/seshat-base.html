@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load humanize %}
 {% load static %}
+{% load leaflet_tags %}
 
 <html lang="en">
   <head>
@@ -64,6 +65,8 @@
     <!-- Added for dynamicdropdowns in sections -->
     {% block dynamicdropdownjs %} {% endblock %}
     
+    {% leaflet_js %}
+    {% leaflet_css %}
   </head>
   <style>
     body {

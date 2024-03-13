@@ -1,0 +1,309 @@
+{% load leaflet_tags %}
+
+<head>
+    {% leaflet_js %}
+    {% leaflet_css %}
+    {% load static %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+</head>
+
+<body>
+    {% block content %}
+    {% if content.include_polity_map %}
+        <div style="display: flex;">
+            <div>
+                <fieldset>
+                    <div class="slidecontainer">
+                        <label for="enterYear">Enter year:</label>
+                        <input type="number" id="enterYear" name="enterYear" value="{{ content.display_year }}" style="width: 75px;"">
+                        <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
+                        <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
+                        <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}"
+                            max="{{ content.latest_year }}" value="{{ content.display_year }}" class="slider"
+                            onchange="plotPolities()" style="width: 300px;"><br>
+                        <label for="sliderDate">Selected year:</label>
+                        <span id="sliderDate"></span><br><br>
+                        <label for="playButton">Run animation:</label>
+                        <button id="playButton" type="button" onclick="startPlay()">▶️</button>
+                        <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
+                        <label for="playRate">Animation speed:</label>
+                        <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider"
+                            onchange="plotPolities()"><br><br>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="map" style="height: 30vh; flex: 1;"></div>
+            <div>
+                <fieldset>
+                    <br>
+                    <h5>Base Map:</h5>
+                    <label for="baseMapOnly">Base map only</label>
+                    <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br><br>
+                    <label><input type="radio" name="baseMap" id="baseMapBasic" value="cartobasic" onclick="switchBaseMap()"
+                            checked>Basic</label><br>
+                    <label><input type="radio" name="baseMap" id="baseMapOSM" value="osm"
+                            onclick="switchBaseMap()">OpenStreetMap</label><br>
+                    <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()"
+                            disabled>Current borders</label>
+                    <!-- Add a loading indicator for Current borders -->
+                    <div id="baseMapCurrentLoadingIndicator">
+                        <p><sub>Loading current borders...</sub></p>
+                        <div class="spinner"></div>
+                    </div><br>
+                </fieldset>
+                <fieldset id="baseMapGADMFieldset">
+                    <label for="baseMapGADM">Current borders:</label>
+                    <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMap()">
+                        <option value="country">Countries</option>
+                        <option value="province">Provinces</option>
+                    </select><br>
+                </fieldset>
+                <p></p>
+            </div>
+        </div>
+        <script src="{% static 'core/js/map_functions.js' %}"></script>
+        <script>
+
+            var displayedShapes = [];
+            // Load inital polity shapes for the displayed year
+            var shapesData = [
+                // JavaScript object representing shape data
+                {% for shape in content.shapes %}
+                    {
+                        startYear: '{{ shape.start_year }}',
+                        endYear: '{{ shape.end_year }}',
+                        polityStartYear: '{{ shape.polity_start_year }}',
+                        polityEndYear: '{{ shape.polity_end_year }}',
+                        geometry: '{{ shape.geom | safe }}',
+                        name: '{{ shape.name }}',
+                        colour: '{{ shape.colour }}',
+                        seshatId: '{{ shape.seshat_id }}',
+                        area: '{{ shape.area }}'
+                    },
+                {% endfor %}
+            ];
+
+            // Load capital info
+            var capitalsInfo = {{ content.capitals_info | safe }};
+
+            // Load seshat_id_page_id dictionary
+            var seshatIdPageId = {{ content.seshat_id_page_id | safe }};
+
+            var provinceShapeData;
+            var countryShapeData;
+
+            // Load all polity shapes and modern province/country shapes in background
+            window.addEventListener('load', function () {
+                fetch('/core/provinces_and_countries')
+                    .then(response => response.json())
+                    .then(data => {
+                        provinceShapeData = data.provinces.map(function (shape) {
+                            return {
+                                geometry: JSON.parse(shape.aggregated_geometry),
+                                province: shape.province,
+                                provinceType: shape.province_type
+                            };
+                        });
+
+                        countryShapeData = data.countries.map(function (shape) {
+                            return {
+                                geometry: JSON.parse(shape.aggregated_geometry),
+                                country: shape.country
+                            };
+                        });
+
+                        // Enable the radio selection after the fetch request is done
+                        document.getElementById('baseMapCurrentLoadingIndicator').style.display = 'none';
+                        document.getElementById('baseMapCurrent').disabled = false;
+                    });
+            });
+
+            var map = L.map('map').setView([0, 0], 2);
+
+            var baseLayers = {
+                "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'),
+                "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+            };
+
+            // Select carto as the default base layer
+            var currentLayer = baseLayers.carto.addTo(map);
+            var provinceLayers = []; // Keep track of province layers to remove them later
+            switchBaseMap()
+
+            function plotPolities() {  // This function is defined differently in the world_map template
+
+                var selectedYear = document.getElementById('dateSlide').value;
+
+                // Remove all existing layers from the map
+                map.eachLayer(function (layer) {
+                    if (layer instanceof L.GeoJSON || layer instanceof L.MarkerClusterGroup || layer instanceof L.CircleMarker) {
+                        map.removeLayer(layer);
+                    }
+                });
+
+                // Convert to int, because for some reason JS converts it to a string
+                var selectedYearInt = parseInt(selectedYear);
+
+                // Add shapes to the map
+                // Don't plot them if "Base map only" checkbox selected
+                if (!document.getElementById('baseMapOnly').checked) {
+                    shapesData.forEach(function (shape) {
+
+                        // If the shape spans the selected year
+                        if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
+
+                            // Format the area float
+                            const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                                useGrouping: true
+                            });
+
+                            // Format the years
+                            if (parseInt(shape.polityStartYear) < 0) {
+                                displayStartYear = Math.abs(parseInt(shape.polityStartYear)) + ' BCE';
+                            } else {
+                                displayStartYear = shape.polityStartYear + ' CE';
+                            }
+
+                            if (parseInt(shape.polityEndYear) < 0) {
+                                displayEndYear = Math.abs(parseInt(shape.polityEndYear)) + ' BCE';
+                            } else {
+                                displayEndYear = shape.polityEndYear + ' CE';
+                            }
+
+                            // Add shape
+                            var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                                style: function (feature) {
+                                    return {
+                                        fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                        color: shape.colour,  // Set the border color
+                                        weight: 0,  // Set the border weight
+                                        fillOpacity: 0.5  // Set the fill opacity
+                                    };
+                                },
+                                onEachFeature: function (feature, layer) {
+                                    var popupContent = `
+                                                <table>
+                                                    <tr>
+                                                        <th>${shape.name}</th>
+                                                        <th></th>
+                                                    </tr>
+                                            `;
+                                    popupContent = popupContent + `
+                                                    <tr>
+                                                        <td>Duration</td>
+                                                        <td>${displayStartYear} to ${displayEndYear}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Area (est.)</td>
+                                                        <td>${formattedArea} Km<sup>2</sup></td>
+                                                    </tr>
+                                                </table>
+                                            `;
+                                    layer.bindPopup(popupContent);
+                                }
+                            }).addTo(map);
+
+                            // Plot capital markers       
+                            var markers = L.markerClusterGroup({
+                                iconCreateFunction: function(cluster) {
+                                    return L.divIcon({
+                                        html: '<div style="background-color:' + shape.colour + '; color: #fff; border-radius: 50%; text-align: center; line-height: 40px;"><b>' + cluster.getChildCount() + '</b></div>',
+                                        className: 'myClusterIcon',
+                                        iconSize: L.point(40, 40)
+                                    });
+                                }
+                            });
+                            capitalsInfo.forEach(function (capital) {
+                                // If the capital existed in the selected year (or years not specified)
+                                if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
+                                    var marker = L.circleMarker([capital.latitude, capital.longitude], {
+                                        color: 'black', // Set the border color
+                                        fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                        weight: 2,  // Set the border weight
+                                        fillOpacity: 0.5,  // Set the fill opacity
+                                        radius: 5
+                                    });
+                                    marker.bindTooltip(capital.capital, {
+                                        permanent: true,
+                                        direction: "top",
+                                        offset: L.point({ x: 0, y: 0 })
+                                    });
+
+                                    marker.bindPopup(capital.capital);
+                                    markers.addLayer(marker); // add each marker to the MarkerClusterGroup
+                                };
+                            });
+
+                            map.addLayer(markers); // add the MarkerClusterGroup to the map
+
+                            // Update the displayedShapes array
+                            if (displayedShapes.indexOf(shape.name) === -1) {
+                                displayedShapes.push(shape.name);
+                            }
+
+                            // adjust the map view to cover the geoJSON layer
+                            // but not if there is > 1 shape dataset polity on this polity page
+                            if (displayedShapes.length == 1) {
+                                map.fitBounds(geoJSONLayer.getBounds());
+                            }
+                        }
+                    });
+                };
+            }
+
+            // Initial plot on page load
+            plotPolities()
+
+            // Display slider value
+            var slider = document.getElementById("dateSlide");
+            var enterYearInput = document.getElementById("enterYear");
+            var output = document.getElementById("sliderDate");
+            updateSliderOutput(); // Display the default slider value
+
+            // Update the current slider value (each time you drag the slider handle)
+            slider.oninput = function () {
+                updateSliderOutput();
+                // Sync enterYear input with dateSlide value
+                enterYearInput.value = slider.value;
+            }
+
+            var playInterval;
+            var playRateInput = document.getElementById("playRate");
+
+            // Add event listener to stop playing when adjusting the slider manually
+            slider.addEventListener("input", stopPlay);
+
+            // Add event listener to update play rate when the input changes
+            playRateInput.addEventListener("change", function () {
+                stopPlay(); // Stop current play if ongoing
+                startPlay(); // Start with the updated play rate
+            });
+
+            // Make sure Radio selection is kept on page refresh
+            document.addEventListener("DOMContentLoaded", function () {
+                // Get the country parameter from the URL
+                var urlParams = new URLSearchParams(window.location.search);
+
+                // Trigger filtering when the page refreshes
+                plotPolities();
+
+            });
+
+            // Update the enterYear input value when the user hits return
+            enterYearInput.addEventListener("keyup", function (event) {
+                if (event.key === "Enter") {
+                    // Update the slider value
+                    slider.value = enterYearInput.value;
+                    updateSliderOutput();
+                    plotPolities();
+                }
+            });
+
+        </script>
+    {% endif %}
+    {% endblock %}
+</body>

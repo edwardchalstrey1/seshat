@@ -1,3 +1,5 @@
+import sys
+
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
 
 from django.contrib.sites.shortcuts import get_current_site
@@ -12,14 +14,16 @@ from django.template.loader import render_to_string
 from .tokens import account_activation_token
 from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+from django.utils.text import slugify
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.db import IntegrityError
-from django.db.models import Prefetch, F, Value, Q, Count
+from django.db import IntegrityError, connection
+from django.db.models import Prefetch, F, Value, Q, Min, Max, Count
 from django.db.models.functions import Replace
 
 from django.views.decorators.http import require_GET
@@ -57,7 +61,7 @@ from ..general.models import Polity_research_assistant, Polity_duration
 from ..crisisdb.models import Power_transition
 
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, SeshatCommon, ScpThroughCtn
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, VideoShapefile, GADMCountries, GADMProvinces, SeshatCommon, ScpThroughCtn
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -66,10 +70,12 @@ from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic
 
 from django.shortcuts import HttpResponse
 
+from math import floor, ceil
+from django.contrib.gis.geos import GEOSGeometry
+from distinctipy import get_colors, get_hex
 
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-
 
 def ajax_test(request):
     if is_ajax(request=request):
@@ -838,6 +844,11 @@ class PolityUpdate(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     template_name = "core/polity/polity_form.html"
     permission_required = 'core.add_capital'
     success_message = "You successfully updated the Polity."
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pk'] = self.object.pk
+        return context
     
     def get_success_url(self):
         return reverse_lazy('polity-detail-main', kwargs={'pk': self.object.pk})
@@ -1414,6 +1425,7 @@ class PolityDetailView(SuccessMessageMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['pk'] = self.kwargs['pk']
         try:
             context["all_data"] = get_all_data_for_a_polity(self.object.pk, "crisisdb") 
             context["all_general_data"], context["has_any_general_data"] = get_all_general_data_for_a_polity(self.object.pk)
@@ -2460,6 +2472,199 @@ def seshatcommentpart_create_view(request):
 
     return render(request, 'core/seshatcomments/seshatcommentpart_create.html', {'form': form})
 
+
+
+# Shapefile views
+
+def get_polity_year_range():
+    """
+        Get the earliest and latest years for all polities in the video shapefile data
+    """
+    result = VideoShapefile.objects.aggregate(
+        min_year=Min('polity_start_year'), 
+        max_year=Max('polity_end_year')
+    )
+    return result['min_year'], result['max_year']
+
+def get_provinces(selected_base_map_gadm='province'):
+    """
+        Get all the province or country shapes for the map base layer.
+    """
+
+    provinces = []
+    # Use the appropriate Django ORM query based on the selected baseMapGADM value
+    if selected_base_map_gadm == 'country':
+        rows = GADMCountries.objects.values_list('geom', 'COUNTRY')
+    elif selected_base_map_gadm == 'province':
+        rows = GADMProvinces.objects.values_list('geom', 'NAME_1', 'ENGTYPE_1')
+
+    for row in rows:
+        if row[0] != None:
+            if selected_base_map_gadm == 'country':
+                provinces.append({
+                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                    'country': row[1]
+                })
+            elif selected_base_map_gadm == 'province':
+                provinces.append({
+                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
+                    'province': row[1],
+                    'province_type': row[2]
+                })
+
+    return provinces
+
+def get_polity_info(seshat_ids):
+    """
+        Get polity info for the given seshat_ids
+    """
+    polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
+    return [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
+
+def get_polity_shape_content(displayed_year="all", seshat_id="all"):
+    """
+        This function returns the polity shapes and other content for the map.
+        Only one of displayed_year or seshat_id should be set not both.
+        Setting displayed_year to "all" will return all polities.
+        Setting displayed_year to a year will return polities that were active in that year.
+        Setting seshat_id to the value of the seshat_id will result in only the shapes for that polity being returned.
+        Note: seshat_id in VideoShapefile is new_name in Polity.
+    """
+    if displayed_year != "all" and seshat_id != "all":
+        raise ValueError("Only one of displayed_year or seshat_id should be set not both.")
+
+    if displayed_year != "all":
+        rows = VideoShapefile.objects.filter(polity_start_year__lte=displayed_year, polity_end_year__gte=displayed_year)
+    elif seshat_id != "all":
+        rows = VideoShapefile.objects.filter(seshat_id=seshat_id)
+    else:
+        rows = VideoShapefile.objects.all()
+
+    shapes = []
+    for row in rows:
+        shapes.append({
+            'seshat_id': row.seshat_id,
+            'name': row.name,
+            'start_year': row.start_year,
+            'end_year': row.end_year,
+            'polity_start_year': row.polity_start_year,
+            'polity_end_year': row.polity_end_year,
+            'colour': row.colour,
+            'area': row.area,
+            'geom': row.simplified_geom.geojson
+        })
+
+    seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
+    polity_info = get_polity_info(seshat_ids)
+
+    seshat_id_page_id = {}
+    for new_name, id, long_name in polity_info:
+        seshat_id_page_id[new_name] = {
+            'id': id,
+            'long_name': long_name or "",
+        }
+
+    if 'migrate' not in sys.argv:
+        earliest_year, latest_year = get_polity_year_range()
+        initial_displayed_year = earliest_year
+    else:
+        earliest_year, latest_year = 2014, 2014
+        initial_displayed_year = -3400
+
+    if displayed_year == "all":
+        displayed_year = initial_displayed_year 
+
+    if seshat_id != "all":
+        earliest_year = min([shape['start_year'] for shape in shapes])
+        displayed_year = earliest_year
+        latest_year = max([shape['end_year'] for shape in shapes])
+    else:
+        earliest_year, latest_year = get_polity_year_range()
+
+    content = {
+        'shapes': shapes,
+        'earliest_year': earliest_year,
+        'display_year': displayed_year,
+        'latest_year': latest_year,
+        'seshat_id_page_id': seshat_id_page_id
+    }
+
+    return content
+
+def get_all_polity_capitals():
+    """
+        Get capital cities for polities that have them.
+    """
+    from seshat.apps.core.templatetags.core_tags import get_polity_capitals
+    all_capitals_info = {}
+    for polity in Polity.objects.all():
+        caps = get_polity_capitals(polity.id)
+
+        if caps:
+            # Set the start and end years to be the same as the polity where missing
+            modified_caps = caps
+            i = 0
+            for capital_info in caps:
+                if capital_info['year_from'] == None:
+                    modified_caps[i]['year_from'] = polity.start_year
+                if capital_info['year_to'] == None:
+                    modified_caps[i]['year_to'] = polity.end_year
+                i+=1
+            all_capitals_info[polity.new_name] = modified_caps
+
+    return all_capitals_info
+
+def map_view_initial(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The inital view just loads the polities for the initial_displayed_year.
+    """
+
+    # Calling this function will return the earliest and latest years in the polity
+    # The function cannot be called before the database is migrated
+    if 'migrate' not in sys.argv:
+        initial_displayed_year, latest_year = get_polity_year_range()
+    else:
+        initial_displayed_year = -3400
+
+    # Use the year from the request parameters if present
+    # Otherwise use the default initial_displayed_year (see above)
+    displayed_year = request.GET.get('year', initial_displayed_year)
+
+    content = get_polity_shape_content(displayed_year=displayed_year)
+
+    # Load the capital cities for polities that have them
+    caps = get_all_polity_capitals()
+    content['all_capitals_info'] = caps
+    
+    return render(request,
+                  'core/world_map.html',
+                  content
+                  )
+
+def map_view_all(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The view loads all polities for the range of years.
+    """
+    content = get_polity_shape_content()
+
+    # Load the capital cities for polities that have them
+    caps = get_all_polity_capitals()
+    content['all_capitals_info'] = caps
+    
+    return JsonResponse(content)
+
+def provinces_and_countries_view(request):
+    provinces = get_provinces()
+    countries = get_provinces(selected_base_map_gadm='country')
+
+    content = {
+        'provinces': provinces,
+        'countries': countries,
+    }
+
+    return JsonResponse(content)
 ######################
 
 def update_seshat_comment_part_view(request, pk):
