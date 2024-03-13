@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0056_religion'),
+        ('core', '0058_scpthroughctn_alter_seshatcommentpart_options_and_more'),
     ]
 
     operations = [
