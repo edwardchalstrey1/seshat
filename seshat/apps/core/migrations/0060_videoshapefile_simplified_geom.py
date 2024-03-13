@@ -7,7 +7,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0057_gadmcountries_gadmprovinces_gadmshapefile_and_more'),
+        ('core', '0059_gadmcountries_gadmprovinces_gadmshapefile_and_more'),
     ]
 
     operations = [
