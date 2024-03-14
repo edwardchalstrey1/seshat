@@ -260,7 +260,6 @@
 
         function plotPolities() {  // This function is defined differently in the polity_map template
 
-            var superColour = "{{ super_colour }}";
             var variable = document.getElementById('chooseVariable').value;
             var selectedYear = document.getElementById('dateSlide').value;
 
@@ -289,7 +288,7 @@
 
                         // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
                         if (variable != 'polity') {
-                            shape.colour = superColour;
+                            shape.colour = 'red';
                         }
 
                         // If the shape spans the selected year

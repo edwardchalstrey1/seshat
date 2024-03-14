@@ -2662,10 +2662,6 @@ def map_view_initial(request):
 
     content = get_polity_shape_content(displayed_year=displayed_year)
 
-    # Update the colours based on the selected variable
-    variable = request.GET.get('variable', 'polity')
-    content['super_colour'] = variable_colour_map(variable)
-
     # Add in the variable to view for the shapes
     # if variable != 'polity':
     content['shapes'] = get_polity_variables(content['shapes'], 'judge')
@@ -2685,10 +2681,6 @@ def map_view_all(request):
         The view loads all polities for the range of years.
     """
     content = get_polity_shape_content()
-
-    # Update the colours based on the selected variable
-    variable = request.GET.get('variable', 'polity')
-    content['super_colour'] = variable_colour_map(variable)
 
     # Add in the variable to view for the shapes
     # if variable != 'polity':
