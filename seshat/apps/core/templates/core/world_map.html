@@ -283,15 +283,13 @@
             if (!document.getElementById('baseMapOnly').checked){
                 shapesData.forEach(function (shape) {
 
-                    // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
-                    if (superColour != 'polity') {
-                        shape.colour = superColour;
-                    }
-
-                    console.log(shape);
-
                     // If the variable is "polity" or the variable is not "polity" and the shape has the selected variable
                     if (document.getElementById('chooseVariable').value == 'polity' || shape.variable == 'present'){
+
+                        // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
+                        if (document.getElementById('chooseVariable').value != 'polity') {
+                            shape.colour = superColour;
+                        }
 
                         // If the shape spans the selected year
                         if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
