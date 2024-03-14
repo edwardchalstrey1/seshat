@@ -60,6 +60,7 @@ from ..general.models import Polity_research_assistant, Polity_duration
 
 from ..crisisdb.models import Power_transition
 
+from ..sc.models import Judge
 
 from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, VideoShapefile, GADMCountries, GADMProvinces, SeshatCommon, ScpThroughCtn
 import pprint
@@ -2632,7 +2633,14 @@ def get_polity_variables(shapes, variable):
     """
     for shape in shapes:
         if shape['seshat_id'] != 'none':
-            shape[variable] = Polity.objects.filter(new_name=shape['seshat_id']).first()[variable]
+            if variable == 'judge':
+                shape['judge'] = False
+                polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
+                if polity:
+                    judge = Judge.objects.filter(polity_id=polity.id).first()
+                    if judge:
+                        if getattr(judge, 'judge') == 'present':
+                            shape['judge'] = True
 
 def map_view_initial(request):
     """
