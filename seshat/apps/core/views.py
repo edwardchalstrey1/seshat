@@ -2632,15 +2632,16 @@ def get_polity_variables(shapes, variable):
         Assign the relevant variable values of polities to shape data.
     """
     for shape in shapes:
+        shape['variable'] = 'absent'
         if shape['seshat_id'] != 'none':
             if variable == 'judge':
-                shape['judge'] = False
                 polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
                 if polity:
                     judge = Judge.objects.filter(polity_id=polity.id).first()
                     if judge:
                         if getattr(judge, 'judge') == 'present':
-                            shape['judge'] = True
+                            shape['variable'] = 'present'
+    return shapes
 
 def map_view_initial(request):
     """
@@ -2666,8 +2667,8 @@ def map_view_initial(request):
     content['super_colour'] = variable_colour_map(variable)
 
     # Add in the variable to view for the shapes
-    if variable != 'polity':
-        content['shapes'] = get_polity_variables(content['shapes'], variable)
+    # if variable != 'polity':
+    content['shapes'] = get_polity_variables(content['shapes'], 'judge')
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2690,8 +2691,8 @@ def map_view_all(request):
     content['super_colour'] = variable_colour_map(variable)
 
     # Add in the variable to view for the shapes
-    if variable != 'polity':
-        content['shapes'] = get_polity_variables(content['shapes'], variable)
+    # if variable != 'polity':
+    content['shapes'] = get_polity_variables(content['shapes'], 'judge')
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
