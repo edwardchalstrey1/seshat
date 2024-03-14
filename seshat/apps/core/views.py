@@ -2542,7 +2542,9 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
 
     shapes = []
     for row in rows:
-        shapes.append({
+
+        # Get the info required for the shape
+        shape_info = {
             'seshat_id': row.seshat_id,
             'name': row.name,
             'start_year': row.start_year,
@@ -2552,7 +2554,9 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
             'colour': row.colour,
             'area': row.area,
             'geom': row.simplified_geom.geojson
-        })
+        }
+
+        shapes.append(shape_info)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
     polity_info = get_polity_info(seshat_ids)
@@ -2614,6 +2618,21 @@ def get_all_polity_capitals():
 
     return all_capitals_info
 
+def variable_colour_map(variable):
+    """
+        Map the variable to a colour for the map.
+    """
+    if variable == 'judge':
+        return 'red'
+    return 'polity'
+
+def get_polity_variables(shapes, variable):
+    """
+        Assign the relevant variable values of polities to shape data.
+    """
+    for shape in shapes:
+        shape[variable] = Polity.objects.filter(new_name=row.seshat_id).first()[variable]       
+
 def map_view_initial(request):
     """
         This view is used to display a map with polities plotted on it.
@@ -2633,6 +2652,14 @@ def map_view_initial(request):
 
     content = get_polity_shape_content(displayed_year=displayed_year)
 
+    # Update the colours based on the selected variable
+    variable = request.GET.get('variable', 'polity')
+    content['super_colour'] = variable_colour_map(variable)
+
+    # Add in the variable to view for the shapes
+    if variable != 'polity':
+        content['shapes'] = get_polity_variables(content['shapes'], variable)
+
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
     content['all_capitals_info'] = caps
@@ -2648,6 +2675,14 @@ def map_view_all(request):
         The view loads all polities for the range of years.
     """
     content = get_polity_shape_content()
+
+    # Update the colours based on the selected variable
+    variable = request.GET.get('variable', 'polity')
+    content['super_colour'] = variable_colour_map(variable)
+
+    # Add in the variable to view for the shapes
+    if variable != 'polity':
+        content['shapes'] = get_polity_variables(content['shapes'], variable)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
