@@ -2627,20 +2627,19 @@ def variable_colour_map(variable):
         return 'red'
     return 'polity'
 
-def get_polity_variables(shapes, variable):
+def get_polity_variables(shapes):
     """
         Assign the relevant variable values of polities to shape data.
     """
     for shape in shapes:
         shape['variable'] = 'absent'
         if shape['seshat_id'] != 'none':
-            if variable == 'judge':
-                polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
-                if polity:
-                    judge = Judge.objects.filter(polity_id=polity.id).first()
-                    if judge:
-                        if getattr(judge, 'judge') == 'present':
-                            shape['variable'] = 'present'
+            polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
+            if polity:
+                judge = Judge.objects.filter(polity_id=polity.id).first()
+                if judge:
+                    if getattr(judge, 'judge') == 'present':
+                        shape['variable'] = 'present'
     return shapes
 
 def map_view_initial(request):
@@ -2662,9 +2661,8 @@ def map_view_initial(request):
 
     content = get_polity_shape_content(displayed_year=displayed_year)
 
-    # Add in the variable to view for the shapes
-    # if variable != 'polity':
-    content['shapes'] = get_polity_variables(content['shapes'], 'judge')
+    # Add in the variables to view for the shapes
+    content['shapes'] = get_polity_variables(content['shapes'])
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2682,9 +2680,8 @@ def map_view_all(request):
     """
     content = get_polity_shape_content()
 
-    # Add in the variable to view for the shapes
-    # if variable != 'polity':
-    content['shapes'] = get_polity_variables(content['shapes'], 'judge')
+    # Add in the variables to view for the shapes
+    content['shapes'] = get_polity_variables(content['shapes'])
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
