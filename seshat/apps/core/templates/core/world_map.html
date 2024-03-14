@@ -94,7 +94,7 @@
 
                 <div class="slidecontainer">
                     <label for="chooseVariable">Variable</label>
-                    <select name="chooseVariable" id="chooseVariable" onchange="switchVariable()">
+                    <select name="chooseVariable" id="chooseVariable" onchange="switchVariable()" disabled>
                         <option value="polity">Polity</option>
                         <option value="supra">Supracultural Entity</option>
                         <option value="religion">Religion</option>
@@ -216,6 +216,7 @@
                     document.getElementById('playButton').disabled = false;
                     document.getElementById('stopButton').disabled = false;
                     document.getElementById('playRate').disabled = false;
+                    document.getElementById('chooseVariable').disabled = false;
 
                     // Start the second fetch after the first one is complete
                     return fetch('/core/provinces_and_countries');
@@ -445,7 +446,7 @@
         // Switch the displayed variable
         function switchVariable(){
             var variable = document.getElementById('chooseVariable').value;
-            window.location.href = '/core/world_map/?variable=' + variable;
+            window.location.href = window.location.href + '&variable=' + variable;
             plotPolities()
         }
 
