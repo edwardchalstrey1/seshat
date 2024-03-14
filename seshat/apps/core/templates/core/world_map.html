@@ -287,8 +287,10 @@
                     if (variable == 'polity' || shape.variable == 'present'){
 
                         // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
-                        if (variable != 'polity') {
-                            shape.colour = 'red';
+                        if (variable == 'polity') {
+                            shapeColour = shape.colour;
+                        } else {
+                            shapeColour = 'red';
                         }
 
                         // If the shape spans the selected year
@@ -322,8 +324,8 @@
                             var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
                                 style: function (feature) {
                                     return {
-                                        fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                        color: shape.colour,  // Set the border color
+                                        fillColor: shapeColour,  // Set the fill color based on the "colour" field
+                                        color: shapeColour,  // Set the border color
                                         weight: 0,  // Set the border weight
                                         fillOpacity: 0.5  // Set the fill opacity
                                     };
