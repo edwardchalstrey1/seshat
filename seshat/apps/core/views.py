@@ -2631,7 +2631,7 @@ def get_polity_variables(shapes, variable):
         Assign the relevant variable values of polities to shape data.
     """
     for shape in shapes:
-        shape[variable] = Polity.objects.filter(new_name=row.seshat_id).first()[variable]       
+        shape[variable] = Polity.objects.filter(new_name=shape.seshat_id).first()[variable]       
 
 def map_view_initial(request):
     """
