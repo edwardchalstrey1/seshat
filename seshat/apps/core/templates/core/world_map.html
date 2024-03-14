@@ -93,6 +93,13 @@
                 </legend>
 
                 <div class="slidecontainer">
+                    <label for="chooseVariable">Variable</label>
+                    <select name="chooseVariable" id="chooseVariable" onchange="switchVariable()">
+                        <option value="polity">Polity</option>
+                        <option value="supra">Supracultural Entity</option>
+                        <option value="religion">Religion</option>
+                        <option value="judge">Judge</option>
+                    </select><br>
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
@@ -248,8 +255,9 @@
         var provinceLayers = []; // Keep track of province layers to remove them later
         switchBaseMap()
 
-        function plotPolities() {  // This function is defined differently in the world_map template
+        function plotPolities() {  // This function is defined differently in the polity_map template
 
+            var superColour = "{{ super_colour }}";
             var selectedYear = document.getElementById('dateSlide').value;
 
             // Load capital info if not already loaded
@@ -271,6 +279,11 @@
             // Don't plot them if "Base map only" checkbox selected
             if (!document.getElementById('baseMapOnly').checked){
                 shapesData.forEach(function (shape) {
+
+                    // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
+                    if (superColour != 'polity') {
+                        shape.colour = superColour;
+                    }
 
                     // If the shape spans the selected year
                     if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
@@ -427,6 +440,13 @@
                     }
                 });
             };
+        }
+
+        // Switch the displayed variable
+        function switchVariable(){
+            var variable = document.getElementById('chooseVariable').value;
+            window.location.href = '/core/world_map/?variable=' + variable;
+            plotPolities()
         }
 
         // Initial plot on page load
