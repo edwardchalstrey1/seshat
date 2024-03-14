@@ -94,7 +94,7 @@
 
                 <div class="slidecontainer">
                     <label for="chooseVariable">Variable</label>
-                    <select name="chooseVariable" id="chooseVariable" onchange="switchVariable()" disabled>
+                    <select name="chooseVariable" id="chooseVariable" onchange="plotPolities()" disabled>
                         <option value="polity">Polity</option>
                         <option value="supra">Supracultural Entity</option>
                         <option value="religion">Religion</option>
@@ -261,6 +261,7 @@
         function plotPolities() {  // This function is defined differently in the polity_map template
 
             var superColour = "{{ super_colour }}";
+            var variable = document.getElementById('chooseVariable').value;
             var selectedYear = document.getElementById('dateSlide').value;
 
             // Load capital info if not already loaded
@@ -284,10 +285,10 @@
                 shapesData.forEach(function (shape) {
 
                     // If the variable is "polity" or the variable is not "polity" and the shape has the selected variable
-                    if (document.getElementById('chooseVariable').value == 'polity' || shape.variable == 'present'){
+                    if (variable == 'polity' || shape.variable == 'present'){
 
                         // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
-                        if (document.getElementById('chooseVariable').value != 'polity') {
+                        if (variable != 'polity') {
                             shape.colour = superColour;
                         }
 
@@ -450,11 +451,11 @@
         }
 
         // Switch the displayed variable
-        function switchVariable(){
-            var variable = document.getElementById('chooseVariable').value;
-            window.location.href = window.location.href + '&variable=' + variable;
-            plotPolities()
-        }
+        // function switchVariable(){
+        //     var variable = document.getElementById('chooseVariable').value;
+        //     window.location.href = window.location.href + '&variable=' + variable;
+        //     plotPolities()
+        // }
 
         // Initial plot on page load
         plotPolities()
@@ -513,14 +514,14 @@
                 window.location.href = '/core/world_map/?year=' + storedYear;
             }
 
-            var storedVar = localStorage.getItem('variable');
-            var varInUrl = url.searchParams.get('variable');
-            if (storedVar !== varInUrl) {
-                // Change window.location.href
-                window.location.href = window.location.href + '&variable=' + variable;
-            }
-            // Ensure the "Variable" dropdown is updated
-            document.getElementById('chooseVariable').value = storedVar;
+            // var storedVar = localStorage.getItem('variable');
+            // var varInUrl = url.searchParams.get('variable');
+            // if (storedVar !== varInUrl) {
+            //     // Change window.location.href
+            //     window.location.href = window.location.href + '&variable=' + variable;
+            // }
+            // // Ensure the "Variable" dropdown is updated
+            // document.getElementById('chooseVariable').value = storedVar;
 
         });
 
