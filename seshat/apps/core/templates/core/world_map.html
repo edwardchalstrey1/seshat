@@ -450,13 +450,6 @@
             };
         }
 
-        // Switch the displayed variable
-        // function switchVariable(){
-        //     var variable = document.getElementById('chooseVariable').value;
-        //     window.location.href = window.location.href + '&variable=' + variable;
-        //     plotPolities()
-        // }
-
         // Initial plot on page load
         plotPolities()
 
@@ -513,16 +506,6 @@
                 // Change window.location.href
                 window.location.href = '/core/world_map/?year=' + storedYear;
             }
-
-            // var storedVar = localStorage.getItem('variable');
-            // var varInUrl = url.searchParams.get('variable');
-            // if (storedVar !== varInUrl) {
-            //     // Change window.location.href
-            //     window.location.href = window.location.href + '&variable=' + variable;
-            // }
-            // // Ensure the "Variable" dropdown is updated
-            // document.getElementById('chooseVariable').value = storedVar;
-
         });
 
     </script>
