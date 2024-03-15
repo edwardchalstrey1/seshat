@@ -260,6 +260,15 @@
         var provinceLayers = []; // Keep track of province layers to remove them later
         switchBaseMap()
 
+        // Note: these are the choices for the variable values as encoded in sc.models
+        let variableColourMapping = {
+            'present': 'green',
+            'absent': 'red',
+            'unknown': 'grey',
+            'A~P': 'blue',
+            'P~A': 'orange'
+        };
+
         function plotPolities() {  // This function is defined differently in the polity_map template
 
             var variable = document.getElementById('chooseVariable').value;
@@ -284,19 +293,14 @@
             // Don't plot them if "Base map only" checkbox selected
             if (!document.getElementById('baseMapOnly').checked){
                 shapesData.forEach(function (shape) {
-                    // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
-                    if (variable == 'polity') {
-                        shapeColour = shape.colour;
+
+                    // Set weight and colour based on the variable
+                    if (variable == 'polity') {  
                         shapeWeight = 0;
+                        shapeColour = shape.colour;
                     } else {
-                        if ((variable == 'road' && shape.road == 'present') || (variable == 'judge' && shape.judge == 'present')) {
-                            shapeColour = 'green';
-                        } else if ((variable == 'road' && shape.road == 'absent') || (variable == 'judge' && shape.judge == 'absent')) {
-                            shapeColour = 'red';
-                        } else {
-                            shapeColour = 'grey';
-                        }
                         shapeWeight = 2;
+                        shapeColour = variableColourMapping[shape[variable]];
                     }
 
                     // If the shape spans the selected year

@@ -2618,13 +2618,10 @@ def get_all_polity_capitals():
 
     return all_capitals_info
 
-# def variable_colour_map(variable):
-#     """
-#         Map the variable to a colour for the map.
-#     """
-#     if variable == 'judge':
-#         return 'red'
-#     return 'polity'
+variables = [
+    ('judge', 'Judge'),
+    ('road', 'Road')
+]
 
 def get_polity_variables(shapes, variables):
     """
@@ -2634,22 +2631,15 @@ def get_polity_variables(shapes, variables):
     for variable, model in variables:
         class_ = getattr(module, model)
         for shape in shapes:
-            shape[variable] = 'unrecorded'
+            shape[variable] = 'unknown'  # Setting this as the default means that shapes that aren't linked to a Seshat polity will be grey
             if shape['seshat_id'] != 'none':
                 polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
                 if polity:
                     variable_obj = class_.objects.filter(polity_id=polity.id).first()
                     if variable_obj:
-                        if getattr(variable_obj, variable) == 'present':
-                            shape[variable] = 'present'
-                        elif getattr(variable_obj, variable) == 'absent':
-                            shape[variable] = 'absent'
+                        absent_present_choice = getattr(variable_obj, variable)
+                        shape[variable] = absent_present_choice
     return shapes
-
-variables = [
-    ('judge', 'Judge'),
-    ('road', 'Road')
-]
 
 def map_view_initial(request):
     """
