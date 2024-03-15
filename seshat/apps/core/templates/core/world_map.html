@@ -160,17 +160,9 @@
             // JavaScript object representing shape data
             {% for shape in shapes %}
                 {
-                    start_year: '{{ shape.start_year }}',
-                    end_year: '{{ shape.end_year }}',
-                    polity_start_year: '{{ shape.polity_start_year }}',
-                    polity_end_year: '{{ shape.polity_end_year }}',
-                    geom: '{{ shape.geom | safe }}',
-                    name: '{{ shape.name }}',
-                    colour: '{{ shape.colour }}',
-                    seshat_id: '{{ shape.seshat_id }}',
-                    area: '{{ shape.area }}',
-                    judge: '{{ shape.judge }}',
-                    road: '{{ shape.road }}'
+                    {% for key, value in shape.items %}
+                        '{{ key }}': '{{ value|escapejs }}',
+                    {% endfor %}
                 },
             {% endfor %}
         ];
