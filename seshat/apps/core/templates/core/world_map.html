@@ -289,8 +289,10 @@
                         // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
                         if (variable == 'polity') {
                             shapeColour = shape.colour;
+                            shapeWeight = 0;
                         } else {
                             shapeColour = 'red';
+                            shapeWeight = 2;
                         }
 
                         // If the shape spans the selected year
@@ -326,7 +328,7 @@
                                     return {
                                         fillColor: shapeColour,  // Set the fill color based on the "colour" field
                                         color: shapeColour,  // Set the border color
-                                        weight: 0,  // Set the border weight
+                                        weight: shapeWeight,  // Set the border weight
                                         fillOpacity: 0.5  // Set the fill opacity
                                     };
                                 },
