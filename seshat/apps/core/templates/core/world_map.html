@@ -97,7 +97,7 @@
                     <select name="chooseVariable" id="chooseVariable" onchange="plotPolities()">
                         <option value="polity">Polity</option>
                         <option value="supra">Supracultural Entity</option>
-                        <option value="religion">Religion</option>
+                        <option value="road">Road</option>
                         <option value="judge">Judge</option>
                     </select><br>
                     <label for="enterYear">Enter year:</label>
@@ -169,7 +169,8 @@
                     colour: '{{ shape.colour }}',
                     seshatId: '{{ shape.seshat_id }}',
                     area: '{{ shape.area }}',
-                    variable: '{{ shape.variable }}'
+                    judge: '{{ shape.judge }}',
+                    road: '{{ shape.road }}'
                 },
             {% endfor %}
         ];
@@ -199,7 +200,8 @@
                             colour: shape.colour,
                             seshatId: shape.seshat_id,
                             area: shape.area,
-                            variable: shape.variable
+                            judge: shape.judge,
+                            road: shape.road
                         };
                     });
 
@@ -284,7 +286,9 @@
                 shapesData.forEach(function (shape) {
 
                     // If the variable is "polity" or the variable is not "polity" and the shape has the selected variable
-                    if (variable == 'polity' || shape.variable == 'present'){
+                    if (variable == 'polity' || (variable == 'road' && shape.road == 'present') || (variable == 'judge' && shape.judge == 'present')){
+
+                        console.log(shape);
 
                         // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
                         if (variable == 'polity') {

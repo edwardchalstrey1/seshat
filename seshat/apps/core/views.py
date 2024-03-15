@@ -1,4 +1,5 @@
 import sys
+import importlib
 
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
 
@@ -59,8 +60,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from ..general.models import Polity_research_assistant, Polity_duration
 
 from ..crisisdb.models import Power_transition
-
-from ..sc.models import Judge
 
 from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, VideoShapefile, GADMCountries, GADMProvinces, SeshatCommon, ScpThroughCtn
 import pprint
@@ -2619,27 +2618,34 @@ def get_all_polity_capitals():
 
     return all_capitals_info
 
-def variable_colour_map(variable):
-    """
-        Map the variable to a colour for the map.
-    """
-    if variable == 'judge':
-        return 'red'
-    return 'polity'
+# def variable_colour_map(variable):
+#     """
+#         Map the variable to a colour for the map.
+#     """
+#     if variable == 'judge':
+#         return 'red'
+#     return 'polity'
 
 def get_polity_variables(shapes):
     """
         Assign the relevant variable values of polities to shape data.
     """
-    for shape in shapes:
-        shape['variable'] = 'absent'
-        if shape['seshat_id'] != 'none':
-            polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
-            if polity:
-                judge = Judge.objects.filter(polity_id=polity.id).first()
-                if judge:
-                    if getattr(judge, 'judge') == 'present':
-                        shape['variable'] = 'present'
+    variables = [
+        ('judge', 'Judge'),
+        ('road', 'Road')
+    ]
+    module = __import__('seshat.apps.sc.models', fromlist=[x[1] for x in variables])
+    for variable, model in variables:
+        class_ = getattr(module, model)
+        for shape in shapes:
+            shape[variable] = 'absent'
+            if shape['seshat_id'] != 'none':
+                polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
+                if polity:
+                    variable_obj = class_.objects.filter(polity_id=polity.id).first()
+                    if variable_obj:
+                        if getattr(variable_obj, variable) == 'present':
+                            shape[variable] = 'present'
     return shapes
 
 def map_view_initial(request):
