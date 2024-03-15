@@ -370,6 +370,14 @@
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                 `;
+                                if (variable != 'polity') {
+                                    popupContent = popupContent + `
+                                        <tr>
+                                            <td><span style="text-transform: capitalize;">${variable}</span></td>
+                                            <td><span style="text-transform: capitalize;">${shape[variable]}</span></td>
+                                        </tr>
+                                    `;
+                                }
                                 if (allCapitalsInfo[shape.seshatId]) {
                                     if (allCapitalsInfo[shape.seshatId]['year_from'] <= selectedYearInt && allCapitalsInfo[shape.seshatId]['year_to'] >= selectedYearInt) {
                                         popupContent = popupContent + `
