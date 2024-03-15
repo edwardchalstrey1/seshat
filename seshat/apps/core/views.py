@@ -2626,14 +2626,10 @@ def get_all_polity_capitals():
 #         return 'red'
 #     return 'polity'
 
-def get_polity_variables(shapes):
+def get_polity_variables(shapes, variables):
     """
         Assign the relevant variable values of polities to shape data.
     """
-    variables = [
-        ('judge', 'Judge'),
-        ('road', 'Road')
-    ]
     module = __import__('seshat.apps.sc.models', fromlist=[x[1] for x in variables])
     for variable, model in variables:
         class_ = getattr(module, model)
@@ -2647,6 +2643,11 @@ def get_polity_variables(shapes):
                         if getattr(variable_obj, variable) == 'present':
                             shape[variable] = 'present'
     return shapes
+
+variables = [
+    ('judge', 'Judge'),
+    ('road', 'Road')
+]
 
 def map_view_initial(request):
     """
@@ -2668,7 +2669,8 @@ def map_view_initial(request):
     content = get_polity_shape_content(displayed_year=displayed_year)
 
     # Add in the variables to view for the shapes
-    content['shapes'] = get_polity_variables(content['shapes'])
+    content['shapes'] = get_polity_variables(content['shapes'], variables)
+    content['variables'] = variables
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2687,7 +2689,8 @@ def map_view_all(request):
     content = get_polity_shape_content()
 
     # Add in the variables to view for the shapes
-    content['shapes'] = get_polity_variables(content['shapes'])
+    content['shapes'] = get_polity_variables(content['shapes'], variables)
+    content['variables'] = variables
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
