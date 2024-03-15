@@ -284,173 +284,172 @@
             // Don't plot them if "Base map only" checkbox selected
             if (!document.getElementById('baseMapOnly').checked){
                 shapesData.forEach(function (shape) {
-
-                    // If the variable is "polity" or the variable is not "polity" and the shape has the selected variable
-                    if (variable == 'polity' || (variable == 'road' && shape.road == 'present') || (variable == 'judge' && shape.judge == 'present')){
-
-                        console.log(shape);
-
-                        // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
-                        if (variable == 'polity') {
-                            shapeColour = shape.colour;
-                            shapeWeight = 0;
-                        } else {
+                    // Use a single colour for all shapes if a boolean is selected in the "Variable" dropdown
+                    if (variable == 'polity') {
+                        shapeColour = shape.colour;
+                        shapeWeight = 0;
+                    } else {
+                        if ((variable == 'road' && shape.road == 'present') || (variable == 'judge' && shape.judge == 'present')) {
+                            shapeColour = 'green';
+                        } else if ((variable == 'road' && shape.road == 'absent') || (variable == 'judge' && shape.judge == 'absent')) {
                             shapeColour = 'red';
-                            shapeWeight = 2;
+                        } else {
+                            shapeColour = 'grey';
+                        }
+                        shapeWeight = 2;
+                    }
+
+                    // If the shape spans the selected year
+                    if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
+                        
+                        // Format the area float
+                        const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                            useGrouping: true
+                        });
+                        
+                        // Format the years
+                        if (parseInt(shape.polityStartYear) < 0) {
+                            displayStartYear = Math.abs(parseInt(shape.polityStartYear)) + ' BCE';
+                        } else {
+                            displayStartYear = shape.polityStartYear + ' CE';
                         }
 
-                        // If the shape spans the selected year
-                        if ((parseInt(shape.startYear) <= selectedYearInt && parseInt(shape.endYear) >= selectedYearInt)) {
-                            
-                            // Format the area float
-                            const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
-                                minimumFractionDigits: 0,
-                                maximumFractionDigits: 0,
-                                useGrouping: true
-                            });
-                            
-                            // Format the years
-                            if (parseInt(shape.polityStartYear) < 0) {
-                                displayStartYear = Math.abs(parseInt(shape.polityStartYear)) + ' BCE';
+                        if (parseInt(shape.polityEndYear) == {{ latest_year }}){
+                            displayEndYear = 'Present';
+                        } else {
+                            if (parseInt(shape.polityEndYear) < 0) {
+                                displayEndYear = Math.abs(parseInt(shape.polityEndYear)) + ' BCE';
                             } else {
-                                displayStartYear = shape.polityStartYear + ' CE';
+                                displayEndYear = shape.polityEndYear + ' CE';
                             }
-
-                            if (parseInt(shape.polityEndYear) == {{ latest_year }}){
-                                displayEndYear = 'Present';
-                            } else {
-                                if (parseInt(shape.polityEndYear) < 0) {
-                                    displayEndYear = Math.abs(parseInt(shape.polityEndYear)) + ' BCE';
-                                } else {
-                                    displayEndYear = shape.polityEndYear + ' CE';
-                                }
-                            }
-                            
-                            // Add shape
-                            var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
-                                style: function (feature) {
-                                    return {
-                                        fillColor: shapeColour,  // Set the fill color based on the "colour" field
-                                        color: shapeColour,  // Set the border color
-                                        weight: shapeWeight,  // Set the border weight
-                                        fillOpacity: 0.5  // Set the fill opacity
-                                    };
-                                },
-                                onEachFeature: function (feature, layer) {
-                                    var popupContent = `
-                                        <table>
-                                            <tr>
-                                                <th>${shape.name}</th>
-                                                <th></th>
-                                            </tr>
-                                    `;
-                                    if (shape.seshatId in seshatIdPageId) {
-                                        longName = seshatIdPageId[shape.seshatId]['long_name'];
-                                        if (longName == ''){
-                                            longName = '[Page empty]'
-                                        }
-                                        popupContent = popupContent + `
-                                            <tr>
-                                                <td>Seshat Page</td>
-                                                <td>${longName}</td>
-                                            </tr>
-                                        `;
+                        }
+                        
+                        // Add shape
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geometry), {
+                            style: function (feature) {
+                                return {
+                                    fillColor: shapeColour,  // Set the fill color based on the "colour" field
+                                    color: shapeColour,  // Set the border color
+                                    weight: shapeWeight,  // Set the border weight
+                                    fillOpacity: 0.5  // Set the fill opacity
+                                };
+                            },
+                            onEachFeature: function (feature, layer) {
+                                var popupContent = `
+                                    <table>
+                                        <tr>
+                                            <th>${shape.name}</th>
+                                            <th></th>
+                                        </tr>
+                                `;
+                                if (shape.seshatId in seshatIdPageId) {
+                                    longName = seshatIdPageId[shape.seshatId]['long_name'];
+                                    if (longName == ''){
+                                        longName = '[Page empty]'
                                     }
                                     popupContent = popupContent + `
-                                            <tr>
-                                                <td>Duration</td>
-                                                <td>${displayStartYear} to ${displayEndYear}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Area (est.)</td>
-                                                <td>${formattedArea} Km<sup>2</sup></td>
-                                            </tr>
+                                        <tr>
+                                            <td>Seshat Page</td>
+                                            <td>${longName}</td>
+                                        </tr>
                                     `;
-                                    if (allCapitalsInfo[shape.seshatId]) {
-                                        if (allCapitalsInfo[shape.seshatId]['year_from'] <= selectedYearInt && allCapitalsInfo[shape.seshatId]['year_to'] >= selectedYearInt) {
-                                            popupContent = popupContent + `
+                                }
+                                popupContent = popupContent + `
+                                        <tr>
+                                            <td>Duration</td>
+                                            <td>${displayStartYear} to ${displayEndYear}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Area (est.)</td>
+                                            <td>${formattedArea} Km<sup>2</sup></td>
+                                        </tr>
+                                `;
+                                if (allCapitalsInfo[shape.seshatId]) {
+                                    if (allCapitalsInfo[shape.seshatId]['year_from'] <= selectedYearInt && allCapitalsInfo[shape.seshatId]['year_to'] >= selectedYearInt) {
+                                        popupContent = popupContent + `
+                                            <tr>
+                                                <td>Capital: </td>
+                                                <td>${allCapitalsInfo[shape.seshatId].map(capital => capital.capital).join(', ')}</td>
+                                            </tr>
+                                        `;
+                                    
+                                        popupContent = popupContent + `
                                                 <tr>
                                                     <td>Capital: </td>
                                                     <td>${allCapitalsInfo[shape.seshatId].map(capital => capital.capital).join(', ')}</td>
                                                 </tr>
                                             `;
-                                        
-                                            popupContent = popupContent + `
-                                                    <tr>
-                                                        <td>Capital: </td>
-                                                        <td>${allCapitalsInfo[shape.seshatId].map(capital => capital.capital).join(', ')}</td>
-                                                    </tr>
-                                                `;
-                                        };
                                     };
-                                    popupContent = popupContent + `</table>`;
-                                    layer.bindPopup(popupContent);
-                                }
-                            }).addTo(map);
-
-                            // Add double-click event listener to GeoJSON layers
-                            geoJSONLayer.on('dblclick', function (event) {
-                                // Check if the shape has a corresponding seshat_id
-                                if (shape.seshatId in seshatIdPageId) {
-                                    // Redirect to the corresponding URL
-                                    var polityId = seshatIdPageId[shape.seshatId]['id'];
-                                    window.location.href = '/core/polity/' + polityId;
-                                }
-                            });
-
-                            // Plot capital cities for those polities that have them
-                            if (document.getElementById('showCapitals').checked) {
-                                if (allCapitalsInfo[shape.seshatId]) {
-                                    // Plot capital markers       
-                                    var markers = L.markerClusterGroup({
-                                        iconCreateFunction: function (cluster) {
-                                            return L.divIcon({
-                                                html: '<div style="background-color:' + shape.colour + '; color: #fff; border-radius: 50%; text-align: center; line-height: 40px;"><b>' + cluster.getChildCount() + '</b></div>',
-                                                className: 'myClusterIcon',
-                                                iconSize: L.point(40, 40)
-                                            });
-                                        }
-                                    });
-                                    allCapitalsInfo[shape.seshatId].forEach(function (capital) {                          
-                                        // If the capital existed in the selected year (or years not specified)
-                                        if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
-                                                popupContent = `
-                                                <table>
-                                                    <tr>
-                                                        <th>${capital.capital}</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>${shape.name}</td>
-                                                    </tr>
-                                                </table>
-                                            `;
-                                            var marker = L.circleMarker([capital.latitude, capital.longitude], {
-                                                color: 'black', // Set the border color
-                                                fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                                                weight: 2,  // Set the border weight
-                                                fillOpacity: 0.5,  // Set the fill opacity
-                                                radius: 5
-                                            });
-                                            marker.bindTooltip(popupContent, {
-                                                permanent: true,
-                                                direction: "top",
-                                                offset: L.point({ x: 0, y: 0 })
-                                            });
-
-                                            marker.bindPopup(popupContent);
-                                            markers.addLayer(marker); // add each marker to the MarkerClusterGroup
-                                        };
-                                    });
-
-                                    map.addLayer(markers); // add the MarkerClusterGroup to the map
-
-                                }
+                                };
+                                popupContent = popupContent + `</table>`;
+                                layer.bindPopup(popupContent);
                             }
+                        }).addTo(map);
 
-                            // Update the displayedShapes array
-                            if (displayedShapes.indexOf(shape.name) === -1) {
-                                displayedShapes.push(shape.name);
+                        // Add double-click event listener to GeoJSON layers
+                        geoJSONLayer.on('dblclick', function (event) {
+                            // Check if the shape has a corresponding seshat_id
+                            if (shape.seshatId in seshatIdPageId) {
+                                // Redirect to the corresponding URL
+                                var polityId = seshatIdPageId[shape.seshatId]['id'];
+                                window.location.href = '/core/polity/' + polityId;
                             }
+                        });
+
+                        // Plot capital cities for those polities that have them
+                        if (document.getElementById('showCapitals').checked) {
+                            if (allCapitalsInfo[shape.seshatId]) {
+                                // Plot capital markers       
+                                var markers = L.markerClusterGroup({
+                                    iconCreateFunction: function (cluster) {
+                                        return L.divIcon({
+                                            html: '<div style="background-color:' + shape.colour + '; color: #fff; border-radius: 50%; text-align: center; line-height: 40px;"><b>' + cluster.getChildCount() + '</b></div>',
+                                            className: 'myClusterIcon',
+                                            iconSize: L.point(40, 40)
+                                        });
+                                    }
+                                });
+                                allCapitalsInfo[shape.seshatId].forEach(function (capital) {                          
+                                    // If the capital existed in the selected year (or years not specified)
+                                    if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
+                                            popupContent = `
+                                            <table>
+                                                <tr>
+                                                    <th>${capital.capital}</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>${shape.name}</td>
+                                                </tr>
+                                            </table>
+                                        `;
+                                        var marker = L.circleMarker([capital.latitude, capital.longitude], {
+                                            color: 'black', // Set the border color
+                                            fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                                            weight: 2,  // Set the border weight
+                                            fillOpacity: 0.5,  // Set the fill opacity
+                                            radius: 5
+                                        });
+                                        marker.bindTooltip(popupContent, {
+                                            permanent: true,
+                                            direction: "top",
+                                            offset: L.point({ x: 0, y: 0 })
+                                        });
+
+                                        marker.bindPopup(popupContent);
+                                        markers.addLayer(marker); // add each marker to the MarkerClusterGroup
+                                    };
+                                });
+
+                                map.addLayer(markers); // add the MarkerClusterGroup to the map
+
+                            }
+                        }
+
+                        // Update the displayedShapes array
+                        if (displayedShapes.indexOf(shape.name) === -1) {
+                            displayedShapes.push(shape.name);
                         }
                     }
                 });

@@ -2634,7 +2634,7 @@ def get_polity_variables(shapes, variables):
     for variable, model in variables:
         class_ = getattr(module, model)
         for shape in shapes:
-            shape[variable] = 'absent'
+            shape[variable] = 'unrecorded'
             if shape['seshat_id'] != 'none':
                 polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
                 if polity:
@@ -2642,6 +2642,8 @@ def get_polity_variables(shapes, variables):
                     if variable_obj:
                         if getattr(variable_obj, variable) == 'present':
                             shape[variable] = 'present'
+                        elif getattr(variable_obj, variable) == 'absent':
+                            shape[variable] = 'absent'
     return shapes
 
 variables = [
