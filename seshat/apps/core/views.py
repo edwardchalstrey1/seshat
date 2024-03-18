@@ -2623,7 +2623,8 @@ variables = [
     'formal_legal_code',
     'road',
     'postal_station',
-    'irrigation_system'
+    'irrigation_system',
+    'religious_literature'
 ]
 variables_formatted = [(variable.capitalize().replace('_', ' ')) for variable in variables]
 
