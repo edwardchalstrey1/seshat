@@ -100,6 +100,7 @@
                             <option value="{{ variable }}">{{ variable }}</option>
                         {% endfor %}
                     </select><br>
+                    <div id="legend"></div>
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
@@ -252,7 +253,40 @@
             'P~A': 'orange'
         };
 
+        function updateLegend() {
+            var variable = document.getElementById('chooseVariable').value;
+            var legendDiv = document.getElementById('legend');
+
+            // Clear the current legend
+            legendDiv.innerHTML = '';
+
+            // If the variable is not 'polity', populate the legend
+            if (variable !== 'polity') {
+                var legendTitle = document.createElement('h3');
+                legendTitle.textContent = 'Legend';
+                legendDiv.appendChild(legendTitle);
+
+                for (var key in variableColourMapping) {
+                    var legendItem = document.createElement('p');
+                    var colorBox = document.createElement('span');
+
+                    colorBox.style.display = 'inline-block';
+                    colorBox.style.width = '20px';
+                    colorBox.style.height = '20px';
+                    colorBox.style.backgroundColor = variableColourMapping[key];
+                    colorBox.style.marginRight = '10px';
+
+                    legendItem.appendChild(colorBox);
+                    legendItem.appendChild(document.createTextNode(key));
+
+                    legendDiv.appendChild(legendItem);
+                }
+            }
+        }
+
         function plotPolities() {  // This function is defined differently in the polity_map template
+
+            updateLegend();
 
             var variable = document.getElementById('chooseVariable').value;
             var selectedYear = document.getElementById('dateSlide').value;
