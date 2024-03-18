@@ -274,7 +274,7 @@
             // If the variable is not 'polity', populate the legend
             if (variable !== 'polity') {
                 var legendTitle = document.createElement('h3');
-                legendTitle.textContent = 'Legend';
+                legendTitle.textContent = 'Variable';
                 legendDiv.appendChild(legendTitle);
 
                 for (var key in variableColourMapping) {
@@ -288,7 +288,13 @@
                     colorBox.style.marginRight = '10px';
 
                     legendItem.appendChild(colorBox);
-                    legendItem.appendChild(document.createTextNode(key));
+                    if (key === 'A~P') {
+                        legendItem.appendChild(document.createTextNode('Absent then Present'));
+                    } else if (key === 'P~A') {
+                        legendItem.appendChild(document.createTextNode('Present then Absent'));
+                    } else {
+                        legendItem.appendChild(document.createTextNode(`${key[0].toUpperCase()}${key.slice(1)}`));
+                    }
 
                     legendDiv.appendChild(legendItem);
                 }
