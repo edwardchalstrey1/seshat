@@ -96,8 +96,8 @@
                     <label for="chooseVariable">Variable</label>
                     <select name="chooseVariable" id="chooseVariable" onchange="plotPolities()">
                         <option value="polity">Polity</option>
-                        {% for value, name in variables %}
-                            <option value="{{ value }}">{{ name }}</option>
+                        {% for variable in variables %}
+                            <option value="{{ variable }}">{{ variable }}</option>
                         {% endfor %}
                     </select><br>
                     <label for="enterYear">Enter year:</label>

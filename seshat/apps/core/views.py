@@ -2619,30 +2619,31 @@ def get_all_polity_capitals():
     return all_capitals_info
 
 variables = [
-    ('judge', 'Judge'),
-    ('formal_legal_code', 'Formal_legal_code'),
-    ('road', 'Road'),
-    ('postal_station', 'Postal_station'),
-    ('irrigation_system', 'Irrigation_system'),
+    'judge',
+    'formal_legal_code',
+    'road',
+    'postal_station',
+    'irrigation_system'
 ]
-variables_formatted_for_template = [(v[0], v[1].replace('_', ' ')) for v in variables]
+variables_formatted = [(variable.capitalize().replace('_', ' ')) for variable in variables]
 
 def get_polity_variables(shapes, variables):
     """
         Assign the relevant variable values of polities to shape data.
     """
-    module = __import__('seshat.apps.sc.models', fromlist=[x[1] for x in variables])
-    for variable, model in variables:
-        class_ = getattr(module, model)
+    module = __import__('seshat.apps.sc.models', fromlist=[variable.capitalize() for variable in variables])
+    for variable in variables:
+        variable_formatted = variable.capitalize().replace('_', ' ')
+        class_ = getattr(module, variable.capitalize())
         for shape in shapes:
-            shape[variable] = 'unknown'  # Setting this as the default means that shapes that aren't linked to a Seshat polity will be grey
+            shape[variable_formatted] = 'unknown'  # Setting this as the default means that shapes that aren't linked to a Seshat polity will be grey
             if shape['seshat_id'] != 'none':
                 polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
                 if polity:
                     variable_obj = class_.objects.filter(polity_id=polity.id).first()
                     if variable_obj:
                         absent_present_choice = getattr(variable_obj, variable)
-                        shape[variable] = absent_present_choice
+                        shape[variable_formatted] = absent_present_choice
     return shapes
 
 def map_view_initial(request):
@@ -2666,7 +2667,7 @@ def map_view_initial(request):
 
     # Add in the variables to view for the shapes
     content['shapes'] = get_polity_variables(content['shapes'], variables)
-    content['variables'] = variables_formatted_for_template
+    content['variables'] = variables_formatted
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2686,7 +2687,7 @@ def map_view_all(request):
 
     # Add in the variables to view for the shapes
     content['shapes'] = get_polity_variables(content['shapes'], variables)
-    content['variables'] = variables_formatted_for_template
+    content['variables'] = variables_formatted
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
