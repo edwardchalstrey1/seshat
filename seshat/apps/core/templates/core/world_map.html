@@ -76,12 +76,13 @@
 
     #variableLegend {
     position: absolute;
-    bottom: 0;
-    left: 0;
+    bottom: 75;
+    right: 0;
     background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
     padding: 10px;
     border-radius: 5px;
     max-width: 200px;
+    z-index: 999;
 }
 
 </style>
@@ -110,7 +111,6 @@
                             <option value="{{ variable }}">{{ variable }}</option>
                         {% endfor %}
                     </select><br>
-                    <div id="variableLegend"></div>
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
@@ -160,6 +160,7 @@
             </fieldset>
         </div>
         <div id="map" style="height: 85vh; flex: 1;"></div>
+        <div id="variableLegend"></div>
     </div>
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
