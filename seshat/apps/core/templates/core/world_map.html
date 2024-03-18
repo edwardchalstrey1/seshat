@@ -74,6 +74,16 @@
         width: 320px;
     }
 
+    #variableLegend {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 200px;
+}
+
 </style>
 <body style="background-color: #fffdf2;">
     <div class="wrapper">
@@ -100,7 +110,7 @@
                             <option value="{{ variable }}">{{ variable }}</option>
                         {% endfor %}
                     </select><br>
-                    <div id="legend"></div>
+                    <div id="variableLegend"></div>
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
@@ -255,7 +265,7 @@
 
         function updateLegend() {
             var variable = document.getElementById('chooseVariable').value;
-            var legendDiv = document.getElementById('legend');
+            var legendDiv = document.getElementById('variableLegend');
 
             // Clear the current legend
             legendDiv.innerHTML = '';
