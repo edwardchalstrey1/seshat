@@ -2652,12 +2652,7 @@ def map_view_initial(request):
         The inital view just loads the polities for the initial_displayed_year.
     """
 
-    # Calling this function will return the earliest and latest years in the polity
-    # The function cannot be called before the database is migrated
-    if 'migrate' not in sys.argv:
-        initial_displayed_year, latest_year = get_polity_year_range()
-    else:
-        initial_displayed_year = -3400
+    initial_displayed_year = 1900
 
     # Use the year from the request parameters if present
     # Otherwise use the default initial_displayed_year (see above)
