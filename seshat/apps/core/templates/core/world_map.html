@@ -274,7 +274,7 @@
             // If the variable is not 'polity', populate the legend
             if (variable !== 'polity') {
                 var legendTitle = document.createElement('h3');
-                legendTitle.textContent = 'Variable';
+                legendTitle.textContent = variable;
                 legendDiv.appendChild(legendTitle);
 
                 for (var key in variableColourMapping) {
