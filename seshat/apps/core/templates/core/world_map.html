@@ -96,9 +96,9 @@
                     <label for="chooseVariable">Variable</label>
                     <select name="chooseVariable" id="chooseVariable" onchange="plotPolities()">
                         <option value="polity">Polity</option>
-                        <option value="supra">Supracultural Entity</option>
-                        <option value="road">Road</option>
-                        <option value="judge">Judge</option>
+                        {% for value, name in variables %}
+                            <option value="{{ value }}">{{ name }}</option>
+                        {% endfor %}
                     </select><br>
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled onchange="storeYear()">
