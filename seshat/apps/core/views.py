@@ -2625,6 +2625,7 @@ variables = [
     ('postal_station', 'Postal_station'),
     ('irrigation_system', 'Irrigation_system'),
 ]
+variables_formatted_for_template = [(v[0], v[1].replace('_', ' ')) for v in variables]
 
 def get_polity_variables(shapes, variables):
     """
@@ -2665,7 +2666,7 @@ def map_view_initial(request):
 
     # Add in the variables to view for the shapes
     content['shapes'] = get_polity_variables(content['shapes'], variables)
-    content['variables'] = variables
+    content['variables'] = variables_formatted_for_template
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2685,7 +2686,7 @@ def map_view_all(request):
 
     # Add in the variables to view for the shapes
     content['shapes'] = get_polity_variables(content['shapes'], variables)
-    content['variables'] = variables
+    content['variables'] = variables_formatted_for_template
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
