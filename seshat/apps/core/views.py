@@ -2620,7 +2620,10 @@ def get_all_polity_capitals():
 
 variables = [
     ('judge', 'Judge'),
-    ('road', 'Road')
+    ('formal_legal_code', 'Formal_legal_code'),
+    ('road', 'Road'),
+    ('postal_station', 'Postal_station'),
+    ('irrigation_system', 'Irrigation_system'),
 ]
 
 def get_polity_variables(shapes, variables):
