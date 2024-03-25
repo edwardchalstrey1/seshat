@@ -2637,7 +2637,7 @@ def get_polity_variables(shapes, variables):
         variable_formatted = variable.capitalize().replace('_', ' ')
         class_ = getattr(module, variable.capitalize())
         for shape in shapes:
-            shape[variable_formatted] = 'unknown'  # Setting this as the default means that shapes that aren't linked to a Seshat polity will be grey
+            shape[variable_formatted] = 'uncoded'  # Setting this as the default means that shapes that aren't linked to a Seshat polity will be black
             if shape['seshat_id'] != 'none':
                 polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
                 if polity:
