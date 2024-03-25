@@ -138,11 +138,11 @@
                 </legend>
                 <label for="baseMapOnly">Base map only</label>
                 <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
-                <label><input type="radio" name="baseMap" id="baseMapBasic" value="cartobasic" onclick="switchBaseMap()"
+                <label><input type="radio" name="baseMap" id="baseMapBasic" value="cartobasic" onclick="switchBaseMapWorldMap()"
                         checked>Basic</label><br>
                 <label><input type="radio" name="baseMap" id="baseMapOSM" value="osm"
-                        onclick="switchBaseMap()">OpenStreetMap</label><br>
-                <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()"
+                        onclick="switchBaseMapWorldMap()">OpenStreetMap</label><br>
+                <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMapWorldMap()"
                         disabled>Current borders</label>
                 <!-- Add a loading indicator for Current borders -->
                 <div id="baseMapCurrentLoadingIndicator">
@@ -152,7 +152,7 @@
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
                 <label for="baseMapGADM">Current borders:</label>
-                <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMap()">
+                <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMapWorldMap()">
                     <option value="country">Countries</option>
                     <option value="province">Provinces</option>
                 </select><br>
@@ -253,7 +253,6 @@
         // Select carto as the default base layer
         var currentLayer = baseLayers.carto.addTo(map);
         var provinceLayers = []; // Keep track of province layers to remove them later
-        switchBaseMap()
 
         // Note: these are the choices for the variable values as encoded in sc.models
         let variableColourMapping = {
@@ -299,6 +298,30 @@
 
                     legendDiv.appendChild(legendItem);
                 }
+
+                if (document.querySelector('input[name="baseMap"]:checked').value == 'gadm') {
+                    var legendItem = document.createElement('p');
+                    var colorBox = document.createElement('span');
+
+                    colorBox.style.display = 'inline-block';
+                    colorBox.style.width = '20px';
+                    colorBox.style.height = '20px';
+                    colorBox.style.backgroundColor = 'white';
+                    colorBox.style.border = '1px solid black';
+                    colorBox.style.marginRight = '10px';
+
+                    legendItem.appendChild(colorBox);
+                    legendItem.appendChild(document.createTextNode('Base map'));
+
+                    legendDiv.appendChild(legendItem);
+                }
+            }
+        }
+
+        function switchBaseMapWorldMap() {
+            switchBaseMap();
+            if (document.getElementById('chooseVariable').value != 'polity') {
+                updateLegend();
             }
         }
 
@@ -504,6 +527,7 @@
         }
 
         // Initial plot on page load
+        switchBaseMapWorldMap()
         plotPolities()
 
         // Display slider value
