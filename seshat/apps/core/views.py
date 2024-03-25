@@ -2618,15 +2618,17 @@ def get_all_polity_capitals():
 
     return all_capitals_info
 
-variables = [
-    'judge',
-    'formal_legal_code',
-    'road',
-    'postal_station',
-    'irrigation_system',
-    'religious_literature'
-]
-variables_formatted = [(variable.capitalize().replace('_', ' ')) for variable in variables]
+def get_variables_with_choices():
+    from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES
+    variables = []
+    module = apps.get_app_config('sc')
+
+    for model in module.get_models():
+        for field in model._meta.get_fields():
+            if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
+                variables.append(field.name)
+
+    return variables
 
 def get_polity_variables(shapes, variables):
     module = __import__('seshat.apps.sc.models', fromlist=[variable.capitalize() for variable in variables])
@@ -2649,6 +2651,10 @@ def get_polity_variables(shapes, variables):
                     shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
 
     return shapes
+
+# Get all the variables used in the map view
+variables = get_variables_with_choices()
+variables_formatted = [(variable.capitalize().replace('_', ' ')) for variable in variables]
 
 def map_view_initial(request):
     """
