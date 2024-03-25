@@ -2629,22 +2629,25 @@ variables = [
 variables_formatted = [(variable.capitalize().replace('_', ' ')) for variable in variables]
 
 def get_polity_variables(shapes, variables):
-    """
-        Assign the relevant variable values of polities to shape data.
-    """
     module = __import__('seshat.apps.sc.models', fromlist=[variable.capitalize() for variable in variables])
-    for variable in variables:
+    variable_classes = {variable: getattr(module, variable.capitalize()) for variable in variables}
+
+    seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id'] != 'none']
+    polities = {polity.new_name: polity for polity in Polity.objects.filter(new_name__in=seshat_ids)}
+
+    for variable, class_ in variable_classes.items():
         variable_formatted = variable.capitalize().replace('_', ' ')
-        class_ = getattr(module, variable.capitalize())
+
+        variable_objs = {obj.polity_id: obj for obj in class_.objects.filter(polity_id__in=polities.values())}
+
         for shape in shapes:
-            shape[variable_formatted] = 'uncoded'  # Setting this as the default means that shapes that aren't linked to a Seshat polity will be black
-            if shape['seshat_id'] != 'none':
-                polity = Polity.objects.filter(new_name=shape['seshat_id']).first()
-                if polity:
-                    variable_obj = class_.objects.filter(polity_id=polity.id).first()
-                    if variable_obj:
-                        absent_present_choice = getattr(variable_obj, variable)
-                        shape[variable_formatted] = absent_present_choice
+            shape[variable_formatted] = 'uncoded'  # Default value
+            polity = polities.get(shape['seshat_id'])
+            if polity:
+                variable_obj = variable_objs.get(polity.id)
+                if variable_obj:
+                    shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
+
     return shapes
 
 def map_view_initial(request):
