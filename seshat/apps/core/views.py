@@ -2621,22 +2621,30 @@ def get_all_polity_capitals():
 def get_variables_with_choices(app_name):
     from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
     variables = []
+    variables_formatted = []
     module = apps.get_app_config(app_name)
 
     for model in module.get_models():
         for field in model._meta.get_fields():
             if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
                 if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
-                    variables.append(model.__name__.lower())
+                    var_name = model.__name__.lower()
+                    variables.append(var_name)
+                    var_long = getattr(model._meta, 'verbose_name_plural', model.__name__.lower())
+                    if var_name == var_long:
+                        variables_formatted.append(var_name.capitalize().replace('_', ' '))
+                    else:
+                        variables_formatted.append(var_long)
                 else:  # Use the field name for other models
                     variables.append(field.name)
+                    variables_formatted.append(field.name.capitalize().replace('_', ' '))
 
-    return variables
+    return variables, variables_formatted
 
 def get_polity_variables(shapes, app_names):
 
     for app_name in app_names:
-        variables = get_variables_with_choices(app_name)
+        variables, variables_formatted = get_variables_with_choices(app_name)
         module_path = 'seshat.apps.' + app_name + '.models'
         module = __import__(module_path, fromlist=[variable.capitalize() for variable in variables])
         variable_classes = {variable: getattr(module, variable.capitalize()) for variable in variables}
@@ -2644,9 +2652,10 @@ def get_polity_variables(shapes, app_names):
         seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id'] != 'none']
         polities = {polity.new_name: polity for polity in Polity.objects.filter(new_name__in=seshat_ids)}
 
+        x = 0
         for variable, class_ in variable_classes.items():
-            variable_formatted = variable.capitalize().replace('_', ' ')
-
+            variable_formatted = variables_formatted[x]
+            x+=1
             variable_objs = {obj.polity_id: obj for obj in class_.objects.filter(polity_id__in=polities.values())}
 
             for shape in shapes:
@@ -2667,8 +2676,7 @@ app_names = ['sc', 'wf', 'rt']
 variables = []
 variables_formatted = []
 for app_name in app_names:
-    app_variables = get_variables_with_choices(app_name)
-    app_variables_formatted = [(variable.capitalize().replace('_', ' ')) for variable in app_variables]
+    app_variables, app_variables_formatted = get_variables_with_choices(app_name)
     variables += app_variables
     variables_formatted += app_variables_formatted
 
