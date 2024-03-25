@@ -2618,43 +2618,59 @@ def get_all_polity_capitals():
 
     return all_capitals_info
 
-def get_variables_with_choices():
-    from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES
+def get_variables_with_choices(app_name):
+    from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
     variables = []
-    module = apps.get_app_config('sc')
+    module = apps.get_app_config(app_name)
 
     for model in module.get_models():
         for field in model._meta.get_fields():
             if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
-                variables.append(field.name)
+                if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
+                    variables.append(model.__name__.lower())
+                else:  # Use the field name for other models
+                    variables.append(field.name)
 
     return variables
 
-def get_polity_variables(shapes, variables):
-    module = __import__('seshat.apps.sc.models', fromlist=[variable.capitalize() for variable in variables])
-    variable_classes = {variable: getattr(module, variable.capitalize()) for variable in variables}
+def get_polity_variables(shapes, app_names):
 
-    seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id'] != 'none']
-    polities = {polity.new_name: polity for polity in Polity.objects.filter(new_name__in=seshat_ids)}
+    for app_name in app_names:
+        variables = get_variables_with_choices(app_name)
+        module_path = 'seshat.apps.' + app_name + '.models'
+        module = __import__(module_path, fromlist=[variable.capitalize() for variable in variables])
+        variable_classes = {variable: getattr(module, variable.capitalize()) for variable in variables}
 
-    for variable, class_ in variable_classes.items():
-        variable_formatted = variable.capitalize().replace('_', ' ')
+        seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id'] != 'none']
+        polities = {polity.new_name: polity for polity in Polity.objects.filter(new_name__in=seshat_ids)}
 
-        variable_objs = {obj.polity_id: obj for obj in class_.objects.filter(polity_id__in=polities.values())}
+        for variable, class_ in variable_classes.items():
+            variable_formatted = variable.capitalize().replace('_', ' ')
 
-        for shape in shapes:
-            shape[variable_formatted] = 'uncoded'  # Default value
-            polity = polities.get(shape['seshat_id'])
-            if polity:
-                variable_obj = variable_objs.get(polity.id)
-                if variable_obj:
-                    shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
+            variable_objs = {obj.polity_id: obj for obj in class_.objects.filter(polity_id__in=polities.values())}
+
+            for shape in shapes:
+                shape[variable_formatted] = 'uncoded'  # Default value
+                polity = polities.get(shape['seshat_id'])
+                if polity:
+                    variable_obj = variable_objs.get(polity.id)
+                    if variable_obj:
+                        try:
+                            shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
+                        except AttributeError:  # For rt models where coded_value is used
+                            shape[variable_formatted] = getattr(variable_obj, 'coded_value')
 
     return shapes
 
 # Get all the variables used in the map view
-variables = get_variables_with_choices()
-variables_formatted = [(variable.capitalize().replace('_', ' ')) for variable in variables]
+app_names = ['sc', 'wf', 'rt']
+variables = []
+variables_formatted = []
+for app_name in app_names:
+    app_variables = get_variables_with_choices(app_name)
+    app_variables_formatted = [(variable.capitalize().replace('_', ' ')) for variable in app_variables]
+    variables += app_variables
+    variables_formatted += app_variables_formatted
 
 def map_view_initial(request):
     """
@@ -2671,7 +2687,7 @@ def map_view_initial(request):
     content = get_polity_shape_content(displayed_year=displayed_year)
 
     # Add in the variables to view for the shapes
-    content['shapes'] = get_polity_variables(content['shapes'], variables)
+    content['shapes'] = get_polity_variables(content['shapes'], app_names)
     content['variables'] = variables_formatted
 
     # Load the capital cities for polities that have them
@@ -2691,7 +2707,7 @@ def map_view_all(request):
     content = get_polity_shape_content()
 
     # Add in the variables to view for the shapes
-    content['shapes'] = get_polity_variables(content['shapes'], variables)
+    content['shapes'] = get_polity_variables(content['shapes'], app_names)
     content['variables'] = variables_formatted
 
     # Load the capital cities for polities that have them
