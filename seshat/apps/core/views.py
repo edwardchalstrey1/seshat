@@ -2656,6 +2656,9 @@ def get_variables_with_choices(app_names):
                         variable_full_name = instance.subsection() + ': ' + variable_full_name 
                     variables[app_map[app_name]][var_name]['full_name'] = variable_full_name
 
+        # Sort a given app's variables alphabetically by full name
+        variables[app_map[app_name]] = dict(sorted(variables[app_map[app_name]].items(), key=lambda item: item[1]['full_name']))
+
     return variables
 
 def get_polity_variables(shapes, app_names):
