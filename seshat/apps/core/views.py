@@ -2618,44 +2618,58 @@ def get_all_polity_capitals():
 
     return all_capitals_info
 
-def get_variables_with_choices(app_name):
+def get_variables_with_choices(app_names):
     from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
-    variables = []
-    variables_formatted = []
-    module = apps.get_app_config(app_name)
+    app_map = {
+        'sc': 'Social Complexity Variables',
+        'wf': 'Warfare Variables (Military Technologies)',
+        'rt': 'Religion Tolerance',
+    }
+    variables = {}
+    for app_name in app_names:
+        module = apps.get_app_config(app_name)
 
-    for model in module.get_models():
-        for field in model._meta.get_fields():
-            if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
-                if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
-                    var_name = model.__name__.lower()
-                    variables.append(var_name)
-                    var_long = getattr(model._meta, 'verbose_name_plural', model.__name__.lower())
-                    if var_name == var_long:
-                        variables_formatted.append(var_name.capitalize().replace('_', ' '))
-                    else:
-                        variables_formatted.append(var_long)
-                else:  # Use the field name for other models
-                    variables.append(field.name)
-                    variables_formatted.append(field.name.capitalize().replace('_', ' '))
+        variables[app_map[app_name]] = {}
 
-    return variables, variables_formatted
+        for model in module.get_models():
+            for field in model._meta.get_fields():
+                if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
+                    # Get the variable name and formatted name
+                    if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
+                        var_name = model.__name__.lower()
+                        var_long = getattr(model._meta, 'verbose_name_plural', model.__name__.lower())
+                        if var_name == var_long:
+                            variable_formatted = var_name.capitalize().replace('_', ' ')
+                        else:
+                            variable_formatted = var_long
+                    else:  # Use the field name for other models
+                        var_name = field.name
+                        variable_formatted = field.name.capitalize().replace('_', ' ')
+                    variables[app_map[app_name]][var_name] = {}
+                    variables[app_map[app_name]][var_name]['formatted'] = variable_formatted
+                    # Get the variable subsection and subsubsection if they exist
+                    instance = model()
+                    if hasattr(instance, 'subsection'):
+                        variables[app_map[app_name]][var_name]['subsection'] = instance.subsection()
+                    if hasattr(instance, 'subsubsection'):
+                        variables[app_map[app_name]][var_name]['subsubsection'] = instance.subsubsection()
+
+    return variables
 
 def get_polity_variables(shapes, app_names):
 
+    variables = get_variables_with_choices(app_names)
     for app_name in app_names:
-        variables, variables_formatted = get_variables_with_choices(app_name)
+        app_variables_list = list(variables[app_map[app_name]].keys())
         module_path = 'seshat.apps.' + app_name + '.models'
-        module = __import__(module_path, fromlist=[variable.capitalize() for variable in variables])
-        variable_classes = {variable: getattr(module, variable.capitalize()) for variable in variables}
+        module = __import__(module_path, fromlist=[variable.capitalize() for variable in app_variables_list])
+        variable_classes = {variable: getattr(module, variable.capitalize()) for variable in app_variables_list}
 
         seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id'] != 'none']
         polities = {polity.new_name: polity for polity in Polity.objects.filter(new_name__in=seshat_ids)}
 
-        x = 0
         for variable, class_ in variable_classes.items():
-            variable_formatted = variables_formatted[x]
-            x+=1
+            variable_formatted = variables[app_map[app_name]][variable]['formatted']
             variable_objs = {obj.polity_id: obj for obj in class_.objects.filter(polity_id__in=polities.values())}
 
             for shape in shapes:
@@ -2673,12 +2687,13 @@ def get_polity_variables(shapes, app_names):
 
 # Get all the variables used in the map view
 app_names = ['sc', 'wf', 'rt']
-variables = []
-variables_formatted = []
-for app_name in app_names:
-    app_variables, app_variables_formatted = get_variables_with_choices(app_name)
-    variables += app_variables
-    variables_formatted += app_variables_formatted
+variables = get_variables_with_choices(app_names)
+app_map = {
+    'sc': 'Social Complexity Variables',
+    'wf': 'Warfare Variables (Military Technologies)',
+    'rt': 'Religion Tolerance',
+}
+variables_formatted = {app_map[app_name]: {variable: data['formatted'] for variable, data in variables[app_map[app_name]].items()} for app_name in app_names}
 
 def map_view_initial(request):
     """
