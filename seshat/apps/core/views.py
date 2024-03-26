@@ -2651,8 +2651,12 @@ def get_variables_with_choices(app_names):
                     instance = model()
                     if hasattr(instance, 'subsection'):
                         variables[app_map[app_name]][var_name]['subsection'] = instance.subsection()
+                    else:
+                        variables[app_map[app_name]][var_name]['subsection'] = ""
                     if hasattr(instance, 'subsubsection'):
                         variables[app_map[app_name]][var_name]['subsubsection'] = instance.subsubsection()
+                    else:
+                        variables[app_map[app_name]][var_name]['subsubsection'] = ""
 
     return variables
 

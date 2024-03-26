@@ -110,7 +110,15 @@
                         {% for category, variables in variables.items %}
                             <optgroup label="{{ category }}">
                                 {% for variable, details in variables.items %}
-                                    <option value="{{ details.formatted }}">{{ details.formatted }}</option>
+                                    <option value="{{ details.formatted }}">
+                                        {% if details.subsection %}
+                                            {{ details.subsection|stringformat:"s" }}: 
+                                        {% endif %}
+                                        {% if details.subsubsection %}
+                                            {{ details.subsubsection|stringformat:"s" }}: 
+                                        {% endif %}
+                                        {{ details.formatted|stringformat:"s" }}
+                                    </option>
                                 {% endfor %}
                             </optgroup>
                         {% endfor %}
