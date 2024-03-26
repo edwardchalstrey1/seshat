@@ -2618,19 +2618,12 @@ def get_all_polity_capitals():
 
     return all_capitals_info
 
-def get_variables_with_choices(app_names):
+def get_variables_with_choices(app_map):
     from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
-    app_map = {
-        'sc': 'Social Complexity Variables',
-        'wf': 'Warfare Variables (Military Technologies)',
-        'rt': 'Religion Tolerance',
-    }
     variables = {}
-    for app_name in app_names:
+    for app_name, app_name_long in app_map.items():
         module = apps.get_app_config(app_name)
-
-        variables[app_map[app_name]] = {}
-
+        variables[app_name_long] = {}
         for model in module.get_models():
             for field in model._meta.get_fields():
                 if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
@@ -2645,8 +2638,8 @@ def get_variables_with_choices(app_names):
                     else:  # Use the field name for other models
                         var_name = field.name
                         variable_formatted = field.name.capitalize().replace('_', ' ')
-                    variables[app_map[app_name]][var_name] = {}
-                    variables[app_map[app_name]][var_name]['formatted'] = variable_formatted
+                    variables[app_name_long][var_name] = {}
+                    variables[app_name_long][var_name]['formatted'] = variable_formatted
                     # Get the variable subsection and subsubsection if they exist
                     variable_full_name = variable_formatted
                     instance = model()
@@ -2654,18 +2647,18 @@ def get_variables_with_choices(app_names):
                         variable_full_name = instance.subsubsection() + ': ' + variable_full_name
                     if hasattr(instance, 'subsection'):
                         variable_full_name = instance.subsection() + ': ' + variable_full_name 
-                    variables[app_map[app_name]][var_name]['full_name'] = variable_full_name
+                    variables[app_name_long][var_name]['full_name'] = variable_full_name
 
         # Sort a given app's variables alphabetically by full name
-        variables[app_map[app_name]] = dict(sorted(variables[app_map[app_name]].items(), key=lambda item: item[1]['full_name']))
+        variables[app_name_long] = dict(sorted(variables[app_name_long].items(), key=lambda item: item[1]['full_name']))
 
     return variables
 
-def get_polity_variables(shapes, app_names):
+def get_polity_variables(shapes, app_map):
 
-    variables = get_variables_with_choices(app_names)
-    for app_name in app_names:
-        app_variables_list = list(variables[app_map[app_name]].keys())
+    variables = get_variables_with_choices(app_map)
+    for app_name, app_name_long in app_map.items():
+        app_variables_list = list(variables[app_name_long].keys())
         module_path = 'seshat.apps.' + app_name + '.models'
         module = __import__(module_path, fromlist=[variable.capitalize() for variable in app_variables_list])
         variable_classes = {variable: getattr(module, variable.capitalize()) for variable in app_variables_list}
@@ -2674,7 +2667,7 @@ def get_polity_variables(shapes, app_names):
         polities = {polity.new_name: polity for polity in Polity.objects.filter(new_name__in=seshat_ids)}
 
         for variable, class_ in variable_classes.items():
-            variable_formatted = variables[app_map[app_name]][variable]['formatted']
+            variable_formatted = variables[app_name_long][variable]['formatted']
             variable_objs = {obj.polity_id: obj for obj in class_.objects.filter(polity_id__in=polities.values())}
 
             for shape in shapes:
@@ -2691,13 +2684,12 @@ def get_polity_variables(shapes, app_names):
     return shapes
 
 # Get all the variables used in the map view
-app_names = ['sc', 'wf', 'rt']
-variables = get_variables_with_choices(app_names)
 app_map = {
     'sc': 'Social Complexity Variables',
     'wf': 'Warfare Variables (Military Technologies)',
     'rt': 'Religion Tolerance',
 }
+variables = get_variables_with_choices(app_map)
 
 def map_view_initial(request):
     """
@@ -2714,7 +2706,7 @@ def map_view_initial(request):
     content = get_polity_shape_content(displayed_year=displayed_year)
 
     # Add in the variables to view for the shapes
-    content['shapes'] = get_polity_variables(content['shapes'], app_names)
+    content['shapes'] = get_polity_variables(content['shapes'], app_map)
     content['variables'] = variables
 
     # Load the capital cities for polities that have them
@@ -2734,7 +2726,7 @@ def map_view_all(request):
     content = get_polity_shape_content()
 
     # Add in the variables to view for the shapes
-    content['shapes'] = get_polity_variables(content['shapes'], app_names)
+    content['shapes'] = get_polity_variables(content['shapes'], app_map)
     content['variables'] = variables
 
     # Load the capital cities for polities that have them
