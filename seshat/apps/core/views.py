@@ -2648,15 +2648,13 @@ def get_variables_with_choices(app_names):
                     variables[app_map[app_name]][var_name] = {}
                     variables[app_map[app_name]][var_name]['formatted'] = variable_formatted
                     # Get the variable subsection and subsubsection if they exist
+                    variable_full_name = variable_formatted
                     instance = model()
-                    if hasattr(instance, 'subsection'):
-                        variables[app_map[app_name]][var_name]['subsection'] = instance.subsection()
-                    else:
-                        variables[app_map[app_name]][var_name]['subsection'] = ""
                     if hasattr(instance, 'subsubsection'):
-                        variables[app_map[app_name]][var_name]['subsubsection'] = instance.subsubsection()
-                    else:
-                        variables[app_map[app_name]][var_name]['subsubsection'] = ""
+                        variable_full_name = instance.subsubsection() + ': ' + variable_full_name
+                    if hasattr(instance, 'subsection'):
+                        variable_full_name = instance.subsection() + ': ' + variable_full_name 
+                    variables[app_map[app_name]][var_name]['full_name'] = variable_full_name
 
     return variables
 
