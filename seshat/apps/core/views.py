@@ -2618,7 +2618,7 @@ def get_all_polity_capitals():
 
     return all_capitals_info
 
-def get_variables_with_choices(app_map):
+def get_absent_present_variables(app_map):
     from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
     variables = {}
     for app_name, app_name_long in app_map.items():
@@ -2654,9 +2654,9 @@ def get_variables_with_choices(app_map):
 
     return variables
 
-def get_polity_variables(shapes, app_map):
+def assign_variables_to_shapes(shapes, app_map):
 
-    variables = get_variables_with_choices(app_map)
+    variables = get_absent_present_variables(app_map)
     for app_name, app_name_long in app_map.items():
         app_variables_list = list(variables[app_name_long].keys())
         module_path = 'seshat.apps.' + app_name + '.models'
@@ -2689,7 +2689,7 @@ app_map = {
     'wf': 'Warfare Variables (Military Technologies)',
     'rt': 'Religion Tolerance',
 }
-variables = get_variables_with_choices(app_map)
+variables = get_absent_present_variables(app_map)
 
 def map_view_initial(request):
     """
@@ -2706,7 +2706,7 @@ def map_view_initial(request):
     content = get_polity_shape_content(displayed_year=displayed_year)
 
     # Add in the variables to view for the shapes
-    content['shapes'] = get_polity_variables(content['shapes'], app_map)
+    content['shapes'] = assign_variables_to_shapes(content['shapes'], app_map)
     content['variables'] = variables
 
     # Load the capital cities for polities that have them
@@ -2726,7 +2726,7 @@ def map_view_all(request):
     content = get_polity_shape_content()
 
     # Add in the variables to view for the shapes
-    content['shapes'] = get_polity_variables(content['shapes'], app_map)
+    content['shapes'] = assign_variables_to_shapes(content['shapes'], app_map)
     content['variables'] = variables
 
     # Load the capital cities for polities that have them
