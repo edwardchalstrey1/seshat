@@ -105,7 +105,7 @@
 
                 <div class="slidecontainer">
                     <label for="chooseVariable">Variable</label>
-                    <select name="chooseVariable" id="chooseVariable" onchange="plotPolities()" style="width: 200px; text-overflow: ellipsis;">
+                    <select name="chooseVariable" id="chooseVariable" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
                         <option value="polity">Polity</option>
                         {% for category, variables in variables.items %}
                             <optgroup label="{{ category }}">
@@ -114,7 +114,8 @@
                                 {% endfor %}
                             </optgroup>
                         {% endfor %}
-                    </select><br>
+                    </select>
+                    <button id="polButton" type="button" onclick="polityButton()">Polity</button><br>
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
@@ -327,6 +328,11 @@
             if (document.getElementById('chooseVariable').value != 'polity') {
                 updateLegend();
             }
+        }
+
+        function polityButton() {
+            document.getElementById('chooseVariable').value = 'polity';
+            plotPolities();
         }
 
         function plotPolities() {  // This function is defined differently in the polity_map template
