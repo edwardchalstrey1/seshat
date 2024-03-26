@@ -2693,7 +2693,6 @@ app_map = {
     'wf': 'Warfare Variables (Military Technologies)',
     'rt': 'Religion Tolerance',
 }
-variables_formatted = {app_map[app_name]: {variable: data['formatted'] for variable, data in variables[app_map[app_name]].items()} for app_name in app_names}
 
 def map_view_initial(request):
     """
@@ -2711,7 +2710,7 @@ def map_view_initial(request):
 
     # Add in the variables to view for the shapes
     content['shapes'] = get_polity_variables(content['shapes'], app_names)
-    content['variables'] = variables_formatted
+    content['variables'] = variables
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2731,7 +2730,7 @@ def map_view_all(request):
 
     # Add in the variables to view for the shapes
     content['shapes'] = get_polity_variables(content['shapes'], app_names)
-    content['variables'] = variables_formatted
+    content['variables'] = variables
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
