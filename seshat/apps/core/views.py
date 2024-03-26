@@ -2619,6 +2619,9 @@ def get_all_polity_capitals():
     return all_capitals_info
 
 def get_absent_present_variables(app_map):
+    """
+        Get all the absent/present variables for the given apps.
+    """
     from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
     variables = {}
     for app_name, app_name_long in app_map.items():
@@ -2655,7 +2658,9 @@ def get_absent_present_variables(app_map):
     return variables
 
 def assign_variables_to_shapes(shapes, app_map):
-
+    """
+        Assign the absent/present variables to the shapes.
+    """
     variables = get_absent_present_variables(app_map)
     for app_name, app_name_long in app_map.items():
         app_variables_list = list(variables[app_name_long].keys())
