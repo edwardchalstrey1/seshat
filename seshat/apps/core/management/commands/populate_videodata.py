@@ -43,12 +43,17 @@ class Command(BaseCommand):
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
 
-                        # Save the years so we can determine the end year
-                        if properties['PolID'] not in polity_years:
-                            polity_years[properties['PolID']] = []
-                        polity_years[properties['PolID']].append(properties['Year'])
+                        try:
+                            polity_id = properties['PolID']
+                        except KeyError:
+                            polity_id = properties['Name'].replace(' ', '_')
 
-                        all_polities.add(properties['PolID'])
+                        # Save the years so we can determine the end year
+                        if polity_id not in polity_years:
+                            polity_years[polity_id] = []
+                        polity_years[polity_id].append(properties['Year'])
+
+                        all_polities.add(polity_id)
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully extracted date for {filename}'))
         unique_polities = sorted(all_polities)
@@ -69,7 +74,7 @@ class Command(BaseCommand):
                     if properties['Type'] == 'POLITY':
                         
                         # Get a sorted list of the shape years this polity
-                        this_polity_years = sorted(polity_years[properties['PolID']])
+                        this_polity_years = sorted(polity_years[polity_id])
 
                         # Get the polity start and end years
                         polity_start_year = this_polity_years[0]
@@ -98,7 +103,7 @@ class Command(BaseCommand):
                         VideoShapefile.objects.create(
                             geom=geom,
                             name=properties['Name'],
-                            polity=properties['PolID'],
+                            polity=polity_id,
                             wikipedia_name=properties['Wikipedia'],
                             seshat_id=properties['SeshatID'],
                             area=properties['Area_km2'],
@@ -106,7 +111,7 @@ class Command(BaseCommand):
                             end_year=end_year,
                             polity_start_year=polity_start_year,
                             polity_end_year=polity_end_year,
-                            colour=pol_col_map[properties['PolID']]
+                            colour=pol_col_map[polity_id]
                         )
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported data from {filename}'))
