@@ -2540,33 +2540,17 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     else:
         rows = VideoShapefile.objects.all()
 
-    shapes = []
-    for row in rows:
+    rows = rows.values('seshat_id', 'name', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom')
 
-        # Get the info required for the shape
-        shape_info = {
-            'seshat_id': row.seshat_id,
-            'name': row.name,
-            'start_year': row.start_year,
-            'end_year': row.end_year,
-            'polity_start_year': row.polity_start_year,
-            'polity_end_year': row.polity_end_year,
-            'colour': row.colour,
-            'area': row.area,
-            'geom': row.simplified_geom.geojson
-        }
-
-        shapes.append(shape_info)
+    shapes = list(rows)
+    for shape in shapes:
+        shape['geom'] = shape['simplified_geom'].geojson
+        del shape['simplified_geom']  # Remove the original object
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
     polity_info = get_polity_info(seshat_ids)
 
-    seshat_id_page_id = {}
-    for new_name, id, long_name in polity_info:
-        seshat_id_page_id[new_name] = {
-            'id': id,
-            'long_name': long_name or "",
-        }
+    seshat_id_page_id = {new_name: {'id': id, 'long_name': long_name or ""} for new_name, id, long_name in polity_info}
 
     if 'migrate' not in sys.argv:
         earliest_year, latest_year = get_polity_year_range()
@@ -2582,8 +2566,6 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         earliest_year = min([shape['start_year'] for shape in shapes])
         displayed_year = earliest_year
         latest_year = max([shape['end_year'] for shape in shapes])
-    else:
-        earliest_year, latest_year = get_polity_year_range()
 
     content = {
         'shapes': shapes,
