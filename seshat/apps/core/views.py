@@ -2705,6 +2705,8 @@ def map_view_initial(request):
     # Check if 'year' parameter is in the request
     if 'year' in request.GET:
         # If 'year' parameter is present, store it in the session
+        # Ensures that if a user clicks through to a polity page from the world map,
+        # then hits the back button in browser, the initial year loaded is what they were previously looking at
         request.session['year'] = request.GET['year']
         displayed_year = request.GET['year']
     else:
