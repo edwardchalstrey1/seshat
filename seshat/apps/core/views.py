@@ -2703,12 +2703,13 @@ def map_view_initial(request):
     """
 
     # Check if 'year' parameter is in the request
-    if 'year' not in request.GET:
+    if 'year' in request.GET:
+        # If 'year' parameter is present, store it in the session
+        request.session['year'] = request.GET['year']
+        displayed_year = request.GET['year']
+    else:
         # If 'year' parameter is not present, redirect to the same view with 'year' set to 1900
         return redirect('{}?year={}'.format(request.path, 1900))
-
-    # Use the year from the request parameter
-    displayed_year = request.GET.get('year')
 
     content = get_polity_shape_content(displayed_year=displayed_year)
 
