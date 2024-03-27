@@ -2702,11 +2702,13 @@ def map_view_initial(request):
         The inital view just loads the polities for the initial_displayed_year.
     """
 
-    initial_displayed_year = 1900
+    # Check if 'year' parameter is in the request
+    if 'year' not in request.GET:
+        # If 'year' parameter is not present, redirect to the same view with 'year' set to 1900
+        return redirect('{}?year={}'.format(request.path, 1900))
 
-    # Use the year from the request parameters if present
-    # Otherwise use the default initial_displayed_year (see above)
-    displayed_year = request.GET.get('year', initial_displayed_year)
+    # Use the year from the request parameter
+    displayed_year = request.GET.get('year')
 
     content = get_polity_shape_content(displayed_year=displayed_year)
 
