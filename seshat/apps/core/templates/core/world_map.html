@@ -251,7 +251,7 @@
         var map = L.map('map').setView([0, 0], 2);
 
         var baseLayers = {
-            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'),
+            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}.png'),
             "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
         };
 
@@ -468,13 +468,13 @@
                             }
                         }).addTo(map);
 
-                        // Add double-click event listener to GeoJSON layers
+                        // Open the corresponding Seshat page in a new browser tab when a shape is double-clicked
                         geoJSONLayer.on('dblclick', function (event) {
                             // Check if the shape has a corresponding seshat_id
                             if (shape.seshat_id in seshat_id_page_id) {
-                                // Redirect to the corresponding URL
+                                // Open the corresponding URL
                                 var polityId = seshat_id_page_id[shape.seshat_id]['id'];
-                                window.location.href = '/core/polity/' + polityId;
+                                window.open('/core/polity/' + polityId, '_blank');
                             }
                         });
 
@@ -582,16 +582,6 @@
                 slider.value = enterYearInput.value;
                 updateSliderOutput();
                 plotPolities();
-            }
-        });
-
-        window.addEventListener('load', function () {
-            var storedYear = localStorage.getItem('displayedYear');
-            var url = new URL(window.location.href);
-            var yearInUrl = url.searchParams.get('year');
-            if (storedYear !== yearInUrl) {
-                // Change window.location.href
-                window.location.href = '/core/world_map/?year=' + storedYear;
             }
         });
 

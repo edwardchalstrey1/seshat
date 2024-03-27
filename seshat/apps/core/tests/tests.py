@@ -368,11 +368,10 @@ class ShapesTest(TestCase):
         self.assertEqual(result, expected_result)
 
     def test_map_view_initial(self):
-        """Test the initial map view."""
+        """Test the initial map view which whould redirect to a specific year."""
         response = self.client.get(reverse('world_map'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Polities')
-        self.assertContains(response, 'Base Map')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/core/world_map/?year='))
 
     def test_map_view_all(self):
         """Test the map view with all data."""
