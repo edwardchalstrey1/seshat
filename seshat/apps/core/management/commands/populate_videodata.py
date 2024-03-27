@@ -55,7 +55,7 @@ class Command(BaseCommand):
 
                         all_polities.add(polity_id)
 
-                        self.stdout.write(self.style.SUCCESS(f'Found shape for {properties['Name']} ({properties['Year']})'))
+                        self.stdout.write(self.style.SUCCESS(f'Found shape for {properties["Name"]} ({properties["Year"]})'))
 
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
@@ -76,6 +76,8 @@ class Command(BaseCommand):
                 for feature in geojson_data['features']:
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
+
+                        self.stdout.write(self.style.SUCCESS(f'Importing shape for {properties["Name"]} ({properties["Year"]})'))
                         
                         # Get a sorted list of the shape years this polity
                         this_polity_years = sorted(polity_years[polity_id])
@@ -118,7 +120,7 @@ class Command(BaseCommand):
                             colour=pol_col_map[polity_id]
                         )
 
-                        self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties['Name']} ({properties['Year']})'))
+                        self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
 
