@@ -43,16 +43,25 @@ class Command(BaseCommand):
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
 
+                        try:
+                            polity_id = properties['PolID']
+                        except KeyError:
+                            polity_id = properties['Name'].replace(' ', '_')
+
                         # Save the years so we can determine the end year
-                        if properties['PolID'] not in polity_years:
-                            polity_years[properties['PolID']] = []
-                        polity_years[properties['PolID']].append(properties['Year'])
+                        if polity_id not in polity_years:
+                            polity_years[polity_id] = []
+                        polity_years[polity_id].append(properties['Year'])
 
-                        all_polities.add(properties['PolID'])
+                        all_polities.add(polity_id)
 
-                self.stdout.write(self.style.SUCCESS(f'Successfully extracted date for {filename}'))
+                        self.stdout.write(self.style.SUCCESS(f'Found shape for {properties["Name"]} ({properties["Year"]})'))
+
+        # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
+        self.stdout.write(self.style.SUCCESS(f'Generating colour mapping for {len(unique_polities)} polities'))
         pol_col_map = polity_colour_mapping(unique_polities)
+        self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
 
         # Iterate over files in the directory
         for filename in os.listdir(dir):
@@ -67,9 +76,16 @@ class Command(BaseCommand):
                 for feature in geojson_data['features']:
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
+
+                        try:
+                            polity_id = properties['PolID']
+                        except KeyError:
+                            polity_id = properties['Name'].replace(' ', '_')
+
+                        self.stdout.write(self.style.SUCCESS(f'Importing shape for {properties["Name"]} ({properties["Year"]})'))
                         
                         # Get a sorted list of the shape years this polity
-                        this_polity_years = sorted(polity_years[properties['PolID']])
+                        this_polity_years = sorted(polity_years[polity_id])
 
                         # Get the polity start and end years
                         polity_start_year = this_polity_years[0]
@@ -98,7 +114,7 @@ class Command(BaseCommand):
                         VideoShapefile.objects.create(
                             geom=geom,
                             name=properties['Name'],
-                            polity=properties['PolID'],
+                            polity=polity_id,
                             wikipedia_name=properties['Wikipedia'],
                             seshat_id=properties['SeshatID'],
                             area=properties['Area_km2'],
@@ -106,10 +122,12 @@ class Command(BaseCommand):
                             end_year=end_year,
                             polity_start_year=polity_start_year,
                             polity_end_year=polity_end_year,
-                            colour=pol_col_map[properties['PolID']]
+                            colour=pol_col_map[polity_id]
                         )
 
-                self.stdout.write(self.style.SUCCESS(f'Successfully imported data from {filename}'))
+                        self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
+
+                self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
 
 
 def polity_colour_mapping(polities):
