@@ -55,9 +55,13 @@ class Command(BaseCommand):
 
                         all_polities.add(polity_id)
 
-                self.stdout.write(self.style.SUCCESS(f'Successfully extracted date for {filename}'))
+                        self.stdout.write(self.style.SUCCESS(f'Found shape for {properties['Name']} ({properties['Year']})'))
+
+        # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
+        self.stdout.write(self.style.SUCCESS(f'Generating colour mapping for {len(unique_polities)} polities'))
         pol_col_map = polity_colour_mapping(unique_polities)
+        self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
 
         # Iterate over files in the directory
         for filename in os.listdir(dir):
@@ -114,7 +118,9 @@ class Command(BaseCommand):
                             colour=pol_col_map[polity_id]
                         )
 
-                self.stdout.write(self.style.SUCCESS(f'Successfully imported data from {filename}'))
+                        self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties['Name']} ({properties['Year']})'))
+
+                self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
 
 
 def polity_colour_mapping(polities):
