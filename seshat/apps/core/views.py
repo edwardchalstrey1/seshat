@@ -2582,21 +2582,28 @@ def get_all_polity_capitals():
         Get capital cities for polities that have them.
     """
     from seshat.apps.core.templatetags.core_tags import get_polity_capitals
-    all_capitals_info = {}
-    for polity in Polity.objects.all():
-        caps = get_polity_capitals(polity.id)
 
-        if caps:
-            # Set the start and end years to be the same as the polity where missing
-            modified_caps = caps
-            i = 0
-            for capital_info in caps:
-                if capital_info['year_from'] == None:
-                    modified_caps[i]['year_from'] = polity.start_year
-                if capital_info['year_to'] == None:
-                    modified_caps[i]['year_to'] = polity.end_year
-                i+=1
-            all_capitals_info[polity.new_name] = modified_caps
+    # Try to get the capitals from the cache
+    all_capitals_info = cache.get('all_capitals_info')
+
+    if all_capitals_info is None:
+        all_capitals_info = {}
+        for polity in Polity.objects.all():
+            caps = get_polity_capitals(polity.id)
+
+            if caps:
+                # Set the start and end years to be the same as the polity where missing
+                modified_caps = caps
+                i = 0
+                for capital_info in caps:
+                    if capital_info['year_from'] == None:
+                        modified_caps[i]['year_from'] = polity.start_year
+                    if capital_info['year_to'] == None:
+                        modified_caps[i]['year_to'] = polity.end_year
+                    i+=1
+                all_capitals_info[polity.new_name] = modified_caps
+        # Store the capitals in the cache for 1 hour
+        cache.set('all_capitals_info', all_capitals_info, 3600)
 
     return all_capitals_info
 
