@@ -468,13 +468,13 @@
                             }
                         }).addTo(map);
 
-                        // Add double-click event listener to GeoJSON layers
+                        // Open the corresponding Seshat page in a new browser tab when a shape is double-clicked
                         geoJSONLayer.on('dblclick', function (event) {
                             // Check if the shape has a corresponding seshat_id
                             if (shape.seshat_id in seshat_id_page_id) {
-                                // Redirect to the corresponding URL
+                                // Open the corresponding URL
                                 var polityId = seshat_id_page_id[shape.seshat_id]['id'];
-                                window.location.href = '/core/polity/' + polityId;
+                                window.open('/core/polity/' + polityId, '_blank');
                             }
                         });
 
