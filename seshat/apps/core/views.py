@@ -2601,37 +2601,45 @@ def assign_variables_to_shapes(shapes, app_map):
         Assign the absent/present variables to the shapes.
     """
     from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
-    variables = {}
-    for app_name, app_name_long in app_map.items():
-        module = apps.get_app_config(app_name)
-        variables[app_name_long] = {}
-        for model in module.get_models():
-            for field in model._meta.get_fields():
-                if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
-                    # Get the variable name and formatted name
-                    if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
-                        var_name = model.__name__.lower()
-                        var_long = getattr(model._meta, 'verbose_name_plural', model.__name__.lower())
-                        if var_name == var_long:
-                            variable_formatted = var_name.capitalize().replace('_', ' ')
-                        else:
-                            variable_formatted = var_long
-                    else:  # Use the field name for other models
-                        var_name = field.name
-                        variable_formatted = field.name.capitalize().replace('_', ' ')
-                    variables[app_name_long][var_name] = {}
-                    variables[app_name_long][var_name]['formatted'] = variable_formatted
-                    # Get the variable subsection and subsubsection if they exist
-                    variable_full_name = variable_formatted
-                    instance = model()
-                    if hasattr(instance, 'subsubsection'):
-                        variable_full_name = instance.subsubsection() + ': ' + variable_full_name
-                    if hasattr(instance, 'subsection'):
-                        variable_full_name = instance.subsection() + ': ' + variable_full_name 
-                    variables[app_name_long][var_name]['full_name'] = variable_full_name
+    # Try to get the variables from the cache
+    variables = cache.get('variables')
+    if variables is None:
+        variables = {}
+        for app_name, app_name_long in app_map.items():
+            module = apps.get_app_config(app_name)
+            variables[app_name_long] = {}
+            for model in module.get_models():
+                for field in model._meta.get_fields():
+                    if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
+                        # Get the variable name and formatted name
+                        if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
+                            var_name = model.__name__.lower()
+                            var_long = getattr(model._meta, 'verbose_name_plural', model.__name__.lower())
+                            if var_name == var_long:
+                                variable_formatted = var_name.capitalize().replace('_', ' ')
+                            else:
+                                variable_formatted = var_long
+                        else:  # Use the field name for other models
+                            var_name = field.name
+                            variable_formatted = field.name.capitalize().replace('_', ' ')
+                        variables[app_name_long][var_name] = {}
+                        variables[app_name_long][var_name]['formatted'] = variable_formatted
+                        # Get the variable subsection and subsubsection if they exist
+                        variable_full_name = variable_formatted
+                        instance = model()
+                        if hasattr(instance, 'subsubsection'):
+                            variable_full_name = instance.subsubsection() + ': ' + variable_full_name
+                        if hasattr(instance, 'subsection'):
+                            variable_full_name = instance.subsection() + ': ' + variable_full_name 
+                        variables[app_name_long][var_name]['full_name'] = variable_full_name
 
-        # Sort a given app's variables alphabetically by full name
-        variables[app_name_long] = dict(sorted(variables[app_name_long].items(), key=lambda item: item[1]['full_name']))
+            # Sort a given app's variables alphabetically by full name
+            variables[app_name_long] = dict(sorted(variables[app_name_long].items(), key=lambda item: item[1]['full_name']))
+
+        # Store the variables in the cache for 1 hour
+        cache.set('variables', variables, 3600)
+
+    for app_name, app_name_long in app_map.items():
 
         app_variables_list = list(variables[app_name_long].keys())
         module_path = 'seshat.apps.' + app_name + '.models'
