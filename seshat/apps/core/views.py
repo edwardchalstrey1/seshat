@@ -2476,16 +2476,6 @@ def seshatcommentpart_create_view(request):
 
 # Shapefile views
 
-def get_polity_year_range():
-    """
-        Get the earliest and latest years for all polities in the video shapefile data
-    """
-    result = VideoShapefile.objects.aggregate(
-        min_year=Min('polity_start_year'), 
-        max_year=Max('polity_end_year')
-    )
-    return result['min_year'], result['max_year']
-
 def get_provinces(selected_base_map_gadm='province'):
     """
         Get all the province or country shapes for the map base layer.
@@ -2547,7 +2537,12 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     seshat_id_page_id = {new_name: {'id': id, 'long_name': long_name or ""} for new_name, id, long_name in polity_info}
 
     if 'migrate' not in sys.argv:
-        earliest_year, latest_year = get_polity_year_range()
+        result = VideoShapefile.objects.aggregate(
+            min_year=Min('polity_start_year'), 
+            max_year=Max('polity_end_year')
+        )
+        earliest_year = result['min_year']
+        latest_year = result['max_year']
         initial_displayed_year = earliest_year
     else:
         earliest_year, latest_year = 2014, 2014

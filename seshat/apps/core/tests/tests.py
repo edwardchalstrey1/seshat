@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity, Capital
 from ...general.models import Polity_capital, Polity_peak_years
-from ..views import get_polity_year_range, get_provinces, get_polity_shape_content, get_all_polity_capitals
+from ..views import get_provinces, get_polity_shape_content, get_all_polity_capitals
 from ..templatetags.core_tags import get_polity_capitals, polity_map
 
 
@@ -143,12 +143,6 @@ class ShapesTest(TestCase):
         self.assertEqual(self.province.NAME_1, "Test Province")
 
     # View function tests
-
-    def test_get_polity_year_range(self):
-        """Test the get_polity_year_range function."""
-        expected_result = (0, 2020)
-        result = get_polity_year_range()
-        self.assertEqual(result, expected_result)
 
     def test_get_provinces(self):
         """Test the get_provinces function."""
