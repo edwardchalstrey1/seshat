@@ -2596,9 +2596,9 @@ def get_all_polity_capitals():
 
     return all_capitals_info
 
-def get_absent_present_variables(app_map):
+def assign_variables_to_shapes(shapes, app_map):
     """
-        Get all the absent/present variables for the given apps.
+        Assign the absent/present variables to the shapes.
     """
     from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
     variables = {}
@@ -2633,14 +2633,6 @@ def get_absent_present_variables(app_map):
         # Sort a given app's variables alphabetically by full name
         variables[app_name_long] = dict(sorted(variables[app_name_long].items(), key=lambda item: item[1]['full_name']))
 
-    return variables
-
-def assign_variables_to_shapes(shapes, app_map):
-    """
-        Assign the absent/present variables to the shapes.
-    """
-    variables = get_absent_present_variables(app_map)
-    for app_name, app_name_long in app_map.items():
         app_variables_list = list(variables[app_name_long].keys())
         module_path = 'seshat.apps.' + app_name + '.models'
         module = __import__(module_path, fromlist=[variable.capitalize() for variable in app_variables_list])
@@ -2664,7 +2656,7 @@ def assign_variables_to_shapes(shapes, app_map):
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
 
-    return shapes
+    return shapes, variables
 
 # Get all the variables used in the map view
 app_map = {
@@ -2672,7 +2664,6 @@ app_map = {
     'wf': 'Warfare Variables (Military Technologies)',
     'rt': 'Religion Tolerance',
 }
-variables = get_absent_present_variables(app_map)
 
 def map_view_initial(request):
     """
@@ -2694,8 +2685,7 @@ def map_view_initial(request):
     content = get_polity_shape_content(displayed_year=displayed_year)
 
     # Add in the variables to view for the shapes
-    content['shapes'] = assign_variables_to_shapes(content['shapes'], app_map)
-    content['variables'] = variables
+    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2714,8 +2704,7 @@ def map_view_all(request):
     content = get_polity_shape_content()
 
     # Add in the variables to view for the shapes
-    content['shapes'] = assign_variables_to_shapes(content['shapes'], app_map)
-    content['variables'] = variables
+    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
