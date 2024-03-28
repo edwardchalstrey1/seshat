@@ -364,7 +364,6 @@
             // Don't plot them if "Base map only" checkbox selected
             if (!document.getElementById('baseMapOnly').checked){
                 // Iterate over all shapes
-                i = 0;
                 shapesData.forEach(function (shape) {
 
                     // Set weight and colour based on the variable
@@ -473,18 +472,19 @@
 
                                 // Listen for the click event on the layer
                                 layer.on('click', function (e) {
-                                    // Iterate over all layers in the geoJSONLayer group and reset their weight
-                                    // TODO: investigate why this doesn't work
-                                    // geoJSONLayer.eachLayer(function (otherLayer) {
-                                    //     otherLayer.setStyle({
-                                    //         weight: shapeWeight
-                                    //     });
-                                    // });
                                     // Increase the weight of the clicked layer
-                                    // console.log()
-                                    // shapesData[i]['weight'] = 2;
                                     this.setStyle({
                                         weight: 2
+                                    });
+                                    // Update weights in shapesData
+                                    var i = 0;
+                                    shapesData.forEach(function (shape2) {
+                                        if (shape2.name === shape.name) {
+                                            shapesData[i]['weight'] = 2;
+                                        } else {
+                                            shapesData[i]['weight'] = 0;
+                                        }
+                                        i++;
                                     });
                                     L.DomEvent.stopPropagation(e);
                                 });
@@ -493,7 +493,12 @@
 
                         // Listen for the click event on the map
                         map.on('click', function () {
-                            // shapesData[i]['weight'] = 0;
+                            // Update weights in shapesData
+                            var i = 0;
+                            shapesData.forEach(function (shape2) {
+                                shapesData[i]['weight'] = 0;
+                                i++;
+                            });
                             // Reset the weight of all layers when the map is clicked
                             geoJSONLayer.eachLayer(function (layer) {
                                 layer.setStyle({
@@ -566,7 +571,6 @@
                             displayedShapes.push(shape.name);
                         }
                     }
-                    i += 1;
                 });
             };
         }
