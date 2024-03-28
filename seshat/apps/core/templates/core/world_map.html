@@ -195,6 +195,8 @@
         var provinceShapeData;
         var countryShapeData;
 
+        var allPolitiesLoaded = false;
+
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
             fetch('/core/world_map_all/')
@@ -213,6 +215,8 @@
 
                     // Call plotPolities() after shapesData is updated
                     plotPolities();
+
+                    allPolitiesLoaded = true;
 
                     // Hide the loading indicator and enable the buttons after the fetch request is done
                     document.getElementById('loadingIndicator').style.display = 'none';
@@ -471,19 +475,21 @@
                                 layer.bindPopup(popupContent);
 
                                 // Listen for the click event on the layer
-                                layer.on('click', function (e) {
-                                    // Increase the weight of the clicked layer
-                                    this.setStyle({
-                                        weight: 2
-                                    });
-                                    // Update weights in shapesData
-                                    var i = 0;
-                                    shapesData.forEach(function (shape2) {
-                                        if (shape2.name === shape.name) {
-                                            shapesData[i]['weight'] = 2;
-                                        }
-                                        i++;
-                                    });
+                                layer.on('click', function (e) {            
+                                    if (allPolitiesLoaded){
+                                        // Increase the weight of the clicked layer
+                                        this.setStyle({
+                                            weight: 2
+                                        });
+                                        // Update weights in shapesData
+                                        var i = 0;
+                                        shapesData.forEach(function (shape2) {
+                                            if (shape2.name === shape.name) {
+                                                shapesData[i]['weight'] = 2;
+                                            }
+                                            i++;
+                                        });
+                                    };
                                     L.DomEvent.stopPropagation(e);
                                 });
                             }
