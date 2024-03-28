@@ -287,10 +287,15 @@
                 var addedPolities = [];
                 var addedPolityNames = [];
                 shapesData.forEach(function (shape) {
-                    if (shape.weight > 0 && !addedPolityNames.includes(shape.name)) {          
-                        // Add the polity to the list of added polities
-                        addedPolities.push(shape);
-                        addedPolityNames.push(shape.name);
+                    if (shape.weight > 0 && !addedPolityNames.includes(shape.name)) {
+                        // If the shape spans the selected year
+                        var selectedYear = document.getElementById('dateSlide').value;
+                        var selectedYearInt = parseInt(selectedYear);
+                        if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+                            // Add the polity to the list of added polities
+                            addedPolities.push(shape);
+                            addedPolityNames.push(shape.name);
+                        };
                     };
                 });
                 if (addedPolities.length > 0) {
