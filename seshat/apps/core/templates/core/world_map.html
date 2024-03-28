@@ -284,29 +284,33 @@
             legendDiv.innerHTML = '';
 
             if (variable == 'polity') {
-                var legendTitle = document.createElement('h3');
-                legendTitle.textContent = 'Polities';
-                legendDiv.appendChild(legendTitle);
                 var addedPolities = [];
+                var addedPolityNames = [];
                 shapesData.forEach(function (shape) {
-                    if (shape.weight > 0 && !addedPolities.includes(shape.name)) {          
+                    if (shape.weight > 0 && !addedPolityNames.includes(shape.name)) {          
+                        // Add the polity to the list of added polities
+                        addedPolities.push(shape);
+                        addedPolityNames.push(shape.name);
+                    };
+                });
+                if (addedPolities.length > 0) {
+                    var legendTitle = document.createElement('h3');
+                    legendTitle.textContent = 'Polities';
+                    legendDiv.appendChild(legendTitle);
+                    for (var i = 0; i < addedPolities.length; i++) {
                         var legendItem = document.createElement('p');
                         var colorBox = document.createElement('span');
-
                         colorBox.style.display = 'inline-block';
                         colorBox.style.width = '20px';
                         colorBox.style.height = '20px';
-                        colorBox.style.backgroundColor = shape.colour;
+                        colorBox.style.backgroundColor = addedPolities[i].colour;
+                        colorBox.style.border = '1px solid black';
                         colorBox.style.marginRight = '10px';
-
                         legendItem.appendChild(colorBox);
-                        legendItem.appendChild(document.createTextNode(shape.name));
+                        legendItem.appendChild(document.createTextNode(addedPolities[i].name));
                         legendDiv.appendChild(legendItem);
-
-                        // Add the polity to the list of added polities
-                        addedPolities.push(shape.name);
-                    };
-                });
+                    }
+                };
 
             } else {
                 var legendTitle = document.createElement('h3');
