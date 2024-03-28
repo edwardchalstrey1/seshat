@@ -2514,13 +2514,6 @@ def get_provinces(selected_base_map_gadm='province'):
 
     return provinces
 
-def get_polity_info(seshat_ids):
-    """
-        Get polity info for the given seshat_ids
-    """
-    polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
-    return [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
-
 def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     """
         This function returns the polity shapes and other content for the map.
@@ -2548,7 +2541,8 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         del shape['simplified_geom']  # Remove the original object
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
-    polity_info = get_polity_info(seshat_ids)
+    polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
+    polity_info = [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
 
     seshat_id_page_id = {new_name: {'id': id, 'long_name': long_name or ""} for new_name, id, long_name in polity_info}
 
