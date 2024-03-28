@@ -2491,26 +2491,26 @@ def get_provinces(selected_base_map_gadm='province'):
         Get all the province or country shapes for the map base layer.
     """
 
-    provinces = []
     # Use the appropriate Django ORM query based on the selected baseMapGADM value
     if selected_base_map_gadm == 'country':
         rows = GADMCountries.objects.values_list('geom', 'COUNTRY')
+        provinces = [
+            {
+                'aggregated_geometry': GEOSGeometry(geom).geojson,
+                'country': country
+            }
+            for geom, country in rows if geom is not None
+        ]
     elif selected_base_map_gadm == 'province':
         rows = GADMProvinces.objects.values_list('geom', 'NAME_1', 'ENGTYPE_1')
-
-    for row in rows:
-        if row[0] != None:
-            if selected_base_map_gadm == 'country':
-                provinces.append({
-                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                    'country': row[1]
-                })
-            elif selected_base_map_gadm == 'province':
-                provinces.append({
-                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                    'province': row[1],
-                    'province_type': row[2]
-                })
+        provinces = [
+            {
+                'aggregated_geometry': GEOSGeometry(geom).geojson,
+                'province': name,
+                'province_type': engtype
+            }
+            for geom, name, engtype in rows if geom is not None
+        ]
 
     return provinces
 
