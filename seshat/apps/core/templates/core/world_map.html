@@ -171,6 +171,7 @@
     <script>
         
         var displayedShapes = [];
+        var polityBorderWeight = 0;
 
         // Load inital polity shapes for the displayed year
         var shapesData = [
@@ -180,6 +181,7 @@
                     {% for key, value in shape.items %}
                         '{{ key }}': '{{ value|escapejs }}',
                     {% endfor %}
+                    'weight': polityBorderWeight,
                 },
             {% endfor %}
         ];
@@ -199,6 +201,7 @@
                 .then(response => response.json())
                 .then(data => {
                     shapesData = data.shapes.map(function (shape) {
+                        shape.weight = polityBorderWeight;
                         return shape;
                     });
 
@@ -360,11 +363,13 @@
             // Add shapes to the map
             // Don't plot them if "Base map only" checkbox selected
             if (!document.getElementById('baseMapOnly').checked){
+                // Iterate over all shapes
+                i = 0;
                 shapesData.forEach(function (shape) {
 
                     // Set weight and colour based on the variable
                     if (variable == 'polity') {  
-                        shapeWeight = 0;
+                        shapeWeight = shape.weight;
                         shapeColour = shape.colour;
                     } else {
                         shapeWeight = 2;
@@ -476,6 +481,8 @@
                                     //     });
                                     // });
                                     // Increase the weight of the clicked layer
+                                    // console.log()
+                                    // shapesData[i]['weight'] = 2;
                                     this.setStyle({
                                         weight: 2
                                     });
@@ -486,6 +493,7 @@
 
                         // Listen for the click event on the map
                         map.on('click', function () {
+                            // shapesData[i]['weight'] = 0;
                             // Reset the weight of all layers when the map is clicked
                             geoJSONLayer.eachLayer(function (layer) {
                                 layer.setStyle({
@@ -558,6 +566,7 @@
                             displayedShapes.push(shape.name);
                         }
                     }
+                    i += 1;
                 });
             };
         }
