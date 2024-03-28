@@ -298,6 +298,13 @@
                         };
                     };
                 });
+
+                // Sort the polities by name
+                addedPolities.sort(function (a, b) {
+                    return a.name.localeCompare(b.name);
+                });
+
+                // Add a legend for highlighted polities
                 if (addedPolities.length > 0) {
                     var legendTitle = document.createElement('h3');
                     legendTitle.textContent = 'Highlighted Polities';
