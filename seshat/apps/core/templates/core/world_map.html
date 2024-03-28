@@ -465,8 +465,29 @@
                                 };
                                 popupContent = popupContent + `</table>`;
                                 layer.bindPopup(popupContent);
+
+                                // Listen for the click event on the layer
+                                layer.on('click', function (e) {
+                                    // Change the weight of the layer when it is clicked
+                                    this.setStyle({
+                                        weight: 2
+                                    });
+
+                                    // Stop propagation of the click event to the map
+                                    L.DomEvent.stopPropagation(e);
+                                });
                             }
                         }).addTo(map);
+
+                        // Listen for the click event on the map
+                        map.on('click', function () {
+                            // Reset the weight of all layers when the map is clicked
+                            geoJSONLayer.eachLayer(function (layer) {
+                                layer.setStyle({
+                                    weight: shapeWeight
+                                });
+                            });
+                        });
 
                         // Open the corresponding Seshat page in a new browser tab when a shape is double-clicked
                         geoJSONLayer.on('dblclick', function (event) {
