@@ -403,9 +403,9 @@
                             style: function (feature) {
                                 return {
                                     fillColor: shapeColour,  // Set the fill color based on the "colour" field
-                                    color: shapeColour,  // Set the border color
-                                    weight: shapeWeight,  // Set the border weight
-                                    fillOpacity: 0.5  // Set the fill opacity
+                                    color: shapeColour,     // Set the border color
+                                    weight: shapeWeight,   // Set the border weight
+                                    fillOpacity: 0.5      // Set the fill opacity
                                 };
                             },
                             onEachFeature: function (feature, layer) {
@@ -468,12 +468,17 @@
 
                                 // Listen for the click event on the layer
                                 layer.on('click', function (e) {
-                                    // Change the weight of the layer when it is clicked
+                                    // Iterate over all layers in the geoJSONLayer group and reset their weight
+                                    // TODO: investigate why this doesn't work
+                                    // geoJSONLayer.eachLayer(function (otherLayer) {
+                                    //     otherLayer.setStyle({
+                                    //         weight: shapeWeight
+                                    //     });
+                                    // });
+                                    // Increase the weight of the clicked layer
                                     this.setStyle({
                                         weight: 2
                                     });
-
-                                    // Stop propagation of the click event to the map
                                     L.DomEvent.stopPropagation(e);
                                 });
                             }
