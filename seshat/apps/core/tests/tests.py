@@ -73,6 +73,7 @@ class ShapesTest(TestCase):
         )
         self.province = GADMProvinces.objects.create(
             geom=self.square,
+            COUNTRY="Test Country",
             NAME_1="Test Province",
             ENGTYPE_1="Test Type"
         )
@@ -149,8 +150,12 @@ class ShapesTest(TestCase):
         province_result = get_provinces(selected_base_map_gadm='province')
         country_result = get_provinces(selected_base_map_gadm='country')
         
-        province_expected_result = [{'aggregated_geometry': self.geo_square, 'province': 'Test Province', 'province_type': 'Test Type'}]
-        country_expected_result = [{'aggregated_geometry': self.geo_square, 'country': 'Test Country'}]
+        province_expected_result = [{'aggregated_geometry': self.geo_square,
+                                     'country': 'Test Country',
+                                     'province': 'Test Province',
+                                     'province_type': 'Test Type'}]
+        country_expected_result = [{'aggregated_geometry': self.geo_square,
+                                    'country': 'Test Country'}]
         
         self.assertEqual(province_result, province_expected_result)
         self.assertEqual(country_result, country_expected_result)
