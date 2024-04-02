@@ -521,19 +521,35 @@
                                 // Listen for the click event on the layer
                                 layer.on('click', function (e) {            
                                     if (allPolitiesLoaded){
-                                        // Increase the weight of the clicked layer
-                                        this.setStyle({
-                                            weight: 2
-                                        });
-                                        // Update weights in shapesData
-                                        var i = 0;
-                                        shapesData.forEach(function (shape2) {
-                                            if (shape2.name === shape.name) {
-                                                shapesData[i]['weight'] = 2;
-                                            }
-                                            i++;
-                                        });
-                                        updateLegend();
+                                        if (shape.weight === 0) {
+                                            // Increase the weight of the clicked layer
+                                            this.setStyle({
+                                                weight: 2
+                                            });
+                                            // Update weights in shapesData
+                                            var i = 0;
+                                            shapesData.forEach(function (shape2) {
+                                                if (shape2.name === shape.name) {
+                                                    shapesData[i]['weight'] = 2;
+                                                }
+                                                i++;
+                                            });
+                                            updateLegend();
+                                        } else {
+                                            // Decrease the weight of the clicked layer
+                                            this.setStyle({
+                                                weight: 0
+                                            });
+                                            // Update weights in shapesData
+                                            var i = 0;
+                                            shapesData.forEach(function (shape2) {
+                                                if (shape2.name === shape.name) {
+                                                    shapesData[i]['weight'] = 0;
+                                                }
+                                                i++;
+                                            });
+                                            updateLegend();
+                                        };
                                     };
                                     L.DomEvent.stopPropagation(e);
                                 });
