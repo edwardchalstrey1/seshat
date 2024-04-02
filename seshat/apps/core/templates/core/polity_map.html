@@ -102,6 +102,7 @@
                         provinceShapeData = data.provinces.map(function (shape) {
                             return {
                                 geometry: JSON.parse(shape.aggregated_geometry),
+                                country: shape.country,
                                 province: shape.province,
                                 provinceType: shape.province_type
                             };
