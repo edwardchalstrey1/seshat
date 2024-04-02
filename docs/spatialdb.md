@@ -63,15 +63,16 @@ This will create a row for each shape. The `end_year` of a shape is calculated t
     ```
 4. To populate the `core_gadmprovinces`, go into the database (`psql -U postgres -d <seshat_db_name>`) and run the following query:
     ```{SQL}
-        INSERT INTO core_gadmprovinces (geom, "NAME_1", "ENGTYPE_1")
+        INSERT INTO core_gadmprovinces (geom, "COUNTRY", "NAME_1", "ENGTYPE_1")
         SELECT 
             COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Simplify(ST_Union(geom), 0.001)) AS geom,
+            "COUNTRY",
             "NAME_1",
             "ENGTYPE_1"
         FROM 
             core_gadmshapefile
         GROUP BY 
-            "NAME_1", "ENGTYPE_1";
+            "COUNTRY", "NAME_1", "ENGTYPE_1";
     ```
 
 The 0.01 value is the simplification tolerance. Using a lower value will increase the resolution of the shapes used, but result in slower loading in the django app. Some smaller countries/provinces cannot be simplified with 0.01, so try 0.001.
