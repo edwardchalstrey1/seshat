@@ -63,7 +63,7 @@ function storeYear() {
         // Refresh the page to load all polities
         location.reload();
         var loadingTextElement = document.getElementById('loadingText');
-        loadingTextElement.innerText = 'Loading polities for ' + year + '...';
+        loadingTextElement.innerHTML = 'Loading polities for <b>' + year + '</b>...';
     }
 }
 
