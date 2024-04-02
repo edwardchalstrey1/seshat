@@ -115,10 +115,32 @@ function switchBaseMap() {
                     });
                     var polygon = L.polygon(coordinates).addTo(map);
                     if (base == 'province') {
-                        polygon.bindPopup(`${shape.province} (${shape.provinceType})`);
+                        var popupContent = `
+                            <table>
+                                <tr>
+                                    <th>${shape.province}</th>
+                                    <th></th>
+                                </tr>
+                                <tr>
+                                    <td>Type</td>
+                                    <td>${shape.provinceType}</td>
+                                </tr>
+                                <tr>
+                                    <td>Country</td>
+                                    <td>Modern ${shape.country}</td>
+                                </tr>
+                            </table>
+                        `;
                     } else if (base == 'country') {
-                        polygon.bindPopup(shape.country);
+                        var popupContent = `
+                            <table>
+                                <tr>
+                                    <th>Modern ${shape.country}</td>
+                                </tr>
+                            </table>
+                        `;
                     }
+                    polygon.bindPopup(popupContent);
                     // Set the style using the style method
                     polygon.setStyle({
                         fillColor: 'white',   // Set the fill color based on the "colour" field

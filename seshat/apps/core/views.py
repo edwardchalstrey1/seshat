@@ -2492,14 +2492,15 @@ def get_provinces(selected_base_map_gadm='province'):
             for geom, country in rows if geom is not None
         ]
     elif selected_base_map_gadm == 'province':
-        rows = GADMProvinces.objects.values_list('geom', 'NAME_1', 'ENGTYPE_1')
+        rows = GADMProvinces.objects.values_list('geom', 'COUNTRY', 'NAME_1', 'ENGTYPE_1')
         provinces = [
             {
                 'aggregated_geometry': GEOSGeometry(geom).geojson,
+                'country': country,
                 'province': name,
                 'province_type': engtype
             }
-            for geom, name, engtype in rows if geom is not None
+            for geom, country, name, engtype in rows if geom is not None
         ]
 
     return provinces

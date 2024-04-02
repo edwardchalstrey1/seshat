@@ -825,6 +825,7 @@ class GADMCountries(models.Model):
     
 class GADMProvinces(models.Model):
     geom = models.MultiPolygonField()
+    COUNTRY=models.CharField(max_length=100, null=True)
     NAME_1=models.CharField(max_length=100, null=True)
     ENGTYPE_1=models.CharField(max_length=100, null=True)
 
