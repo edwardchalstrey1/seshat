@@ -62,7 +62,8 @@ function storeYear() {
     if (!allPolitiesLoaded) {
         // Refresh the page to load all polities
         location.reload();
-        console.log('Reloading page to load all polities');
+        var loadingTextElement = document.getElementById('loadingText');
+        loadingTextElement.innerText = 'Loading polities for ' + year + '...';
     }
 }
 
