@@ -18,12 +18,6 @@ def polity_map(pk):
     polity = Polity.objects.get(id=page_id)
     try:
         content = get_polity_shape_content(seshat_id=polity.new_name)
-        # TODO: Temp commented out whilst polity start and end years don't match shape data
-        # (see get_polity_shape_content() in views.py
-        # content['earliest_year'] = polity.start_year
-        # content['latest_year'] = polity.end_year
-        # content['display_year'] = polity.start_year + round(((polity.end_year - polity.start_year) / 2))
-
         capitals_info = get_polity_capitals(pk)
         # Set the start and end years to be the same as the polity where missing
         modified_caps = capitals_info

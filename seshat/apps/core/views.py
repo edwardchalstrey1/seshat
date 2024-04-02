@@ -2476,50 +2476,33 @@ def seshatcommentpart_create_view(request):
 
 # Shapefile views
 
-def get_polity_year_range():
-    """
-        Get the earliest and latest years for all polities in the video shapefile data
-    """
-    result = VideoShapefile.objects.aggregate(
-        min_year=Min('polity_start_year'), 
-        max_year=Max('polity_end_year')
-    )
-    return result['min_year'], result['max_year']
-
 def get_provinces(selected_base_map_gadm='province'):
     """
         Get all the province or country shapes for the map base layer.
     """
 
-    provinces = []
     # Use the appropriate Django ORM query based on the selected baseMapGADM value
     if selected_base_map_gadm == 'country':
         rows = GADMCountries.objects.values_list('geom', 'COUNTRY')
+        provinces = [
+            {
+                'aggregated_geometry': GEOSGeometry(geom).geojson,
+                'country': country
+            }
+            for geom, country in rows if geom is not None
+        ]
     elif selected_base_map_gadm == 'province':
         rows = GADMProvinces.objects.values_list('geom', 'NAME_1', 'ENGTYPE_1')
-
-    for row in rows:
-        if row[0] != None:
-            if selected_base_map_gadm == 'country':
-                provinces.append({
-                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                    'country': row[1]
-                })
-            elif selected_base_map_gadm == 'province':
-                provinces.append({
-                    'aggregated_geometry': GEOSGeometry(row[0]).geojson,
-                    'province': row[1],
-                    'province_type': row[2]
-                })
+        provinces = [
+            {
+                'aggregated_geometry': GEOSGeometry(geom).geojson,
+                'province': name,
+                'province_type': engtype
+            }
+            for geom, name, engtype in rows if geom is not None
+        ]
 
     return provinces
-
-def get_polity_info(seshat_ids):
-    """
-        Get polity info for the given seshat_ids
-    """
-    polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
-    return [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
 
 def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     """
@@ -2540,36 +2523,26 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     else:
         rows = VideoShapefile.objects.all()
 
-    shapes = []
-    for row in rows:
+    rows = rows.values('seshat_id', 'name', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom')
 
-        # Get the info required for the shape
-        shape_info = {
-            'seshat_id': row.seshat_id,
-            'name': row.name,
-            'start_year': row.start_year,
-            'end_year': row.end_year,
-            'polity_start_year': row.polity_start_year,
-            'polity_end_year': row.polity_end_year,
-            'colour': row.colour,
-            'area': row.area,
-            'geom': row.simplified_geom.geojson
-        }
-
-        shapes.append(shape_info)
+    shapes = list(rows)
+    for shape in shapes:
+        shape['geom'] = shape['simplified_geom'].geojson
+        del shape['simplified_geom']  # Remove the original object
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
-    polity_info = get_polity_info(seshat_ids)
+    polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
+    polity_info = [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
 
-    seshat_id_page_id = {}
-    for new_name, id, long_name in polity_info:
-        seshat_id_page_id[new_name] = {
-            'id': id,
-            'long_name': long_name or "",
-        }
+    seshat_id_page_id = {new_name: {'id': id, 'long_name': long_name or ""} for new_name, id, long_name in polity_info}
 
     if 'migrate' not in sys.argv:
-        earliest_year, latest_year = get_polity_year_range()
+        result = VideoShapefile.objects.aggregate(
+            min_year=Min('polity_start_year'), 
+            max_year=Max('polity_end_year')
+        )
+        earliest_year = result['min_year']
+        latest_year = result['max_year']
         initial_displayed_year = earliest_year
     else:
         earliest_year, latest_year = 2014, 2014
@@ -2582,8 +2555,6 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         earliest_year = min([shape['start_year'] for shape in shapes])
         displayed_year = earliest_year
         latest_year = max([shape['end_year'] for shape in shapes])
-    else:
-        earliest_year, latest_year = get_polity_year_range()
 
     content = {
         'shapes': shapes,
@@ -2600,69 +2571,76 @@ def get_all_polity_capitals():
         Get capital cities for polities that have them.
     """
     from seshat.apps.core.templatetags.core_tags import get_polity_capitals
-    all_capitals_info = {}
-    for polity in Polity.objects.all():
-        caps = get_polity_capitals(polity.id)
 
-        if caps:
-            # Set the start and end years to be the same as the polity where missing
-            modified_caps = caps
-            i = 0
-            for capital_info in caps:
-                if capital_info['year_from'] == None:
-                    modified_caps[i]['year_from'] = polity.start_year
-                if capital_info['year_to'] == None:
-                    modified_caps[i]['year_to'] = polity.end_year
-                i+=1
-            all_capitals_info[polity.new_name] = modified_caps
+    # Try to get the capitals from the cache
+    all_capitals_info = cache.get('all_capitals_info')
+
+    if all_capitals_info is None:
+        all_capitals_info = {}
+        for polity in Polity.objects.all():
+            caps = get_polity_capitals(polity.id)
+
+            if caps:
+                # Set the start and end years to be the same as the polity where missing
+                modified_caps = caps
+                i = 0
+                for capital_info in caps:
+                    if capital_info['year_from'] == None:
+                        modified_caps[i]['year_from'] = polity.start_year
+                    if capital_info['year_to'] == None:
+                        modified_caps[i]['year_to'] = polity.end_year
+                    i+=1
+                all_capitals_info[polity.new_name] = modified_caps
+        # Store the capitals in the cache for 1 hour
+        cache.set('all_capitals_info', all_capitals_info, 3600)
 
     return all_capitals_info
-
-def get_absent_present_variables(app_map):
-    """
-        Get all the absent/present variables for the given apps.
-    """
-    from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
-    variables = {}
-    for app_name, app_name_long in app_map.items():
-        module = apps.get_app_config(app_name)
-        variables[app_name_long] = {}
-        for model in module.get_models():
-            for field in model._meta.get_fields():
-                if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
-                    # Get the variable name and formatted name
-                    if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
-                        var_name = model.__name__.lower()
-                        var_long = getattr(model._meta, 'verbose_name_plural', model.__name__.lower())
-                        if var_name == var_long:
-                            variable_formatted = var_name.capitalize().replace('_', ' ')
-                        else:
-                            variable_formatted = var_long
-                    else:  # Use the field name for other models
-                        var_name = field.name
-                        variable_formatted = field.name.capitalize().replace('_', ' ')
-                    variables[app_name_long][var_name] = {}
-                    variables[app_name_long][var_name]['formatted'] = variable_formatted
-                    # Get the variable subsection and subsubsection if they exist
-                    variable_full_name = variable_formatted
-                    instance = model()
-                    if hasattr(instance, 'subsubsection'):
-                        variable_full_name = instance.subsubsection() + ': ' + variable_full_name
-                    if hasattr(instance, 'subsection'):
-                        variable_full_name = instance.subsection() + ': ' + variable_full_name 
-                    variables[app_name_long][var_name]['full_name'] = variable_full_name
-
-        # Sort a given app's variables alphabetically by full name
-        variables[app_name_long] = dict(sorted(variables[app_name_long].items(), key=lambda item: item[1]['full_name']))
-
-    return variables
 
 def assign_variables_to_shapes(shapes, app_map):
     """
         Assign the absent/present variables to the shapes.
     """
-    variables = get_absent_present_variables(app_map)
+    from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
+    # Try to get the variables from the cache
+    variables = cache.get('variables')
+    if variables is None:
+        variables = {}
+        for app_name, app_name_long in app_map.items():
+            module = apps.get_app_config(app_name)
+            variables[app_name_long] = {}
+            for model in module.get_models():
+                for field in model._meta.get_fields():
+                    if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
+                        # Get the variable name and formatted name
+                        if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
+                            var_name = model.__name__.lower()
+                            var_long = getattr(model._meta, 'verbose_name_plural', model.__name__.lower())
+                            if var_name == var_long:
+                                variable_formatted = var_name.capitalize().replace('_', ' ')
+                            else:
+                                variable_formatted = var_long
+                        else:  # Use the field name for other models
+                            var_name = field.name
+                            variable_formatted = field.name.capitalize().replace('_', ' ')
+                        variables[app_name_long][var_name] = {}
+                        variables[app_name_long][var_name]['formatted'] = variable_formatted
+                        # Get the variable subsection and subsubsection if they exist
+                        variable_full_name = variable_formatted
+                        instance = model()
+                        if hasattr(instance, 'subsubsection'):
+                            variable_full_name = instance.subsubsection() + ': ' + variable_full_name
+                        if hasattr(instance, 'subsection'):
+                            variable_full_name = instance.subsection() + ': ' + variable_full_name 
+                        variables[app_name_long][var_name]['full_name'] = variable_full_name
+
+            # Sort a given app's variables alphabetically by full name
+            variables[app_name_long] = dict(sorted(variables[app_name_long].items(), key=lambda item: item[1]['full_name']))
+
+        # Store the variables in the cache for 1 hour
+        cache.set('variables', variables, 3600)
+
     for app_name, app_name_long in app_map.items():
+
         app_variables_list = list(variables[app_name_long].keys())
         module_path = 'seshat.apps.' + app_name + '.models'
         module = __import__(module_path, fromlist=[variable.capitalize() for variable in app_variables_list])
@@ -2686,7 +2664,7 @@ def assign_variables_to_shapes(shapes, app_map):
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
 
-    return shapes
+    return shapes, variables
 
 # Get all the variables used in the map view
 app_map = {
@@ -2694,7 +2672,6 @@ app_map = {
     'wf': 'Warfare Variables (Military Technologies)',
     'rt': 'Religion Tolerance',
 }
-variables = get_absent_present_variables(app_map)
 
 def map_view_initial(request):
     """
@@ -2716,8 +2693,7 @@ def map_view_initial(request):
     content = get_polity_shape_content(displayed_year=displayed_year)
 
     # Add in the variables to view for the shapes
-    content['shapes'] = assign_variables_to_shapes(content['shapes'], app_map)
-    content['variables'] = variables
+    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2736,8 +2712,7 @@ def map_view_all(request):
     content = get_polity_shape_content()
 
     # Add in the variables to view for the shapes
-    content['shapes'] = assign_variables_to_shapes(content['shapes'], app_map)
-    content['variables'] = variables
+    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()

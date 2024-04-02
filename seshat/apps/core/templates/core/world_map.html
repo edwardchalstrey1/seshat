@@ -98,7 +98,8 @@
                     <h3>Polities</h3>
                     <!-- Add a loading indicator -->
                     <div id="loadingIndicator">
-                        <p><sub>Loading polities for all years...</sub></p>
+                        <p id="loadingText" style="font-size: 16px;">Loading polities for all years...</p>
+                        <p style="font-size: 16px;">Note: You may adjust the year<br>now to quickly load a year of interest,<br>but this will slow loading all polities!</p>
                         <div class="spinner"></div>                   
                     </div>
                 </legend>
@@ -117,10 +118,10 @@
                     </select>
                     <button id="polButton" type="button" onclick="polityButton()">Polity</button><br>
                     <label for="enterYear">Enter year:</label>
-                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled onchange="storeYear()">
-                    <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
-                    <button id="plusButton" type="button" onclick="adjustSliderUp()" disabled>+</button><br>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;" disabled><br>
+                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" onchange="storeYear()">
+                    <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
+                    <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
+                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;"><br>
                     <label for="sliderDate">Selected year:</label>
                     <span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
@@ -132,11 +133,15 @@
                     <input type="checkbox" id="showCapitals" name="showCapitals" onclick=plotPolities()><br><br>
                 </div>
             </fieldset>
-            <p>Click polity to reveal information.</p>
-            <p>Double click to reach Seshat page.</p>
-            <p>Change the year or play animation.</p>
-            <p>Show capital city coordinates.</p>
-            <p>Try different base maps.</p>
+            <ul>
+                <li>Click polity for info/ add to legend.</li>
+                <li>Click map to clear legend.</li>
+                <li>Select other tracked variables.</li>
+                <li>Double click to reach Seshat page.</li>
+                <li>Change the year or play animation.</li>
+                <li>Show capital city coordinates.</li>
+                <li>Try different base maps.</li>
+            </ul>
             <fieldset>
                 <legend>
                     <h3>Base Map</h3>
@@ -171,6 +176,7 @@
     <script>
         
         var displayedShapes = [];
+        var polityBorderWeight = 0;
 
         // Load inital polity shapes for the displayed year
         var shapesData = [
@@ -180,6 +186,7 @@
                     {% for key, value in shape.items %}
                         '{{ key }}': '{{ value|escapejs }}',
                     {% endfor %}
+                    'weight': polityBorderWeight,
                 },
             {% endfor %}
         ];
@@ -193,12 +200,15 @@
         var provinceShapeData;
         var countryShapeData;
 
+        var allPolitiesLoaded = false; // Used within storeYear() function
+
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
             fetch('/core/world_map_all/')
                 .then(response => response.json())
                 .then(data => {
                     shapesData = data.shapes.map(function (shape) {
+                        shape.weight = polityBorderWeight;
                         return shape;
                     });
 
@@ -210,6 +220,8 @@
 
                     // Call plotPolities() after shapesData is updated
                     plotPolities();
+
+                    allPolitiesLoaded = true;
 
                     // Hide the loading indicator and enable the buttons after the fetch request is done
                     document.getElementById('loadingIndicator').style.display = 'none';
@@ -269,60 +281,6 @@
             'P~A': 'orange'
         };
 
-        function updateLegend() {
-            var variable = document.getElementById('chooseVariable').value;
-            var legendDiv = document.getElementById('variableLegend');
-
-            // Clear the current legend
-            legendDiv.innerHTML = '';
-
-            // If the variable is not 'polity', populate the legend
-            if (variable !== 'polity') {
-                var legendTitle = document.createElement('h3');
-                legendTitle.textContent = variable;
-                legendDiv.appendChild(legendTitle);
-
-                for (var key in variableColourMapping) {
-                    var legendItem = document.createElement('p');
-                    var colorBox = document.createElement('span');
-
-                    colorBox.style.display = 'inline-block';
-                    colorBox.style.width = '20px';
-                    colorBox.style.height = '20px';
-                    colorBox.style.backgroundColor = variableColourMapping[key];
-                    colorBox.style.marginRight = '10px';
-
-                    legendItem.appendChild(colorBox);
-                    if (key === 'A~P') {
-                        legendItem.appendChild(document.createTextNode('Absent then present'));
-                    } else if (key === 'P~A') {
-                        legendItem.appendChild(document.createTextNode('Present then absent'));
-                    } else {
-                        legendItem.appendChild(document.createTextNode(`${key[0].toUpperCase()}${key.slice(1)}`));
-                    }
-
-                    legendDiv.appendChild(legendItem);
-                }
-
-                if (document.querySelector('input[name="baseMap"]:checked').value == 'gadm') {
-                    var legendItem = document.createElement('p');
-                    var colorBox = document.createElement('span');
-
-                    colorBox.style.display = 'inline-block';
-                    colorBox.style.width = '20px';
-                    colorBox.style.height = '20px';
-                    colorBox.style.backgroundColor = 'white';
-                    colorBox.style.border = '1px solid black';
-                    colorBox.style.marginRight = '10px';
-
-                    legendItem.appendChild(colorBox);
-                    legendItem.appendChild(document.createTextNode('Base map'));
-
-                    legendDiv.appendChild(legendItem);
-                }
-            }
-        }
-
         function switchBaseMapWorldMap() {
             switchBaseMap();
             if (document.getElementById('chooseVariable').value != 'polity') {
@@ -360,11 +318,12 @@
             // Add shapes to the map
             // Don't plot them if "Base map only" checkbox selected
             if (!document.getElementById('baseMapOnly').checked){
+                // Iterate over all shapes
                 shapesData.forEach(function (shape) {
 
                     // Set weight and colour based on the variable
                     if (variable == 'polity') {  
-                        shapeWeight = 0;
+                        shapeWeight = shape.weight;
                         shapeColour = shape.colour;
                     } else {
                         shapeWeight = 2;
@@ -403,9 +362,9 @@
                             style: function (feature) {
                                 return {
                                     fillColor: shapeColour,  // Set the fill color based on the "colour" field
-                                    color: shapeColour,  // Set the border color
-                                    weight: shapeWeight,  // Set the border weight
-                                    fillOpacity: 0.5  // Set the fill opacity
+                                    color: shapeColour,     // Set the border color
+                                    weight: shapeWeight,   // Set the border weight
+                                    fillOpacity: 0.5      // Set the fill opacity
                                 };
                             },
                             onEachFeature: function (feature, layer) {
@@ -465,8 +424,54 @@
                                 };
                                 popupContent = popupContent + `</table>`;
                                 layer.bindPopup(popupContent);
+
+                                // Listen for the click event on the layer
+                                layer.on('click', function (e) {            
+                                    if (allPolitiesLoaded){
+                                        if (shape.weight === 0) {
+                                            // Increase the weight of the clicked layer
+                                            newWeight = 2;
+                                            this.setStyle({
+                                                weight: newWeight
+                                            });
+                                        } else {
+                                            // Decrease the weight of the clicked layer
+                                            newWeight = 0;
+                                            this.setStyle({
+                                                weight: newWeight
+                                            });
+                                        };
+                                        // Update weights in shapesData
+                                        var i = 0;
+                                        shapesData.forEach(function (shape2) {
+                                            if (shape2.name === shape.name) {
+                                                shapesData[i]['weight'] = newWeight;
+                                            }
+                                            i++;
+                                        });
+                                        updateLegend();
+                                    };
+                                    L.DomEvent.stopPropagation(e);
+                                });
                             }
                         }).addTo(map);
+
+                        // Listen for the click event on the map
+                        map.on('click', function () {
+                            // Update weights in shapesData
+                            var i = 0;
+                            shapesData.forEach(function (shape2) {
+                                shapesData[i]['weight'] = 0;
+                                i++;
+                            });
+                            // Reset the weight of all layers when the map is clicked
+                            geoJSONLayer.eachLayer(function (layer) {
+                                layer.setStyle({
+                                    weight: shapeWeight
+                                });
+                            });
+                            updateLegend();
+                        });
 
                         // Open the corresponding Seshat page in a new browser tab when a shape is double-clicked
                         geoJSONLayer.on('dblclick', function (event) {
