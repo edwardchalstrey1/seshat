@@ -523,33 +523,26 @@
                                     if (allPolitiesLoaded){
                                         if (shape.weight === 0) {
                                             // Increase the weight of the clicked layer
+                                            newWeight = 2;
                                             this.setStyle({
-                                                weight: 2
+                                                weight: newWeight
                                             });
-                                            // Update weights in shapesData
-                                            var i = 0;
-                                            shapesData.forEach(function (shape2) {
-                                                if (shape2.name === shape.name) {
-                                                    shapesData[i]['weight'] = 2;
-                                                }
-                                                i++;
-                                            });
-                                            updateLegend();
                                         } else {
                                             // Decrease the weight of the clicked layer
+                                            newWeight = 0;
                                             this.setStyle({
-                                                weight: 0
+                                                weight: newWeight
                                             });
-                                            // Update weights in shapesData
-                                            var i = 0;
-                                            shapesData.forEach(function (shape2) {
-                                                if (shape2.name === shape.name) {
-                                                    shapesData[i]['weight'] = 0;
-                                                }
-                                                i++;
-                                            });
-                                            updateLegend();
                                         };
+                                        // Update weights in shapesData
+                                        var i = 0;
+                                        shapesData.forEach(function (shape2) {
+                                            if (shape2.name === shape.name) {
+                                                shapesData[i]['weight'] = newWeight;
+                                            }
+                                            i++;
+                                        });
+                                        updateLegend();
                                     };
                                     L.DomEvent.stopPropagation(e);
                                 });
