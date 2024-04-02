@@ -127,3 +127,97 @@ function switchBaseMap() {
         });
     }
 }
+
+function updateLegend() {
+    var variable = document.getElementById('chooseVariable').value;
+    var legendDiv = document.getElementById('variableLegend');
+
+    // Clear the current legend
+    legendDiv.innerHTML = '';
+
+    if (variable == 'polity') {
+        var addedPolities = [];
+        var addedPolityNames = [];
+        shapesData.forEach(function (shape) {
+            if (shape.weight > 0 && !addedPolityNames.includes(shape.name)) {
+                // If the shape spans the selected year
+                var selectedYear = document.getElementById('dateSlide').value;
+                var selectedYearInt = parseInt(selectedYear);
+                if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+                    // Add the polity to the list of added polities
+                    addedPolities.push(shape);
+                    addedPolityNames.push(shape.name);
+                };
+            };
+        });
+
+        // Sort the polities by name
+        addedPolities.sort(function (a, b) {
+            return a.name.localeCompare(b.name);
+        });
+
+        // Add a legend for highlighted polities
+        if (addedPolities.length > 0) {
+            var legendTitle = document.createElement('h3');
+            legendTitle.textContent = 'Highlighted Polities';
+            legendDiv.appendChild(legendTitle);
+            for (var i = 0; i < addedPolities.length; i++) {
+                var legendItem = document.createElement('p');
+                var colorBox = document.createElement('span');
+                colorBox.style.display = 'inline-block';
+                colorBox.style.width = '20px';
+                colorBox.style.height = '20px';
+                colorBox.style.backgroundColor = addedPolities[i].colour;
+                colorBox.style.border = '1px solid black';
+                colorBox.style.marginRight = '10px';
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(document.createTextNode(addedPolities[i].name));
+                legendDiv.appendChild(legendItem);
+            }
+        };
+
+    } else {
+        var legendTitle = document.createElement('h3');
+        legendTitle.textContent = variable;
+        legendDiv.appendChild(legendTitle);
+
+        for (var key in variableColourMapping) {
+            var legendItem = document.createElement('p');
+            var colorBox = document.createElement('span');
+
+            colorBox.style.display = 'inline-block';
+            colorBox.style.width = '20px';
+            colorBox.style.height = '20px';
+            colorBox.style.backgroundColor = variableColourMapping[key];
+            colorBox.style.marginRight = '10px';
+
+            legendItem.appendChild(colorBox);
+            if (key === 'A~P') {
+                legendItem.appendChild(document.createTextNode('Absent then present'));
+            } else if (key === 'P~A') {
+                legendItem.appendChild(document.createTextNode('Present then absent'));
+            } else {
+                legendItem.appendChild(document.createTextNode(`${key[0].toUpperCase()}${key.slice(1)}`));
+            }
+
+            legendDiv.appendChild(legendItem);
+        }
+
+        if (document.querySelector('input[name="baseMap"]:checked').value == 'gadm') {
+            var legendItem = document.createElement('p');
+            var colorBox = document.createElement('span');
+
+            colorBox.style.display = 'inline-block';
+            colorBox.style.width = '20px';
+            colorBox.style.height = '20px';
+            colorBox.style.backgroundColor = 'white';
+            colorBox.style.border = '1px solid black';
+            colorBox.style.marginRight = '10px';
+
+            legendItem.appendChild(colorBox);
+            legendItem.appendChild(document.createTextNode('Base map'));
+
+            legendDiv.appendChild(legendItem);
+        }
+    }
+}
