@@ -118,12 +118,16 @@ function switchBaseMap() {
                         var popupContent = `
                             <table>
                                 <tr>
-                                    <th>Country</th>
-                                    <th>${shape.provinceType}</th>
+                                    <th>${shape.province}</th>
+                                    <th></th>
                                 </tr>
                                 <tr>
-                                    <td>${shape.country}</td>
-                                    <td>${shape.province}</td>
+                                    <td>Type</td>
+                                    <td>${shape.provinceType}</td>
+                                </tr>
+                                <tr>
+                                    <td>Country</td>
+                                    <td>Modern ${shape.country}</td>
                                 </tr>
                             </table>
                         `;
@@ -131,10 +135,7 @@ function switchBaseMap() {
                         var popupContent = `
                             <table>
                                 <tr>
-                                    <th>Country</th>
-                                </tr>
-                                <tr>
-                                    <td>${shape.country}</td>
+                                    <th>Modern ${shape.country}</td>
                                 </tr>
                             </table>
                         `;
