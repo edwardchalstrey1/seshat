@@ -59,6 +59,11 @@ function stopPlay() {
 function storeYear() {
     var year = document.getElementById('enterYear').value;
     history.pushState(null, '', '/core/world_map/?year=' + year);
+    if (!allPolitiesLoaded) {
+        // Refresh the page to load all polities
+        location.reload();
+        console.log('Reloading page to load all polities');
+    }
 }
 
 function switchBaseMap() {

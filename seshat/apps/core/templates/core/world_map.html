@@ -117,10 +117,10 @@
                     </select>
                     <button id="polButton" type="button" onclick="polityButton()">Polity</button><br>
                     <label for="enterYear">Enter year:</label>
-                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" disabled onchange="storeYear()">
-                    <button id="minusButton" type="button" onclick="adjustSliderDown()" disabled>-</button>
-                    <button id="plusButton" type="button" onclick="adjustSliderUp()" disabled>+</button><br>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;" disabled><br>
+                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" onchange="storeYear()">
+                    <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
+                    <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
+                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;"><br>
                     <label for="sliderDate">Selected year:</label>
                     <span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
@@ -199,7 +199,7 @@
         var provinceShapeData;
         var countryShapeData;
 
-        var allPolitiesLoaded = false;
+        var allPolitiesLoaded = false; // Used within storeYear() function
 
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
