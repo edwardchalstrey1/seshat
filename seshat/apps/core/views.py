@@ -2668,12 +2668,20 @@ def assign_variables_to_shapes(shapes, app_map):
     return shapes, variables
 
 def assign_categorical_variables_to_shapes(shapes, variables):
-    # from seshat.apps.general.models import POLITY_LANGUAGE_CHOICES
+    from seshat.apps.general.models import POLITY_LANGUAGE_CHOICES
     variables['General Variables'] = {}
     variables['General Variables']['polity_language'] = {}
     variables['General Variables']['polity_language']['formatted'] = 'Language'
     variables['General Variables']['polity_language']['full_name'] = 'Language'
-    language_colour = {'English': 'blue', 'French': 'red', 'Spanish': 'green', 'German': 'yellow', 'Italian': 'purple', 'Russian': 'orange', 'Chinese': 'pink', 'Japanese': 'brown', 'Arabic': 'black', 'Portuguese': 'grey'}
+    # Convert tuple of tuples to list of first elements
+    language_colour = dict(POLITY_LANGUAGE_CHOICES)
+    colours = []
+    for col in get_colors(len(language_colour)):
+        colours.append(get_hex(col))
+    i = 0
+    for language, value in language_colour.items():
+        language_colour[language] = colours[i]
+        i+=1
     for shape in shapes:
         shape['polity_language'] = 'uncoded'  # Default value
         shape['language_colour'] = 'grey'
