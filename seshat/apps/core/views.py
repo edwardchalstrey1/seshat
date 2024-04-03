@@ -2667,8 +2667,12 @@ def assign_variables_to_shapes(shapes, app_map):
 
     return shapes, variables
 
-def assign_categorical_variables_to_shapes(shapes, app_map):
+def assign_categorical_variables_to_shapes(shapes, variables):
     # from seshat.apps.general.models import POLITY_LANGUAGE_CHOICES
+    variables['General Variables'] = {}
+    variables['General Variables']['polity_language'] = {}
+    variables['General Variables']['polity_language']['formatted'] = 'Language'
+    variables['General Variables']['polity_language']['full_name'] = 'Language'
     language_colour = {'English': 'blue', 'French': 'red', 'Spanish': 'green', 'German': 'yellow', 'Italian': 'purple', 'Russian': 'orange', 'Chinese': 'pink', 'Japanese': 'brown', 'Arabic': 'black', 'Portuguese': 'grey'}
     for shape in shapes:
         shape['polity_language'] = 'uncoded'  # Default value
@@ -2690,13 +2694,14 @@ def assign_categorical_variables_to_shapes(shapes, app_map):
                 print(f"Polity with new_name {shape['seshat_id']} does not exist.")
         # print(shape['polity_language'])
         # print(shape['language_colour'])
-    return shapes
+    return shapes, variables
 
 # Get all the variables used in the map view
 app_map = {
     'sc': 'Social Complexity Variables',
     'wf': 'Warfare Variables (Military Technologies)',
     'rt': 'Religion Tolerance',
+    # 'general': 'General Variables',
 }
 
 def map_view_initial(request):
@@ -2722,7 +2727,7 @@ def map_view_initial(request):
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
 
     # Add in the categorical variables to view for the shapes
-    content['shapes'] = assign_categorical_variables_to_shapes(content['shapes'], app_map)
+    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2744,7 +2749,7 @@ def map_view_all(request):
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
 
     # Add in the categorical variables to view for the shapes
-    content['shapes'] = assign_categorical_variables_to_shapes(content['shapes'], app_map)
+    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
