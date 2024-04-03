@@ -57,7 +57,7 @@ from django.urls import reverse, reverse_lazy
 
 from django.contrib.messages.views import SuccessMessageMixin
 
-from ..general.models import Polity_research_assistant, Polity_duration
+from ..general.models import Polity_research_assistant, Polity_duration, Polity_language
 
 from ..crisisdb.models import Power_transition
 
@@ -2667,6 +2667,31 @@ def assign_variables_to_shapes(shapes, app_map):
 
     return shapes, variables
 
+def assign_categorical_variables_to_shapes(shapes, app_map):
+    # from seshat.apps.general.models import POLITY_LANGUAGE_CHOICES
+    language_colour = {'English': 'blue', 'French': 'red', 'Spanish': 'green', 'German': 'yellow', 'Italian': 'purple', 'Russian': 'orange', 'Chinese': 'pink', 'Japanese': 'brown', 'Arabic': 'black', 'Portuguese': 'grey'}
+    for shape in shapes:
+        shape['polity_language'] = 'uncoded'  # Default value
+        shape['language_colour'] = 'grey'
+        if shape['seshat_id'] != 'none':
+            try:
+                polity = Polity.objects.get(new_name=shape['seshat_id'])
+                try:
+                    polity_language = Polity_language.objects.filter(polity_id=polity.id).first()  # TODO: update to get all languages
+                    shape['polity_language'] = polity_language.language
+                    # Temporary solution for assigning colours to languages
+                    try:
+                        shape['language_colour'] = language_colour[polity_language.language]
+                    except KeyError:
+                        shape['language_colour'] = 'grey'
+                except:
+                    pass
+            except Polity.DoesNotExist:  # TODO: remove this as all polities should exist, there is an issue with the video data seshat_id
+                print(f"Polity with new_name {shape['seshat_id']} does not exist.")
+        # print(shape['polity_language'])
+        # print(shape['language_colour'])
+    return shapes
+
 # Get all the variables used in the map view
 app_map = {
     'sc': 'Social Complexity Variables',
@@ -2693,8 +2718,11 @@ def map_view_initial(request):
 
     content = get_polity_shape_content(displayed_year=displayed_year)
 
-    # Add in the variables to view for the shapes
+    # Add in the present/absent variables to view for the shapes
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+
+    # Add in the categorical variables to view for the shapes
+    content['shapes'] = assign_categorical_variables_to_shapes(content['shapes'], app_map)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
@@ -2712,8 +2740,11 @@ def map_view_all(request):
     """
     content = get_polity_shape_content()
 
-    # Add in the variables to view for the shapes
+    # Add in the present/absent variables to view for the shapes
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+
+    # Add in the categorical variables to view for the shapes
+    content['shapes'] = assign_categorical_variables_to_shapes(content['shapes'], app_map)
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
