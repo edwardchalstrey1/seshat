@@ -204,6 +204,38 @@ function updateLegend() {
             }
         };
 
+    } else if (variable == 'Language') {
+        displayLanguages = {};
+        shapesData.forEach(function (shape) {
+            // If the shape spans the selected year
+            var selectedYear = document.getElementById('dateSlide').value;
+            var selectedYearInt = parseInt(selectedYear);
+            if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+                // Add the language to the dict to be used in the legend
+                displayLanguages[shape.polity_language] = shape.language_colour;
+            };
+        });
+        // Add a legend for highlighted polities
+        if (Object.keys(displayLanguages).length > 0) {
+            var legendTitle = document.createElement('h3');
+            legendTitle.textContent = 'Languages';
+            legendDiv.appendChild(legendTitle);
+            // Iterate throgugh the languages and add them to the legend
+            for (var language in displayLanguages) {
+                var legendItem = document.createElement('p');
+                var colorBox = document.createElement('span');
+                colorBox.style.display = 'inline-block';
+                colorBox.style.width = '20px';
+                colorBox.style.height = '20px';
+                colorBox.style.backgroundColor = displayLanguages[language];
+                colorBox.style.border = '1px solid black';
+                colorBox.style.marginRight = '10px';
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(document.createTextNode(language));
+                legendDiv.appendChild(legendItem);
+            }
+        };
+
     } else {
         var legendTitle = document.createElement('h3');
         legendTitle.textContent = variable;
