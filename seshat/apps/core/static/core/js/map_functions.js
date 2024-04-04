@@ -212,7 +212,7 @@ function updateLegend() {
             var selectedYearInt = parseInt(selectedYear);
             if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
                 // Add the language to the dict to be used in the legend
-                displayLanguages[shape.polity_language] = shape.language_colour;
+                displayLanguages[shape.language] = shape.language_colour;
             };
         });
         // Add a legend for highlighted polities
