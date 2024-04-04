@@ -2524,7 +2524,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     else:
         rows = VideoShapefile.objects.all()
 
-    rows = rows.values('seshat_id', 'name', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom')
+    rows = rows.values('seshat_id', 'name', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom', 'language', 'language_colour')
 
     shapes = list(rows)
     for shape in shapes:
@@ -2668,39 +2668,10 @@ def assign_variables_to_shapes(shapes, app_map):
     return shapes, variables
 
 def assign_categorical_variables_to_shapes(shapes, variables):
-    from seshat.apps.general.models import POLITY_LANGUAGE_CHOICES
     variables['General Variables'] = {}
     variables['General Variables']['polity_language'] = {}
     variables['General Variables']['polity_language']['formatted'] = 'Language'
     variables['General Variables']['polity_language']['full_name'] = 'Language'
-    # Convert tuple of tuples to list of first elements
-    language_colour = dict(POLITY_LANGUAGE_CHOICES)
-    colours = []
-    for col in get_colors(len(language_colour)):  # TODO: make sure this is done just once!
-        colours.append(get_hex(col))
-    i = 0
-    for language, value in language_colour.items():
-        language_colour[language] = colours[i]
-        i+=1
-    for shape in shapes:
-        shape['polity_language'] = 'Uncoded'  # Default value
-        shape['language_colour'] = 'grey'
-        if shape['seshat_id'] != 'none':
-            try:
-                polity = Polity.objects.get(new_name=shape['seshat_id'])
-                try:
-                    polity_language = Polity_language.objects.filter(polity_id=polity.id).first()  # TODO: update to get all languages
-                    shape['polity_language'] = polity_language.language
-                    # Temporary solution for assigning colours to languages
-                    try:
-                        shape['language_colour'] = language_colour[polity_language.language]
-                    except KeyError:
-                        shape['language_colour'] = 'grey'
-                except:
-                    pass
-            except Polity.DoesNotExist:  # TODO: remove this as all polities should exist, there is an issue with the video data seshat_id
-                # print(f"Polity with new_name {shape['seshat_id']} does not exist.")
-                pass
     return shapes, variables
 
 # Get all the variables used in the map view
