@@ -2676,7 +2676,7 @@ def assign_categorical_variables_to_shapes(shapes, variables):
     # Convert tuple of tuples to list of first elements
     language_colour = dict(POLITY_LANGUAGE_CHOICES)
     colours = []
-    for col in get_colors(len(language_colour)):
+    for col in get_colors(len(language_colour)):  # TODO: make sure this is done just once!
         colours.append(get_hex(col))
     i = 0
     for language, value in language_colour.items():
@@ -2699,9 +2699,8 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                 except:
                     pass
             except Polity.DoesNotExist:  # TODO: remove this as all polities should exist, there is an issue with the video data seshat_id
-                print(f"Polity with new_name {shape['seshat_id']} does not exist.")
-        # print(shape['polity_language'])
-        # print(shape['language_colour'])
+                # print(f"Polity with new_name {shape['seshat_id']} does not exist.")
+                pass
     return shapes, variables
 
 # Get all the variables used in the map view
