@@ -204,7 +204,7 @@ function updateLegend() {
             }
         };
 
-    } else if (variable == 'Language') {
+    } else if (variable == 'language') {
         displayLanguages = {};
         shapesData.forEach(function (shape) {
             // If the shape spans the selected year

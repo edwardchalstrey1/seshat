@@ -2670,7 +2670,7 @@ def assign_variables_to_shapes(shapes, app_map):
 def assign_categorical_variables_to_shapes(shapes, variables):
     variables['General Variables'] = {}
     variables['General Variables']['polity_language'] = {}
-    variables['General Variables']['polity_language']['formatted'] = 'Language'
+    variables['General Variables']['polity_language']['formatted'] = 'language'
     variables['General Variables']['polity_language']['full_name'] = 'Language'
     return shapes, variables
 
