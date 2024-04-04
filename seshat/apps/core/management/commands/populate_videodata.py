@@ -4,6 +4,7 @@ from distinctipy import get_colors, get_hex
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand
 from seshat.apps.core.models import VideoShapefile
+from seshat.apps.general.models import POLITY_LANGUAGE_CHOICES
 
 class Command(BaseCommand):
     help = 'Populates the database with Shapefiles'
@@ -15,6 +16,7 @@ class Command(BaseCommand):
         dir = options['dir']
 
         # Clear the VideoShapefile table
+        self.stdout.write(self.style.SUCCESS('Deleting all existing VideoShapefile data'))
         VideoShapefile.objects.all().delete()
 
         # Get the start and end years for each shape
@@ -61,6 +63,11 @@ class Command(BaseCommand):
         unique_polities = sorted(all_polities)
         self.stdout.write(self.style.SUCCESS(f'Generating colour mapping for {len(unique_polities)} polities'))
         pol_col_map = colour_mapping(unique_polities)
+        self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
+
+        # Sort the languages and generate a colour mapping
+        self.stdout.write(self.style.SUCCESS(f'Generating colour mapping for {len(POLITY_LANGUAGE_CHOICES)} languages'))
+        lang_col_map = colour_mapping([x[0] for x in POLITY_LANGUAGE_CHOICES])
         self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
 
         # Iterate over files in the directory
