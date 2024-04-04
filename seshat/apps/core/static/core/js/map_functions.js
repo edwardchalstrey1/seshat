@@ -215,6 +215,12 @@ function updateLegend() {
                 displayLanguages[shape.language] = shape.language_colour;
             };
         });
+        // Sort the languages alphabetically
+        displayLanguages = Object.keys(displayLanguages).sort().reduce((obj, key) => {
+            obj[key] = displayLanguages[key];
+            return obj;
+        }, {});
+
         // Add a legend for highlighted polities
         if (Object.keys(displayLanguages).length > 0) {
             var legendTitle = document.createElement('h3');
