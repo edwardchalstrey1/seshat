@@ -60,7 +60,7 @@ class Command(BaseCommand):
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
         self.stdout.write(self.style.SUCCESS(f'Generating colour mapping for {len(unique_polities)} polities'))
-        pol_col_map = polity_colour_mapping(unique_polities)
+        pol_col_map = colour_mapping(unique_polities)
         self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
 
         # Iterate over files in the directory
@@ -130,9 +130,9 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
 
 
-def polity_colour_mapping(polities):
-    """Use DistinctiPy package to assign a colour to each polity"""
+def colour_mapping(entities):
+    """Use DistinctiPy package to assign a colour to each entity in a list of entities."""
     colours = []
-    for col in get_colors(len(polities)):
+    for col in get_colors(len(entities)):
         colours.append(get_hex(col))
-    return dict(zip(polities, colours))
+    return dict(zip(entities, colours))
