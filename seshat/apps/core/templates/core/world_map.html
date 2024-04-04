@@ -460,7 +460,7 @@
                                         // Update weights in shapesData
                                         var i = 0;
                                         shapesData.forEach(function (shape2) {
-                                            if (shape2.name === shape.name) {
+                                            if (shape2.name === shape.name || (shape2.language === shape.language && variable == 'language')) {
                                                 shapesData[i]['weight'] = newWeight;
                                             }
                                             i++;
