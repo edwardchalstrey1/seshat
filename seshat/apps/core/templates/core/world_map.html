@@ -308,10 +308,20 @@
 
         function plotPolities() {  // This function is defined differently in the polity_map template
 
-            updateLegend();
-
             var variable = document.getElementById('chooseVariable').value;
             var selectedYear = document.getElementById('dateSlide').value;
+
+            // If variable has changed from the previous selection
+            if (localStorage.getItem('variable') != variable) {
+                // Update weights in shapesData
+                var i = 0;
+                shapesData.forEach(function (shape) {
+                    shapesData[i]['weight'] = 0;
+                    i++;
+                });
+            }
+
+            updateLegend();
 
             // Load capital info if not already loaded
             if (typeof allCapitalsInfo === 'undefined') {
@@ -556,6 +566,10 @@
                     }
                 });
             };
+
+            // Store the variable selection
+            localStorage.setItem('variable', variable);
+
         }
 
         // Initial plot on page load
