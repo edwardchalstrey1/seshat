@@ -3,6 +3,7 @@ import json
 from distinctipy import get_colors, get_hex
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand
+from django.db import connection
 from seshat.apps.core.models import VideoShapefile, Polity
 from seshat.apps.general.models import POLITY_LANGUAGE_CHOICES, Polity_language
 
@@ -152,6 +153,16 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
+
+        self.stdout.write(self.style.SUCCESS('Adding simplified geometries for faster loading...'))
+        # Adjust the tolerance param of ST_Simplify as needed
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                UPDATE core_videoshapefile 
+                SET simplified_geom = ST_Simplify(geom, 0.07);
+            """)
+        self.stdout.write(self.style.SUCCESS('Simplified geometries added'))
+        
 
 
 def colour_mapping(entities):
