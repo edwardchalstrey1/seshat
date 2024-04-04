@@ -207,12 +207,14 @@ function updateLegend() {
     } else if (variable == 'language') {
         displayLanguages = {};
         shapesData.forEach(function (shape) {
-            // If the shape spans the selected year
-            var selectedYear = document.getElementById('dateSlide').value;
-            var selectedYearInt = parseInt(selectedYear);
-            if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
-                // Add the language to the dict to be used in the legend
-                displayLanguages[shape.language] = shape.language_colour;
+            if (shape.weight > 0) {
+                // If the shape spans the selected year
+                var selectedYear = document.getElementById('dateSlide').value;
+                var selectedYearInt = parseInt(selectedYear);
+                if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+                    // Add the language to the dict to be used in the legend
+                    displayLanguages[shape.language] = shape.language_colour;
+                };
             };
         });
         // Sort the languages alphabetically
