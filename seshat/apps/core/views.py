@@ -2683,7 +2683,7 @@ def assign_categorical_variables_to_shapes(shapes, variables):
         language_colour[language] = colours[i]
         i+=1
     for shape in shapes:
-        shape['polity_language'] = 'uncoded'  # Default value
+        shape['polity_language'] = 'Uncoded'  # Default value
         shape['language_colour'] = 'grey'
         if shape['seshat_id'] != 'none':
             try:
