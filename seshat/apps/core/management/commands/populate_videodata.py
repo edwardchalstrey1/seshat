@@ -3,8 +3,8 @@ import json
 from distinctipy import get_colors, get_hex
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand
-from seshat.apps.core.models import VideoShapefile
-from seshat.apps.general.models import POLITY_LANGUAGE_CHOICES
+from seshat.apps.core.models import VideoShapefile, Polity
+from seshat.apps.general.models import POLITY_LANGUAGE_CHOICES, Polity_language
 
 class Command(BaseCommand):
     help = 'Populates the database with Shapefiles'
@@ -118,6 +118,21 @@ class Command(BaseCommand):
                         if geom.geom_type == 'Polygon':
                             geom = MultiPolygon(geom)
 
+                        # Determine the language and colour of the polity shape
+                        language = 'Uncoded'
+                        language_colour = 'grey'
+                        if properties['SeshatID'] != 'none':
+                            try:
+                                polity = Polity.objects.get(new_name=properties['SeshatID'])
+                                try:
+                                    polity_language = Polity_language.objects.filter(polity_id=polity.id).first()  # TODO: update to get all languages
+                                    language = polity_language.language
+                                    language_colour = lang_col_map[language]
+                                except:
+                                    pass
+                            except Polity.DoesNotExist:  # TODO: remove this when there are no longer seshat_id's in the Cliopatria data that don't exist in the Polity table
+                                pass
+
                         VideoShapefile.objects.create(
                             geom=geom,
                             name=properties['Name'],
@@ -129,7 +144,9 @@ class Command(BaseCommand):
                             end_year=end_year,
                             polity_start_year=polity_start_year,
                             polity_end_year=polity_end_year,
-                            colour=pol_col_map[polity_id]
+                            colour=pol_col_map[polity_id],
+                            language=language,
+                            language_colour=language_colour
                         )
 
                         self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
