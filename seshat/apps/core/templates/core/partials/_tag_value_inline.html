@@ -1,14 +1,14 @@
 <!-- Tag tag (Disputed/Suspected etc.) -->
     <a type="button" class="fs-6" data-bs-toggle="tooltip" data-bs-html="true"  title="References: {{ value.display_citations }}">
 {% if value.tag == "DSP" %}
-<span class="badge tag-border rounded-pill bg-danger"> {{ value.get_tag_display }}</span>
+<span class="badge" style="font-family: 'Roboto Mono', monospace; font-optical-sizing: auto; font-weight: 700; background:#1c0b0b; color:#f39b9b;"> {{ value.get_tag_display }}</span>
 {% elif  value.tag == "SSP" %}
-<span class="badge tag-border rounded-pill bg-warning text-dark"> {{ value.get_tag_display }}</span>
+<span class="badge" style="font-family: 'Roboto Mono', monospace; font-optical-sizing: auto; font-weight: 700; background:#edd0e7; color:#d4507c;"> {{ value.get_tag_display }}</span>
 {% elif  value.tag == "UNK" %}
-<span class="badge tag-border rounded-pill bg-secondary"> {{ value.get_tag_display }}</span>
+<span class="badge" style="font-family: 'Roboto Mono', monospace; font-optical-sizing: auto; font-weight: 700; background:#f9b9b9; color:#510c0c;"> {{ value.get_tag_display }}</span>
 {% elif  value.tag == "IFR" %}
-<span class="badge tag-border rounded-pill bg-primary"> {{ value.get_tag_display }}</span>
+<span class="badge" style="font-family: 'Roboto Mono', monospace; font-optical-sizing: auto; font-weight: 700; background:#7ac5ee; color:#4048a7;"> {{ value.get_tag_display }}</span>
 {% else  %}
-    <span class="badge tag-border rounded-pill bg-success"> {{ value.get_tag_display }}</span>
+    <span class="badge" style=" font-family: 'Roboto Mono', monospace; font-optical-sizing: auto; font-weight: 700; background:#c7e79e; color:#2f872f;">{{ value.get_tag_display }}</span>
 {% endif %}
 </a>

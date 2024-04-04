@@ -46,7 +46,6 @@
           <tr>
             <th scope="col" class="text-secondary">#</th>
             <th>Capital</th>
-            <th>Polity</th>
             <th>Current Country</th>
             <th style="text-align: center;"><i class="fa-solid fa-location-dot"></i></th>
             <th>Longitude</th>
@@ -62,7 +61,6 @@
                 <tr>
                 <td class="text-secondary" scope="row">{{ forloop.counter }}</td>
                 <td>{{ object.name }}</td>
-                <td>  <a href="{% url 'polity-detail-main' object.polity_cap_id %}"> {{ object.polity_cap.long_name }}</a> </td>
                 {% if object.current_country == "NO_COUNTRY_FROM_GOOGLE" or object.current_country == "No_country_from_google" %}
                 <td> - </td>
                 {% else %}

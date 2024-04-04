@@ -8,7 +8,7 @@
 {% elif  value.tag == "IFR" %}
     <td style="text-align: center;"><span class="badge rounded-pill bg-primary">{{ value.get_tag_display }}</span>
 {% else  %}
-    <td style="text-align: center;"><span class="badge rounded-pill bg-success">{{ value.get_tag_display }}</span>
+    <td style="text-align: center;">{{ value.get_tag_display }}</span>
 {% endif %}
 {% if value.display_citations %}
 <sup>

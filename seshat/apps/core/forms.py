@@ -169,12 +169,12 @@ class NgaForm(forms.ModelForm):
 class CapitalForm(forms.ModelForm):
     class Meta:
         model = Capital
-        fields = ('name', 'latitude', 'longitude', 'polity_cap', 'current_country', 'is_verified', 'url_on_the_map', 'note')
+        fields = ('name', 'latitude', 'longitude', 'current_country', 'is_verified', 'url_on_the_map', 'note')
         labels = {
         'name': '<b>Capital</b>',
         'latitude': '<b>Latitude</b>',
         'longitude': '<b>Longitude</b>',
-        'polity_cap': '<b>Polity</b>',
+        #'polity_cap': '<b>Polity</b>',
         'current_country': '<b>Current Country</b>',
         'is_verified': '<b class="text-primary">Verified?</b>',
         'url_on_the_map': '<b>Link on Google Maps</b>',
@@ -183,7 +183,7 @@ class CapitalForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(
                 attrs={'class': 'form-control mb-3', }),
-            'polity_cap': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
+            #'polity_cap': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
             'current_country': forms.TextInput(
                 attrs={'class': 'form-control mb-3', }),
             'url_on_the_map': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 120px', 'placeholder':'Add the full URL from Google Maps (optional)'}),

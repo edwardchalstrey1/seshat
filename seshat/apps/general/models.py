@@ -14,11 +14,12 @@ import uuid
 
 from django.utils import translation
 
-from ..core.models import SeshatCommon, Polity, Certainty, Tags, Section, Subsection
+from ..core.models import SeshatCommon, Polity, Certainty, Tags, Section, Subsection, Capital
 from seshat.apps.accounts.models import Seshat_Expert
 
 
 ########## End of Model Imports
+
 
 ########## Beginning of tuple choices for general Models
 POLITY_DEGREE_OF_CENTRALIZATION_CHOICES = (
@@ -26,27 +27,20 @@ POLITY_DEGREE_OF_CENTRALIZATION_CHOICES = (
 ('confederated state', 'confederated state'),
 ('unitary state', 'unitary state'),
 ('nominal', 'nominal'),
-('confederate state', 'confederate state'),
 ('quasi-polity', 'quasi-polity'),
-('suspected unknown', 'suspected unknown'),
 ('none', 'none'),
 ('unknown', 'unknown'),
-('confederation', 'confederation'),
-('polity', 'polity'),
-('NO_VALUE_ON_WIKI', 'NO_VALUE_ON_WIKI'),
-('nominal allegiance', 'nominal allegiance'),
-('unitary', 'unitary'),
-('feudal', 'feudal'),
+('uncoded', 'uncoded'),
 )
 
 POLITY_SUPRAPOLITY_RELATIONS_CHOICES = (
-('none', 'none'),
-('vassalage', 'vassalage'),
-('alliance', 'alliance'),
-('nominal allegiance', 'nominal allegiance'),
-('personal union', 'personal union'),
+('vassalage', 'vassalage to'),
+('alliance', 'alliance with'),
+('nominal allegiance', 'nominal allegiance to'),
+('personal union', 'personal union with'),
 ('unknown', 'unknown'),
 ('uncoded', 'uncoded'),
+('none', 'none'),
 )
 
 POLITY_LANGUAGE_CHOICES = (
@@ -881,11 +875,12 @@ class Polity_utm_zone(SeshatCommon):
     def __str__(self) -> str:
         return call_my_name(self)
              
-             
         
 class Polity_capital(SeshatCommon):
     name = models.CharField(max_length=100, default="Polity_capital")
     capital = models.CharField(max_length=500, blank=True, null=True)
+    polity_cap = models.ForeignKey(Capital, on_delete=models.SET_NULL, null=True, related_name="polity_caps")  
+
 
     class Meta:
         verbose_name = 'Polity_capital'
@@ -921,7 +916,12 @@ class Polity_capital(SeshatCommon):
         return reverse('polity_capital-detail', args=[str(self.id)])
 
     def __str__(self) -> str:
-        return call_my_name(self)
+        if self.polity_cap:
+            return self.polity_cap.name
+        elif self.capital:
+            return self.capital
+        else:
+            return call_my_name(self)
              
         
 class Polity_language(SeshatCommon):

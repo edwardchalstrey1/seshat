@@ -23,6 +23,8 @@
     <a href="{% url 'polity_capitals_all' %}?orderby=capital&orderby2=tag"><i class="fa-solid fa-caret-down"></i></a>
 </span>Capital
 </th>
+<th class = "fw-bold" style="text-align: center;" scope="col">Capital Object
+</th>
 <th class = "fw-normal" style="text-align: center;" scope="col">Description
     <sup>
     <span type="button" data-bs-toggle="popover" data-bs-html="true" data-bs-content="NO DESCRIPTION">&nbsp;<i class="fas fa-question-circle"></i></span>
@@ -44,6 +46,10 @@ text-primary
 text-success
 {% endif %} fw-normal" style="text-align: center;">
 <h6 class="pt-3">{{ obj.capital }}</h6>
+</td>
+
+<td>
+<h6 class="pt-3">{{ obj.polity_cap }}</h6>
 </td>
 {% autoescape off %}
 <td class="col-md-6"><small> {{ obj.comment }} </small></td>

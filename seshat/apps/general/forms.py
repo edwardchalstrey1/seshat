@@ -28,7 +28,8 @@ commonfields = ['polity', 'year_from', 'year_to',
                 'description', 'tag', 'is_disputed', 'is_uncertain', 'expert_reviewed', 'drb_reviewed', 'finalized', 'citations']
 
 commonwidgets = {
-    'polity': forms.Select(attrs={'class': 'form-control  mb-1 js-example-basic-single', 'id': 'id_polity', 'name': 'polity'}),    'year_from': forms.NumberInput(attrs={'class': 'form-control  mb-3',}),
+    'polity': forms.Select(attrs={'class': 'form-control  mb-1 js-example-basic-single', 'id': 'id_polity', 'name': 'polity'}),    
+    'year_from': forms.NumberInput(attrs={'class': 'form-control  mb-3',}),
     'year_to': forms.NumberInput(attrs={'class': 'form-control  mb-3', }),
     'description': Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 340px', 'placeholder':'Add a meaningful description (optional)'}),
     'citations': forms.SelectMultiple(attrs={'class': 'form-control mb-3 js-states js-example-basic-multiple', 'text':'citations[]' , 'style': 'height: 340px', 'multiple': 'multiple'}),
@@ -151,10 +152,13 @@ class Polity_capitalForm(forms.ModelForm):
         model = Polity_capital
         fields = commonfields.copy()
         fields.append('capital')
+        fields.append('polity_cap')
         labels = commonlabels
         
         widgets = dict(commonwidgets)
         widgets['capital'] = forms.TextInput(attrs={'class': 'form-control  mb-3', })
+        widgets['polity_cap'] = forms.Select(attrs={'class': 'form-control  mb-1 js-example-basic-single', 'id': 'id_polity_cap', 'name': 'polity_cap'})    
+
         
 
 class Polity_languageForm(forms.ModelForm):

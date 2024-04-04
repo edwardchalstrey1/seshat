@@ -185,8 +185,8 @@ def make_references_look_nicer(value):
     
     # Add the collected references at the end of the string in separate <p> tags with the color red
     if reference_data:
-        new_string += "<h6 class='pt-1 pb-0 text-secondary'><i class='fa-solid fa-bookmark fa-xs '></i> Reference(s): </h6>"
-        reference_tags = '\n'.join([f'<p id="{data["ref_id"]}" class="p-0 m-0 text-teal"><span class="fw-bold">  <a href="#sup_{data["ref_id"]}">[{data["ref_num"]}]</a></span>: <span style="font-size: 14px;">{reference.replace("MJD_BNM_NEWLINE_TAG_XYZ", " ")}</span> </p>' for reference, data in reference_data.items()])
+        #new_string += "<h6 class='pt-1 pb-0 text-secondary'><i class='fa-solid fa-bookmark fa-xs '></i> Reference(s): </h6>"
+        reference_tags = '\n'.join([f'<p id="{data["ref_id"]}" class="p-0 m-0 text-secondary"><span class="fw-bold">  <a href="#sup_{data["ref_id"]}">[{data["ref_num"]}]</a></span>: <span style="font-size: 14px;">{reference.replace("MJD_BNM_NEWLINE_TAG_XYZ", " ")}</span> </p>' for reference, data in reference_data.items()])
         new_string += reference_tags
 
     paargraphed_new_str = new_string.replace("MJD_BNM_NEWLINE_TAG_XYZ", "<br>")

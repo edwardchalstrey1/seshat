@@ -216,10 +216,11 @@ class Polity(models.Model):
 
 class Capital(models.Model):
     name = models.CharField(max_length=100)
+    alternative_names =  models.CharField(max_length=300, blank=True, null=True)
     current_country = models.CharField(max_length=100, blank=True, null=True)
     latitude = models.DecimalField(max_digits= 11, decimal_places = 8, blank=True, null=True)
     longitude = models.DecimalField(max_digits= 11, decimal_places = 8, blank=True, null=True)
-    polity_cap = models.ForeignKey(Polity, on_delete=models.SET_NULL, null=True, related_name="polity_caps")  
+    #polity_cap = models.ForeignKey(Polity, on_delete=models.SET_NULL, null=True, related_name="polity_caps")  
     year_from = models.IntegerField(blank=True, null=True)
     year_to = models.IntegerField(blank=True, null=True,) 
     url_on_the_map =  models.URLField(max_length=200, blank=True, null=True)

@@ -17,11 +17,14 @@
 {% endblock main_description %}
 
 {% block myheadings_list %}
-<th class = "fw-normal" style="text-align: center;" scope="col">Capital
+<th class = "fw-normal" style="text-align: center;" scope="col">Capitalllll
 <sup>
 <span type="button" data-bs-toggle="popover" data-bs-html="true" data-bs-content="NO DESCRIPTION">&nbsp;<i class="fas fa-question-circle"></i></span>
 </sup>
 </th>
+<th class = "fw-normal" style="text-align: center;" scope="col">Capitallllhhhhl
+
+    </th>
 {% endblock myheadings_list %}
 
 {% block extra_vars_list %}
@@ -38,6 +41,9 @@ text-primary
 text-success
 {% endif %} fw-normal" style="text-align: center;">{{ obj.politycapital }}
 </td>
+<div class="col-md-4 mb-2">
+    {{ obj.polity_cap|as_crispy_field }}
+</div>
 {% endblock extra_vars_list %}
 
 <!-- Update Button -->
