@@ -208,8 +208,12 @@ function updateLegend() {
         displayLanguages = {};
         shapesData.forEach(function (shape) {
             if (shape.weight > 0) {
-                // Add the language to the dict to be used in the legend
-                displayLanguages[shape.language] = shape.language_colour;
+                var selectedYear = document.getElementById('dateSlide').value;
+                var selectedYearInt = parseInt(selectedYear);
+                if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+                    // Add the language to the dict to be used in the legend
+                    displayLanguages[shape.language] = shape.language_colour;
+                };
             };
         });
         // Sort the languages alphabetically
