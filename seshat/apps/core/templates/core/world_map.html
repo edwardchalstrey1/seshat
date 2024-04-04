@@ -109,11 +109,22 @@
                     <select name="chooseVariable" id="chooseVariable" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
                         <option value="polity">Polity</option>
                         {% for category, variables in variables.items %}
-                            <optgroup label="{{ category }}">
-                                {% for variable, details in variables.items %}
-                                    <option value="{{ details.formatted }}">{{ details.full_name }}</option>
-                                {% endfor %}
-                            </optgroup>
+                            {% if category == 'General Variables' %}
+                                <optgroup label="{{ category }}">
+                                    {% for variable, details in variables.items %}
+                                        <option value="{{ details.formatted }}">{{ details.full_name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endif %}
+                        {% endfor %}
+                        {% for category, variables in variables.items %}
+                            {% if category != 'General Variables' %}
+                                <optgroup label="{{ category }}">
+                                    {% for variable, details in variables.items %}
+                                        <option value="{{ details.formatted }}">{{ details.full_name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endif %}
                         {% endfor %}
                     </select>
                     <button id="polButton" type="button" onclick="polityButton()">Polity</button><br>
