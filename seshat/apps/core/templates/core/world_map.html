@@ -479,6 +479,24 @@
                                     };
                                     L.DomEvent.stopPropagation(e);
                                 });
+                                if (variable == 'language' && shape.language != 'Uncoded') {
+                                    // Calculate the center of the polygon
+                                    var bounds = layer.getBounds();
+                                    var center = bounds.getCenter();
+
+                                    // Create a label and add it to the map at the center of the polygon
+                                    var label = L.marker(center, {
+                                        icon: L.divIcon({
+                                            className: 'label',
+                                            html: shape.language,
+                                            iconSize: [1, 1]
+                                        }),
+                                        opacity: 1
+                                    }).addTo(map);
+
+                                    // Set the color of the label text
+                                    label.getElement().style.color = shape.language_colour;
+                                };
                             }
                         }).addTo(map);
 
