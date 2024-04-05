@@ -57,7 +57,7 @@ from django.urls import reverse, reverse_lazy
 
 from django.contrib.messages.views import SuccessMessageMixin
 
-from ..general.models import Polity_research_assistant, Polity_duration, Polity_language
+from ..general.models import Polity_research_assistant, Polity_duration, Polity_language, POLITY_LANGUAGE_CHOICES
 
 from ..crisisdb.models import Power_transition
 
@@ -2702,6 +2702,9 @@ app_map = {
     # 'general': 'General Variables',
 }
 
+# Get a sorted list of language choices
+language_choices = sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
+
 def map_view_initial(request):
     """
         This view is used to display a map with polities plotted on it.
@@ -2730,6 +2733,9 @@ def map_view_initial(request):
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
     content['all_capitals_info'] = caps
+
+    # Add a list of the language choices to content
+    content['language_choices'] = language_choices
     
     return render(request,
                   'core/world_map.html',
@@ -2752,6 +2758,9 @@ def map_view_all(request):
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
     content['all_capitals_info'] = caps
+
+    # Add a list of the language choices to content
+    content['language_choices'] = language_choices
     
     return JsonResponse(content)
 
