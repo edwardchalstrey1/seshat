@@ -212,7 +212,11 @@ function updateLegend() {
                 var selectedYearInt = parseInt(selectedYear);
                 if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
                     // Add the language to the dict to be used in the legend
-                    displayLanguages[shape.language] = shape.language_colour;
+                    i = 0;
+                    shape.languages.forEach(function (language) {
+                        displayLanguages[language] = shape.language_colours[i];
+                        i++;
+                    });
                 };
             };
         });
