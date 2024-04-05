@@ -204,6 +204,16 @@
             {% endfor %}
         ];
 
+        // Iterate through shapesData and ensure the 'languages' and 'language_colours' fields are lists
+        shapesData.forEach(function (shape) {
+            if (shape.languages) {
+                shape.languages = JSON.parse(shape.languages.replace(/'/g, '"'));
+            }
+            if (shape.language_colours) {
+                shape.language_colours = JSON.parse(shape.language_colours.replace(/'/g, '"'));
+            }
+        });
+
         // Load seshat_id_page_id dictionary
         var seshat_id_page_id = {{ seshat_id_page_id | safe }};
 
@@ -338,7 +348,6 @@
 
             // Convert to int, because for some reason JS converts it to a string
             var selectedYearInt = parseInt(selectedYear);
-
             // Add shapes to the map
             // Don't plot them if "Base map only" checkbox selected
             if (!document.getElementById('baseMapOnly').checked){
