@@ -70,6 +70,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Generating colour mapping for {len(POLITY_LANGUAGE_CHOICES)} languages'))
         lang_col_map = colour_mapping([x[0] for x in POLITY_LANGUAGE_CHOICES])
         self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
+        # Update the colour column of the Polity_language table based on the value of the language column
+        self.stdout.write(self.style.SUCCESS('Updating Polity_language table with colour mapping'))
+        for lang in POLITY_LANGUAGE_CHOICES:
+            Polity_language.objects.filter(language=lang[0]).update(colour=lang_col_map[lang[0]])
+        self.stdout.write(self.style.SUCCESS('Polity_language table updated'))
 
         # Iterate over files in the directory
         for filename in os.listdir(dir):
@@ -119,21 +124,6 @@ class Command(BaseCommand):
                         if geom.geom_type == 'Polygon':
                             geom = MultiPolygon(geom)
 
-                        # Determine the language and colour of the polity shape
-                        language = 'Uncoded'
-                        language_colour = 'grey'
-                        if properties['SeshatID'] != 'none':
-                            try:
-                                polity = Polity.objects.get(new_name=properties['SeshatID'])
-                                try:
-                                    polity_language = Polity_language.objects.filter(polity_id=polity.id).first()  # TODO: update to get all languages
-                                    language = polity_language.language
-                                    language_colour = lang_col_map[language]
-                                except:
-                                    pass
-                            except Polity.DoesNotExist:  # TODO: remove this when there are no longer seshat_id's in the Cliopatria data that don't exist in the Polity table
-                                pass
-
                         VideoShapefile.objects.create(
                             geom=geom,
                             name=properties['Name'],
@@ -145,9 +135,7 @@ class Command(BaseCommand):
                             end_year=end_year,
                             polity_start_year=polity_start_year,
                             polity_end_year=polity_end_year,
-                            colour=pol_col_map[polity_id],
-                            language=language,
-                            language_colour=language_colour
+                            colour=pol_col_map[polity_id]
                         )
 
                         self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))

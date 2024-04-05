@@ -2672,6 +2672,20 @@ def assign_categorical_variables_to_shapes(shapes, variables):
     variables['General Variables']['polity_language'] = {}
     variables['General Variables']['polity_language']['formatted'] = 'language'
     variables['General Variables']['polity_language']['full_name'] = 'Language'
+    # Determine the language and colour of the polity shape
+    # language = 'Uncoded'
+    # language_colour = 'grey'
+    # if properties['SeshatID'] != 'none':
+    #     try:
+    #         polity = Polity.objects.get(new_name=properties['SeshatID'])
+    #         try:
+    #             polity_language = Polity_language.objects.filter(polity_id=polity.id).first()  # TODO: update to get all languages
+    #             language = polity_language.language
+    #             language_colour = lang_col_map[language]
+    #         except:
+    #             pass
+    #     except Polity.DoesNotExist:  # TODO: remove this when there are no longer seshat_id's in the Cliopatria data that don't exist in the Polity table
+    #         pass
     return shapes, variables
 
 # Get all the variables used in the map view
