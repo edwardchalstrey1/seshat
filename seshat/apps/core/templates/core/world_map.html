@@ -129,12 +129,14 @@
                         {% endfor %}
                     </select>
                     <button id="polButton" type="button" onclick="polityButton()">Polity</button><br>
-                    <label for="chooseLanguage">Show language:</label>
-                    <select name="chooseLanguage" id="chooseLanguage" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
-                        {% for language in language_choices %}
-                            <option value="{{ language }}" {% if language == 'Greek' %}selected{% endif %}>{{ language }}</option>
-                        {% endfor %}
-                    </select><br>
+                    <fieldset id="chooseLanguageFieldset">
+                        <label for="chooseLanguage">Show language:</label>
+                        <select name="chooseLanguage" id="chooseLanguage" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
+                            {% for language in language_choices %}
+                                <option value="{{ language }}" {% if language == 'Greek' %}selected{% endif %}>{{ language }}</option>
+                            {% endfor %}
+                        </select><br>
+                    </fieldset>
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
@@ -336,6 +338,13 @@
                     shapesData[i]['weight'] = 0;
                     i++;
                 });
+            }
+
+            // If the variable is language, show the language selection dropdown
+            if (variable == 'language') {
+                document.getElementById('chooseLanguageFieldset').style.display = 'block';
+            } else {
+                document.getElementById('chooseLanguageFieldset').style.display = 'none';
             }
 
             updateLegend();
