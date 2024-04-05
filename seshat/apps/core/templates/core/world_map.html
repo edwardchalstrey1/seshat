@@ -351,7 +351,7 @@
                         shapeColour = shape.colour;
                     } else if (variable == 'language'){
                         shapeWeight = shape.weight;
-                        shapeColour = shape.language_colour;
+                        shapeColour = shape.language_colours[0];  // TODO: Handle multiple languages
                     } else {
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
@@ -492,7 +492,8 @@
                                         // Update weights in shapesData
                                         var i = 0;
                                         shapesData.forEach(function (shape2) {
-                                            if (shape2.name === shape.name || (shape2.language === shape.language && variable == 'language')) {
+                                            if (shape2.name === shape.name) {
+                                            // if (shape2.name === shape.name || (shape2.language === shape.language && variable == 'language')) {  TODO: Handle multiple languages, check against the selected language
                                                 shapesData[i]['weight'] = newWeight;
                                             }
                                             i++;
