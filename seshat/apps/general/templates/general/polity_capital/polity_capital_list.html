@@ -45,11 +45,11 @@ text-primary
 {% else %}
 text-success
 {% endif %} fw-normal" style="text-align: center;">
-<h6 class="pt-3">{{ obj.capital }}</h6>
+<h6 class="pt-3 text-secondary">{{ obj.capital }}</h6>
 </td>
 
 <td>
-<h6 class="pt-3">{{ obj.polity_cap }}</h6>
+<h6 class="pt-3 fw-bold">{{ obj.polity_cap }}</h6>
 </td>
 {% autoescape off %}
 <td class="col-md-6"><small> {{ obj.comment }} </small></td>

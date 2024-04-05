@@ -901,10 +901,12 @@ class Polity_capital(SeshatCommon):
         return "Polity Capital"
     
     def show_value(self):
-        if self.capital:
+        if self.polity_cap:
+            return self.polity_cap
+        elif self.capital:
             return self.capital
         else:
-            return " - "
+            return call_my_name(self)
         
     def subsection(self):
         return "Identity and Location"

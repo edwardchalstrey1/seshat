@@ -41,11 +41,12 @@
         </div>
     </div>
     <div class="table-responsive">
-    <table id="table_id" class="table align-middle">
+    <table id="table_id" class="table table-striped align-middle">
         <thead>
           <tr>
             <th scope="col" class="text-secondary">#</th>
-            <th>Capital</th>
+            <th>Name [Alternative Names]</th>
+            <th>Polities</th>
             <th>Current Country</th>
             <th style="text-align: center;"><i class="fa-solid fa-location-dot"></i></th>
             <th>Longitude</th>
@@ -60,7 +61,19 @@
                 {% for object in object_list %}
                 <tr>
                 <td class="text-secondary" scope="row">{{ forloop.counter }}</td>
-                <td>{{ object.name }}</td>
+                <td>{{ object.name }}
+                    {% if object.alternative_names %}
+                    [{{ object.alternative_names }}]
+                    {% endif %}
+                </td>
+                <td>
+
+
+                    {% for x in object.polity_caps.all %}
+                    <a data-bs-toggle='tooltip' data-bs-html='true' class="fw-bold" title='{{x.polity.long_name}}' href="{% url 'polity-detail-main' x.polity.id %}">{{x.polity.new_name}}</a><br>
+                    {% endfor %}
+
+                </td>
                 {% if object.current_country == "NO_COUNTRY_FROM_GOOGLE" or object.current_country == "No_country_from_google" %}
                 <td> - </td>
                 {% else %}

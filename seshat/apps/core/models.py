@@ -234,6 +234,8 @@ class Capital(models.Model):
 
     def __str__(self) -> str:
         """string for epresenting the model obj in Admin Site"""
+        if self.name and self.alternative_names:
+            return str(self.name) + " [" + str(self.alternative_names) + "]"
         return self.name
     class Meta:
        #ordering = ['-year']

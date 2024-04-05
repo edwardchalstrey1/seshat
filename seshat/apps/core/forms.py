@@ -169,16 +169,16 @@ class NgaForm(forms.ModelForm):
 class CapitalForm(forms.ModelForm):
     class Meta:
         model = Capital
-        fields = ('name', 'latitude', 'longitude', 'current_country', 'is_verified', 'url_on_the_map', 'note')
+        fields = ('name', 'latitude', 'longitude', 'current_country', 'alternative_names','is_verified', 'url_on_the_map', 'note')
         labels = {
-        'name': '<b>Capital</b>',
-        'latitude': '<b>Latitude</b>',
-        'longitude': '<b>Longitude</b>',
-        #'polity_cap': '<b>Polity</b>',
-        'current_country': '<b>Current Country</b>',
-        'is_verified': '<b class="text-primary">Verified?</b>',
-        'url_on_the_map': '<b>Link on Google Maps</b>',
-        'note': '<b>Add an optional Note</b>',
+        'name': 'City Name',
+        'latitude': 'Latitude',
+        'longitude': 'Longitude',
+        'alternative_names': 'Alternative Names',
+        'current_country': 'Current Country',
+        'is_verified': 'Verified?',
+        'url_on_the_map': 'Link on Google Maps',
+        'note': 'Add an optional Note',
         }
         widgets = {
             'name': forms.TextInput(
@@ -186,13 +186,15 @@ class CapitalForm(forms.ModelForm):
             #'polity_cap': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
             'current_country': forms.TextInput(
                 attrs={'class': 'form-control mb-3', }),
+            'alternative_names': forms.TextInput(
+                attrs={'class': 'form-control mb-3', }),
             'url_on_the_map': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 120px', 'placeholder':'Add the full URL from Google Maps (optional)'}),
             'note': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 120px', 'placeholder':'Add a note (optional)'}),
             'latitude': forms.NumberInput(
                 attrs={'class': 'form-control  mb-3 fw-bold', }),
             'longitude': forms.NumberInput(
                 attrs={'class': 'form-control  mb-3 fw-bold', }),
-            'is_verified' : forms.CheckboxInput(attrs={'type': 'checkbox', 'class': 'form-control form-check-input mb-3'}),
+            'is_verified' : forms.CheckboxInput(attrs={'class': 'mb-3', }),
             #'is_verified' : forms.Select(attrs={'class': 'form-control form-select mb-3',}),
         }
 

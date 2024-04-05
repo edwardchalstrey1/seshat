@@ -1195,7 +1195,7 @@ class Polity_capitalCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
         context["mysection"] = "General Variables"
         context["mysubsection"] = "General Variables"
         context["myvar"] = "Polity Capital"
-        context["my_exp"] = "The capital of a polity."
+        context["my_exp"] = "The capital of a polity is connection point between an existing Polity instance and an existing Capital instance. Optionally, year range associations can be specified. If not provided, it implies that the capital remains constant throughout the entire duration of the polity's existence."
         context["var_null_meaning"] = "The value is not available."
         context["inner_vars"] = {'capital': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The capital of a polity.', 'units': None, 'choices': None, 'null_meaning': 'This polity did not have a capital.'}}
         context["potential_cols"] = []
@@ -1211,6 +1211,7 @@ class Polity_capitalUpdate(PermissionRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Polity Capital"
+        context["my_exp"] = "The capital of a polity is connection point between an existing Polity instance and an existing Capital instance. Optionally, year range associations can be specified. If not provided, it implies that the capital remains constant throughout the entire duration of the polity's existence."
 
         return context
 
@@ -1232,7 +1233,7 @@ class Polity_capitalListView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Polity Capital"
-        context["var_main_desc"] = "The capital of a polity."
+        context["var_main_desc"] = "The capital of a polity is connection point between an existing Polity instance and an existing Capital instance. Optionally, year range associations can be specified. If not provided, it implies that the capital remains constant throughout the entire duration of the polity's existence."
         context["var_main_desc_source"] = "None"
         context["var_section"] = "General Variables"
         context["var_subsection"] = "General"
@@ -1259,7 +1260,7 @@ class Polity_capitalListViewAll(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Polity Capital"
-        context["var_main_desc"] = "The capital of a polity."
+        context["var_main_desc"] = "The capital of a polity is connection point between an existing Polity instance and an existing Capital instance. Optionally, year range associations can be specified. If not provided, it implies that the capital remains constant throughout the entire duration of the polity's existence."
         context["var_main_desc_source"] = "None"
         context["var_section"] = "General Variables"
         context["var_subsection"] = "General"
@@ -1286,7 +1287,12 @@ def polity_capital_download(request):
                     'capital', 'confidence', 'is_disputed', 'expert_checked', 'DRB_reviewed'])
 
     for obj in items:
-        writer.writerow([obj.name, obj.year_from, obj.year_to,
+        if obj.polity_cap:
+            writer.writerow([obj.name, obj.year_from, obj.year_to,
+                         obj.polity, obj.polity.new_name, obj.polity.name, str(obj.polity_cap), obj.get_tag_display(), obj.is_disputed,
+                         obj.expert_reviewed, obj.drb_reviewed,])
+        else:
+            writer.writerow([obj.name, obj.year_from, obj.year_to,
                          obj.polity, obj.polity.new_name, obj.polity.name, obj.capital, obj.get_tag_display(), obj.is_disputed,
                          obj.expert_reviewed, obj.drb_reviewed,])
 

@@ -16,8 +16,8 @@ commonlabels = {
     'year_from': 'Start Year',
     'year_to': 'End Year',
     'tag': 'Confidence Level',
-    "is_disputed" : "&nbsp; <b> There is a Dispute? </b>",
-    "is_uncertain" : "&nbsp; <b> There is Uncertainty? </b>",
+    "is_disputed" : "&nbsp; There is a Dispute?",
+    "is_uncertain" : "&nbsp; There is Uncertainty?",
     "expert_reviewed" : "&nbsp; Expert Checked?",
     "drb_reviewed" : "&nbsp; Data Review Board Reviewed?",
     'citations': 'Add one or more Citations',
@@ -35,7 +35,7 @@ commonwidgets = {
     'citations': forms.SelectMultiple(attrs={'class': 'form-control mb-3 js-states js-example-basic-multiple', 'text':'citations[]' , 'style': 'height: 340px', 'multiple': 'multiple'}),
     'tag': forms.RadioSelect(),
     "is_disputed" : forms.CheckboxInput(attrs={'class': 'mb-3', }),
-    "is_uncertain" : forms.CheckboxInput(attrs={'class': 'mb-1', }),
+    "is_uncertain" : forms.CheckboxInput(attrs={'class': 'mb-3', }),
     "expert_reviewed" : forms.CheckboxInput(attrs={'class': 'mb-3', }),
     "drb_reviewed" : forms.CheckboxInput(attrs={'class': 'mb-3', }),
     'finalized': forms.CheckboxInput(attrs={'class': 'mb-3', 'checked': True, }),
@@ -154,9 +154,13 @@ class Polity_capitalForm(forms.ModelForm):
         fields.append('capital')
         fields.append('polity_cap')
         labels = commonlabels
+
+        labels['capital'] = 'Coded Capital (Obsolete)'
+        labels['polity_cap'] = 'Polity Capital'
+
         
         widgets = dict(commonwidgets)
-        widgets['capital'] = forms.TextInput(attrs={'class': 'form-control  mb-3', })
+        widgets['capital'] = forms.TextInput(attrs={'class': 'form-control  mb-3', 'readonly': "True" })
         widgets['polity_cap'] = forms.Select(attrs={'class': 'form-control  mb-1 js-example-basic-single', 'id': 'id_polity_cap', 'name': 'polity_cap'})    
 
         
