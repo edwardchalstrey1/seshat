@@ -374,6 +374,10 @@
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
                     } else if (variable == 'language'){
+                        if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {
+                            shape.weight = 2;
+                            updateLegend();
+                        }
                         shapeWeight = shape.weight;
                         shapeColour = shape.language_colours[0];  // TODO: Handle multiple languages
                     } else {
