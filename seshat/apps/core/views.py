@@ -2524,7 +2524,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     else:
         rows = VideoShapefile.objects.all()
 
-    rows = rows.values('seshat_id', 'name', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom', 'language', 'language_colour')
+    rows = rows.values('seshat_id', 'name', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom')
 
     shapes = list(rows)
     for shape in shapes:
@@ -2672,20 +2672,26 @@ def assign_categorical_variables_to_shapes(shapes, variables):
     variables['General Variables']['polity_language'] = {}
     variables['General Variables']['polity_language']['formatted'] = 'language'
     variables['General Variables']['polity_language']['full_name'] = 'Language'
-    # Determine the language and colour of the polity shape
-    # language = 'Uncoded'
-    # language_colour = 'grey'
-    # if properties['SeshatID'] != 'none':
-    #     try:
-    #         polity = Polity.objects.get(new_name=properties['SeshatID'])
-    #         try:
-    #             polity_language = Polity_language.objects.filter(polity_id=polity.id).first()  # TODO: update to get all languages
-    #             language = polity_language.language
-    #             language_colour = lang_col_map[language]
-    #         except:
-    #             pass
-    #     except Polity.DoesNotExist:  # TODO: remove this when there are no longer seshat_id's in the Cliopatria data that don't exist in the Polity table
-    #         pass
+    # Add the languages and language colours to the polity shapes
+    for shape in shapes:
+        shape['languages'] = []
+        shape['language_colours'] = []
+        if shape['seshat_id'] != 'none':
+            try:
+                polity = Polity.objects.get(new_name=shape['seshat_id'])
+                try:
+                    polity_languages = Polity_language.objects.filter(polity_id=polity.id)
+                    # Add the language and language_colour of each polity_language to lists
+                    for polity_language in polity_languages:
+                        shape['languages'].append(polity_language.language)
+                        shape['language_colours'].append(polity_language.colour)  
+                except:
+                    pass
+            except Polity.DoesNotExist:
+                pass
+        if len(shape['languages']) == 0:
+            shape['languages'].append('Uncoded')
+            shape['language_colours'].append('grey')
     return shapes, variables
 
 # Get all the variables used in the map view
