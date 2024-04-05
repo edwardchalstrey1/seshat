@@ -49,8 +49,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    <script src="https://unpkg.com/leaflet-textpath@1.2.3/leaflet.textpath.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf/turf.min.js"></script>
+    <!-- <script src="https://unpkg.com/leaflet.stripepattern"></script> -->
 
 </head>
 <style>
@@ -384,6 +383,19 @@
                                 displayend_year = shape.polity_end_year + ' CE';
                             }
                         }
+
+                        // // Create a new stripe pattern
+                        // var pattern = new L.StripePattern({
+                        //     color: shapeColour,
+                        //     secondaryColor: 'pink',
+                        //     patternContentUnits: 'objectBoundingBox',
+                        //     patternUnits: 'objectBoundingBox',
+                        //     weight: 0.1,
+                        //     spaceWeight: 0.1,
+                        //     height: 0.1,
+                        //     width: 0.1
+                        // });
+                        // pattern.addTo(map);
                         
                         // Add shape
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom), {
@@ -395,6 +407,14 @@
                                     fillOpacity: 0.5      // Set the fill opacity
                                 };
                             },
+                            // style: function (feature) {
+                            //     return {
+                            //         fillColor: pattern.patternUrl(),  // Set the fill color to the pattern
+                            //         color: shapeColour,              // Set the border color
+                            //         weight: shapeWeight,            // Set the border weight
+                            //         fillOpacity: 0.5               // Set the fill opacity
+                            //     };
+                            // },
                             onEachFeature: function (feature, layer) {
                                 var popupContent = `
                                     <table>
@@ -481,64 +501,6 @@
                                     };
                                     L.DomEvent.stopPropagation(e);
                                 });
-                                if (variable == 'language' && shape.language != 'Uncoded') {
-
-                                    // Labels around polygon edges
-                                    // layer.setText(shape.language, {
-                                    //     repeat: true,
-                                    //     center: true,
-                                    //     attributes: { fill: shape.language_colour }
-                                    // });
-
-                                    // Single label at polygon center
-                                    // var bounds = layer.getBounds();
-                                    // var center = bounds.getCenter();
-
-                                    // // Create a label and add it to the map at the center of the polygon
-                                    // var label = L.marker(center, {
-                                    //     icon: L.divIcon({
-                                    //         className: 'label',
-                                    //         html: shape.language,
-                                    //         iconSize: [1, 1]
-                                    //     }),
-                                    //     opacity: 1
-                                    // }).addTo(map);
-
-                                    // // Set the color of the label text
-                                    // label.getElement().style.color = shape.language_colour;
-
-                                    // Turf.js example
-                                    // var bbox = turf.bbox(feature);
-
-                                    // // Create a line that intersects the polygon
-                                    // var line = turf.lineString([[bbox[0], bbox[1]], [bbox[2], bbox[3]]]);
-                                    // var intersection = turf.lineIntersect(feature, line);
-                                    // // console.log(intersection);
-                                    // // Create a polyline from the intersection and add it to the map
-                                    // if (intersection && intersection.features && intersection.features.length > 0) {
-                                    //     // Create a new coordinates list
-                                    //     var coordinates = [];
-
-                                    //     // Iterate over each feature
-                                    //     intersection.features.forEach(function(feature) {
-                                    //         // Add the feature's coordinates to the list
-                                    //         coordinates.push(feature.geometry.coordinates);
-                                    //     });
-
-                                    //     // Create the polyline with the new coordinates list
-                                    //     var polyline = L.polyline(coordinates, {
-                                    //         color: 'transparent'  // Make the polyline invisible
-                                    //     }).addTo(map);
-
-                                    //     // Add the text to the polyline
-                                    //     polyline.setText(shape.language, {
-                                    //         repeat: true,
-                                    //         center: true,
-                                    //         attributes: { fill: shape.language_colour }
-                                    //     });
-                                    //     console.log("Created label for " + shape.language);
-                                    // }
-                                }
                             }
                         }).addTo(map);
 
