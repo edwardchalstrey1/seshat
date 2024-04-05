@@ -445,11 +445,19 @@
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                 `;
-                                if (variable != 'polity') {
+                                if (variable != 'polity' && variable != 'language') {
                                     popupContent = popupContent + `
                                         <tr>
                                             <td><span style="text-transform: capitalize;">${variable}</span></td>
                                             <td><span style="text-transform: capitalize;">${shape[variable]}</span></td>
+                                        </tr>
+                                    `;
+                                }
+                                if (variable == 'language') {
+                                    popupContent = popupContent + `
+                                        <tr>
+                                            <td><span style="text-transform: capitalize;">Languages</span></td>
+                                            <td><span style="text-transform: capitalize;">${shape.languages.join(', ')}</span></td>
                                         </tr>
                                     `;
                                 }
