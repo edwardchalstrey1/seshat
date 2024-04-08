@@ -380,6 +380,18 @@
                         }
                         shapeWeight = shape.weight;
                         shapeColour = shape.language_colours[0];  // TODO: Handle multiple languages
+                        if (shape.language_colours.length == 2) {                       
+                            // Create a new stripe pattern
+                            var pattern = new L.StripePattern({
+                                color: shape.language_colours[0],
+                                spaceColor: shape.language_colours[1],
+                                weight: 4,
+                                spaceWeight: 4,
+                                opacity: 1,
+                                spaceOpacity: 1,
+                            });
+                            pattern.addTo(map);
+                        };
                     } else {
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
@@ -412,37 +424,25 @@
                             }
                         }
 
-                        // Create a new stripe pattern
-                        // var pattern = new L.StripePattern({
-                        //     color: shapeColour,
-                        //     // color: 'white',
-                        //     spaceColor: 'black',
-                        //     weight: 4,
-                        //     spaceWeight: 4,
-                        //     opacity: 1,
-                        //     spaceOpacity: 1,
-                        // });
-                        // pattern.addTo(map);
-                        // console.log(pattern);
-                        
                         // Add shape
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom), {
                             style: function (feature) {
-                                return {
-                                    fillColor: shapeColour,  // Set the fill color based on the "colour" field
+                                // Create the style object
+                                var style = {
                                     color: shapeColour,     // Set the border color
                                     weight: shapeWeight,   // Set the border weight
                                     fillOpacity: 0.5      // Set the fill opacity
                                 };
+
+                                // Conditionally set the fill color or pattern
+                                if (variable == 'language' && shape.language_colours.length == 2) {
+                                    style.fillPattern = pattern;
+                                } else {
+                                    style.fillColor = shapeColour;
+                                }
+
+                                return style;
                             },
-                            // style: function (feature) {
-                            //     return {
-                            //         fillPattern: pattern,             // Set the fill color to the pattern
-                            //         color: shapeColour,              // Set the border color
-                            //         weight: shapeWeight,            // Set the border weight
-                            //         fillOpacity: 0.5               // Set the fill opacity
-                            //     };
-                            // },
                             onEachFeature: function (feature, layer) {
                                 var popupContent = `
                                     <table>
