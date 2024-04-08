@@ -394,23 +394,24 @@
                                 if (shape.language_colours.length > 1) {
                                     shapeColour = oneLanguageColourMapping['Present non-exclusively'];
                                 } else {
-                                    shapeColour = oneLanguageColourMapping['Present exclusively'];
-                                    if (shape.languages[0] == 'unknown') {
-                                        shapeColour = oneLanguageColourMapping['Unknown'];
-                                    } else if (shape.languages[0] == 'uncoded') {
-                                        shapeColour = new L.StripePattern({
-                                            color: oneLanguageColourMapping['Uncoded'],
-                                            spaceColor: 'yellow',
-                                            weight: 4,
-                                            spaceWeight: 4,
-                                            opacity: 1,
-                                            spaceOpacity: 1,
-                                        });
-                                        shapeColour.addTo(map);
-                                    }
+                                    shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
                                 }
                             } else {
-                                shapeColour = oneLanguageColourMapping['Absent'];
+                                if (shape.languages[0] == 'Unknown') {   // If the language is unknown or uncoded, there will be only one language
+                                    shapeColour = oneLanguageColourMapping['Unknown'];
+                                } else if (shape.languages[0] == 'Uncoded') {
+                                    shapeColour = new L.StripePattern({
+                                        color: oneLanguageColourMapping['Uncoded'],
+                                        spaceColor: 'yellow',
+                                        weight: 4,
+                                        spaceWeight: 4,
+                                        opacity: 1,
+                                        spaceOpacity: 1,
+                                    });
+                                    shapeColour.addTo(map);
+                                } else {
+                                    shapeColour = oneLanguageColourMapping['Absent'];
+                                }
                             }                          
                         } else if (document.getElementById('languageView').value == 'all') {
                             if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {
