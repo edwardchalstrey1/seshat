@@ -390,8 +390,7 @@
                                     if (shape.languages[0] == 'unknown') {
                                         shapeColour = 'grey';
                                     } else if (shape.languages[0] == 'uncoded') {
-                                        shapeColour = 'black';
-                                        var pattern = new L.StripePattern({
+                                        shapeColour = new L.StripePattern({
                                             color: 'black',
                                             spaceColor: 'yellow',
                                             weight: 4,
@@ -399,7 +398,7 @@
                                             opacity: 1,
                                             spaceOpacity: 1,
                                         });
-                                        pattern.addTo(map);
+                                        shapeColour.addTo(map);
                                     }
                                 }
                             } else {
@@ -414,7 +413,7 @@
                             shapeColour = shape.language_colours[0];  // This gets used by polities with just one language
                             if (shape.language_colours.length == 2) {                       
                                 // Create a new stripe pattern
-                                var pattern = new L.StripePattern({
+                                shapeColour = new L.StripePattern({
                                     color: shape.language_colours[0],
                                     spaceColor: shape.language_colours[1],
                                     weight: 4,
@@ -422,10 +421,10 @@
                                     opacity: 1,
                                     spaceOpacity: 1,
                                 });
-                                pattern.addTo(map);
+                                shapeColour.addTo(map);
                             } else if (shape.language_colours.length > 2) {
                                 // For languages with more than 2 colours, use the first colour and grey
-                                var pattern = new L.StripePattern({
+                                shapeColour = new L.StripePattern({
                                     color: shape.language_colours[0],
                                     spaceColor: 'grey',
                                     weight: 4,
@@ -433,7 +432,7 @@
                                     opacity: 1,
                                     spaceOpacity: 1,
                                 });
-                                pattern.addTo(map);
+                                shapeColour.addTo(map);
                             }
 
                         }
@@ -441,7 +440,7 @@
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
                         if (shape[variable] == 'uncoded') {
-                            var pattern = new L.StripePattern({
+                            shapeColour = new L.StripePattern({
                                 color: 'black',
                                 spaceColor: 'yellow',
                                 weight: 4,
@@ -449,7 +448,7 @@
                                 opacity: 1,
                                 spaceOpacity: 1,
                             });
-                            pattern.addTo(map);
+                            shapeColour.addTo(map);
                         }
                     }
 
@@ -491,8 +490,8 @@
                                 };
 
                                 // Conditionally set the fill color or pattern
-                                if ((variable == 'language' && ((document.getElementById('languageView').value == 'all' && shape.language_colours.length >= 2) || (document.getElementById('languageView').value == 'one' && shape[variable] == 'uncoded'))) || (variable != 'polity' && variable != 'language' && shape[variable] == 'uncoded')) {
-                                    style.fillPattern = pattern;
+                                if (shapeColour instanceof L.Pattern) {
+                                    style.fillPattern = shapeColour;
                                 } else {
                                     style.fillColor = shapeColour;
                                 }
