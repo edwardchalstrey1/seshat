@@ -379,7 +379,7 @@
                             updateLegend();
                         }
                         shapeWeight = shape.weight;
-                        shapeColour = shape.language_colours[0];  // TODO: Handle multiple languages
+                        shapeColour = shape.language_colours[0];  // This gets used by polities with just one language
                         if (shape.language_colours.length == 2) {                       
                             // Create a new stripe pattern
                             var pattern = new L.StripePattern({
@@ -391,7 +391,18 @@
                                 spaceOpacity: 1,
                             });
                             pattern.addTo(map);
-                        };
+                        } else if (shape.language_colours.length > 2) {
+                            // For languages with more than 2 colours, use the first colour and grey
+                            var pattern = new L.StripePattern({
+                                color: shape.language_colours[0],
+                                spaceColor: 'grey',
+                                weight: 4,
+                                spaceWeight: 4,
+                                opacity: 1,
+                                spaceOpacity: 1,
+                            });
+                            pattern.addTo(map);
+                        }
                     } else {
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
@@ -435,7 +446,7 @@
                                 };
 
                                 // Conditionally set the fill color or pattern
-                                if (variable == 'language' && shape.language_colours.length == 2) {
+                                if (variable == 'language' && shape.language_colours.length >= 2) {
                                     style.fillPattern = pattern;
                                 } else {
                                     style.fillColor = shapeColour;

@@ -217,6 +217,9 @@ function updateLegend() {
                         displayLanguages[language] = shape.language_colours[i];
                         i++;
                     });
+                    if (shape.languages.length > 2) {
+                        displayLanguages['3+ languages (striped)'] = 'grey'
+                    };
                 };
             };
         });

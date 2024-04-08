@@ -2691,7 +2691,7 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                 pass
         if len(shape['languages']) == 0:
             shape['languages'].append('Uncoded')
-            shape['language_colours'].append('grey')
+            shape['language_colours'].append('black')
     return shapes, variables
 
 # Get all the variables used in the map view
