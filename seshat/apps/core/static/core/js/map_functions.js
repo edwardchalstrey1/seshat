@@ -205,47 +205,89 @@ function updateLegend() {
         };
 
     } else if (variable == 'language') {
-        displayLanguages = {};
-        shapesData.forEach(function (shape) {
-            if (shape.weight > 0) {
-                var selectedYear = document.getElementById('dateSlide').value;
-                var selectedYearInt = parseInt(selectedYear);
-                if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
-                    // Add the language to the dict to be used in the legend
-                    i = 0;
-                    shape.languages.forEach(function (language) {
-                        displayLanguages[language] = shape.language_colours[i];
-                        i++;
-                    });
-                    if (shape.languages.length > 2) {
-                        displayLanguages['3+ languages (striped)'] = 'grey'
+        if (document.getElementById('languageView').value == 'all') {
+            displayLanguages = {};
+            shapesData.forEach(function (shape) {
+                if (shape.weight > 0) {
+                    var selectedYear = document.getElementById('dateSlide').value;
+                    var selectedYearInt = parseInt(selectedYear);
+                    if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+                        // Add the language to the dict to be used in the legend
+                        i = 0;
+                        shape.languages.forEach(function (language) {
+                            displayLanguages[language] = shape.language_colours[i];
+                            i++;
+                        });
+                        if (shape.languages.length > 2) {
+                            displayLanguages['3+ languages (striped)'] = 'grey'
+                        };
                     };
                 };
-            };
-        });
-        // Sort the languages alphabetically
-        displayLanguages = Object.keys(displayLanguages).sort().reduce((obj, key) => {
-            obj[key] = displayLanguages[key];
-            return obj;
-        }, {});
+            });
+            // Sort the languages alphabetically
+            displayLanguages = Object.keys(displayLanguages).sort().reduce((obj, key) => {
+                obj[key] = displayLanguages[key];
+                return obj;
+            }, {});
 
-        // Add a legend for highlighted polities
-        if (Object.keys(displayLanguages).length > 0) {
+            // Add a legend for highlighted polities
+            if (Object.keys(displayLanguages).length > 0) {
+                var legendTitle = document.createElement('h3');
+                legendTitle.textContent = 'Languages';
+                legendDiv.appendChild(legendTitle);
+                // Iterate throgugh the languages and add them to the legend
+                for (var language in displayLanguages) {
+                    var legendItem = document.createElement('p');
+                    var colorBox = document.createElement('span');
+                    colorBox.style.display = 'inline-block';
+                    colorBox.style.width = '20px';
+                    colorBox.style.height = '20px';
+                    colorBox.style.backgroundColor = displayLanguages[language];
+                    colorBox.style.border = '1px solid black';
+                    colorBox.style.marginRight = '10px';
+                    legendItem.appendChild(colorBox);
+                    legendItem.appendChild(document.createTextNode(language));
+                    legendDiv.appendChild(legendItem);
+                }
+            };
+
+        } else if (document.getElementById('languageView').value == 'one') {
             var legendTitle = document.createElement('h3');
-            legendTitle.textContent = 'Languages';
+            legendTitle.textContent = 'Language';
             legendDiv.appendChild(legendTitle);
-            // Iterate throgugh the languages and add them to the legend
-            for (var language in displayLanguages) {
+
+            let oneLanguageColourMapping = {
+                'Present exclusively': 'green',
+                'Present non-exclusively': '#13d446',
+                'Absent': 'red',
+                'Unknown': 'grey',
+                'Uncoded': 'black'
+            };
+
+            for (var key in oneLanguageColourMapping) {
                 var legendItem = document.createElement('p');
+
                 var colorBox = document.createElement('span');
                 colorBox.style.display = 'inline-block';
                 colorBox.style.width = '20px';
                 colorBox.style.height = '20px';
-                colorBox.style.backgroundColor = displayLanguages[language];
-                colorBox.style.border = '1px solid black';
+                colorBox.style.backgroundColor = oneLanguageColourMapping[key];
                 colorBox.style.marginRight = '10px';
                 legendItem.appendChild(colorBox);
-                legendItem.appendChild(document.createTextNode(language));
+
+                if (key === 'Uncoded') {  // Second colour for uncoded
+                    var colorBox2 = document.createElement('span');
+                    colorBox2.style.display = 'inline-block';
+                    colorBox2.style.width = '20px';
+                    colorBox2.style.height = '20px';
+                    colorBox2.style.backgroundColor = 'yellow';
+                    colorBox2.style.marginRight = '10px';
+                    colorBox2.style.border = '1px solid black';
+                    legendItem.appendChild(colorBox2);
+                }
+
+                legendItem.appendChild(document.createTextNode(`${key}`));
+
                 legendDiv.appendChild(legendItem);
             }
         };

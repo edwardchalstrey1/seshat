@@ -380,34 +380,62 @@
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
                     } else if (variable == 'language'){
-                        if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {
-                            shape.weight = 2;
-                            updateLegend();
-                        }
-                        shapeWeight = shape.weight;
-                        shapeColour = shape.language_colours[0];  // This gets used by polities with just one language
-                        if (shape.language_colours.length == 2) {                       
-                            // Create a new stripe pattern
-                            var pattern = new L.StripePattern({
-                                color: shape.language_colours[0],
-                                spaceColor: shape.language_colours[1],
-                                weight: 4,
-                                spaceWeight: 4,
-                                opacity: 1,
-                                spaceOpacity: 1,
-                            });
-                            pattern.addTo(map);
-                        } else if (shape.language_colours.length > 2) {
-                            // For languages with more than 2 colours, use the first colour and grey
-                            var pattern = new L.StripePattern({
-                                color: shape.language_colours[0],
-                                spaceColor: 'grey',
-                                weight: 4,
-                                spaceWeight: 4,
-                                opacity: 1,
-                                spaceOpacity: 1,
-                            });
-                            pattern.addTo(map);
+                        if (document.getElementById('languageView').value == 'one') {
+                            shapeWeight = 2;
+                            if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {
+                                if (shape.language_colours.length > 1) {
+                                    shapeColour = 'blue';
+                                } else {
+                                    shapeColour = 'green';
+                                    if (shape.languages[0] == 'unknown') {
+                                        shapeColour = 'grey';
+                                    } else if (shape.languages[0] == 'uncoded') {
+                                        shapeColour = 'black';
+                                        var pattern = new L.StripePattern({
+                                            color: 'black',
+                                            spaceColor: 'yellow',
+                                            weight: 4,
+                                            spaceWeight: 4,
+                                            opacity: 1,
+                                            spaceOpacity: 1,
+                                        });
+                                        pattern.addTo(map);
+                                    }
+                                }
+                            } else {
+                                shapeColour = 'red';
+                            }                          
+                        } else if (document.getElementById('languageView').value == 'all') {
+                            if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {
+                                shape.weight = 2;
+                                updateLegend();
+                            }
+                            shapeWeight = shape.weight;
+                            shapeColour = shape.language_colours[0];  // This gets used by polities with just one language
+                            if (shape.language_colours.length == 2) {                       
+                                // Create a new stripe pattern
+                                var pattern = new L.StripePattern({
+                                    color: shape.language_colours[0],
+                                    spaceColor: shape.language_colours[1],
+                                    weight: 4,
+                                    spaceWeight: 4,
+                                    opacity: 1,
+                                    spaceOpacity: 1,
+                                });
+                                pattern.addTo(map);
+                            } else if (shape.language_colours.length > 2) {
+                                // For languages with more than 2 colours, use the first colour and grey
+                                var pattern = new L.StripePattern({
+                                    color: shape.language_colours[0],
+                                    spaceColor: 'grey',
+                                    weight: 4,
+                                    spaceWeight: 4,
+                                    opacity: 1,
+                                    spaceOpacity: 1,
+                                });
+                                pattern.addTo(map);
+                            }
+
                         }
                     } else {
                         shapeWeight = 2;
@@ -463,7 +491,7 @@
                                 };
 
                                 // Conditionally set the fill color or pattern
-                                if (variable == 'language' && shape.language_colours.length >= 2 || (variable != 'polity' && variable != 'language' && shape[variable] == 'uncoded')) {
+                                if ((variable == 'language' && ((document.getElementById('languageView').value == 'all' && shape.language_colours.length >= 2) || (document.getElementById('languageView').value == 'one' && shape[variable] == 'uncoded'))) || (variable != 'polity' && variable != 'language' && shape[variable] == 'uncoded')) {
                                     style.fillPattern = pattern;
                                 } else {
                                     style.fillColor = shapeColour;
