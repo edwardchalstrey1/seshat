@@ -567,7 +567,7 @@
 
                                 // Listen for the click event on the layer
                                 layer.on('click', function (e) {            
-                                    if (allPolitiesLoaded && (variable == 'polity' || variable == 'language')){
+                                    if (allPolitiesLoaded && (variable == 'polity' || (variable == 'language' && document.getElementById('languageView').value == 'all'))){
                                         if (shape.weight === 0) {
                                             // Increase the weight of the clicked layer
                                             newWeight = 2;
@@ -599,7 +599,7 @@
 
                         // Listen for the click event on the map
                         map.on('click', function () {
-                            if(variable == 'polity' || variable == 'language'){
+                            if(variable == 'polity' || (variable == 'language' && document.getElementById('languageView').value == 'all')){
                                 // Update weights in shapesData
                                 var i = 0;
                                 shapesData.forEach(function (shape2) {
