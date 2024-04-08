@@ -318,6 +318,14 @@
             'uncoded': 'black' 
         };
 
+        let oneLanguageColourMapping = {
+            'Present exclusively': 'green',
+            'Present non-exclusively': '#13d446',
+            'Absent': 'red',
+            'Unknown': 'grey',
+            'Uncoded': 'black'
+        };
+
         function switchBaseMapWorldMap() {
             switchBaseMap();
             if (document.getElementById('chooseVariable').value != 'polity') {
@@ -384,14 +392,14 @@
                             shapeWeight = 2;
                             if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {
                                 if (shape.language_colours.length > 1) {
-                                    shapeColour = 'blue';
+                                    shapeColour = oneLanguageColourMapping['Present non-exclusively'];
                                 } else {
-                                    shapeColour = 'green';
+                                    shapeColour = oneLanguageColourMapping['Present exclusively'];
                                     if (shape.languages[0] == 'unknown') {
-                                        shapeColour = 'grey';
+                                        shapeColour = oneLanguageColourMapping['Unknown'];
                                     } else if (shape.languages[0] == 'uncoded') {
                                         shapeColour = new L.StripePattern({
-                                            color: 'black',
+                                            color: oneLanguageColourMapping['Uncoded'],
                                             spaceColor: 'yellow',
                                             weight: 4,
                                             spaceWeight: 4,
@@ -402,7 +410,7 @@
                                     }
                                 }
                             } else {
-                                shapeColour = 'red';
+                                shapeColour = oneLanguageColourMapping['Absent'];
                             }                          
                         } else if (document.getElementById('languageView').value == 'all') {
                             if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {

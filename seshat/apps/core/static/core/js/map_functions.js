@@ -256,14 +256,6 @@ function updateLegend() {
             legendTitle.textContent = document.getElementById('chooseLanguage').value;
             legendDiv.appendChild(legendTitle);
 
-            let oneLanguageColourMapping = {
-                'Present exclusively': 'green',
-                'Present non-exclusively': '#13d446',
-                'Absent': 'red',
-                'Unknown': 'grey',
-                'Uncoded': 'black'
-            };
-
             for (var key in oneLanguageColourMapping) {
                 var legendItem = document.createElement('p');
 
