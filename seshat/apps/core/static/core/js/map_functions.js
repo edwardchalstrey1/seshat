@@ -257,15 +257,26 @@ function updateLegend() {
 
         for (var key in variableColourMapping) {
             var legendItem = document.createElement('p');
-            var colorBox = document.createElement('span');
 
+            var colorBox = document.createElement('span');
             colorBox.style.display = 'inline-block';
             colorBox.style.width = '20px';
             colorBox.style.height = '20px';
             colorBox.style.backgroundColor = variableColourMapping[key];
             colorBox.style.marginRight = '10px';
-
             legendItem.appendChild(colorBox);
+
+            if (key === 'uncoded') {  // Second colour for uncoded
+                var colorBox2 = document.createElement('span');
+                colorBox2.style.display = 'inline-block';
+                colorBox2.style.width = '20px';
+                colorBox2.style.height = '20px';
+                colorBox2.style.backgroundColor = 'yellow';
+                colorBox2.style.marginRight = '10px';
+                colorBox2.style.border = '1px solid black';
+                legendItem.appendChild(colorBox2);
+            }
+
             if (key === 'A~P') {
                 legendItem.appendChild(document.createTextNode('Absent then present'));
             } else if (key === 'P~A') {
@@ -279,8 +290,8 @@ function updateLegend() {
 
         if (document.querySelector('input[name="baseMap"]:checked').value == 'gadm') {
             var legendItem = document.createElement('p');
-            var colorBox = document.createElement('span');
 
+            var colorBox = document.createElement('span');
             colorBox.style.display = 'inline-block';
             colorBox.style.width = '20px';
             colorBox.style.height = '20px';

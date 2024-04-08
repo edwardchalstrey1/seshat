@@ -307,10 +307,10 @@
         let variableColourMapping = {
             'present': 'green',
             'absent': 'red',
-            'unknown': 'grey',
-            'uncoded': 'black',
+            'P~A': 'orange',
             'A~P': 'blue',
-            'P~A': 'orange'
+            'unknown': 'grey',
+            'uncoded': 'black' 
         };
 
         function switchBaseMapWorldMap() {
@@ -370,6 +370,7 @@
                 shapesData.forEach(function (shape) {
 
                     // Set weight and colour based on the variable
+                    fillWeight = 0.5;
                     if (variable == 'polity') {  
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
@@ -406,6 +407,17 @@
                     } else {
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
+                        if (shape[variable] == 'uncoded') {
+                            var pattern = new L.StripePattern({
+                                color: 'black',
+                                spaceColor: 'yellow',
+                                weight: 4,
+                                spaceWeight: 4,
+                                opacity: 1,
+                                spaceOpacity: 1,
+                            });
+                            pattern.addTo(map);
+                        }
                     }
 
                     // If the shape spans the selected year
@@ -440,13 +452,13 @@
                             style: function (feature) {
                                 // Create the style object
                                 var style = {
-                                    color: shapeColour,     // Set the border color
-                                    weight: shapeWeight,   // Set the border weight
-                                    fillOpacity: 0.5      // Set the fill opacity
+                                    color: shapeColour,            // Set the border color
+                                    weight: shapeWeight,          // Set the border weight
+                                    fillOpacity: fillWeight      // Set the fill opacity
                                 };
 
                                 // Conditionally set the fill color or pattern
-                                if (variable == 'language' && shape.language_colours.length >= 2) {
+                                if (variable == 'language' && shape.language_colours.length >= 2 || (variable != 'polity' && variable != 'language' && shape[variable] == 'uncoded')) {
                                     style.fillPattern = pattern;
                                 } else {
                                     style.fillColor = shapeColour;
