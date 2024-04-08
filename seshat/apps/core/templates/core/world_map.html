@@ -130,7 +130,7 @@
                     </select>
                     <button id="polButton" type="button" onclick="polityButton()">Polity</button><br>
                     <fieldset id="chooseLanguageFieldset">
-                        <label for="chooseLanguage">Show language:</label>
+                        <label for="chooseLanguage">Add language:</label>
                         <select name="chooseLanguage" id="chooseLanguage" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
                             {% for language in language_choices %}
                                 <option value="{{ language }}" {% if language == 'Greek' %}selected{% endif %}>{{ language }}</option>
