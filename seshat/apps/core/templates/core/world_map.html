@@ -131,7 +131,7 @@
                     <button id="polButton" type="button" onclick="polityButton()">Polity</button><br><br>
                     <fieldset id="chooseLanguageFieldset">
                         <label for="languageView">Language view:</label>
-                        <select name="languageView" id="languageView">
+                        <select name="languageView" id="languageView" onchange="plotPolities()">
                             <option value="one">One language</option>
                             <option value="all">All languages</option>
                         </select><br>
