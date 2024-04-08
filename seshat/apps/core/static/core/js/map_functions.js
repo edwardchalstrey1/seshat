@@ -253,7 +253,7 @@ function updateLegend() {
 
         } else if (document.getElementById('languageView').value == 'one') {
             var legendTitle = document.createElement('h3');
-            legendTitle.textContent = 'Language';
+            legendTitle.textContent = document.getElementById('chooseLanguage').value;
             legendDiv.appendChild(legendTitle);
 
             let oneLanguageColourMapping = {
