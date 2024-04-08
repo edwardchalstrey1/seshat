@@ -522,7 +522,7 @@
 
                                 // Listen for the click event on the layer
                                 layer.on('click', function (e) {            
-                                    if (allPolitiesLoaded){
+                                    if (allPolitiesLoaded && (variable == 'polity' || variable == 'language')){
                                         if (shape.weight === 0) {
                                             // Increase the weight of the clicked layer
                                             newWeight = 2;
@@ -554,19 +554,21 @@
 
                         // Listen for the click event on the map
                         map.on('click', function () {
-                            // Update weights in shapesData
-                            var i = 0;
-                            shapesData.forEach(function (shape2) {
-                                shapesData[i]['weight'] = 0;
-                                i++;
-                            });
-                            // Reset the weight of all layers when the map is clicked
-                            geoJSONLayer.eachLayer(function (layer) {
-                                layer.setStyle({
-                                    weight: shapeWeight
+                            if(variable == 'polity' || variable == 'language'){
+                                // Update weights in shapesData
+                                var i = 0;
+                                shapesData.forEach(function (shape2) {
+                                    shapesData[i]['weight'] = 0;
+                                    i++;
                                 });
-                            });
-                            updateLegend();
+                                // Reset the weight of all layers when the map is clicked
+                                geoJSONLayer.eachLayer(function (layer) {
+                                    layer.setStyle({
+                                        weight: shapeWeight
+                                    });
+                                });
+                                updateLegend();
+                            };
                         });
 
                         // Open the corresponding Seshat page in a new browser tab when a shape is double-clicked
