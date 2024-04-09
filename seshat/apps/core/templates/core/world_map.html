@@ -135,12 +135,6 @@
                             <option value="one">One language</option>
                             <option value="all">All languages</option>
                         </select><br>
-                        <label for="languageLevel">Language level:</label>
-                        <select name="languageLevel" id="languageLevel" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
-                            <option value="family">Linguistic family</option>
-                            <option value="genus">Language genus</option>
-                            <option value="language">Language</option>
-                        </select><br>
                         <label for="chooseLanguage">Language:</label>
                         <select name="chooseLanguage" id="chooseLanguage" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
                             {% for language in language_choices %}
