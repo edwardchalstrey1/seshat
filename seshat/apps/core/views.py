@@ -57,7 +57,7 @@ from django.urls import reverse, reverse_lazy
 
 from django.contrib.messages.views import SuccessMessageMixin
 
-from ..general.models import Polity_research_assistant, Polity_duration, Polity_language, POLITY_LANGUAGE_CHOICES
+from ..general.models import Polity_research_assistant, Polity_duration, Polity_linguistic_family, Polity_language_genus, Polity_language, POLITY_LINGUISTIC_FAMILY_CHOICES, POLITY_LANGUAGE_GENUS_CHOICES, POLITY_LANGUAGE_CHOICES
 
 from ..crisisdb.models import Power_transition
 
@@ -2668,30 +2668,65 @@ def assign_variables_to_shapes(shapes, app_map):
     return shapes, variables
 
 def assign_categorical_variables_to_shapes(shapes, variables):
+    """
+        Assign the categorical variables to the shapes.
+        Currently only language is implemented.
+    """
+    # Add language variables to the variables
     variables['General Variables'] = {}
+    variables['General Variables']['polity_linguistic_family'] = {}
+    variables['General Variables']['polity_linguistic_family']['formatted'] = 'linguistic_family'
+    variables['General Variables']['polity_linguistic_family']['full_name'] = 'Linguistic Family'
+    variables['General Variables']['polity_language_genus'] = {}
+    variables['General Variables']['polity_language_genus']['formatted'] = 'language_genus'
+    variables['General Variables']['polity_language_genus']['full_name'] = 'Language Genus'
     variables['General Variables']['polity_language'] = {}
     variables['General Variables']['polity_language']['formatted'] = 'language'
     variables['General Variables']['polity_language']['full_name'] = 'Language'
-    # Add the languages and language colours to the polity shapes
+
+    # Add language variable info to polity shapes
     for shape in shapes:
+        shape['liguistic_families'] = []
+        shape['language_genuses'] = []
         shape['languages'] = []
         shape['language_colours'] = []
-        if shape['seshat_id'] != 'none':
+        if shape['seshat_id'] != 'none':  # Skip shapes with no seshat_id
             try:
                 polity = Polity.objects.get(new_name=shape['seshat_id'])
+                # Get the liguisitic family for the polity
+                try:
+                    polity_linguistic_family = Polity_linguistic_family.objects.filter(polity_id=polity.id)
+                    # Add the linguistic family of each polity_linguistic_family to a list
+                    for polity_linguistic_family in polity_linguistic_family:
+                       shape['liguistic_families'].append(polity_linguistic_family.linguistic_family)
+                except Polity_linguistic_family.DoesNotExist:  # Skip polities with no linguistic family
+                    pass
+                # Get the language genus for the polity
+                try:
+                    polity_language_genus = Polity_language_genus.objects.filter(polity_id=polity.id)
+                    # Add the language genus of each polity_language_genus to a list
+                    for polity_language_genus in polity_language_genus:
+                        shape['language_genuses'].append(polity_language_genus.language_genus)
+                except Polity_language_genus.DoesNotExist:  # Skip polities with no language genus
+                    pass
+                # Get the languages for the polity
                 try:
                     polity_languages = Polity_language.objects.filter(polity_id=polity.id)
                     # Add the language and language_colour of each polity_language to lists
                     for polity_language in polity_languages:
                         shape['languages'].append(polity_language.language)
                         shape['language_colours'].append(polity_language.colour)  
-                except Polity_language.DoesNotExist:
+                except Polity_language.DoesNotExist:  # Skip polities with no languages
                     pass
             except Polity.DoesNotExist:
                 pass
+        if len(shape['liguistic_families']) == 0:
+            shape['liguistic_families'].append('Uncoded')
+        if len(shape['language_genuses']) == 0:
+            shape['language_genuses'].append('Uncoded')
         if len(shape['languages']) == 0:
             shape['languages'].append('Uncoded')
-            shape['language_colours'].append('black')
+            shape['language_colours'].append('black')      
     return shapes, variables
 
 # Get all the variables used in the map view
