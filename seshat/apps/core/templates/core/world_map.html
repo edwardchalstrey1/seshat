@@ -131,9 +131,15 @@
                     <button id="polButton" type="button" onclick="polityButton()">Polity</button><br><br>
                     <fieldset id="chooseLanguageFieldset">
                         <label for="languageView">Language view:</label>
-                        <select name="languageView" id="languageView" onchange="plotPolities()">
+                        <select name="languageView" id="languageView" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
                             <option value="one">One language</option>
                             <option value="all">All languages</option>
+                        </select><br>
+                        <label for="languageLevel">Language level:</label>
+                        <select name="languageLevel" id="languageLevel" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
+                            <option value="family">Language family</option>
+                            <option value="genus">Language genus</option>
+                            <option value="language">Language</option>
                         </select><br>
                         <label for="chooseLanguage">Language:</label>
                         <select name="chooseLanguage" id="chooseLanguage" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
@@ -389,14 +395,15 @@
                         shapeColour = shape.colour;
                     } else if (variable == 'language'){
                         if (document.getElementById('languageView').value == 'one') {
-                            shapeWeight = 2;
                             if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {
+                                shapeWeight = 2;
                                 if (shape.language_colours.length > 1) {
                                     shapeColour = oneLanguageColourMapping['Present'];
                                 } else {
                                     shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
                                 }
                             } else {
+                                shapeWeight = 0;
                                 if (shape.languages[0] == 'Unknown') {   // If the language is unknown or uncoded, there will be only one language
                                     shapeColour = oneLanguageColourMapping['Unknown'];
                                 } else if (shape.languages[0] == 'Uncoded') {
