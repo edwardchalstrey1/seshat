@@ -320,8 +320,8 @@
 
         let oneLanguageColourMapping = {
             'Present exclusively': 'green',
-            'Present non-exclusively': '#13d446',
-            'Absent': 'red',
+            'Present': '#13d446',
+            'Other languages': 'blue',
             'Unknown': 'grey',
             'Uncoded': 'black'
         };
@@ -392,7 +392,7 @@
                             shapeWeight = 2;
                             if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {
                                 if (shape.language_colours.length > 1) {
-                                    shapeColour = oneLanguageColourMapping['Present non-exclusively'];
+                                    shapeColour = oneLanguageColourMapping['Present'];
                                 } else {
                                     shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
                                 }
@@ -410,7 +410,7 @@
                                     });
                                     shapeColour.addTo(map);
                                 } else {
-                                    shapeColour = oneLanguageColourMapping['Absent'];
+                                    shapeColour = oneLanguageColourMapping['Other languages'];
                                 }
                             }                          
                         } else if (document.getElementById('languageView').value == 'all') {
