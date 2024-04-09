@@ -2685,7 +2685,7 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                     for polity_language in polity_languages:
                         shape['languages'].append(polity_language.language)
                         shape['language_colours'].append(polity_language.colour)  
-                except:
+                except Polity_language.DoesNotExist:
                     pass
             except Polity.DoesNotExist:
                 pass
