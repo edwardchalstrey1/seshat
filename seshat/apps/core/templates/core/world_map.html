@@ -135,8 +135,8 @@
                             <option value="one">One language</option>
                             <option value="all">All languages</option>
                         </select><br>
-                        <label for="chooseLanguage">Language:</label>
-                        <select name="chooseLanguage" id="chooseLanguage" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">            
+                        <label for="chooseCategoricalVariableSelection">Language:</label>
+                        <select name="chooseCategoricalVariableSelection" id="chooseCategoricalVariableSelection" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">            
                         </select><br><br>
                     </fieldset>
                     <label for="enterYear">Enter year:</label>
@@ -199,7 +199,7 @@
     <script>
 
         var categorical_variables = {{ categorical_variables | safe }};
-        categoricalVariableSelection();
+        // updateCategoricalVariableSelection();
         
         var displayedShapes = [];
         var polityBorderWeight = 0;
@@ -353,9 +353,10 @@
                 });
             }
 
-            // If the variable is language, show the language selection dropdown
-            if (variable == 'language') {
-                document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'block';
+            // If the variable is categorical, show the categorical variable selection dropdown
+            if (variable == 'linguistic_family' || variable == 'language_genus' || variable == 'language') {
+                updateCategoricalVariableSelection(variable);
+                document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'block';              
             } else {
                 document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'none';
             }
@@ -389,7 +390,7 @@
                         shapeColour = shape.colour;
                     } else if (variable == 'language'){
                         if (document.getElementById('languageView').value == 'one') {
-                            if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {
+                            if (shape.languages.includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
                                 shapeWeight = 2;
                                 if (shape.language_colours.length > 1) {
                                     shapeColour = oneLanguageColourMapping['Present'];
@@ -415,7 +416,7 @@
                                 }
                             }                          
                         } else if (document.getElementById('languageView').value == 'all') {
-                            if (shape.languages.includes(document.getElementById('chooseLanguage').value)) {
+                            if (shape.languages.includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
                                 shape.weight = 2;
                                 updateLegend();
                             }

@@ -253,7 +253,7 @@ function updateLegend() {
 
         } else if (document.getElementById('languageView').value == 'one') {
             var legendTitle = document.createElement('h3');
-            legendTitle.textContent = document.getElementById('chooseLanguage').value;
+            legendTitle.textContent = document.getElementById('chooseCategoricalVariableSelection').value;
             legendDiv.appendChild(legendTitle);
 
             for (var key in oneLanguageColourMapping) {
@@ -341,17 +341,18 @@ function updateLegend() {
     }
 }
 
-function categoricalVariableSelection(){
-    var languageDropdown = document.getElementById('chooseLanguage');
-    categorical_variables.language_choices.forEach(function (language) {
+function updateCategoricalVariableSelection(variable){
+    var dropdown = document.getElementById('chooseCategoricalVariableSelection');
+    dropdown.innerHTML = '';
+    categorical_variables[variable].forEach(function (choice) {
         var option = document.createElement('option');
-        option.value = language;
-        option.text = language;
+        option.value = choice;
+        option.text = choice;
 
-        if (language === 'Greek') {
-            option.selected = true;
-        }
+        // if (choice === 'Greek') {
+        //     option.selected = true;
+        // }
 
-        languageDropdown.appendChild(option);
+        dropdown.appendChild(option);
     });
 }

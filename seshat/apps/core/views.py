@@ -2739,9 +2739,9 @@ app_map = {
 
 # Get sorted lists of choices for each categorical variable
 categorical_variables = {
-    'linguistic_family_choices': sorted([x[0] for x in POLITY_LINGUISTIC_FAMILY_CHOICES]),
-    'language_genus_choices': sorted([x[0] for x in POLITY_LANGUAGE_GENUS_CHOICES]),
-    'language_choices': sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
+    'linguistic_family': sorted([x[0] for x in POLITY_LINGUISTIC_FAMILY_CHOICES]),
+    'language_genus': sorted([x[0] for x in POLITY_LANGUAGE_GENUS_CHOICES]),
+    'language': sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
 }
 
 def map_view_initial(request):
