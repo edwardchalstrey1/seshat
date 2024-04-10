@@ -199,7 +199,7 @@
     <script>
 
         var categorical_variables = {{ categorical_variables | safe }};
-        // updateCategoricalVariableSelection();
+        updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
         
         var displayedShapes = [];
         var polityBorderWeight = 0;
@@ -361,7 +361,13 @@
 
             // If the variable is categorical, show the categorical variable selection dropdown
             if (variable in categorical_variables) {
-                updateCategoricalVariableSelection(variable);
+                // if variable has changed from the previous selection
+                if (localStorage.getItem('variable') != variable) {
+                    updateCategoricalVariableSelection(variable);
+                    document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'block';
+                } else {
+                    document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'block';
+                }
                 document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'block';              
             } else {
                 document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'none';
