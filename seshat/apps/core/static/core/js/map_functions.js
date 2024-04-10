@@ -204,7 +204,7 @@ function updateLegend() {
             }
         };
 
-    } else if (variable == 'language') {
+    } else if (variable in categorical_variables) {
         if (document.getElementById('languageView').value == 'all') {
             displayLanguages = {};
             shapesData.forEach(function (shape) {
