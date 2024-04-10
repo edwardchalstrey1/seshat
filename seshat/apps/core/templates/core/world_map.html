@@ -422,7 +422,7 @@
                                 }
                             }                          
                         } else if (document.getElementById('languageView').value == 'all') {
-                            if (shape.languages.includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
+                            if (shape.language.includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
                                 shape.weight = 2;
                                 updateLegend();
                             }
