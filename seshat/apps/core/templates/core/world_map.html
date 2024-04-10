@@ -136,10 +136,7 @@
                             <option value="all">All languages</option>
                         </select><br>
                         <label for="chooseLanguage">Language:</label>
-                        <select name="chooseLanguage" id="chooseLanguage" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
-                            {% for language in categorical_variables.language_choices %}
-                                <option value="{{ language }}" {% if language == 'Greek' %}selected{% endif %}>{{ language }}</option>
-                            {% endfor %}
+                        <select name="chooseLanguage" id="chooseLanguage" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">            
                         </select><br><br>
                     </fieldset>
                     <label for="enterYear">Enter year:</label>
@@ -200,6 +197,23 @@
     </div>
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
+
+        var categorical_variables = {{ categorical_variables | safe }};
+
+        // Assuming categorical_variables is a global variable
+        var languageDropdown = document.getElementById('chooseLanguage');
+
+        categorical_variables.language_choices.forEach(function(language) {
+            var option = document.createElement('option');
+            option.value = language;
+            option.text = language;
+
+            if (language === 'Greek') {
+                option.selected = true;
+            }
+
+            languageDropdown.appendChild(option);
+        });
         
         var displayedShapes = [];
         var polityBorderWeight = 0;
