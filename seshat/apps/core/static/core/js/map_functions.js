@@ -295,4 +295,7 @@ function updateCategoricalVariableSelection(variable){
 
         dropdown.appendChild(option);
     });
+    var varSelectElement = document.getElementById('chooseVariable');
+    var varText = varSelectElement.options[varSelectElement.selectedIndex].text;
+    document.querySelector('label[for="chooseCategoricalVariableSelection"]').textContent = varText + ': ';
 }
