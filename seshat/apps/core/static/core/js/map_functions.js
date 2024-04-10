@@ -221,15 +221,8 @@ function updateLegend() {
             colorBox.style.marginRight = '10px';
             legendItem.appendChild(colorBox);
 
-            if (key === 'Uncoded') {  // Second colour for uncoded
-                var colorBox2 = document.createElement('span');
-                colorBox2.style.display = 'inline-block';
-                colorBox2.style.width = '20px';
-                colorBox2.style.height = '20px';
-                colorBox2.style.backgroundColor = 'yellow';
-                colorBox2.style.marginRight = '10px';
-                colorBox2.style.border = '1px solid black';
-                legendItem.appendChild(colorBox2);
+            if (key === 'Uncoded') {
+                colorBox.style.border = '1px solid black';
             }
 
             legendItem.appendChild(document.createTextNode(`${key}`));
@@ -253,15 +246,8 @@ function updateLegend() {
             colorBox.style.marginRight = '10px';
             legendItem.appendChild(colorBox);
 
-            if (key === 'uncoded') {  // Second colour for uncoded
-                var colorBox2 = document.createElement('span');
-                colorBox2.style.display = 'inline-block';
-                colorBox2.style.width = '20px';
-                colorBox2.style.height = '20px';
-                colorBox2.style.backgroundColor = 'yellow';
-                colorBox2.style.marginRight = '10px';
-                colorBox2.style.border = '1px solid black';
-                legendItem.appendChild(colorBox2);
+            if (key === 'uncoded') {
+                colorBox.style.border = '1px solid black';
             }
 
             if (key === 'A~P') {

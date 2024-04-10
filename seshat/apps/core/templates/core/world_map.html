@@ -315,7 +315,7 @@
             'P~A': 'orange',
             'A~P': 'blue',
             'unknown': 'grey',
-            'uncoded': 'black' 
+            'uncoded': 'yellow' 
         };
 
         let oneLanguageColourMapping = {
@@ -323,7 +323,7 @@
             'Present': '#13d446',
             'Absent': 'purple',
             'Unknown': 'grey',
-            'Uncoded': 'black'
+            'Uncoded': 'yellow'
         };
 
         function switchBaseMapWorldMap() {
@@ -392,15 +392,14 @@
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
                     } else if (variable in categorical_variables){
+                        shapeWeight = 2;
                         if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
-                            shapeWeight = 2;
                             if (shape[variable].length > 1) {
                                 shapeColour = oneLanguageColourMapping['Present'];
                             } else {
                                 shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
                             }
                         } else {
-                            shapeWeight = 0;
                             if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
                                 shapeColour = oneLanguageColourMapping['Unknown'];
                             } else if (shape[variable][0] == 'Uncoded') {
@@ -446,12 +445,16 @@
                             style: function (feature) {
                                 // Create the style object
                                 var style = {
-                                    color: shapeColour,            // Set the border color
+                                    fillColor: shapeColour,        // Set the fill color
                                     weight: shapeWeight,          // Set the border weight
                                     fillOpacity: fillWeight      // Set the fill opacity
                                 };
-
-                                style.fillColor = shapeColour;
+                                // Set the border color
+                                if (shape[variable] == 'uncoded' || shape[variable] == 'Uncoded'){
+                                    style.color = 'black';
+                                } else {
+                                    style.color = shapeColour;
+                                }
                                 return style;
                             },
                             onEachFeature: function (feature, layer) {
