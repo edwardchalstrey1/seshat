@@ -327,7 +327,7 @@
         let oneLanguageColourMapping = {
             'Present exclusively': 'green',
             'Present': '#13d446',
-            'Other languages': 'purple',
+            'Absent': 'purple',
             'Unknown': 'grey',
             'Uncoded': 'black'
         };
@@ -421,7 +421,7 @@
                                     });
                                     shapeColour.addTo(map);
                                 } else {
-                                    shapeColour = oneLanguageColourMapping['Other languages'];
+                                    shapeColour = oneLanguageColourMapping['Absent'];
                                 }
                             }                          
                         } else if (document.getElementById('languageView').value == 'all') {
