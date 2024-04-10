@@ -2686,7 +2686,7 @@ def assign_categorical_variables_to_shapes(shapes, variables):
 
     # Add language variable info to polity shapes
     for shape in shapes:
-        shape['liguistic_families'] = []
+        shape['linguistic_families'] = []
         shape['language_genuses'] = []
         shape['languages'] = []
         shape['language_colours'] = []
@@ -2698,7 +2698,7 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                     polity_linguistic_family = Polity_linguistic_family.objects.filter(polity_id=polity.id)
                     # Add the linguistic family of each polity_linguistic_family to a list
                     for polity_linguistic_family in polity_linguistic_family:
-                       shape['liguistic_families'].append(polity_linguistic_family.linguistic_family)
+                       shape['linguistic_families'].append(polity_linguistic_family.linguistic_family)
                 except Polity_linguistic_family.DoesNotExist:  # Skip polities with no linguistic family
                     pass
                 # Get the language genus for the polity
@@ -2720,8 +2720,8 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                     pass
             except Polity.DoesNotExist:
                 pass
-        if len(shape['liguistic_families']) == 0:
-            shape['liguistic_families'].append('Uncoded')
+        if len(shape['linguistic_families']) == 0:
+            shape['linguistic_families'].append('Uncoded')
         if len(shape['language_genuses']) == 0:
             shape['language_genuses'].append('Uncoded')
         if len(shape['languages']) == 0:

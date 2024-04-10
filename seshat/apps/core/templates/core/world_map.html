@@ -217,13 +217,19 @@
             {% endfor %}
         ];
 
-        // Iterate through shapesData and ensure the 'languages' and 'language_colours' fields are lists
+        // Iterate through shapesData and ensure that fields that are lists are interpreted properly
         shapesData.forEach(function (shape) {
             if (shape.languages) {
                 shape.languages = JSON.parse(shape.languages.replace(/'/g, '"'));
             }
             if (shape.language_colours) {
                 shape.language_colours = JSON.parse(shape.language_colours.replace(/'/g, '"'));
+            }
+            if (shape.language_genuses) {
+                shape.language_genuses = JSON.parse(shape.language_genuses.replace(/'/g, '"'));
+            }
+            if (shape.linguistic_families) {
+                shape.linguistic_families = JSON.parse(shape.linguistic_families.replace(/'/g, '"'));
             }
         });
 
@@ -550,8 +556,16 @@
                                 if (variable == 'language' || variable == 'linguistic_family' || variable == 'language_genus') {
                                     popupContent = popupContent + `
                                         <tr>
-                                            <td><span style="text-transform: capitalize;">Languages</span></td>
+                                            <td>Languages</td>
                                             <td><span style="text-transform: capitalize;">${shape.languages.join(', ')}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Language Genus</td>
+                                            <td><span style="text-transform: capitalize;">${shape.language_genuses.join(', ')}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Language Family</td>
+                                            <td><span style="text-transform: capitalize;">${shape.linguistic_families.join(', ')}</span></td>
                                         </tr>
                                     `;
                                 }
