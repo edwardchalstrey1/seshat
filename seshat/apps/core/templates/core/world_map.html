@@ -199,21 +199,7 @@
     <script>
 
         var categorical_variables = {{ categorical_variables | safe }};
-
-        // Assuming categorical_variables is a global variable
-        var languageDropdown = document.getElementById('chooseLanguage');
-
-        categorical_variables.language_choices.forEach(function(language) {
-            var option = document.createElement('option');
-            option.value = language;
-            option.text = language;
-
-            if (language === 'Greek') {
-                option.selected = true;
-            }
-
-            languageDropdown.appendChild(option);
-        });
+        categoricalVariableSelection();
         
         var displayedShapes = [];
         var polityBorderWeight = 0;

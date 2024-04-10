@@ -340,3 +340,18 @@ function updateLegend() {
         }
     }
 }
+
+function categoricalVariableSelection(){
+    var languageDropdown = document.getElementById('chooseLanguage');
+    categorical_variables.language_choices.forEach(function (language) {
+        var option = document.createElement('option');
+        option.value = language;
+        option.text = language;
+
+        if (language === 'Greek') {
+            option.selected = true;
+        }
+
+        languageDropdown.appendChild(option);
+    });
+}
