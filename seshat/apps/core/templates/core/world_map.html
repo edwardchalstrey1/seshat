@@ -137,7 +137,7 @@
                         </select><br>
                         <label for="chooseLanguage">Language:</label>
                         <select name="chooseLanguage" id="chooseLanguage" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
-                            {% for language in language_choices %}
+                            {% for language in categorical_variables.language_choices %}
                                 <option value="{{ language }}" {% if language == 'Greek' %}selected{% endif %}>{{ language }}</option>
                             {% endfor %}
                         </select><br><br>

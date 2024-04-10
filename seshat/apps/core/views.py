@@ -2737,10 +2737,12 @@ app_map = {
     # 'general': 'General Variables',
 }
 
-# Get a sorted list of language choices
-linguistic_family_choices = sorted([x[0] for x in POLITY_LINGUISTIC_FAMILY_CHOICES])
-language_genus_choices = sorted([x[0] for x in POLITY_LANGUAGE_GENUS_CHOICES])
-language_choices = sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
+# Get sorted lists of choices for each categorical variable
+categorical_variables = {
+    'linguistic_family_choices': sorted([x[0] for x in POLITY_LINGUISTIC_FAMILY_CHOICES]),
+    'language_genus_choices': sorted([x[0] for x in POLITY_LANGUAGE_GENUS_CHOICES]),
+    'language_choices': sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
+}
 
 def map_view_initial(request):
     """
@@ -2771,10 +2773,8 @@ def map_view_initial(request):
     caps = get_all_polity_capitals()
     content['all_capitals_info'] = caps
 
-    # Add lists of the language choices to content for dropdown selection
-    content['linguistic_family_choices'] = linguistic_family_choices
-    content['language_genus_choices'] = language_genus_choices
-    content['language_choices'] = language_choices
+    # Add categorical variable choices to content for dropdown selection
+    content['categorical_variables'] = categorical_variables
     
     return render(request,
                   'core/world_map.html',
@@ -2798,10 +2798,8 @@ def map_view_all(request):
     caps = get_all_polity_capitals()
     content['all_capitals_info'] = caps
 
-    # Add lists of the language choices to content for dropdown selection
-    content['linguistic_family_choices'] = linguistic_family_choices
-    content['language_genus_choices'] = language_genus_choices
-    content['language_choices'] = language_choices
+    # Add categorical variable choices to content for dropdown selection
+    content['categorical_variables'] = categorical_variables
     
     return JsonResponse(content)
 
