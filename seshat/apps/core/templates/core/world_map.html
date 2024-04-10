@@ -219,17 +219,17 @@
 
         // Iterate through shapesData and ensure that fields that are lists are interpreted properly
         shapesData.forEach(function (shape) {
-            if (shape.languages) {
-                shape.languages = JSON.parse(shape.languages.replace(/'/g, '"'));
+            if (shape.language) {
+                shape.language = JSON.parse(shape.language.replace(/'/g, '"'));
             }
-            if (shape.language_colours) {
-                shape.language_colours = JSON.parse(shape.language_colours.replace(/'/g, '"'));
+            if (shape.language_colour) {
+                shape.language_colour = JSON.parse(shape.language_colour.replace(/'/g, '"'));
             }
-            if (shape.language_genuses) {
-                shape.language_genuses = JSON.parse(shape.language_genuses.replace(/'/g, '"'));
+            if (shape.language_genus) {
+                shape.language_genus = JSON.parse(shape.language_genus.replace(/'/g, '"'));
             }
-            if (shape.linguistic_families) {
-                shape.linguistic_families = JSON.parse(shape.linguistic_families.replace(/'/g, '"'));
+            if (shape.linguistic_family) {
+                shape.linguistic_family = JSON.parse(shape.linguistic_family.replace(/'/g, '"'));
             }
         });
 
@@ -396,18 +396,18 @@
                         shapeColour = shape.colour;
                     } else if (variable in categorical_variables){
                         if (document.getElementById('languageView').value == 'one') {
-                            if (shape.languages.includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
+                            if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
                                 shapeWeight = 2;
-                                if (shape.language_colours.length > 1) {
+                                if (shape[variable].length > 1) {
                                     shapeColour = oneLanguageColourMapping['Present'];
                                 } else {
                                     shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
                                 }
                             } else {
                                 shapeWeight = 0;
-                                if (shape.languages[0] == 'Unknown') {   // If the language is unknown or uncoded, there will be only one language
+                                if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
                                     shapeColour = oneLanguageColourMapping['Unknown'];
-                                } else if (shape.languages[0] == 'Uncoded') {
+                                } else if (shape[variable][0] == 'Uncoded') {
                                     shapeColour = new L.StripePattern({
                                         color: oneLanguageColourMapping['Uncoded'],
                                         spaceColor: 'yellow',
@@ -427,22 +427,22 @@
                                 updateLegend();
                             }
                             shapeWeight = shape.weight;
-                            shapeColour = shape.language_colours[0];  // This gets used by polities with just one language
-                            if (shape.language_colours.length == 2) {                       
+                            shapeColour = shape.language_colour[0];  // This gets used by polities with just one language
+                            if (shape.language_colour.length == 2) {                       
                                 // Create a new stripe pattern
                                 shapeColour = new L.StripePattern({
-                                    color: shape.language_colours[0],
-                                    spaceColor: shape.language_colours[1],
+                                    color: shape.language_colour[0],
+                                    spaceColor: shape.language_colour[1],
                                     weight: 4,
                                     spaceWeight: 4,
                                     opacity: 1,
                                     spaceOpacity: 1,
                                 });
                                 shapeColour.addTo(map);
-                            } else if (shape.language_colours.length > 2) {
+                            } else if (shape.language_colour.length > 2) {
                                 // For languages with more than 2 colours, use the first colour and grey
                                 shapeColour = new L.StripePattern({
-                                    color: shape.language_colours[0],
+                                    color: shape.language_colour[0],
                                     spaceColor: 'grey',
                                     weight: 4,
                                     spaceWeight: 4,
@@ -557,15 +557,15 @@
                                     popupContent = popupContent + `
                                         <tr>
                                             <td>Languages</td>
-                                            <td><span style="text-transform: capitalize;">${shape.languages.join(', ')}</span></td>
+                                            <td><span style="text-transform: capitalize;">${shape.language.join(', ')}</span></td>
                                         </tr>
                                         <tr>
                                             <td>Language Genus</td>
-                                            <td><span style="text-transform: capitalize;">${shape.language_genuses.join(', ')}</span></td>
+                                            <td><span style="text-transform: capitalize;">${shape.language_genus.join(', ')}</span></td>
                                         </tr>
                                         <tr>
                                             <td>Language Family</td>
-                                            <td><span style="text-transform: capitalize;">${shape.linguistic_families.join(', ')}</span></td>
+                                            <td><span style="text-transform: capitalize;">${shape.linguistic_family.join(', ')}</span></td>
                                         </tr>
                                     `;
                                 }
