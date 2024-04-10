@@ -130,11 +130,6 @@
                     </select>
                     <button id="polButton" type="button" onclick="polityButton()">Polity</button><br><br>
                     <fieldset id="chooseCategoricalVariableSelectionFieldset">
-                        <label for="languageView">Language view:</label>
-                        <select name="languageView" id="languageView" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
-                            <option value="one">One language</option>
-                            <option value="all">All languages</option>
-                        </select><br>
                         <label for="chooseCategoricalVariableSelection">Language:</label>
                         <select name="chooseCategoricalVariableSelection" id="chooseCategoricalVariableSelection" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">            
                         </select><br><br>
@@ -398,65 +393,32 @@
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
                     } else if (variable in categorical_variables){
-                        if (document.getElementById('languageView').value == 'one') {
-                            if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
-                                shapeWeight = 2;
-                                if (shape[variable].length > 1) {
-                                    shapeColour = oneLanguageColourMapping['Present'];
-                                } else {
-                                    shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
-                                }
+                        if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
+                            shapeWeight = 2;
+                            if (shape[variable].length > 1) {
+                                shapeColour = oneLanguageColourMapping['Present'];
                             } else {
-                                shapeWeight = 0;
-                                if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
-                                    shapeColour = oneLanguageColourMapping['Unknown'];
-                                } else if (shape[variable][0] == 'Uncoded') {
-                                    shapeColour = new L.StripePattern({
-                                        color: oneLanguageColourMapping['Uncoded'],
-                                        spaceColor: 'yellow',
-                                        weight: 4,
-                                        spaceWeight: 4,
-                                        opacity: 1,
-                                        spaceOpacity: 1,
-                                    });
-                                    shapeColour.addTo(map);
-                                } else {
-                                    shapeColour = oneLanguageColourMapping['Absent'];
-                                }
-                            }                          
-                        } else if (document.getElementById('languageView').value == 'all') {
-                            if (shape.language.includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
-                                shape.weight = 2;
-                                updateLegend();
+                                shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
                             }
-                            shapeWeight = shape.weight;
-                            shapeColour = shape.language_colour[0];  // This gets used by polities with just one language
-                            if (shape.language_colour.length == 2) {                       
-                                // Create a new stripe pattern
+                        } else {
+                            shapeWeight = 0;
+                            if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
+                                shapeColour = oneLanguageColourMapping['Unknown'];
+                            } else if (shape[variable][0] == 'Uncoded') {
                                 shapeColour = new L.StripePattern({
-                                    color: shape.language_colour[0],
-                                    spaceColor: shape.language_colour[1],
+                                    color: oneLanguageColourMapping['Uncoded'],
+                                    spaceColor: 'yellow',
                                     weight: 4,
                                     spaceWeight: 4,
                                     opacity: 1,
                                     spaceOpacity: 1,
                                 });
                                 shapeColour.addTo(map);
-                            } else if (shape.language_colour.length > 2) {
-                                // For languages with more than 2 colours, use the first colour and grey
-                                shapeColour = new L.StripePattern({
-                                    color: shape.language_colour[0],
-                                    spaceColor: 'grey',
-                                    weight: 4,
-                                    spaceWeight: 4,
-                                    opacity: 1,
-                                    spaceOpacity: 1,
-                                });
-                                shapeColour.addTo(map);
+                            } else {
+                                shapeColour = oneLanguageColourMapping['Absent'];
                             }
-
-                        }
-                    } else {
+                        }                          
+                    } else {  // Absent-present variables
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
                         if (shape[variable] == 'uncoded') {
@@ -594,7 +556,7 @@
 
                                 // Listen for the click event on the layer
                                 layer.on('click', function (e) {            
-                                    if (allPolitiesLoaded && (variable == 'polity' || (variable == 'language' && document.getElementById('languageView').value == 'all'))){
+                                    if (allPolitiesLoaded && variable == 'polity'){
                                         if (shape.weight === 0) {
                                             // Increase the weight of the clicked layer
                                             newWeight = 2;
@@ -625,7 +587,7 @@
 
                         // Listen for the click event on the map
                         map.on('click', function () {
-                            if(variable == 'polity' || (variable == 'language' && document.getElementById('languageView').value == 'all')){
+                            if(variable == 'polity'){
                                 // Update weights in shapesData
                                 var i = 0;
                                 shapesData.forEach(function (shape2) {
