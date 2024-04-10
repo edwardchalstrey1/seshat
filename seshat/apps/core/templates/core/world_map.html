@@ -354,7 +354,7 @@
             }
 
             // If the variable is categorical, show the categorical variable selection dropdown
-            if (variable == 'linguistic_family' || variable == 'language_genus' || variable == 'language') {
+            if (variable in categorical_variables) {
                 updateCategoricalVariableSelection(variable);
                 document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'block';              
             } else {
@@ -388,7 +388,7 @@
                     if (variable == 'polity') {  
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
-                    } else if (variable == 'language'){
+                    } else if (variable in categorical_variables){
                         if (document.getElementById('languageView').value == 'one') {
                             if (shape.languages.includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
                                 shapeWeight = 2;
@@ -539,7 +539,7 @@
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                 `;
-                                if (variable != 'polity' && variable != 'language') {
+                                if (variable != 'polity' && !categorical_variables.hasOwnProperty(variable)) {
                                     popupContent = popupContent + `
                                         <tr>
                                             <td><span style="text-transform: capitalize;">${variable}</span></td>
@@ -547,7 +547,7 @@
                                         </tr>
                                     `;
                                 }
-                                if (variable == 'language') {
+                                if (variable == 'language' || variable == 'linguistic_family' || variable == 'language_genus') {
                                     popupContent = popupContent + `
                                         <tr>
                                             <td><span style="text-transform: capitalize;">Languages</span></td>
@@ -594,8 +594,7 @@
                                         // Update weights in shapesData
                                         var i = 0;
                                         shapesData.forEach(function (shape2) {
-                                            if (shape2.name === shape.name) {
-                                            // if (shape2.name === shape.name || (shape2.language === shape.language && variable == 'language')) {  TODO: Handle multiple languages, check against the selected language
+                                            if (shape2.name === shape.name) {                                           
                                                 shapesData[i]['weight'] = newWeight;
                                             }
                                             i++;
