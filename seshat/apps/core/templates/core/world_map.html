@@ -314,16 +314,16 @@
             'absent': 'red',
             'P~A': 'orange',
             'A~P': 'blue',
-            'unknown': 'grey',
-            'uncoded': 'yellow' 
+            'unknown': 'yellow',
+            'uncoded': 'grey' 
         };
 
         let oneLanguageColourMapping = {
             'Present exclusively': 'green',
             'Present': '#13d446',
             'Absent': 'purple',
-            'Unknown': 'grey',
-            'Uncoded': 'yellow'
+            'Unknown': 'yellow',
+            'Uncoded': 'grey'
         };
 
         function switchBaseMapWorldMap() {
@@ -450,7 +450,7 @@
                                     fillOpacity: fillWeight      // Set the fill opacity
                                 };
                                 // Set the border color
-                                if (shape[variable] == 'uncoded' || shape[variable] == 'Uncoded'){
+                                if (shape[variable] == 'unknown' || shape[variable] == 'Unknown'){
                                     style.color = 'black';
                                 } else {
                                     style.color = shapeColour;

@@ -221,7 +221,7 @@ function updateLegend() {
             colorBox.style.marginRight = '10px';
             legendItem.appendChild(colorBox);
 
-            if (key === 'Uncoded') {
+            if (key === 'Unknown') {
                 colorBox.style.border = '1px solid black';
             }
 
@@ -246,7 +246,7 @@ function updateLegend() {
             colorBox.style.marginRight = '10px';
             legendItem.appendChild(colorBox);
 
-            if (key === 'uncoded') {
+            if (key === 'unknown') {
                 colorBox.style.border = '1px solid black';
             }
 
