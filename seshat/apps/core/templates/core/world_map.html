@@ -129,7 +129,7 @@
                         {% endfor %}
                     </select>
                     <button id="polButton" type="button" onclick="polityButton()">Polity</button><br><br>
-                    <fieldset id="chooseLanguageFieldset">
+                    <fieldset id="chooseCategoricalVariableSelectionFieldset">
                         <label for="languageView">Language view:</label>
                         <select name="languageView" id="languageView" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
                             <option value="one">One language</option>
@@ -355,9 +355,9 @@
 
             // If the variable is language, show the language selection dropdown
             if (variable == 'language') {
-                document.getElementById('chooseLanguageFieldset').style.display = 'block';
+                document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'block';
             } else {
-                document.getElementById('chooseLanguageFieldset').style.display = 'none';
+                document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'none';
             }
 
             updateLegend();
