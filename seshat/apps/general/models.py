@@ -912,7 +912,6 @@ class Polity_capital(SeshatCommon):
 class Polity_language(SeshatCommon):
     name = models.CharField(max_length=100, default="Polity_language")
     language = models.CharField(max_length=500, choices=POLITY_LANGUAGE_CHOICES)
-    colour=models.CharField(max_length=7, null=True)
 
     class Meta:
         verbose_name = 'Polity_language'

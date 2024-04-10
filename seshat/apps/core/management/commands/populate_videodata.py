@@ -3,9 +3,7 @@ import json
 from distinctipy import get_colors, get_hex
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand
-from django.db import connection
-from seshat.apps.core.models import VideoShapefile, Polity
-from seshat.apps.general.models import POLITY_LANGUAGE_CHOICES, Polity_language
+from seshat.apps.core.models import VideoShapefile
 
 class Command(BaseCommand):
     help = 'Populates the database with Shapefiles'
@@ -17,7 +15,6 @@ class Command(BaseCommand):
         dir = options['dir']
 
         # Clear the VideoShapefile table
-        self.stdout.write(self.style.SUCCESS('Deleting all existing VideoShapefile data'))
         VideoShapefile.objects.all().delete()
 
         # Get the start and end years for each shape
@@ -63,18 +60,8 @@ class Command(BaseCommand):
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
         self.stdout.write(self.style.SUCCESS(f'Generating colour mapping for {len(unique_polities)} polities'))
-        pol_col_map = colour_mapping(unique_polities)
+        pol_col_map = polity_colour_mapping(unique_polities)
         self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
-
-        # Sort the languages and generate a colour mapping
-        self.stdout.write(self.style.SUCCESS(f'Generating colour mapping for {len(POLITY_LANGUAGE_CHOICES)} languages'))
-        lang_col_map = colour_mapping([x[0] for x in POLITY_LANGUAGE_CHOICES])
-        self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
-        # Update the colour column of the Polity_language table based on the value of the language column
-        self.stdout.write(self.style.SUCCESS('Updating Polity_language table with colour mapping'))
-        for lang in POLITY_LANGUAGE_CHOICES:
-            Polity_language.objects.filter(language=lang[0]).update(colour=lang_col_map[lang[0]])
-        self.stdout.write(self.style.SUCCESS('Polity_language table updated'))
 
         # Iterate over files in the directory
         for filename in os.listdir(dir):
@@ -142,20 +129,10 @@ class Command(BaseCommand):
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
 
-        self.stdout.write(self.style.SUCCESS('Adding simplified geometries for faster loading...'))
-        # Adjust the tolerance param of ST_Simplify as needed
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                UPDATE core_videoshapefile 
-                SET simplified_geom = ST_Simplify(geom, 0.07);
-            """)
-        self.stdout.write(self.style.SUCCESS('Simplified geometries added'))
-        
 
-
-def colour_mapping(entities):
-    """Use DistinctiPy package to assign a colour to each entity in a list of entities."""
+def polity_colour_mapping(polities):
+    """Use DistinctiPy package to assign a colour to each polity"""
     colours = []
-    for col in get_colors(len(entities)):
+    for col in get_colors(len(polities)):
         colours.append(get_hex(col))
-    return dict(zip(entities, colours))
+    return dict(zip(polities, colours))
