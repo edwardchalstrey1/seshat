@@ -2689,7 +2689,6 @@ def assign_categorical_variables_to_shapes(shapes, variables):
         shape['linguistic_family'] = []
         shape['language_genus'] = []
         shape['language'] = []
-        shape['language_colour'] = []
         if shape['seshat_id'] != 'none':  # Skip shapes with no seshat_id
             try:
                 polity = Polity.objects.get(new_name=shape['seshat_id'])
@@ -2712,10 +2711,9 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                 # Get the language for the polity
                 try:
                     polity_language = Polity_language.objects.filter(polity_id=polity.id)
-                    # Add the language and language_colour of each polity_language to lists
+                    # Add the language of each polity_language to a list
                     for polity_language in polity_language:
                         shape['language'].append(polity_language.language)
-                        shape['language_colour'].append(polity_language.colour)  
                 except Polity_language.DoesNotExist:  # Skip polities with no language
                     pass
             except Polity.DoesNotExist:
@@ -2725,8 +2723,7 @@ def assign_categorical_variables_to_shapes(shapes, variables):
         if len(shape['language_genus']) == 0:
             shape['language_genus'].append('Uncoded')
         if len(shape['language']) == 0:
-            shape['language'].append('Uncoded')
-            shape['language_colour'].append('black')      
+            shape['language'].append('Uncoded')  
     return shapes, variables
 
 # Get all the variables used in the map view
