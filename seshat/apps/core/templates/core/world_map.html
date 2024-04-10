@@ -49,7 +49,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    <script src="https://unpkg.com/leaflet.pattern@0.1.0/dist/leaflet.pattern.js"></script>
 
 </head>
 <style>
@@ -405,15 +404,7 @@
                             if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
                                 shapeColour = oneLanguageColourMapping['Unknown'];
                             } else if (shape[variable][0] == 'Uncoded') {
-                                shapeColour = new L.StripePattern({
-                                    color: oneLanguageColourMapping['Uncoded'],
-                                    spaceColor: 'yellow',
-                                    weight: 4,
-                                    spaceWeight: 4,
-                                    opacity: 1,
-                                    spaceOpacity: 1,
-                                });
-                                shapeColour.addTo(map);
+                                shapeColour = oneLanguageColourMapping['Uncoded'];
                             } else {
                                 shapeColour = oneLanguageColourMapping['Absent'];
                             }
@@ -421,17 +412,6 @@
                     } else {  // Absent-present variables
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
-                        if (shape[variable] == 'uncoded') {
-                            shapeColour = new L.StripePattern({
-                                color: 'black',
-                                spaceColor: 'yellow',
-                                weight: 4,
-                                spaceWeight: 4,
-                                opacity: 1,
-                                spaceOpacity: 1,
-                            });
-                            shapeColour.addTo(map);
-                        }
                     }
 
                     // If the shape spans the selected year
@@ -471,13 +451,7 @@
                                     fillOpacity: fillWeight      // Set the fill opacity
                                 };
 
-                                // Conditionally set the fill color or pattern
-                                if (shapeColour instanceof L.Pattern) {
-                                    style.fillPattern = shapeColour;
-                                } else {
-                                    style.fillColor = shapeColour;
-                                }
-
+                                style.fillColor = shapeColour;
                                 return style;
                             },
                             onEachFeature: function (feature, layer) {
