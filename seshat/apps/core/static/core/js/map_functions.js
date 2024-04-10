@@ -215,7 +215,7 @@ function updateLegend() {
                         // Add the language to the dict to be used in the legend
                         i = 0;
                         shape.language.forEach(function (language) {
-                            displayLanguages[language] = shape.language_colours[i];
+                            displayLanguages[language] = shape.language_colour[i];
                             i++;
                         });
                         if (shape.language.length > 2) {
