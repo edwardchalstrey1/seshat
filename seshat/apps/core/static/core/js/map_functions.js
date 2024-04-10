@@ -349,9 +349,10 @@ function updateCategoricalVariableSelection(variable){
         option.value = choice;
         option.text = choice;
 
-        // if (choice === 'Greek') {
-        //     option.selected = true;
-        // }
+        // Set some default selections
+        if (choice === 'Greek' || choice === 'Indo-European') {
+            option.selected = true;
+        }
 
         dropdown.appendChild(option);
     });
