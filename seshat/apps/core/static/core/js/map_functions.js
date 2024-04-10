@@ -214,11 +214,11 @@ function updateLegend() {
                     if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
                         // Add the language to the dict to be used in the legend
                         i = 0;
-                        shape.languages.forEach(function (language) {
+                        shape.language.forEach(function (language) {
                             displayLanguages[language] = shape.language_colours[i];
                             i++;
                         });
-                        if (shape.languages.length > 2) {
+                        if (shape.language.length > 2) {
                             displayLanguages['3+ languages (striped)'] = 'grey'
                         };
                     };
