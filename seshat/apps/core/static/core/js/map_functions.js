@@ -260,23 +260,23 @@ function updateLegend() {
 
             legendDiv.appendChild(legendItem);
         }
+    }
 
-        if (document.querySelector('input[name="baseMap"]:checked').value == 'gadm') {
-            var legendItem = document.createElement('p');
+    if (document.querySelector('input[name="baseMap"]:checked').value == 'gadm') {
+        var legendItem = document.createElement('p');
 
-            var colorBox = document.createElement('span');
-            colorBox.style.display = 'inline-block';
-            colorBox.style.width = '20px';
-            colorBox.style.height = '20px';
-            colorBox.style.backgroundColor = 'white';
-            colorBox.style.border = '1px solid black';
-            colorBox.style.marginRight = '10px';
+        var colorBox = document.createElement('span');
+        colorBox.style.display = 'inline-block';
+        colorBox.style.width = '20px';
+        colorBox.style.height = '20px';
+        colorBox.style.backgroundColor = 'white';
+        colorBox.style.border = '1px solid black';
+        colorBox.style.marginRight = '10px';
 
-            legendItem.appendChild(colorBox);
-            legendItem.appendChild(document.createTextNode('Base map'));
+        legendItem.appendChild(colorBox);
+        legendItem.appendChild(document.createTextNode('Base map'));
 
-            legendDiv.appendChild(legendItem);
-        }
+        legendDiv.appendChild(legendItem);
     }
 }
 
