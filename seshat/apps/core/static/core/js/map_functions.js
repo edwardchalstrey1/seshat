@@ -204,22 +204,52 @@ function updateLegend() {
             }
         };
 
-    } else {
+    } else if (variable in categorical_variables) {
+        
+        var legendTitle = document.createElement('h3');
+        legendTitle.textContent = document.getElementById('chooseCategoricalVariableSelection').value;
+        legendDiv.appendChild(legendTitle);
+
+        for (var key in oneLanguageColourMapping) {
+            var legendItem = document.createElement('p');
+
+            var colorBox = document.createElement('span');
+            colorBox.style.display = 'inline-block';
+            colorBox.style.width = '20px';
+            colorBox.style.height = '20px';
+            colorBox.style.backgroundColor = oneLanguageColourMapping[key];
+            colorBox.style.marginRight = '10px';
+            legendItem.appendChild(colorBox);
+
+            if (key === 'Unknown') {
+                colorBox.style.border = '1px solid black';
+            }
+
+            legendItem.appendChild(document.createTextNode(`${key}`));
+
+            legendDiv.appendChild(legendItem);
+        };
+
+    } else {  // Absent-present variables
         var legendTitle = document.createElement('h3');
         legendTitle.textContent = variable;
         legendDiv.appendChild(legendTitle);
 
         for (var key in variableColourMapping) {
             var legendItem = document.createElement('p');
-            var colorBox = document.createElement('span');
 
+            var colorBox = document.createElement('span');
             colorBox.style.display = 'inline-block';
             colorBox.style.width = '20px';
             colorBox.style.height = '20px';
             colorBox.style.backgroundColor = variableColourMapping[key];
             colorBox.style.marginRight = '10px';
-
             legendItem.appendChild(colorBox);
+
+            if (key === 'unknown') {
+                colorBox.style.border = '1px solid black';
+            }
+
             if (key === 'A~P') {
                 legendItem.appendChild(document.createTextNode('Absent then present'));
             } else if (key === 'P~A') {
@@ -230,22 +260,42 @@ function updateLegend() {
 
             legendDiv.appendChild(legendItem);
         }
-
-        if (document.querySelector('input[name="baseMap"]:checked').value == 'gadm') {
-            var legendItem = document.createElement('p');
-            var colorBox = document.createElement('span');
-
-            colorBox.style.display = 'inline-block';
-            colorBox.style.width = '20px';
-            colorBox.style.height = '20px';
-            colorBox.style.backgroundColor = 'white';
-            colorBox.style.border = '1px solid black';
-            colorBox.style.marginRight = '10px';
-
-            legendItem.appendChild(colorBox);
-            legendItem.appendChild(document.createTextNode('Base map'));
-
-            legendDiv.appendChild(legendItem);
-        }
     }
+
+    if (document.querySelector('input[name="baseMap"]:checked').value == 'gadm') {
+        var legendItem = document.createElement('p');
+
+        var colorBox = document.createElement('span');
+        colorBox.style.display = 'inline-block';
+        colorBox.style.width = '20px';
+        colorBox.style.height = '20px';
+        colorBox.style.backgroundColor = 'white';
+        colorBox.style.border = '1px solid black';
+        colorBox.style.marginRight = '10px';
+
+        legendItem.appendChild(colorBox);
+        legendItem.appendChild(document.createTextNode('Base map'));
+
+        legendDiv.appendChild(legendItem);
+    }
+}
+
+function updateCategoricalVariableSelection(variable){
+    var dropdown = document.getElementById('chooseCategoricalVariableSelection');
+    dropdown.innerHTML = '';
+    categorical_variables[variable].forEach(function (choice) {
+        var option = document.createElement('option');
+        option.value = choice;
+        option.text = choice;
+
+        // Set some default selections
+        if (choice === 'Greek' || choice === 'Indo-European') {
+            option.selected = true;
+        }
+
+        dropdown.appendChild(option);
+    });
+    var varSelectElement = document.getElementById('chooseVariable');
+    var varText = varSelectElement.options[varSelectElement.selectedIndex].text;
+    document.querySelector('label[for="chooseCategoricalVariableSelection"]').textContent = varText + ': ';
 }

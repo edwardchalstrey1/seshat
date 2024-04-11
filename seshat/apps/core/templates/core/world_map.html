@@ -105,18 +105,34 @@
                 </legend>
 
                 <div class="slidecontainer">
-                    <label for="chooseVariable">Variable</label>
+                    <label for="chooseVariable">Variable: </label>
                     <select name="chooseVariable" id="chooseVariable" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
                         <option value="polity">Polity</option>
                         {% for category, variables in variables.items %}
-                            <optgroup label="{{ category }}">
-                                {% for variable, details in variables.items %}
-                                    <option value="{{ details.formatted }}">{{ details.full_name }}</option>
-                                {% endfor %}
-                            </optgroup>
+                            {% if category == 'General Variables' %}
+                                <optgroup label="{{ category }}">
+                                    {% for variable, details in variables.items %}
+                                        <option value="{{ details.formatted }}">{{ details.full_name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endif %}
+                        {% endfor %}
+                        {% for category, variables in variables.items %}
+                            {% if category != 'General Variables' %}
+                                <optgroup label="{{ category }}">
+                                    {% for variable, details in variables.items %}
+                                        <option value="{{ details.formatted }}">{{ details.full_name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endif %}
                         {% endfor %}
                     </select>
-                    <button id="polButton" type="button" onclick="polityButton()">Polity</button><br>
+                    <button id="polButton" type="button" onclick="polityButton()">Polity</button><br><br>
+                    <fieldset id="chooseCategoricalVariableSelectionFieldset">
+                        <label for="chooseCategoricalVariableSelection"></label>
+                        <select name="chooseCategoricalVariableSelection" id="chooseCategoricalVariableSelection" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">            
+                        </select><br><br>
+                    </fieldset>
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
@@ -175,6 +191,9 @@
     </div>
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
+
+        var categorical_variables = {{ categorical_variables | safe }};
+        updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
         
         var displayedShapes = [];
         var polityBorderWeight = 0;
@@ -191,6 +210,22 @@
                 },
             {% endfor %}
         ];
+
+        // Iterate through shapesData and ensure that fields that are lists are interpreted properly
+        shapesData.forEach(function (shape) {
+            if (shape.language) {
+                shape.language = JSON.parse(shape.language.replace(/'/g, '"'));
+            }
+            if (shape.language_colour) {
+                shape.language_colour = JSON.parse(shape.language_colour.replace(/'/g, '"'));
+            }
+            if (shape.language_genus) {
+                shape.language_genus = JSON.parse(shape.language_genus.replace(/'/g, '"'));
+            }
+            if (shape.linguistic_family) {
+                shape.linguistic_family = JSON.parse(shape.linguistic_family.replace(/'/g, '"'));
+            }
+        });
 
         // Load seshat_id_page_id dictionary
         var seshat_id_page_id = {{ seshat_id_page_id | safe }};
@@ -277,10 +312,18 @@
         let variableColourMapping = {
             'present': 'green',
             'absent': 'red',
-            'unknown': 'grey',
-            'uncoded': 'black',
+            'P~A': 'orange',
             'A~P': 'blue',
-            'P~A': 'orange'
+            'unknown': 'yellow',
+            'uncoded': 'grey' 
+        };
+
+        let oneLanguageColourMapping = {
+            'Present exclusively': 'green',
+            'Present': '#13d446',
+            'Absent': 'red',
+            'Unknown': 'yellow',
+            'Uncoded': 'grey'
         };
 
         function switchBaseMapWorldMap() {
@@ -297,10 +340,31 @@
 
         function plotPolities() {  // This function is defined differently in the polity_map template
 
-            updateLegend();
-
             var variable = document.getElementById('chooseVariable').value;
             var selectedYear = document.getElementById('dateSlide').value;
+
+            // If variable has changed from the previous selection
+            if (localStorage.getItem('variable') != variable) {
+                // Update weights in shapesData
+                var i = 0;
+                shapesData.forEach(function (shape) {
+                    shapesData[i]['weight'] = 0;
+                    i++;
+                });
+            }
+
+            // If the variable is categorical, show the categorical variable selection dropdown
+            if (variable in categorical_variables) {
+                // if variable has changed from the previous selection
+                if (localStorage.getItem('variable') != variable) {
+                    updateCategoricalVariableSelection(variable);
+                }
+                document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'block';              
+            } else {
+                document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'none';
+            }
+
+            updateLegend();
 
             // Load capital info if not already loaded
             if (typeof allCapitalsInfo === 'undefined') {
@@ -316,7 +380,6 @@
 
             // Convert to int, because for some reason JS converts it to a string
             var selectedYearInt = parseInt(selectedYear);
-
             // Add shapes to the map
             // Don't plot them if "Base map only" checkbox selected
             if (!document.getElementById('baseMapOnly').checked){
@@ -324,10 +387,28 @@
                 shapesData.forEach(function (shape) {
 
                     // Set weight and colour based on the variable
+                    fillWeight = 0.5;
                     if (variable == 'polity') {  
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
-                    } else {
+                    } else if (variable in categorical_variables){
+                        shapeWeight = 2;
+                        if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
+                            if (shape[variable].length > 1) {
+                                shapeColour = oneLanguageColourMapping['Present'];
+                            } else {
+                                shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
+                            }
+                        } else {
+                            if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
+                                shapeColour = oneLanguageColourMapping['Unknown'];
+                            } else if (shape[variable][0] == 'Uncoded') {
+                                shapeColour = oneLanguageColourMapping['Uncoded'];
+                            } else {
+                                shapeColour = oneLanguageColourMapping['Absent'];
+                            }
+                        }                          
+                    } else {  // Absent-present variables
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
                     }
@@ -358,16 +439,23 @@
                                 displayend_year = shape.polity_end_year + ' CE';
                             }
                         }
-                        
+
                         // Add shape
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom), {
                             style: function (feature) {
-                                return {
-                                    fillColor: shapeColour,  // Set the fill color based on the "colour" field
-                                    color: shapeColour,     // Set the border color
-                                    weight: shapeWeight,   // Set the border weight
-                                    fillOpacity: 0.5      // Set the fill opacity
+                                // Create the style object
+                                var style = {
+                                    fillColor: shapeColour,        // Set the fill color
+                                    weight: shapeWeight,          // Set the border weight
+                                    fillOpacity: fillWeight      // Set the fill opacity
                                 };
+                                // Set the border color
+                                if (shape[variable] == 'unknown' || shape[variable] == 'Unknown'){
+                                    style.color = 'black';
+                                } else {
+                                    style.color = shapeColour;
+                                }
+                                return style;
                             },
                             onEachFeature: function (feature, layer) {
                                 var popupContent = `
@@ -399,11 +487,27 @@
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                 `;
-                                if (variable != 'polity') {
+                                if (variable != 'polity' && !categorical_variables.hasOwnProperty(variable)) {
                                     popupContent = popupContent + `
                                         <tr>
                                             <td><span style="text-transform: capitalize;">${variable}</span></td>
                                             <td><span style="text-transform: capitalize;">${shape[variable]}</span></td>
+                                        </tr>
+                                    `;
+                                }
+                                if (variable == 'language' || variable == 'linguistic_family' || variable == 'language_genus') {
+                                    popupContent = popupContent + `
+                                        <tr>
+                                            <td>Languages</td>
+                                            <td><span style="text-transform: capitalize;">${shape.language.join(', ')}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Language Genus</td>
+                                            <td><span style="text-transform: capitalize;">${shape.language_genus.join(', ')}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Language Family</td>
+                                            <td><span style="text-transform: capitalize;">${shape.linguistic_family.join(', ')}</span></td>
                                         </tr>
                                     `;
                                 }
@@ -429,7 +533,7 @@
 
                                 // Listen for the click event on the layer
                                 layer.on('click', function (e) {            
-                                    if (allPolitiesLoaded){
+                                    if (allPolitiesLoaded && variable == 'polity'){
                                         if (shape.weight === 0) {
                                             // Increase the weight of the clicked layer
                                             newWeight = 2;
@@ -446,7 +550,7 @@
                                         // Update weights in shapesData
                                         var i = 0;
                                         shapesData.forEach(function (shape2) {
-                                            if (shape2.name === shape.name) {
+                                            if (shape2.name === shape.name) {                                           
                                                 shapesData[i]['weight'] = newWeight;
                                             }
                                             i++;
@@ -460,19 +564,21 @@
 
                         // Listen for the click event on the map
                         map.on('click', function () {
-                            // Update weights in shapesData
-                            var i = 0;
-                            shapesData.forEach(function (shape2) {
-                                shapesData[i]['weight'] = 0;
-                                i++;
-                            });
-                            // Reset the weight of all layers when the map is clicked
-                            geoJSONLayer.eachLayer(function (layer) {
-                                layer.setStyle({
-                                    weight: shapeWeight
+                            if(variable == 'polity'){
+                                // Update weights in shapesData
+                                var i = 0;
+                                shapesData.forEach(function (shape2) {
+                                    shapesData[i]['weight'] = 0;
+                                    i++;
                                 });
-                            });
-                            updateLegend();
+                                // Reset the weight of all layers when the map is clicked
+                                geoJSONLayer.eachLayer(function (layer) {
+                                    layer.setStyle({
+                                        weight: shapeWeight
+                                    });
+                                });
+                                updateLegend();
+                            };
                         });
 
                         // Open the corresponding Seshat page in a new browser tab when a shape is double-clicked
@@ -542,6 +648,10 @@
                     }
                 });
             };
+
+            // Store the variable selection
+            localStorage.setItem('variable', variable);
+
         }
 
         // Initial plot on page load

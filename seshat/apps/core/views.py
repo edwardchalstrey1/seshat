@@ -57,7 +57,7 @@ from django.urls import reverse, reverse_lazy
 
 from django.contrib.messages.views import SuccessMessageMixin
 
-from ..general.models import Polity_research_assistant, Polity_duration
+from ..general.models import Polity_research_assistant, Polity_duration, Polity_linguistic_family, Polity_language_genus, Polity_language, POLITY_LINGUISTIC_FAMILY_CHOICES, POLITY_LANGUAGE_GENUS_CHOICES, POLITY_LANGUAGE_CHOICES
 
 from ..crisisdb.models import Power_transition
 
@@ -2667,11 +2667,78 @@ def assign_variables_to_shapes(shapes, app_map):
 
     return shapes, variables
 
+def assign_categorical_variables_to_shapes(shapes, variables):
+    """
+        Assign the categorical variables to the shapes.
+        Currently only language is implemented.
+    """
+    # Add language variables to the variables
+    variables['General Variables'] = {}
+    variables['General Variables']['polity_linguistic_family'] = {}
+    variables['General Variables']['polity_linguistic_family']['formatted'] = 'linguistic_family'
+    variables['General Variables']['polity_linguistic_family']['full_name'] = 'Linguistic Family'
+    variables['General Variables']['polity_language_genus'] = {}
+    variables['General Variables']['polity_language_genus']['formatted'] = 'language_genus'
+    variables['General Variables']['polity_language_genus']['full_name'] = 'Language Genus'
+    variables['General Variables']['polity_language'] = {}
+    variables['General Variables']['polity_language']['formatted'] = 'language'
+    variables['General Variables']['polity_language']['full_name'] = 'Language'
+
+    # Add language variable info to polity shapes
+    for shape in shapes:
+        shape['linguistic_family'] = []
+        shape['language_genus'] = []
+        shape['language'] = []
+        if shape['seshat_id'] != 'none':  # Skip shapes with no seshat_id
+            try:
+                polity = Polity.objects.get(new_name=shape['seshat_id'])
+                # Get the liguisitic family for the polity
+                try:
+                    polity_linguistic_family = Polity_linguistic_family.objects.filter(polity_id=polity.id)
+                    # Add the linguistic family of each polity_linguistic_family to a list
+                    for polity_linguistic_family in polity_linguistic_family:
+                       shape['linguistic_family'].append(polity_linguistic_family.linguistic_family)
+                except Polity_linguistic_family.DoesNotExist:  # Skip polities with no linguistic family
+                    pass
+                # Get the language genus for the polity
+                try:
+                    polity_language_genus = Polity_language_genus.objects.filter(polity_id=polity.id)
+                    # Add the language genus of each polity_language_genus to a list
+                    for polity_language_genus in polity_language_genus:
+                        shape['language_genus'].append(polity_language_genus.language_genus)
+                except Polity_language_genus.DoesNotExist:  # Skip polities with no language genus
+                    pass
+                # Get the language for the polity
+                try:
+                    polity_language = Polity_language.objects.filter(polity_id=polity.id)
+                    # Add the language of each polity_language to a list
+                    for polity_language in polity_language:
+                        shape['language'].append(polity_language.language)
+                except Polity_language.DoesNotExist:  # Skip polities with no language
+                    pass
+            except Polity.DoesNotExist:
+                pass
+        if len(shape['linguistic_family']) == 0:
+            shape['linguistic_family'].append('Uncoded')
+        if len(shape['language_genus']) == 0:
+            shape['language_genus'].append('Uncoded')
+        if len(shape['language']) == 0:
+            shape['language'].append('Uncoded')  
+    return shapes, variables
+
 # Get all the variables used in the map view
 app_map = {
     'sc': 'Social Complexity Variables',
     'wf': 'Warfare Variables (Military Technologies)',
     'rt': 'Religion Tolerance',
+    # 'general': 'General Variables',
+}
+
+# Get sorted lists of choices for each categorical variable
+categorical_variables = {
+    'linguistic_family': sorted([x[0] for x in POLITY_LINGUISTIC_FAMILY_CHOICES]),
+    'language_genus': sorted([x[0] for x in POLITY_LANGUAGE_GENUS_CHOICES]),
+    'language': sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
 }
 
 def map_view_initial(request):
@@ -2693,12 +2760,18 @@ def map_view_initial(request):
 
     content = get_polity_shape_content(displayed_year=displayed_year)
 
-    # Add in the variables to view for the shapes
+    # Add in the present/absent variables to view for the shapes
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+
+    # Add in the categorical variables to view for the shapes
+    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
     content['all_capitals_info'] = caps
+
+    # Add categorical variable choices to content for dropdown selection
+    content['categorical_variables'] = categorical_variables
     
     return render(request,
                   'core/world_map.html',
@@ -2712,12 +2785,18 @@ def map_view_all(request):
     """
     content = get_polity_shape_content()
 
-    # Add in the variables to view for the shapes
+    # Add in the present/absent variables to view for the shapes
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+
+    # Add in the categorical variables to view for the shapes
+    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
 
     # Load the capital cities for polities that have them
     caps = get_all_polity_capitals()
     content['all_capitals_info'] = caps
+
+    # Add categorical variable choices to content for dropdown selection
+    content['categorical_variables'] = categorical_variables
     
     return JsonResponse(content)
 
