@@ -134,6 +134,14 @@ urlpatterns += [
 
     # NEW
      path('create_subcomment_new/<slug:app_name>/<slug:model_name>/<int:instance_id>/', views.create_a_comment_with_a_subcomment_new, name='create_subcomment_new'),
+     path('create_private_subcomment_new/<slug:app_name>/<slug:model_name>/<int:instance_id>/', views.create_a_private_comment_with_a_private_subcomment_new, name='create_private_subcomment_new'),
+     path('core/seshatprivatecomments/<int:pk>/update/',
+         views.SeshatPrivateCommentUpdate.as_view(), name="seshatprivatecomment-update"),
+     path('core/seshatprivatecommentparts/create2/<int:private_com_id>/', views.seshat_private_comment_part_create_from_null_view,
+         name="seshatprivatecommentpart-create2"),
+
+    path('core/seshatprivatecommentparts/<int:pk>/update/<int:private_com_id>/',
+         views.SeshatPrivateCommentPartUpdate.as_view(), name="seshatprivatecommentpart-update"),
 
     # Download
     #path('balancedownload/', views.balance_download,

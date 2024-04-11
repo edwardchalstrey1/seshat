@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.forms.formsets import BaseFormSet
 
 
-from seshat.apps.core.models import Section, Subsection, Variablehierarchy, Reference, Citation, SeshatComment, SeshatCommentPart, Polity, Capital, Nga
+from seshat.apps.core.models import Section, Subsection, Variablehierarchy, Reference, Citation, SeshatComment, SeshatCommentPart, Polity, Capital, Nga, SeshatPrivateCommentPart, SeshatPrivateComment
 from django.core.exceptions import NON_FIELD_ERRORS
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
@@ -229,6 +229,35 @@ class SeshatCommentPartForm(forms.ModelForm):
             'comment_part_text': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 300px',}),
             'comment_citations': forms.SelectMultiple(attrs={'class': 'form-control mb-3 js-states js-example-basic-multiple', 'text':'citations[]' , 'style': 'height: 340px', 'multiple': 'multiple'}),
             'comment_curator': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
+        }
+
+
+class SeshatPrivateCommentPartForm(forms.ModelForm):
+    class Meta:
+        model = SeshatPrivateCommentPart
+        fields = ('private_comment', 'private_comment_part_text', 'private_comment_owner')
+        labels = {
+        'private_comment': '<b>PrivateDescription ID</b>',
+        'private_comment_part_text': '<b>Private Conmment Text</b>',
+        'private_comment_owner': '<b>Owner:</b>',
+        }
+        widgets = {
+            'private_comment': forms.NumberInput(
+                attrs={'class': 'form-control  mb-3 fw-bold', }),
+            'private_comment_part_text': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 150px',}),
+            'private_comment_owner': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
+        }
+
+
+class SeshatPrivateCommentForm(forms.ModelForm):
+    class Meta:
+        model = SeshatPrivateComment
+        fields = ('text',)
+        labels = {
+        'text': '<b>Private Comment</b>',
+        }
+        widgets = {
+            'text': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 100px',}),
         }
 
 class ReferenceWithPageForm(forms.Form):

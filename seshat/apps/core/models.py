@@ -25,7 +25,42 @@ from django.utils import translation
 from django.contrib import messages
 from django.core.validators import URLValidator
 
+def give_me_a_color_for_expert(value):
+    light_colors = [
+    '#e6b8af',
+    '#f4cccc',
+    '#fce5cd',
+    '#fff2cc',
+    '#d9ead3',
+    '#d0e0e3',
+    '#c9daf8',
+    '#cfe2f3',
+    '#d9d2e9',
+    '#ead1dc',
+    '#dd7e6b',
+    '#ea9999',
+    '#f9cb9c',
+    '#ffe599',
+    '#b6d7a8',
+    '#a2c4c9',
+    '#a4c2f4',
+    '#9fc5e8',
+    '#b4a7d6',
+    '#d5a6bd',
+    '#cc4125',
+    '#e06666',
+    '#f6b26b',
+    '#ffd966',
+    '#93c47d',
+    '#76a5af',
+    '#6d9eeb',
+    '#6fa8dc',
+    '#8e7cc3',
+    '#c27ba0',
+    ]
 
+    index = int(value) % 30
+    return light_colors[index]
 # APS = 'A;P*'
 # AP = 'A;P'
 # NFY = 'NFY'
@@ -682,6 +717,54 @@ class SeshatCommentPart(models.Model):
             return "NO_SUB_COMMENTS_TO_SHOW"
         
 
+class SeshatPrivateComment(models.Model):
+    text = models.TextField(blank=True, null=True,)
+
+    def __str__(self) -> str:
+        all_private_comment_parts = self.inner_private_comments_related.all().order_by('created_date')
+        if all_private_comment_parts:
+            private_comment_parts = []
+            for private_comment_part in all_private_comment_parts:
+                my_color = give_me_a_color_for_expert(private_comment_part.private_comment_owner.id)
+                private_comment_full_text = f'<span class="badge text-dark" style="background:{my_color};">' + str(private_comment_part.private_comment_owner) + "</span> " + private_comment_part.private_comment_part_text + "<br>"
+                private_comment_parts.append(private_comment_full_text)
+            if not private_comment_parts or private_comment_parts == [None]:
+                to_be_shown = " Nothing "
+            else:
+                to_be_shown = " ".join(private_comment_parts)
+        elif self.text and not all_private_comment_parts:
+            to_be_shown = "No Private Comments."
+        else:
+            to_be_shown = "EMPTY_PRIVATE_COMMENT"
+        return f'{to_be_shown}'
+    
+    def get_absolute_url(self):
+        return reverse('seshatprivatecomments')
+        
+class SeshatPrivateCommentPart(models.Model):
+    private_comment = models.ForeignKey(SeshatPrivateComment, on_delete=models.SET_NULL, related_name="inner_private_comments_related",
+                               related_query_name="inner_private_comments_related", null=True, blank=True)
+    private_comment_part_text = models.TextField(blank=True, null=True,)
+
+    private_comment_owner = models.ForeignKey(Seshat_Expert, on_delete=models.SET_NULL, related_name="%(app_label)s_%(class)s_related",
+                               related_query_name="%(app_label)s_%(class)s", null=True, blank=True)
+    created_date = models.DateTimeField(auto_now=True, blank=True, null=True)
+    last_modified_date = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+    def get_absolute_url(self):
+        return reverse('seshatprivatecomment-update',  args=[str(self.private_comment.id)])
+
+    class Meta:
+        ordering = ["created_date", "last_modified_date"]
+
+    def __str__(self) -> str:
+        """string for epresenting the model obj in Admin Site"""
+        if self.comment_part_text:
+            return self.comment_part_text
+        else:
+            return "NO_Private_COMMENTS_TO_SHOW"
+        
+
 class ScpThroughCtn(models.Model):
     seshatcommentpart = models.ForeignKey(SeshatCommentPart, on_delete=models.CASCADE,  related_name="%(app_label)s_%(class)s_related",
                                related_query_name="%(app_label)s_%(class)s", null=True, blank=True)
@@ -717,6 +800,8 @@ class SeshatCommon(models.Model):
     curator = models.ManyToManyField(Seshat_Expert,  related_name="%(app_label)s_%(class)s_related",
                                related_query_name="%(app_label)s_%(class)ss", blank=True,)
     comment = models.ForeignKey(SeshatComment, on_delete=models.DO_NOTHING, related_name="%(app_label)s_%(class)s_related", related_query_name="%(app_label)s_%(class)s", null=True, blank=True)
+    private_comment = models.ForeignKey(SeshatPrivateComment, on_delete=models.DO_NOTHING, related_name="%(app_label)s_%(class)s_related", related_query_name="%(app_label)s_%(class)s", null=True, blank=True)
+
     class Meta:
         abstract = True
         ordering = ['polity']

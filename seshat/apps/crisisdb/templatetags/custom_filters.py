@@ -191,3 +191,43 @@ def make_references_look_nicer(value):
 
     paargraphed_new_str = new_string.replace("MJD_BNM_NEWLINE_TAG_XYZ", "<br>")
     return paargraphed_new_str
+
+
+@register.filter
+def give_me_a_color(value):
+    light_colors = [
+    '#e6b8af',
+    '#f4cccc',
+    '#fce5cd',
+    '#fff2cc',
+    '#d9ead3',
+    '#d0e0e3',
+    '#c9daf8',
+    '#cfe2f3',
+    '#d9d2e9',
+    '#ead1dc',
+    '#dd7e6b',
+    '#ea9999',
+    '#f9cb9c',
+    '#ffe599',
+    '#b6d7a8',
+    '#a2c4c9',
+    '#a4c2f4',
+    '#9fc5e8',
+    '#b4a7d6',
+    '#d5a6bd',
+    '#cc4125',
+    '#e06666',
+    '#f6b26b',
+    '#ffd966',
+    '#93c47d',
+    '#76a5af',
+    '#6d9eeb',
+    '#6fa8dc',
+    '#8e7cc3',
+    '#c27ba0',
+    ]
+
+    index = int(value) % 30
+
+    return light_colors[index]

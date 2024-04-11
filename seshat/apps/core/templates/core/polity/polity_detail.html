@@ -448,12 +448,11 @@
                             <div class="col-md-10 py-2" id="table_id_general">
                             {% for key, values in values_m.items %}
                                 {% if values %}
-                                <span class="badge mb-1 mt-0 pb-0 mx-0 fw-bold text-dark" style="text-align: left; background:#acd2cc62;">
-                                    <div class="h6">
-                                        <a class="h6" href="#{{key}}"> &nbsp;
+                                <span class="badge mb-1 mt-0 pb-0 mx-0 text-dark" style="text-align: left; background:#acd2cc62;">
+                                    <div class="fs-6 pb-1">
+                                        <a class="h6" href="#{{key}}">
                                             <i class="fa-solid fa-circle-arrow-down fa-sm text-teal-light"></i>
-                                        </a> 
-                                        <span class="fs-6 fw-bold" style="color:#000">{{ values.0.clean_name_spaced|slice:"7:" }}</span>:
+                                        </a> {{ values.0.clean_name_spaced|slice:"7:" }}:
                                         {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %} 
                                         <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-secondary"></i>
                                         </a> 
@@ -584,17 +583,18 @@
                      </div>
                      {% endif %}
                      {% if values_m %}
-                            <div class="col-md-10 py-2 " id="table_id_sc">
+                            <div class="col-md-10 py-2" id="table_id_sc">
                             {% for key, values in values_m.items %}
                             {% if values %}
                             <span class="badge mb-1 mt-0 pb-0 mx-0 text-dark" style="text-align: left; background:#acd2cc62;">
-                                <div class="fs-6 pb-1"> <a class="h6" href="#{{key}}"><i class="fa-solid fa-circle-arrow-down fa-sm text-teal-light"></i>
-                                </a> {{values.0.clean_name_spaced}}: 
-                                {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %} 
-                                <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-secondary"></i>
-                                </a> 
-                                {% endif %}
-                            </div>
+                                <div class="fs-6 pb-1"> 
+                                    <a class="h6" href="#{{key}}"><i class="fa-solid fa-circle-arrow-down fa-sm text-teal-light"></i>
+                                    </a> {{values.0.clean_name_spaced}}: 
+                                    {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %} 
+                                    <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-secondary"></i>
+                                    </a> 
+                                    {% endif %}
+                                </div>
                                 <table class="table mb-0 pb-0">
                                 {% for vv in values %}
                                 <tr>
@@ -1533,19 +1533,19 @@
                     <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
                             {% for value in values %}
                             <div class="col-md-7">
-                                <span class="h5 text-teal pt-2 pb-0 pe-2 ps-0 mb-0 mt-1 highlighted-value-title">
+                                <span class="h5 text-teal pt-0 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
                                     {% if key == "Polity_suprapolity_relations" %}
-                                    <span class="ps-1 h4 fw-bold" style="font-family: 'Delius', cursive;">
-                                        <span class="py-3 h6 fw-bold  text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                    <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                                        <span class="py-2 fs-6 fw-bold  text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
                                             {{ value.clean_name_spaced|slice:"7:" }}:            
-                                        </span>  {{ value.display_value }}
+                                        </span>  <br>{{ value.display_value }}
     
                                     </span>
                                     {% else %}
-                                    <span class="ps-1 h4 fw-bold" style="font-family: 'Delius', cursive;">
-                                        <span class="py-3 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                    <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                                        <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
                                             {{ value.clean_name_spaced|slice:"7:" }}:            
-                                        </span>  {{ value.show_value }}
+                                        </span>  <br>{{ value.show_value }}
     
                                     </span>
                                     {% endif %}
@@ -1562,6 +1562,16 @@
                                             <a class="p-0 m-0 fs-6" type="button" href="{% url key|lower|add:'-update' value.id %}">
                                                 <span class="badge bg-danger"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
                                             </a>  
+
+
+                                            {% if value.private_comment %}
+                                                {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                                    <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='general' model_name=value.name instance_id=value.id %}"><span class="badge bg-warning text-light"> <i class=" fa-solid fa-plus text-light"></i> Create Private Description (NEW) </span></a>
+                                                {% else  %}
+                
+                                                    <a class="p-0 m-0 fs-6" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-light"> <i class=" fa-solid fa-pen-to-square bg-warning text-light"></i> Edit Private Description</span></a>
+                                                {% endif %}  
+                                            {% endif %}   
                                             {% endif %}
                     
                                         </div>
@@ -1621,11 +1631,11 @@
                     <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
                             {% for value in values %}
                             <div class="col-md-7">
-                                <span class="h5 text-teal pt-2 pb-0 pe-2 ps-0 mb-0 mt-1 highlighted-value-title">
-                                    <span class="ps-1 h4 fw-bold" style="font-family: 'Delius', cursive;">
-                                        <span class="py-3 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                <span class="h5 text-teal pt-2 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
+                                    <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                                        <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
                                             {{ value.clean_name_spaced }}:            
-                                        </span>  {{ value.show_value }}
+                                        </span>  <br>{{ value.show_value }}
                                     </span>
                                     {% include "core/partials/_year_block_value_inline.html" %}
                                     <div style="display: block; padding: 0;">
@@ -1716,11 +1726,11 @@
                         <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
                                 {% for value in values %}
                                 <div class="col-md-7">
-                                    <span class="h5 text-teal pt-2 pb-0 pe-2 ps-0 mb-0 mt-1 highlighted-value-title">
-                                        <span class="ps-1 h4 fw-bold" style="font-family: 'Delius', cursive;">
-                                            <span class="py-3 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                    <span class="h5 text-teal pt-2 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
+                                        <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                                            <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
                                                 {{ value.clean_name_spaced }}:            
-                                            </span>  {{ value.show_value }}
+                                            </span>  <br>{{ value.show_value }}
                                         </span>
                                         {% include "core/partials/_year_block_value_inline.html" %}
                                         <div style="display: block; padding: 0;">
@@ -1811,11 +1821,11 @@
                             <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
                                     {% for value in values %}
                                     <div class="col-md-10">
-                                        <span class="h5 text-teal pt-2 pb-0 pe-2 ps-0 mb-0 mt-1 highlighted-value-title">
-                                            <span class="ps-1 h4 fw-bold" style="font-family: 'Delius', cursive;">
-                                                <span class="py-3 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                        <span class="h5 text-teal pt-2 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
+                                            <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                                                <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
                                                     {{ value.clean_name_spaced }}:            
-                                                </span>  {{ value.show_value }}
+                                                </span>  <br>{{ value.show_value }}
                                             </span>
                                             {% include "core/partials/_year_block_value_inline.html" %}
                                             <div style="display: block; padding: 0;">
@@ -1837,10 +1847,42 @@
                             
                                                                 <a class="p-0 m-0 fs-6" href="{% url 'seshatcomment-update' value.comment.id %}"><span class="badge bg-warning text-light"> <i class=" fa-solid fa-pen-to-square bg-warning text-light"></i> Edit Description</span></a>
                                                             {% endif %}  
+                                                        {% endif %}  
+                                                        
+                                                        
+
+                                                        {% if value.private_comment %}
+                                                            {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                                                <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='rt' model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Private Comment (NEW) </span></a>
+
+                                                            {% endif %}  
                                                         {% endif %}   
+
                                                     {% endif %}
                                                 </div>
                                             </div>
+                                        </span>
+                                        <span class="bg-warning p-0 m-0">
+                                        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                                            {% if value.private_comment %}
+                                                {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                                {% else  %}
+                                                <div class="border border-5 border-top-0 border-warning p-0 m-0">
+                                                    <div class="bg-warning fw-bold p-2 m-0">PRIVATE COMMENTS</div>
+
+                                                    <div class="p-1">
+                                                    {{value.private_comment}}
+                                                    </div>
+                                                    <div class="p-2">
+                                                        <a class="p-1 m-1 fs-5" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Pivate Comment</span></a>
+                                                    </div>
+ 
+                                                </div>
+
+                                                {% endif %}  
+                                            {% endif %}   
+                                        {% endif %}   
+
                                         </span>
                                     </div>
                                     <div class="col-md-2">
@@ -1895,11 +1937,11 @@
 
                 {% for value in values %}
                 <div class="col-md-9">
-                    <span class="h5 text-teal pt-2 pb-0 pe-2 ps-0 mb-0 mt-1 highlighted-value-title">
-                        <span class="ps-1 h4 fw-bold" style="font-family: 'Delius', cursive;">
-                            <span class="py-3 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                    <span class="h5 text-teal pt-2 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
+                        <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                            <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
                                 Human Sacrifice:           
-                            </span>  {{ value.show_value }}
+                            </span>  <br>{{ value.show_value }}
                         </span>
                         {% include "core/partials/_year_block_value_inline.html" %}
                         <div style="display: block; padding: 0;">

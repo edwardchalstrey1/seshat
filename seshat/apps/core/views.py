@@ -1,7 +1,7 @@
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
 
 from django.contrib.sites.shortcuts import get_current_site
-from seshat.apps.core.forms import SignUpForm, VariablehierarchyFormNew, CitationForm, ReferenceForm, SeshatCommentForm, SeshatCommentPartForm, PolityForm, PolityUpdateForm, CapitalForm, NgaForm, SeshatCommentPartForm2, ReferenceFormSet2, ReferenceFormSet5,CommentPartFormSet, ReferenceWithPageForm
+from seshat.apps.core.forms import SignUpForm, VariablehierarchyFormNew, CitationForm, ReferenceForm, SeshatCommentForm, SeshatCommentPartForm, PolityForm, PolityUpdateForm, CapitalForm, NgaForm, SeshatCommentPartForm2, SeshatPrivateCommentPartForm, ReferenceFormSet2, ReferenceFormSet5,CommentPartFormSet, ReferenceWithPageForm, SeshatPrivateCommentForm
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render
@@ -57,7 +57,7 @@ from ..general.models import Polity_research_assistant, Polity_duration
 from ..crisisdb.models import Power_transition
 
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, SeshatCommon, ScpThroughCtn
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, SeshatCommon, ScpThroughCtn, SeshatPrivateComment, SeshatPrivateCommentPart
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -581,6 +581,36 @@ class SeshatCommentPartCreate2(PermissionRequiredMixin, CreateView):
         #print(context)
 
         return context
+    
+
+class SeshatPrivateCommentPartCreate2(PermissionRequiredMixin, CreateView):
+    model = SeshatPrivateCommentPart
+    form_class = SeshatPrivateCommentPartForm
+    template_name = "core/seshatcomments/seshatprivatecommentpart_form_prefilled.html"
+    permission_required = 'core.add_capital'
+
+    def get_absolute_url(self):
+        return reverse('seshatprivatecommentpart-create2')
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponseRedirect(reverse('seshat-index'))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        logged_in_user = self.request.user
+        logged_in_expert = Seshat_Expert.objects.get(user=logged_in_user)
+        #print("Haloooooo_________ooooooooooo", self.kwargs['com_id'])
+        #print("Halooooooooooooooooo", self.kwargs['subcom_order'])
+        context["private_com_id"] = self.kwargs['private_com_id']
+        context["private_comment_owner"] = logged_in_expert
+
+        #context["subcom_order"] = self.comment_order
+        #print(context)
+
+        return context
 
   
 # Function based:
@@ -754,6 +784,41 @@ def seshat_comment_part_create_from_null_view(request, com_id, subcom_order):
     }
     return render(request, 'core/seshatcomments/seshatcommentpart_create2.html', context)
 
+
+
+# Function based NEW:
+@permission_required('core.add_capital')
+def seshat_private_comment_part_create_from_null_view(request, private_com_id):
+    if request.method == 'POST':
+        form = SeshatPrivateCommentPartForm(request.POST)
+        big_father = SeshatPrivateComment.objects.get(id=private_com_id)
+
+        if form.is_valid():
+            private_comment_part_text = form.cleaned_data['private_comment_part_text']
+            user_logged_in = request.user
+
+            try:
+                seshat_expert_instance = Seshat_Expert.objects.get(user=user_logged_in)
+            except:
+                seshat_expert_instance = None
+
+            seshat_private_comment_part = SeshatPrivateCommentPart(private_comment_part_text=private_comment_part_text, private_comment_owner=seshat_expert_instance, private_comment= big_father)
+
+            seshat_private_comment_part.save()
+
+            return redirect(reverse('seshatprivatecomment-update', kwargs={'pk': private_com_id}))
+
+    else:
+        form = SeshatPrivateCommentPartForm()
+
+    context = {
+        'form': form,
+        'private_com_id': private_com_id,
+    }
+    return render(request, 'core/seshatcomments/seshatprivatecommentpart_create2.html', context)
+
+    # return render(request, 'core/seshatcomments/seshatcommentpart_update2.html', {'form': form, 'formset': init_data, 'comm_num':pk, 'comm_part_display': comment_part})
+
 class SeshatCommentPartUpdate(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = SeshatCommentPart
     form_class = SeshatCommentPartForm
@@ -775,6 +840,25 @@ class SeshatCommentPartUpdate(PermissionRequiredMixin, SuccessMessageMixin, Upda
         #context["subcom_order"] = self.comment_order
 
         #print(context)
+
+        return context
+    
+class SeshatPrivateCommentPartUpdate(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = SeshatPrivateCommentPart
+    form_class = SeshatPrivateCommentPartForm
+    template_name = "core/seshatcomments/seshatprivatecommentpart_update2.html"
+    permission_required = 'core.add_capital'
+    success_message = "You successfully updated the Private comment."
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        logged_in_user = self.request.user
+        logged_in_expert = Seshat_Expert.objects.get(user=logged_in_user)
+        context["private_com_id"] = self.kwargs['private_com_id']
+        context["pk"] = self.kwargs['pk']
+        #context["subcom_order"] = self.kwargs['subcom_order']
+        context["private_comment_owner"] = logged_in_expert
 
         return context
 
@@ -2637,7 +2721,10 @@ def create_a_comment_with_a_subcomment_new(request, app_name, model_name, instan
     """
     # Get the model class dynamically using the provided model_name
     #model_class = globals()[model_name]
-    model_class = apps.get_model(app_label=app_name, model_name=model_name)
+    if model_name == 'general':
+        model_class = apps.get_model(app_label=app_name, model_name='polity_' + model_name)
+    else:
+        model_class = apps.get_model(app_label=app_name, model_name= model_name)
     
     # Check if the model class exists
     if model_class is None:
@@ -2679,6 +2766,113 @@ def create_a_comment_with_a_subcomment_new(request, app_name, model_name, instan
     return redirect('seshatcomment-update', pk=comment_instance.id)
 
 
+@login_required
+def create_a_private_comment_with_a_private_subcomment_new(request, app_name, model_name, instance_id):
+    """
+    Create a Privatecomment and assign it to a model instance.
+    """
+    # Get the model class dynamically using the provided model_name
+    #model_class = globals()[model_name]
+    if model_name == 'general':
+        model_class = apps.get_model(app_label=app_name, model_name='polity_' + model_name)
+    else:
+        model_class = apps.get_model(app_label=app_name, model_name= model_name)
+    
+    # Check if the model class exists
+    if model_class is None:
+        # Handle the case where the model class does not exist
+        return HttpResponse("Model not found", status=404)
+
+    # Get the instance of the model using the provided instance_id
+    model_instance = get_object_or_404(model_class, id=instance_id)
+
+    # Create a new comment instance and save it to the database
+    if model_instance.private_comment and model_instance.private_comment.id > 1:
+        private_comment_instance = model_instance.private_comment
+    else:
+        private_comment_instance = SeshatPrivateComment.objects.create(text='a new_private_comment_text new approach')
+    user_logged_in = request.user
+    
+    # Get the Seshat_Expert instance associated with the user
+    # try:
+    #     seshat_expert_instance = Seshat_Expert.objects.get(user=user_logged_in)
+    # except Seshat_Expert.DoesNotExist:
+    #     seshat_expert_instance = None
+
+    # Create the subcomment instance and save it to the database
+    # subprivatecomment_instance = SeshatPrivateCommentPart.objects.create(
+    #     private_comment_part_text='A subdescription text placeholder (to be edited) using the new approach',
+    #     private_comment=private_comment_instance,
+    #     private_comment_owner=seshat_expert_instance,
+    #     created_date=datetime.datetime.now()
+    # )
+
+    # Assign the comment to the model instance
+    model_instance.private_comment = private_comment_instance
+    model_instance.save()
+
+    # Redirect to the appropriate page
+    # You may need to define the URL pattern for the model detail view
+    # and replace 'model-detail' with the actual name of your detail view
+    #return redirect('model-detail', pk=model_instance.id)
+    return redirect('seshatprivatecomment-update', pk=private_comment_instance.id)
+
+class SeshatPrivateCommentUpdate(PermissionRequiredMixin, UpdateView):
+    model = SeshatPrivateComment
+    form_class = SeshatPrivateCommentForm
+    template_name = "core/seshatcomments/seshatprivatecomment_update.html"
+    permission_required = 'core.add_capital'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_apps=['rt', 'general', 'sc', 'wf', 'crisisdb']
+        my_app_models = {name: apps.all_models[name] for name in my_apps}
+
+        #context['my_app_models'] = my_app_models
+        abc = []
+
+        for myapp, mymodels in my_app_models.items():
+            for mm, mymodel in mymodels.items():
+                if '_citations' not in mm and '_curator' not in mm and not mm.startswith('us_') and mymodel.objects.filter(private_comment=self.object.id):
+                    my_instance = mymodel.objects.get(private_comment=self.object.id)
+                    my_polity = my_instance.polity
+                    my_polity_id = my_instance.polity.id
+                    try:
+                        my_var_name = my_instance.clean_name_spaced()
+                    except:
+                        my_var_name = my_instance.name
+
+                    my_value = my_instance.show_value
+                    my_desc = my_instance.description
+                    my_year_from = my_instance.year_from
+                    my_year_to = my_instance.year_to
+                    my_tag = my_instance.get_tag_display()
+
+
+                    abc.append({
+                        'my_polity': my_polity,
+                        'my_value': my_value,
+                        'my_year_from': my_year_from,
+                        'my_year_to': my_year_to,
+                        'my_tag': my_tag,
+                        'my_var_name': my_var_name,
+                        'my_polity_id': my_polity_id,
+                        'my_description': my_desc,
+                    })
+
+        # for model_name in related_models:
+        #     print(model_name)
+        #     related_objects = getattr(self.object, model_name)
+        #     if related_objects:
+        #         context['related_objects'] = related_objects
+        #         break
+        
+        context['my_app_models'] = abc
+
+        context['another_form'] = SeshatPrivateCommentPartForm()
+
+
+        return context
 
 #############################
 def seshatcomment_create_view(request):

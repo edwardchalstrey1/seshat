@@ -1,0 +1,194 @@
+{% extends "core/seshat-base.html" %}
+{% load crispy_forms_tags %}
+{% load mathfilters %}
+{% load custom_filters %}
+
+{% load humanize %}
+
+
+{% block content %}
+{% if object.text == "No Descriptions provided." %}
+<div class="container pt-1">
+    <h4>No Private Commnetsdiscriptions for this fact.</h4>
+    <h6 class="pt-3">Add one please:</h6>
+    <a href="#"><button class="btn btn-danger btn-sm">Create</button></a>
+</div>
+{% else %}
+<div class="container table-responsive pt-1 mb-5">
+
+    <h5 class="lead-2 pt-2 fw-bold">Update Private Comments for:
+
+    </h5>
+    <table class="table align-middle table-striped table-bordered">
+
+        <tbody class="border border-5">
+            {% for my_inst in my_app_models %}
+
+              <tr>
+                  <td style="text-align: left;">Variable: <span class="fw-bold">{{ my_inst.my_var_name }}</span> <br>
+                    Value: <span class="fw-bold"> {{ my_inst.my_value }} </span>                
+                      <!-- Tag tag (Disputed/Suspected etc.) -->
+                    {% if my_inst.tag == "DSP" %}
+                        <span style="text-align: center;"><span class="badge rounded-pill bg-danger">{{my_inst.my_tag }}</span></span>
+                    {% elif my_inst.tag == "SSP" %}
+                        <span style="text-align: center;"> <span class="badge rounded-pill bg-warning text-dark">{{my_inst.my_tag }}</span></span>
+                    {% elif my_inst.tag == "UNK" %}
+                        <span style="text-align: center;"><span class="badge rounded-pill bg-secondary">{{my_inst.my_tag }}</span></span>
+                    {% elif my_inst.tag == "IFR" %}
+                        <span style="text-align: center;"><span class="badge rounded-pill bg-primary">{{my_inst.my_tag }}</span></span>
+                    {% else  %}
+                        <span style="text-align: center;"><span class="badge rounded-pill bg-success">{{my_inst.my_tag }}</span></span>
+                    {% endif %}
+                    <br>
+                    Polity: 
+                    <span class="fw-bold"><a href="{% url 'polity-detail-main' pk=my_inst.my_polity_id %}">{{my_inst.my_polity}}</a></span>
+                    <br>
+                    
+                    {% if my_inst.year_from == None %}
+                    {% elif my_inst.year_from == my_inst.year_to %}
+                    Year Range: 
+                        {% if my_inst.year_from < 0 %}
+                        <span style="text-align: center;">{{ my_inst.year_from|abs|intcomma }} <span class="text-secondary">BCE</span> </span>
+                        {% else %}
+                        <span style="text-align: center;">{{ my_inst.year_from }} <span class="text-secondary">CE</span></span>
+                        {% endif %}
+                    {% elif my_inst.year_to == None %}
+                    Year Range: 
+                        {% if my_inst.year_from < 0 %}
+                        <span style="text-align: center;">{{ my_inst.year_from|abs }} <span class="text-secondary">BCE</span></span>
+                        {% else %}
+                        <span style="text-align: center;">{{ my_inst.year_from }} <span class="text-secondary">CE</span></span>
+                        {% endif %}
+                    {% elif my_inst.year_to == None and my_inst.year_from == None %}
+                        <span style="text-align: center;"> <i class="fa-solid fa-minus"></i> </span>
+                    {% else %}
+                    Year Range: 
+                        {% if my_inst.year_from < 0 and my_inst.year_to < 0 %}
+                        <span style="text-align: center;">{{ my_inst.year_from|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.year_to|abs }} <span class="text-secondary">BCE</span></span>
+                        {% elif my_inst.year_from < 0 and my_inst.year_to >= 0 %}
+                        <span style="text-align: center;">{{ my_inst.year_from|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.year_to }} <span class="text-secondary">CE</span></span>
+                        {% else %}
+                        <span style="text-align: center;">{{ my_inst.year_from }} <span class="text-secondary">CE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.year_to }} <span class="text-secondary">CE</span></span>
+                        {% endif %}
+                    {% endif %}
+
+                </td>
+            </tr>
+            {% autoescape off %}
+
+            <tr>
+                <td>
+                  <b> Public Comment (Description): </b> {{my_inst.my_description|make_references_look_nicer}}
+
+                </td>
+            </tr>
+            {% endautoescape %}
+
+            {% endfor %}
+
+        </tbody>
+      </table>
+      <div class="pt-4 fs-5 fw-bold">
+       All Private Comments: <br>
+
+      </div>
+    <form action="" method="post">
+            {% csrf_token %}
+            <legend>
+                <div class="row d-flex align-items-center">
+                    {% if messages %}
+                    <ul class="messages mt-3">
+                        {% for message in messages %}
+                        <div class="container-fluid p-0">
+                            <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+                                <i class="fa-solid fa-circle-info"></i> Thank you <b>{{ user }}</b>. {{ message }}
+                            </div>
+                          </div>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </legend>
+        <table id="table_id" class="table align-middle border border-5"> 
+            <thead>
+                <tr class="bg-light text-light text-dark">
+                  <th scope="col" style="text-align: left">Seshat Expert / Private Comment</th>
+                  <th scope="col" style="text-align: right"> Last Modified</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% autoescape off %}
+
+                {% if object.inner_private_comments_related.all %}
+                {% for subcom in object.inner_private_comments_related.all %}
+
+                    <tr>
+                        <td class="col-md-10 text-secondary" scope="row" style="text-align: left;">
+                            <span class="badge text-dark" style="background: {{subcom.private_comment_owner.id|give_me_a_color}};">{{subcom.private_comment_owner}}</span>
+                                {{ subcom.private_comment_part_text }}                                 
+                                <a href="{% url 'seshatprivatecommentpart-update' pk=subcom.pk  private_com_id=subcom.private_comment_id %}"><i class="fa-regular fa-sm fa-pen-to-square text-danger"></i></a>
+                        </td>
+                        <td class="col-md-2" style="text-align: right">
+                            {% if subcom.last_modified_date %}
+                                {{ subcom.last_modified_date|naturaltime }}
+                            {% else %}
+                            <i class="fa-solid fa-minus text-danger"></i>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td class="col-md-10 text-secondary" scope="row" style="text-align: left;">
+                    No Private Comments yet.
+                    </td>
+                    <td class="col-md-2" style="text-align: right">
+                    -
+                    </td>
+
+                </tr>
+                {% endif %}
+
+
+
+                {% endautoescape %}
+            </tbody>
+          </table>
+        </form>
+
+        <form method="post" action="{% url 'seshatprivatecommentpart-create2' private_com_id=object.id %}">
+            {% csrf_token %}
+            <div class="row p-0 mx-0 mt-3">
+                Your Private Comment:
+
+              <div class="col-md-12 p-0 mx-0 my-1">
+        
+                {{ another_form.private_comment_part_text }}
+        
+              </div>
+                <div class="col-md-3  p-0 m-0">
+                    <input type="submit"  class="btn btn-success" value="Insert the New Private Comment">
+                </div>
+        
+          </div>
+          </form>
+</div>
+{% endif %}
+<script>
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+      return new bootstrap.Popover(popoverTriggerEl)
+    })
+
+    function DisplayProgressMessage(ctl, msg) {
+        $(ctl).prop("class", "btn btn-success px-4 disabled");
+        $(ctl).text(msg);
+        return true;
+    }
+</script>
+
+  {% endblock %}
+
+
+        

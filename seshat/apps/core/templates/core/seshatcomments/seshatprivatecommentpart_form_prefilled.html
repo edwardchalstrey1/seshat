@@ -1,0 +1,84 @@
+{% extends "core/seshat-base.html" %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+
+{% block content %}
+<div class="container">
+        <form action="" method="post">
+            {% csrf_token %}
+            <legend>
+                <div class="row d-flex align-items-center">
+                    <div class="col-md-9">
+                        <h3 class="lead-2 pt-4">Insert SubDescription:</h3>
+                    </div>
+                    {% if messages %}
+                    <ul class="messages mt-3">
+                        {% for message in messages %}
+                        <div class="container-fluid p-0">
+                            <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+                              {{ message }}
+                            </div>
+                          </div>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </legend>
+                  <tr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.private_comment_part_text|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="pt-4">
+                                <label for="comment_curator">
+                                <b>
+                                    Curator:
+                                </b> </label>
+                                <select name="comment_curator" class="form-control form-select mb-3" id="id_comment_curator">
+                                    <option value="{{ comment_curator_id }}" selected>{{ private_comment_owner }}</option>
+                                  </select>
+                            </div>
+                            <div class="pt-5" style="text-align: right;">
+                                <a href=""><button class="btn btn-block btn-lg my-auto btn-outline-danger">Submit for Creation</button></a>
+                            </div>     
+                        </div>
+                    </div>
+                    <div class="row" style="display: none;">
+                        <div class="col-md-6">
+                            <div id="div_id_comment" class="control-group">   
+                                <label for="id_comment" class="control-label ">
+                                  <b>Description ID</b>
+                                </label>
+                                <div class="controls">
+                                  <input type="number" name="comment" value="{{ private_com_id }}" class="form-control  mb-3 fw-bold numberinput" id="id_comment"> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </tr>
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.js-example-basic-multiple').select2({
+                placeholder: "Select or search",
+                allowClear: true,
+            });
+        });
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+          return new bootstrap.Popover(popoverTriggerEl)
+        })
+
+        function DisplayProgressMessage(ctl, msg) {
+            $(ctl).prop("class", "btn btn-success px-4 disabled");
+            $(ctl).text(msg);
+            return true;
+        }
+    </script>
+  {% endblock %}
+
+
