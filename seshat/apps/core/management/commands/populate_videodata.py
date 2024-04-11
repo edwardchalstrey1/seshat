@@ -42,20 +42,26 @@ class Command(BaseCommand):
                 for feature in geojson_data['features']:
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
-
                         try:
-                            polity_id = properties['PolID']
+                            polity_id = properties['PolID']  # Older versions of Cliopatria have a PolID field
                         except KeyError:
-                            polity_id = properties['Name'].replace(' ', '_')
+                            polity_id = properties['Name'].replace(' ', '_')  # Newer versions of Cliopatria don't have a PolID field
+                            if properties['Components']:  # Cliopatria from 04062024 (US date format) have Components and Contained_in fields
+                                if len(properties['Components']) > 1:
+                                    polity_id = properties['Components'].replace(' ', '_')
+                                else:
+                                    if len(properties['Contained_in']) > 1:  # Ignore polity shapes that are contained in another polity
+                                        polity_id = None
 
                         # Save the years so we can determine the end year
-                        if polity_id not in polity_years:
-                            polity_years[polity_id] = []
-                        polity_years[polity_id].append(properties['Year'])
+                        if polity_id:
+                            if polity_id not in polity_years:
+                                polity_years[polity_id] = []
+                            polity_years[polity_id].append(properties['Year'])
 
-                        all_polities.add(polity_id)
+                            all_polities.add(polity_id)
 
-                        self.stdout.write(self.style.SUCCESS(f'Found shape for {properties["Name"]} ({properties["Year"]})'))
+                            self.stdout.write(self.style.SUCCESS(f'Found shape for {properties["Name"]} ({properties["Year"]})'))
 
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
