@@ -1,5 +1,6 @@
 import os
 import json
+import fnmatch
 from distinctipy import get_colors, get_hex
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand
@@ -18,12 +19,22 @@ class Command(BaseCommand):
         VideoShapefile.objects.all().delete()
 
         # Get the start and end years for each shape
-        # Load a file called name_years.json kept in the same dir as the geojson files.
+        # Load a file with 'name_years.json' in the filename kept in the same dir as the geojson files.
         # Loads a dict of polity names and their start and end years.
         # The values are lists of the form [[first_start_year, first_end_year], [second_start_year, second_end_year], ...]
-        name_years_path = os.path.join(dir, 'name_years.json')
-        with open(name_years_path, 'r') as f:
-            name_years = json.load(f)
+
+        # List all files in the directory
+        files = os.listdir(dir)
+
+        # Find the first file that includes 'name_years.json' in the filename
+        name_years_file = next((f for f in files if fnmatch.fnmatch(f, '*name_years.json*')), None)
+
+        if name_years_file:
+            name_years_path = os.path.join(dir, name_years_file)
+            with open(name_years_path, 'r') as f:
+                name_years = json.load(f)
+        else:
+            print("No file found with 'name_years.json' in the filename")
 
         # Dict of all the shape years for a given polity
         polity_years = {}
