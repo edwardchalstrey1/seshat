@@ -129,6 +129,15 @@ class Command(BaseCommand):
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
 
+        self.stdout.write(self.style.SUCCESS('Adding simplified geometries for faster loading...'))
+        # Adjust the tolerance param of ST_Simplify as needed
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                UPDATE core_videoshapefile 
+                SET simplified_geom = ST_Simplify(geom, 0.07);
+            """)
+        self.stdout.write(self.style.SUCCESS('Simplified geometries added'))
+
 
 def polity_colour_mapping(polities):
     """Use DistinctiPy package to assign a colour to each polity"""
