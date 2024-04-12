@@ -37,7 +37,7 @@ class Command(BaseCommand):
             with open(name_years_path, 'r') as f:
                 name_years = json.load(f)
         else:
-            print("No file found with 'name_years.json' in the filename")
+            self.stdout.write(self.style.ERROR("No file found with 'name_years.json' in the filename"))
 
         # Dict of all the shape years for a given polity
         polity_years = {}
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                             all_polities.add(polity_id)
 
                             self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_id} ({properties["Year"]})'))
-        print(len(polity_shapes['Qing_Dynasty']))
+
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
         self.stdout.write(self.style.SUCCESS(f'Generating colour mapping for {len(unique_polities)} polities'))
