@@ -74,7 +74,7 @@ class Command(BaseCommand):
                             polity_years[polity_id].append(properties['Year'])
                             if polity_id not in polity_shapes:
                                 polity_shapes[polity_id] = []
-                            polity_shapes[polity_id].append(properties)
+                            polity_shapes[polity_id].append(feature)
 
                             all_polities.add(polity_id)
 
@@ -87,8 +87,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
 
         # Iterate through polity_shapes and create VideoShapefile instances
-        for polity_id, all_shapes_properties in polity_shapes.items():
-            for properties in all_shapes_properties:
+        for polity_id, all_shapes_features in polity_shapes.items():
+            for feature in all_shapes_features:
+                properties = feature['properties']
                 self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_id} ({properties["Year"]})'))
                 
                 # Get a sorted list of the shape years this polity
