@@ -17,7 +17,9 @@ class Command(BaseCommand):
         dir = options['dir']
 
         # Clear the VideoShapefile table
+        self.stdout.write(self.style.SUCCESS('Clearing VideoShapefile table...'))
         VideoShapefile.objects.all().delete()
+        self.stdout.write(self.style.SUCCESS('VideoShapefile table cleared'))
 
         # Get the start and end years for each shape
         # Load a file with 'name_years.json' in the filename kept in the same dir as the geojson files.
