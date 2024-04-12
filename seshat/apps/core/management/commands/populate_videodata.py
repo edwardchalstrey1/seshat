@@ -86,51 +86,54 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
 
         # Iterate through polity_shapes and create VideoShapefile instances
-        for polity_id, properties in polity_shapes.items():
-            self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_id} ({properties["Year"]})'))
-            
-            # Get a sorted list of the shape years this polity
-            this_polity_years = sorted(polity_years[polity_id])
+        for polity_id, all_shapes_properties in polity_shapes.items():
+            for properties in all_shapes_properties:
+                self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_id} ({properties["Year"]})'))
+                
+                # Get a sorted list of the shape years this polity
+                this_polity_years = sorted(polity_years[polity_id])
 
-            # Get the polity start and end years
-            polity_start_year = this_polity_years[0]
-            polity_end_year = this_polity_years[-1]
+                # Get the polity start and end years
+                polity_start_year = this_polity_years[0]
+                polity_end_year = this_polity_years[-1]
 
-            # Get the end year for a shape    
-            # Most of the time, the shape end year is the year of the next shape
-            # Some polities have a gap in their active years
-            # For a shape year at the start of a gap, set the end year to be the shape year, so it doesn't cover the inactive period
-            start_end_years = name_years[properties['Name']]
-            end_years = [x[1] for x in start_end_years]
-            if properties['Year'] in end_years:
-                end_year = properties['Year']
-            else:
-                this_year_index = this_polity_years.index(properties['Year'])
-                try:
-                    end_year = this_polity_years[this_year_index + 1] - 1
-                except IndexError:
-                    end_year = polity_end_year
-            
-            # Save geom and convert Polygon to MultiPolygon if necessary
-            geom = GEOSGeometry(json.dumps(feature['geometry']))
-            if geom.geom_type == 'Polygon':
-                geom = MultiPolygon(geom)
+                # Get the end year for a shape    
+                # Most of the time, the shape end year is the year of the next shape
+                # Some polities have a gap in their active years
+                # For a shape year at the start of a gap, set the end year to be the shape year, so it doesn't cover the inactive period
+                start_end_years = name_years[properties['Name']]
+                end_years = [x[1] for x in start_end_years]
+                if properties['Year'] in end_years:
+                    end_year = properties['Year']
+                else:
+                    this_year_index = this_polity_years.index(properties['Year'])
+                    try:
+                        end_year = this_polity_years[this_year_index + 1] - 1
+                    except IndexError:
+                        end_year = polity_end_year
+                
+                # Save geom and convert Polygon to MultiPolygon if necessary
+                geom = GEOSGeometry(json.dumps(feature['geometry']))
+                if geom.geom_type == 'Polygon':
+                    geom = MultiPolygon(geom)
 
-            VideoShapefile.objects.create(
-                geom=geom,
-                name=properties['Name'],
-                polity=polity_id,
-                wikipedia_name=properties['Wikipedia'],
-                seshat_id=properties['SeshatID'],
-                area=properties['Area_km2'],
-                start_year=properties['Year'],
-                end_year=end_year,
-                polity_start_year=polity_start_year,
-                polity_end_year=polity_end_year,
-                colour=pol_col_map[polity_id]
-            )
+                VideoShapefile.objects.create(
+                    geom=geom,
+                    name=properties['Name'],
+                    polity=polity_id,
+                    wikipedia_name=properties['Wikipedia'],
+                    seshat_id=properties['SeshatID'],
+                    area=properties['Area_km2'],
+                    start_year=properties['Year'],
+                    end_year=end_year,
+                    polity_start_year=polity_start_year,
+                    polity_end_year=polity_end_year,
+                    colour=pol_col_map[polity_id]
+                )
 
-            self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
+                self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
+
+            self.stdout.write(self.style.SUCCESS(f'Successfully imported all shapes for {polity_id}'))
 
         self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
 
