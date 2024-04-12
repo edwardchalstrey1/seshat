@@ -73,6 +73,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     #'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
+    #'easyaudit',
+
 
 ]
 
@@ -146,6 +148,7 @@ WSGI_APPLICATION = "seshat.wsgi.application"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    #'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -156,6 +159,7 @@ MIDDLEWARE = [
 
 ]
 
+#DJANGO_EASY_AUDIT_REGISTERED_CLASSES = ['sc.script']
 
 # ==============================================================================
 # TEMPLATES SETTINGS

@@ -162,6 +162,57 @@ def return_number_of_citations_plus_for_comments(self):
         return len(get_scp_tr)
     return 0
 
+
+        
+
+class SeshatPrivateComment(models.Model):
+    text = models.TextField(blank=True, null=True,)
+
+    def __str__(self) -> str:
+        all_private_comment_parts = self.inner_private_comments_related.all().order_by('created_date')
+        if all_private_comment_parts:
+            private_comment_parts = []
+            for private_comment_part in all_private_comment_parts:
+                my_color = give_me_a_color_for_expert(private_comment_part.private_comment_owner.id)
+                private_comment_full_text = f'<span class="badge text-dark" style="background:{my_color};">' + str(private_comment_part.private_comment_owner) + "</span> " + private_comment_part.private_comment_part_text + "<br>"
+                private_comment_parts.append(private_comment_full_text)
+            if not private_comment_parts or private_comment_parts == [None]:
+                to_be_shown = " Nothing "
+            else:
+                to_be_shown = " ".join(private_comment_parts)
+        elif self.text and not all_private_comment_parts:
+            to_be_shown = "No Private Comments."
+        else:
+            to_be_shown = "EMPTY_PRIVATE_COMMENT"
+        return f'{to_be_shown}'
+    
+    def get_absolute_url(self):
+        return reverse('seshatprivatecomments')
+        
+class SeshatPrivateCommentPart(models.Model):
+    private_comment = models.ForeignKey(SeshatPrivateComment, on_delete=models.SET_NULL, related_name="inner_private_comments_related",
+                               related_query_name="inner_private_comments_related", null=True, blank=True)
+    private_comment_part_text = models.TextField(blank=True, null=True,)
+
+    private_comment_owner = models.ForeignKey(Seshat_Expert, on_delete=models.SET_NULL, related_name="%(app_label)s_%(class)s_related",
+                               related_query_name="%(app_label)s_%(class)s", null=True, blank=True)
+    created_date = models.DateTimeField(auto_now=True, blank=True, null=True)
+    last_modified_date = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+    def get_absolute_url(self):
+        return reverse('seshatprivatecomment-update',  args=[str(self.private_comment.id)])
+
+    class Meta:
+        ordering = ["created_date", "last_modified_date"]
+
+    def __str__(self) -> str:
+        """string for epresenting the model obj in Admin Site"""
+        if self.comment_part_text:
+            return self.comment_part_text
+        else:
+            return "NO_Private_COMMENTS_TO_SHOW"
+        
+
 class Macro_region(models.Model):
     name = models.CharField(max_length=100)
 
@@ -219,6 +270,7 @@ class Polity(models.Model):
     general_description = models.TextField(blank=True, null=True,)
     shapefile_name = models.CharField(max_length=300, blank=True, null=True)
     private_comment = models.TextField(blank=True, null=True,)
+    private_comment_n = models.ForeignKey(SeshatPrivateComment, on_delete=models.DO_NOTHING, related_name="%(app_label)s_%(class)s_related", related_query_name="%(app_label)s_%(class)s", null=True, blank=True)
 
     created_date = models.DateTimeField(
         auto_now_add=True, blank=True, null=True)
@@ -715,54 +767,6 @@ class SeshatCommentPart(models.Model):
             return self.comment_part_text
         else:
             return "NO_SUB_COMMENTS_TO_SHOW"
-        
-
-class SeshatPrivateComment(models.Model):
-    text = models.TextField(blank=True, null=True,)
-
-    def __str__(self) -> str:
-        all_private_comment_parts = self.inner_private_comments_related.all().order_by('created_date')
-        if all_private_comment_parts:
-            private_comment_parts = []
-            for private_comment_part in all_private_comment_parts:
-                my_color = give_me_a_color_for_expert(private_comment_part.private_comment_owner.id)
-                private_comment_full_text = f'<span class="badge text-dark" style="background:{my_color};">' + str(private_comment_part.private_comment_owner) + "</span> " + private_comment_part.private_comment_part_text + "<br>"
-                private_comment_parts.append(private_comment_full_text)
-            if not private_comment_parts or private_comment_parts == [None]:
-                to_be_shown = " Nothing "
-            else:
-                to_be_shown = " ".join(private_comment_parts)
-        elif self.text and not all_private_comment_parts:
-            to_be_shown = "No Private Comments."
-        else:
-            to_be_shown = "EMPTY_PRIVATE_COMMENT"
-        return f'{to_be_shown}'
-    
-    def get_absolute_url(self):
-        return reverse('seshatprivatecomments')
-        
-class SeshatPrivateCommentPart(models.Model):
-    private_comment = models.ForeignKey(SeshatPrivateComment, on_delete=models.SET_NULL, related_name="inner_private_comments_related",
-                               related_query_name="inner_private_comments_related", null=True, blank=True)
-    private_comment_part_text = models.TextField(blank=True, null=True,)
-
-    private_comment_owner = models.ForeignKey(Seshat_Expert, on_delete=models.SET_NULL, related_name="%(app_label)s_%(class)s_related",
-                               related_query_name="%(app_label)s_%(class)s", null=True, blank=True)
-    created_date = models.DateTimeField(auto_now=True, blank=True, null=True)
-    last_modified_date = models.DateTimeField(auto_now=True, blank=True, null=True)
-
-    def get_absolute_url(self):
-        return reverse('seshatprivatecomment-update',  args=[str(self.private_comment.id)])
-
-    class Meta:
-        ordering = ["created_date", "last_modified_date"]
-
-    def __str__(self) -> str:
-        """string for epresenting the model obj in Admin Site"""
-        if self.comment_part_text:
-            return self.comment_part_text
-        else:
-            return "NO_Private_COMMENTS_TO_SHOW"
         
 
 class ScpThroughCtn(models.Model):

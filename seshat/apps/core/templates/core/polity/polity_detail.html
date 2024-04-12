@@ -1566,10 +1566,7 @@
 
                                             {% if value.private_comment %}
                                                 {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
-                                                    <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='general' model_name=value.name instance_id=value.id %}"><span class="badge bg-warning text-light"> <i class=" fa-solid fa-plus text-light"></i> Create Private Description (NEW) </span></a>
-                                                {% else  %}
-                
-                                                    <a class="p-0 m-0 fs-6" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-light"> <i class=" fa-solid fa-pen-to-square bg-warning text-light"></i> Edit Private Description</span></a>
+                                                    <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='general' model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Private Comment (NEW) </span></a>
                                                 {% endif %}  
                                             {% endif %}   
                                             {% endif %}
@@ -1577,6 +1574,28 @@
                                         </div>
                                     </div>
                                 </span>
+                                <span class="bg-warning p-0 m-0">
+                                    {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                                        {% if value.private_comment %}
+                                            {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                            {% else  %}
+                                            <div class="border border-5 border-top-0 border-warning p-0 m-0">
+                                                <div class="bg-warning fw-bold p-2 m-0">PRIVATE COMMENTS</div>
+
+                                                <div class="p-1">
+                                                {{value.private_comment}}
+                                                </div>
+                                                <div class="p-2">
+                                                    <a class="p-1 m-1 fs-5" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
+                                                </div>
+
+                                            </div>
+
+                                            {% endif %}  
+                                        {% endif %}   
+                                    {% endif %}   
+
+                                    </span>
                             </div>
                             <div class="col-md-5">
                                 <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light">View all values of <b> <u> {{ values.0.clean_name_spaced|slice:"7:" }}</u></b></a>
@@ -1658,10 +1677,42 @@
                                                         <a class="p-0 m-0 fs-6" href="{% url 'seshatcomment-update' value.comment.id %}"><span class="badge bg-warning text-light"> <i class=" fa-solid fa-pen-to-square bg-warning text-light"></i> Edit Description</span></a>
                                                     {% endif %}  
                                                 {% endif %}   
+
+                                                {% if value.private_comment %}
+                                                    {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                                        <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='sc' model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Private Comment (NEW) </span></a>
+
+                                                    {% endif %}  
+                                                {% endif %}   
+
+
+
                                             {% endif %}
                                         </div>
                                     </div>
                                 </span>
+                                <span class="bg-warning p-0 m-0">
+                                    {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                                        {% if value.private_comment %}
+                                            {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                            {% else  %}
+                                            <div class="border border-5 border-top-0 border-warning p-0 m-0">
+                                                <div class="bg-warning fw-bold p-2 m-0">PRIVATE COMMENTS</div>
+
+                                                <div class="p-1">
+                                                {{value.private_comment}}
+                                                </div>
+                                                <div class="p-2">
+                                                    <a class="p-1 m-1 fs-5" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
+                                                </div>
+
+                                            </div>
+
+                                            {% endif %}  
+                                        {% endif %}   
+                                    {% endif %}   
+
+                                    </span>
                             </div>
                             <div class="col-md-5">
                                 <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light">View all values of <b> <u> {{ value.clean_name_spaced }}</u></b></a>
@@ -1753,10 +1804,42 @@
                                                             <a class="p-0 m-0 fs-6" href="{% url 'seshatcomment-update' value.comment.id %}"><span class="badge bg-warning text-light"> <i class=" fa-solid fa-pen-to-square bg-warning text-light"></i> Edit Description</span></a>
                                                         {% endif %}  
                                                     {% endif %}   
+
+                                                    {% if value.private_comment %}
+                                                        {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                                            <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='wf' model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Private Comment (NEW) </span></a>
+
+                                                        {% endif %}  
+                                                    {% endif %}   
+
+
+
                                                 {% endif %}
                                             </div>
                                         </div>
                                     </span>
+                                    <span class="bg-warning p-0 m-0">
+                                        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                                            {% if value.private_comment %}
+                                                {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                                {% else  %}
+                                                <div class="border border-5 border-top-0 border-warning p-0 m-0">
+                                                    <div class="bg-warning fw-bold p-2 m-0">PRIVATE COMMENTS</div>
+
+                                                    <div class="p-1">
+                                                    {{value.private_comment}}
+                                                    </div>
+                                                    <div class="p-2">
+                                                        <a class="p-1 m-1 fs-5" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
+                                                    </div>
+ 
+                                                </div>
+
+                                                {% endif %}  
+                                            {% endif %}   
+                                        {% endif %}   
+
+                                        </span>
                                 </div>
                                 <div class="col-md-5">
                                     <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light">View all values of <b> <u> {{ value.clean_name_spaced }}</u></b></a>
@@ -1874,7 +1957,7 @@
                                                     {{value.private_comment}}
                                                     </div>
                                                     <div class="p-2">
-                                                        <a class="p-1 m-1 fs-5" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Pivate Comment</span></a>
+                                                        <a class="p-1 m-1 fs-5" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
                                                     </div>
  
                                                 </div>
