@@ -65,7 +65,6 @@ class Command(BaseCommand):
                             if properties['Components']:  # Cliopatria from 04062024 (US date format) have Components and Contained_in fields
                                 if len(properties['Components']) > 0:  # If a shape has components the name will be enclosed in brackets
                                     polity_id = properties['Name'].replace('(', '').replace(')', '').replace(' ', '_')
-                                    feature['properties']['Name'] = polity_id.replace('_', ' ')  # Update the name to match the polity_id
                             if properties['Contained_in']:
                                 if len(properties['Contained_in']) > 0:  # Ignore polity shapes that are contained in another polity
                                     polity_id = None
@@ -124,7 +123,7 @@ class Command(BaseCommand):
 
                 VideoShapefile.objects.create(
                     geom=geom,
-                    name=properties['Name'],
+                    name=properties['Name'].replace('(', '').replace(')', ''),  # Remove brackets from name
                     polity=polity_id,
                     wikipedia_name=properties['Wikipedia'],
                     seshat_id=properties['SeshatID'],
