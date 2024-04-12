@@ -60,8 +60,8 @@ class Command(BaseCommand):
                         except KeyError:
                             polity_id = properties['Name'].replace(' ', '_')  # Newer versions of Cliopatria don't have a PolID field
                             if properties['Components']:  # Cliopatria from 04062024 (US date format) have Components and Contained_in fields
-                                if len(properties['Components']) > 1:
-                                    polity_id = properties['Components'].replace(' ', '_')
+                                if len(properties['Components']) > 1:  # If a shape has multiple components the name will be enclosed in brackets
+                                    polity_id = properties['Name'].replace('(', '').replace(')', '').replace(' ', '_')
                                 else:
                                     if len(properties['Contained_in']) > 1:  # Ignore polity shapes that are contained in another polity
                                         polity_id = None
