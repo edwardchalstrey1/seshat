@@ -65,9 +65,9 @@ class Command(BaseCommand):
                             if properties['Components']:  # Cliopatria from 04062024 (US date format) have Components and Contained_in fields
                                 if len(properties['Components']) > 0:  # If a shape has components the name will be enclosed in brackets
                                     polity_id = properties['Name'].replace('(', '').replace(')', '').replace(' ', '_')
-                                else:
-                                    if len(properties['Contained_in']) > 0:  # Ignore polity shapes that are contained in another polity
-                                        polity_id = None
+                            if properties['Contained_in']:
+                                if len(properties['Contained_in']) > 0:  # Ignore polity shapes that are contained in another polity
+                                    polity_id = None
 
                         # Save the years so we can determine the end year
                         if polity_id:
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                             all_polities.add(polity_id)
 
                             self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_id} ({properties["Year"]})'))
-
+        print(len(polity_shapes['Qing_Dynasty']))
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
         self.stdout.write(self.style.SUCCESS(f'Generating colour mapping for {len(unique_polities)} polities'))
