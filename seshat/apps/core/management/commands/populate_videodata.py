@@ -4,6 +4,7 @@ import fnmatch
 from distinctipy import get_colors, get_hex
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.core.management.base import BaseCommand
+from django.db import connection
 from seshat.apps.core.models import VideoShapefile
 
 class Command(BaseCommand):
