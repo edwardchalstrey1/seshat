@@ -2,10 +2,10 @@ from django.contrib.gis.geos import MultiPolygon, Polygon, GEOSGeometry
 from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity, Capital
-from ...general.models import Polity_capital, Polity_peak_years
+from ...general.models import Polity_capital, Polity_peak_years, Polity_language
 from ...sc.models import Judge
 from ...rt.models import Gov_res_pub_pros
-from ..views import get_provinces, get_polity_shape_content, get_all_polity_capitals, assign_variables_to_shapes
+from ..views import get_provinces, get_polity_shape_content, get_all_polity_capitals, assign_variables_to_shapes, assign_categorical_variables_to_shapes
 from ..templatetags.core_tags import get_polity_capitals, polity_map
 
 
@@ -130,6 +130,16 @@ class ShapesTest(TestCase):
         Gov_res_pub_pros.objects.create(
             name='gov_res_pub_pros',
             coded_value='absent',
+            polity_id=2
+        )
+        Polity_language.objects.create(
+            name='language',
+            language='English',
+            polity_id=2
+        )
+        Polity_language.objects.create(
+            name='language',
+            language='French',
             polity_id=2
         )
 
@@ -419,3 +429,26 @@ class ShapesTest(TestCase):
         # Test that the shapes have been updated with the variables
         self.assertEqual(result_shapes[0]['Judge'], 'present')
         self.assertEqual(result_shapes[0]['Government Restrictions on Public Proselytizings'], 'absent')
+
+    def test_assign_categorical_variables_to_shapes(self):
+        """Test the assign_categorical_variables_to_shapes function."""
+        shapes = [
+                    {
+                        'seshat_id': 'Test seshat_id 2',
+                        'name': 'Test shape 2',
+                        'start_year': 0,
+                        'end_year': 1000,
+                        'polity_start_year': 0,
+                        'polity_end_year': 1000,
+                        'colour': "#FFFFFF",
+                        'area': 100.0,
+                        'geom': self.geo_square
+                    }
+                ]
+        result_shapes, result_variables = assign_categorical_variables_to_shapes(shapes, {})
+        expected_result_variables_language = {
+            'formatted': 'language',
+            'full_name': 'Language'
+        }
+        self.assertEqual(result_variables['General Variables']['polity_language'], expected_result_variables_language)
+        self.assertEqual(result_shapes[0]['language'], ['English', 'French'])
