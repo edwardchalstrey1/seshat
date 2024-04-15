@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity, Capital
 from ...general.models import Polity_capital, Polity_peak_years
-from ..views import get_provinces, get_polity_shape_content, get_all_polity_capitals
+from ..views import get_provinces, get_polity_shape_content, get_all_polity_capitals, assign_variables_to_shapes
 from ..templatetags.core_tags import get_polity_capitals, polity_map
 
 
@@ -371,3 +371,36 @@ class ShapesTest(TestCase):
         """Test the provinces and countries view."""
         response = self.client.get(reverse('provinces_and_countries'))
         self.assertEqual(response.status_code, 200)
+
+    def test_assign_variables_to_shapes(self):
+        """Test the assign_variables_to_shapes function."""
+        shapes = [
+                    {
+                        'seshat_id': 'Test seshat_id 2',
+                        'name': 'Test shape 2',
+                        'start_year': 0,
+                        'end_year': 1000,
+                        'polity_start_year': 0,
+                        'polity_end_year': 1000,
+                        'colour': "#FFFFFF",
+                        'area': 100.0,
+                        'geom': self.geo_square
+                    }
+                ]
+        app_map = {
+            'sc': 'Social Complexity Variables',
+            'wf': 'Warfare Variables (Military Technologies)',
+            'rt': 'Religion Tolerance'
+        }
+        result_shapes, result_variables = assign_variables_to_shapes(shapes, app_map)
+        # Choose some example variables to test
+        expected_result_variables_judge = {
+            'formatted': 'Judge',
+            'full_name': 'Law: Judge'
+        }
+        expected_result_variables_gov_res_pub_pros = {
+            'formatted': 'Government Restrictions on Public Proselytizings',
+            'full_name': 'Government Restrictions: Government Restrictions on Public Proselytizings'
+        }
+        self.assertEqual(result_variables['Social Complexity Variables']['judge'], expected_result_variables_judge)
+        self.assertEqual(result_variables['Religion Tolerance']['gov_res_pub_pros'], expected_result_variables_gov_res_pub_pros)
