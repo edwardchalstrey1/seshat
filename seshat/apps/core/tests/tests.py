@@ -3,6 +3,8 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity, Capital
 from ...general.models import Polity_capital, Polity_peak_years
+from ...sc.models import Judge
+from ...rt.models import Gov_res_pub_pros
 from ..views import get_provinces, get_polity_shape_content, get_all_polity_capitals, assign_variables_to_shapes
 from ..templatetags.core_tags import get_polity_capitals, polity_map
 
@@ -119,6 +121,16 @@ class ShapesTest(TestCase):
             polity_id=self.pk,
             peak_year_from=2001,
             peak_year_to=2002
+        )
+        Judge.objects.create(
+            name='judge',
+            judge='present',
+            polity_id=2
+        )
+        Gov_res_pub_pros.objects.create(
+            name='gov_res_pub_pros',
+            coded_value='absent',
+            polity_id=2
         )
 
     # Model tests
@@ -404,3 +416,6 @@ class ShapesTest(TestCase):
         }
         self.assertEqual(result_variables['Social Complexity Variables']['judge'], expected_result_variables_judge)
         self.assertEqual(result_variables['Religion Tolerance']['gov_res_pub_pros'], expected_result_variables_gov_res_pub_pros)
+        # Test that the shapes have been updated with the variables
+        self.assertEqual(result_shapes[0]['Judge'], 'present')
+        self.assertEqual(result_shapes[0]['Government Restrictions on Public Proselytizings'], 'absent')
