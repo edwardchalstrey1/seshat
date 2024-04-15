@@ -2673,16 +2673,33 @@ def assign_categorical_variables_to_shapes(shapes, variables):
         Currently only language is implemented.
     """
     # Add language variables to the variables
-    variables['General Variables'] = {}
-    variables['General Variables']['polity_linguistic_family'] = {}
-    variables['General Variables']['polity_linguistic_family']['formatted'] = 'linguistic_family'
-    variables['General Variables']['polity_linguistic_family']['full_name'] = 'Linguistic Family'
-    variables['General Variables']['polity_language_genus'] = {}
-    variables['General Variables']['polity_language_genus']['formatted'] = 'language_genus'
-    variables['General Variables']['polity_language_genus']['full_name'] = 'Language Genus'
-    variables['General Variables']['polity_language'] = {}
-    variables['General Variables']['polity_language']['formatted'] = 'language'
-    variables['General Variables']['polity_language']['full_name'] = 'Language'
+    variables['General Variables'] = {
+        'polity_linguistic_family': {'formatted': 'linguistic_family', 'full_name': 'Linguistic Family'},
+        'polity_language_genus': {'formatted': 'language_genus', 'full_name': 'Language Genus'},
+        'polity_language': {'formatted': 'language', 'full_name': 'Language'}
+    }
+
+    # Fetch all polities and store them in a dictionary for quick access
+    polities = {polity.new_name: polity for polity in Polity.objects.all()}
+
+    # Fetch all linguistic families, language genuses, and languages and store them in dictionaries for quick access
+    linguistic_families = {}
+    for lf in Polity_linguistic_family.objects.all():
+        if lf.polity_id not in linguistic_families:
+            linguistic_families[lf.polity_id] = []
+        linguistic_families[lf.polity_id].append(lf)
+
+    language_genuses = {}
+    for lg in Polity_language_genus.objects.all():
+        if lg.polity_id not in language_genuses:
+            language_genuses[lg.polity_id] = []
+        language_genuses[lg.polity_id].append(lg)
+
+    languages = {}
+    for l in Polity_language.objects.all():
+        if l.polity_id not in languages:
+            languages[l.polity_id] = []
+        languages[l.polity_id].append(l)
 
     # Add language variable info to polity shapes
     for shape in shapes:
@@ -2690,40 +2707,21 @@ def assign_categorical_variables_to_shapes(shapes, variables):
         shape['language_genus'] = []
         shape['language'] = []
         if shape['seshat_id'] != 'none':  # Skip shapes with no seshat_id
-            try:
-                polity = Polity.objects.get(new_name=shape['seshat_id'])
-                # Get the liguisitic family for the polity
-                try:
-                    polity_linguistic_family = Polity_linguistic_family.objects.filter(polity_id=polity.id)
-                    # Add the linguistic family of each polity_linguistic_family to a list
-                    for polity_linguistic_family in polity_linguistic_family:
-                       shape['linguistic_family'].append(polity_linguistic_family.linguistic_family)
-                except Polity_linguistic_family.DoesNotExist:  # Skip polities with no linguistic family
-                    pass
-                # Get the language genus for the polity
-                try:
-                    polity_language_genus = Polity_language_genus.objects.filter(polity_id=polity.id)
-                    # Add the language genus of each polity_language_genus to a list
-                    for polity_language_genus in polity_language_genus:
-                        shape['language_genus'].append(polity_language_genus.language_genus)
-                except Polity_language_genus.DoesNotExist:  # Skip polities with no language genus
-                    pass
-                # Get the language for the polity
-                try:
-                    polity_language = Polity_language.objects.filter(polity_id=polity.id)
-                    # Add the language of each polity_language to a list
-                    for polity_language in polity_language:
-                        shape['language'].append(polity_language.language)
-                except Polity_language.DoesNotExist:  # Skip polities with no language
-                    pass
-            except Polity.DoesNotExist:
-                pass
-        if len(shape['linguistic_family']) == 0:
+            polity = polities.get(shape['seshat_id'])
+            if polity:
+                # Get the linguistic family, language genus, and language for the polity
+                shape['linguistic_family'].extend([lf.linguistic_family for lf in linguistic_families.get(polity.id, [])])
+                shape['language_genus'].extend([lg.language_genus for lg in language_genuses.get(polity.id, [])])
+                shape['language'].extend([l.language for l in languages.get(polity.id, [])])
+
+        # If no linguistic family, language genus, or language was found, append 'Uncoded'
+        if not shape['linguistic_family']:
             shape['linguistic_family'].append('Uncoded')
-        if len(shape['language_genus']) == 0:
+        if not shape['language_genus']:
             shape['language_genus'].append('Uncoded')
-        if len(shape['language']) == 0:
+        if not shape['language']:
             shape['language'].append('Uncoded')  
+
     return shapes, variables
 
 # Get all the variables used in the map view
