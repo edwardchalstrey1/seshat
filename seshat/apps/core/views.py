@@ -484,6 +484,7 @@ class SeshatCommentUpdate(PermissionRequiredMixin, UpdateView):
         
         context['my_app_models'] = abc
 
+
         return context
 
 
@@ -1454,7 +1455,8 @@ class PolityListViewCommented(PermissionRequiredMixin, SuccessMessageMixin, gene
         context = super().get_context_data(**kwargs)
 
         #all_pols = Polity.objects.filter(private_comment__isnull=False).order_by('start_year')
-        all_pols = Polity.objects.exclude(Q(private_comment__isnull=True) | Q(private_comment=''))
+        #all_pols = Polity.objects.exclude(Q(private_comment__isnull=True) | Q(private_comment=''))
+        all_pols = Polity.objects.exclude(Q(private_comment_n__isnull=True) | Q(private_comment_n=1))
 
         pol_count = len(all_pols)
 
@@ -2773,10 +2775,10 @@ def create_a_private_comment_with_a_private_subcomment_new(request, app_name, mo
     """
     # Get the model class dynamically using the provided model_name
     #model_class = globals()[model_name]
-    if model_name == 'general':
-        model_class = apps.get_model(app_label=app_name, model_name='polity_' + model_name)
-    else:
-        model_class = apps.get_model(app_label=app_name, model_name= model_name)
+    #if app_name == 'general':
+    #    model_class = apps.get_model(app_label=app_name, model_name='polity_' + #model_name)
+    #else:
+    model_class = apps.get_model(app_label=app_name, model_name= model_name)
     
     # Check if the model class exists
     if model_class is None:
@@ -2787,10 +2789,16 @@ def create_a_private_comment_with_a_private_subcomment_new(request, app_name, mo
     model_instance = get_object_or_404(model_class, id=instance_id)
 
     # Create a new comment instance and save it to the database
-    if model_instance.private_comment and model_instance.private_comment.id > 1:
-        private_comment_instance = model_instance.private_comment
+    if str(app_name) == 'core':
+        if model_instance.private_comment_n and model_instance.private_comment_n.id > 1:
+            private_comment_instance = model_instance.private_comment_n
+        else:
+            private_comment_instance = SeshatPrivateComment.objects.create(text='a new_private_comment_text new approach for polity')
     else:
-        private_comment_instance = SeshatPrivateComment.objects.create(text='a new_private_comment_text new approach')
+        if model_instance.private_comment and model_instance.private_comment.id > 1:
+            private_comment_instance = model_instance.private_comment
+        else:
+            private_comment_instance = SeshatPrivateComment.objects.create(text='a new_private_comment_text new approach')
     user_logged_in = request.user
     
     # Get the Seshat_Expert instance associated with the user
@@ -2808,7 +2816,11 @@ def create_a_private_comment_with_a_private_subcomment_new(request, app_name, mo
     # )
 
     # Assign the comment to the model instance
-    model_instance.private_comment = private_comment_instance
+    if app_name == 'core':
+        model_instance.private_comment_n = private_comment_instance
+    else:
+        model_instance.private_comment = private_comment_instance
+
     model_instance.save()
 
     # Redirect to the appropriate page
@@ -2825,40 +2837,54 @@ class SeshatPrivateCommentUpdate(PermissionRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_apps=['rt', 'general', 'sc', 'wf', 'crisisdb']
+        my_apps=['core', 'rt', 'general', 'sc', 'wf', 'crisisdb']
         my_app_models = {name: apps.all_models[name] for name in my_apps}
 
         #context['my_app_models'] = my_app_models
         abc = []
 
         for myapp, mymodels in my_app_models.items():
-            for mm, mymodel in mymodels.items():
-                if '_citations' not in mm and '_curator' not in mm and not mm.startswith('us_') and mymodel.objects.filter(private_comment=self.object.id):
-                    my_instance = mymodel.objects.get(private_comment=self.object.id)
-                    my_polity = my_instance.polity
-                    my_polity_id = my_instance.polity.id
-                    try:
-                        my_var_name = my_instance.clean_name_spaced()
-                    except:
-                        my_var_name = my_instance.name
+            if myapp != 'core':
+                for mm, mymodel in mymodels.items():
+                    if '_citations' not in mm and '_curator' not in mm and not mm.startswith('us_') and mymodel.objects.filter(private_comment=self.object.id):
+                        my_instance = mymodel.objects.get(private_comment=self.object.id)
+                        my_polity = my_instance.polity
+                        my_polity_id = my_instance.polity.id
+                        try:
+                            my_var_name = my_instance.clean_name_spaced()
+                        except:
+                            my_var_name = my_instance.name
 
-                    my_value = my_instance.show_value
-                    my_desc = my_instance.description
-                    my_year_from = my_instance.year_from
-                    my_year_to = my_instance.year_to
-                    my_tag = my_instance.get_tag_display()
+                        my_value = my_instance.show_value
+                        my_desc = my_instance.description
+                        my_year_from = my_instance.year_from
+                        my_year_to = my_instance.year_to
+                        my_tag = my_instance.get_tag_display()
 
 
-                    abc.append({
-                        'my_polity': my_polity,
-                        'my_value': my_value,
-                        'my_year_from': my_year_from,
-                        'my_year_to': my_year_to,
-                        'my_tag': my_tag,
-                        'my_var_name': my_var_name,
-                        'my_polity_id': my_polity_id,
-                        'my_description': my_desc,
-                    })
+                        abc.append({
+                            'my_polity': my_polity,
+                            'my_value': my_value,
+                            'my_year_from': my_year_from,
+                            'my_year_to': my_year_to,
+                            'my_tag': my_tag,
+                            'my_var_name': my_var_name,
+                            'my_polity_id': my_polity_id,
+                            'my_description': my_desc,
+                        })
+            else:
+                for mm, mymodel in mymodels.items():
+                    if mm == 'polity' and mymodel.objects.filter(private_comment_n=self.object.id):
+                        my_instance = mymodel.objects.get(private_comment_n=self.object.id)
+                        my_polity = my_instance
+                        my_polity_id = my_instance.id
+
+                        abc.append({
+                            'my_polity': my_polity,
+                            'my_polity_id': my_polity_id,
+                            'commented_pols_link': True,
+
+                        })
 
         # for model_name in related_models:
         #     print(model_name)
@@ -2870,7 +2896,6 @@ class SeshatPrivateCommentUpdate(PermissionRequiredMixin, UpdateView):
         context['my_app_models'] = abc
 
         context['another_form'] = SeshatPrivateCommentPartForm()
-
 
         return context
 

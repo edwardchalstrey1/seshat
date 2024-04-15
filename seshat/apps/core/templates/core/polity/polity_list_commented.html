@@ -19,7 +19,6 @@
         <a href="{% url 'polities'  %}" class="btn btn-outline-success me-1 my-1"><i class="fa-solid fa-list"></i> &nbsp; Back to all Polities</a>
     </div>
     </div>
-    <hr class="bg-colorful">
 
     {% if messages %}
     <ul class="messages mt-3">
@@ -46,17 +45,13 @@
 
 
     {% if all_pols %}
-    <div class="table-responsive pb-0 mb-0" style="border: solid 2px teal;border-radius:10px">
-    <table id="table_id" class="table align-middle table-bordered pb-0 mb-0">
+    <div class="table-responsive pb-0  pt-3 mb-2">
+    <table id="table_id" class="table align-middle table-striped pb-0 mb-0">
         <thead>
           <tr>
-            <th class="ps-2"> <i class="fa-solid fa-circle-chevron-right fa-xs text-secondary"></i> &nbsp; Polity Name and Year Range</th>
-            <th class="ps-2"> <i class="fa-solid fa-key"></i> &nbsp;Polity ID and Coded Data</th>
-            <th  style="text-align: left;"> Comment</th>
-            <th  style="text-align: left;"> Comment NEW</th>
-
-            <th  style="text-align: center;"> Edit</th>
-
+            <th class="ps-2 text-secondary"> Polity Name</th>
+            <th class="ps-2 text-secondary"> Polity ID and Coded Data</th>
+            <th class="ps-2 text-secondary" style="text-align: left;"> Private Comment NEW</th>
           </tr>
         </thead>
         <tbody>
@@ -67,51 +62,11 @@
                 <tr>
                 {% endif %}
 
-                <td class="col-md-3 ps-2 py-2" style="text-align: left;"> 
+                <td class="col-md-3 ps-2 py-2" style="text-align: left; vertical-align: top;"> 
                     {% if a_polity.long_name %}
-                        <span class="fw-bold h5"><i class="fa-solid fa-location-dot fa-xs text-secondary"></i>&nbsp; {{ a_polity.long_name }}&nbsp;</span>
-                        {% if a_polity.polity_tag == 'POL_AFR_WEST' %}
-                        <sup>
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW West African Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">New WA</span>    
-                        </sup>
-                        {% elif a_polity.polity_tag == "POL_AFR_EAST" %}
-                        <sup>
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW East African Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">New EA</span> 
-                        </sup>
-                        {% elif a_polity.polity_tag == "POL_AFR_SA" %}
-                        <sup>
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW Southern African Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">New SA</span> 
-                        </sup>
-                        {% elif a_polity.polity_tag == "POL_SA_SI" %}
-                        <sup>
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW South East Indian Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">New SEA</span> 
-                        </sup>
-                        {% elif a_polity.polity_tag == "LEGACY" %}
-                        <sup>
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="An Equinox 2020 Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">EQ 2020</span> 
-                        </span> 
-                        </sup>
-                        {% elif a_polity.polity_tag == "CRISISDB_POLITIES" %}
-                        <sup>
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A CrisisDB-specific Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">CrisisDB</span> 
-                        </sup>
-                        {% elif a_polity.polity_tag == "OTHER_TAG" %}
-                        <sup>
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="Unknown Polity Category" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">OTHER</span> 
-                        </sup>
-                        {% endif %}
-
-
-
+                        <span class="fw-bold h5"> {{ a_polity.long_name }}</span>
                     {% else %}
-                    <span class="text-danger fw-bold h5"> <i class="fa-solid fa-location-dot fa-xs text-secondary"></i> &nbsp; No Long Name</span> <a href="{% url 'polity-update' a_polity.id %}"><span class="badge bg-small bg-warning text-dark">EDIT</span></a> 
+                    <span class="text-danger fw-bold h5"> No Long Name</span> <a href="{% url 'polity-update' a_polity.id %}"><span class="badge bg-small bg-warning text-dark">EDIT</span></a> 
                     {% endif %}
                     <div>
 
@@ -144,7 +99,7 @@
 
 
                 </td>
-                <td class="col-md-3 ps-2 py-2" style="text-align: left;"> 
+                <td class="col-md-3 ps-2 py-2" style="text-align: left; vertical-align: top;"> 
                     {% if a_polity.new_name %}
                     <a href="{% url 'polity-detail-main' a_polity.id %}" class="fs-6 fw-normal"><b>{{ a_polity.new_name }}</b></a>
 
@@ -199,23 +154,17 @@
                   
 
                 </td>
-                <td class="col-md-5 fs-6"  style="text-align: left;">
-                    {{ a_polity.private_comment_old }}     
-                </td>
-                <td class="col-md-5 fs-6"  style="text-align: left;">
+                <td class="col-md-6 fs-6"  style="text-align: left; vertical-align: top;">
+                    {% autoescape off %}
                     {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
-                        {% if a_polity.private_comment_new %}
-                            {% if a_polity.private_comment_new.id == 1 or a_polity.private_comment_new.inner_private_comments_related.all|length == 0 %}
+                        {% if a_polity.private_comment_n %}
+                            {% if a_polity.private_comment_n.id == 1 or a_polity.private_comment_n.inner_private_comments_related.all|length == 0 %}
                                 <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='core' model_name='polity' instance_id=a_polity.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Private Comment (NEW) </span></a>
                             {% else  %}
-                            <div class="border border-5 border-top-0 border-warning p-0 m-0">
-                                <div class="bg-warning fw-bold p-2 m-0">PRIVATE COMMENTS (NEW)</div>
+                            <div class=" p-0 m-0">
 
                                 <div class="p-1">
-                                {{a_polity.private_comment_new}}
-                                </div>
-                                <div class="p-2">
-                                    <a class="p-1 m-1 fs-5" href="{% url 'seshatprivatecomment-update' value.private_comment_new.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
+                                {{a_polity.private_comment_n}}
                                 </div>
 
                             </div>
@@ -226,15 +175,9 @@
 
     
                     {% endif %}
+                    {% endautoescape %}
+                    <a class=" m-1 fs-5" href="{% url 'seshatprivatecomment-update' a_polity.private_comment_n.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
                 </td>
-              
-
-
-                <td class="col-md-1" style="text-align: center;"">
-                    <a href="{% url 'polity-update' a_polity.id %}"><span class="badge fs-6 bg-warning text-dark">EDIT</span></a>
-                </td>
-
-
             </tr>
             {% endfor %}
 

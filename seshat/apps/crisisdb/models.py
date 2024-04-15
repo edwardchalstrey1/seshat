@@ -437,6 +437,9 @@ class Crisis_consequence(SeshatCommon):
     def get_absolute_url(self):
         return reverse('crisis_consequence-detail', args=[str(self.id)])
 
+    def show_value(self):
+        return call_my_name(self)
+
     def __str__(self) -> str:
         return call_my_name(self)
 
@@ -516,6 +519,12 @@ class Power_transition(SeshatCommon):
 
     def get_absolute_url(self):
         return reverse('power_transition-detail', args=[str(self.id)])
+
+    def show_value(self):
+        if self.polity and self.predecessor and self.successor:
+            return f"Power Transition in {self.polity}: {self.predecessor} was replaced by {self.successor}."
+        else:
+            return "Power Transition in x: Y was replaced by Z" 
 
     def __str__(self):
         if self.polity and self.predecessor and self.successor:

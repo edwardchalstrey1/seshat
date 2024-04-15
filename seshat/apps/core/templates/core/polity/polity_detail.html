@@ -181,7 +181,7 @@
                     </div>
                     <div class="col-md-3">    
                         <a href="{% url 'polity-update' object.pk  %}" class="btn btn-outline-danger my-2 float-end"><i class="fa-regular fa-pen-to-square"></i></a> 
-
+                        <a class="my-2 float-end fs-6 btn btn-dark" href="{% url 'create_private_subcomment_new' app_name='core' model_name='polity' instance_id=object.id %}"><span class="text-warning fw-bold"> <i class=" fa-solid fa-plus"></i> Add a Private Comment (NEW) </span></a>
                     </div>
 
 
@@ -374,14 +374,18 @@
 
                 </div>
             </div>
-            {% if user.is_authenticated and object.private_comment %}
-            <div class="bg-light custom-left-border-shadowed_2">
+            {% if user.is_authenticated and object.private_comment_n and object.private_comment_n_id > 1  %}
+            <div class="mb-4 p-3" style="background:#d5e7d7b2">
+                {% autoescape off %}
 
-                <div class="badge bg-info text-dark  p-1-1 me-2 fs-5 custom-left-border-shadowed_2">PRIVATE COMMENT:</div> <span class="text-secondary">(only Visible to Seshat Experts and RAs)</span>
+                <div class="badge px-4 pt-2 pb-2  pb-1 me-2 fs-6" style="background:#721717; color:white">Private Comment(s):</div><span class="text-secondary">(only Visible to Selected Seshat Experts and RAs)</span>
                 <div class="text-dark fs-6 pt-2">
-                    {{ object.private_comment }}
+                    {{ object.private_comment_n }}
+
+                    <a class=" m-1 fs-5" href="{% url 'seshatprivatecomment-update' object.private_comment_n.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
                 </div>
-                
+                {% endautoescape %}
+
 
             </div>
             {% endif %}
@@ -2042,12 +2046,50 @@
                                     <a class="p-0 m-0 fs-6" href="{% url 'create_subcomment' value.id %}"><span class="badge bg-secondary"> <i class=" fa-solid fa-plus text-white"></i> Create Description</span></a>
                                 {% else  %}
                                     <a class="p-0 m-0 fs-6" href="{% url 'seshatcomment-update' value.comment.id %}"><span class="badge bg-secondary"> <i class=" fa-solid fa-pen-to-square text-white"></i> Edit Description</span></a>
-                                {% endif %}     
+                                {% endif %}    
+
+
+
+                                {% if value.private_comment %}
+                                {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                    <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='crisisdb' model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Private Comment (NEW) </span></a>
+                                {% endif %}  
+                            {% endif %}  
+                                
+
+
+
                                 {% endif %}
      
                             </div>
                         </div>
                     </span>
+                    <span class="bg-warning p-0 m-0">
+                        {% autoescape off %}
+
+                        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                            {% if value.private_comment %}
+                                {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                {% else  %}
+                                <div class="border border-5 border-top-0 border-warning p-0 m-0">
+                                    <div class="bg-warning fw-bold p-2 m-0">PRIVATE COMMENTS</div>
+
+                                    <div class="p-1">
+                                    {{value.private_comment}}
+                                    </div>
+                                    <div class="p-2">
+                                        <a class="p-1 m-1 fs-5" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
+                                    </div>
+
+                                </div>
+
+                                {% endif %}  
+                            {% endif %}   
+                        {% endif %}   
+                        {% endautoescape %}
+
+
+                        </span>
                 </div>
                 <div class="col-md-3">
                         <a href="{% url 'human_sacrifices_all' %}" class="btn float-end fw-light">View all values of <b> <u>Human Sacrifice</u></b> </a>
@@ -2097,17 +2139,18 @@
         {% endif %}
         {% for key, values in all_crisis_cases_data.items %}
         {% if values and 'core.view_capital' in user.get_all_permissions %}
-            <div class="py-2"  id="{{key}}">
+            <div  id="{{key}}">
+
                     {% for value in values %}
                         <span class="pt-1 fs-5 pb-1 fw-bold" id="{{key}}"> 
                             <i class="fa-solid fa-star fa-2xs"></i>
                             {{ value.crisis_case_id }}:            
                         </span> 
                         <br>
-                    <span class="fs-4 fw-bold text-teal pt-2 pb-1 pe-2 ps-2 ms-2 me-2 mb-3 mt-1 highlighted-value">{{value.name}} 
+                    <span class="h5 fw-bold text-teal  pt-2 pb-0 pe-2 ps-1 mb-2 mt-1 highlighted-value-title">{{value.name}} 
                         {% include "core/partials/_year_block_value_inline_cc.html" %}
                         <div>
-                            <span class="fw-light fs-6 text-dark">
+                            <span class="fs-6 text-dark">
                                 {% if value.polity %}
                                 Polities:
                                     {% if value.polity.long_name %}
@@ -2115,7 +2158,7 @@
                                         <a href="{% url 'polity-detail-main' value.polity.id %}">{{ value.polity.long_name }}</a>
                                     </span>
                                     {% else %}
-                                    <span class="fw-light text-secondary">
+                                    <span class="text-secondary">
                                         <a href="{% url 'polity-detail-main' value.polity.id %}">{{ value.polity.name }}</a>
                                     </span>
                                     {% endif %}
@@ -2124,7 +2167,7 @@
                                         & <a href="{% url 'polity-detail-main' value.other_polity.id %}">{{ value.other_polity.long_name }}</a> 
                                     </span>
                                     {% elif value.other_polity.name %}
-                                    <span class="fw-light text-secondary">
+                                    <span class="text-secondary">
                                         &: <a href="{% url 'polity-detail-main' value.other_polity.id %}">{{ value.other_polity.name }}</a>  
                                     </span>
                                     {% else %}
@@ -2138,7 +2181,7 @@
                             </span>
                         </div>
                         <div style="display: block; padding: 0;">
-                            <div style="display: inline-flex; flex-direction: row;">
+                            <div style="display: inline-flex; flex-direction: row; padding: 0;">
                                 {% if value.is_first_100 == True %}
                                 <a type="button" class="fs-6">
                                     <span class="badge rounded-pill bg-warning text-dark tag-border">
@@ -2153,18 +2196,51 @@
                                 {% include "core/partials/_expert_checked_value_inline.html" %}
                                 {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
                                 <a class="p-0 m-0 fs-6" href="{% url 'crisis_consequence-update' value.id %}">
-                                    <span class="badge rounded-pill bg-danger tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
+                                    <span class="badge bg-danger"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
                                 </a>   
+
+                                    {% if value.private_comment %}
+                                        {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                            <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='crisisdb' model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Private Comment (NEW) </span></a>
+                                        {% endif %}  
+                                    {% endif %}  
+                                
                                 {% endif %}
                
                             </div>
                         </div>
                     </span>
+                    <span class="bg-warning p-0 m-0">
+                        {% autoescape off %}
+
+                        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                            {% if value.private_comment %}
+                                {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                {% else  %}
+                                <div class="border border-5 border-top-0 border-warning p-0 m-0">
+                                    <div class="bg-warning fw-bold p-2 m-0">PRIVATE COMMENTS</div>
+
+                                    <div class="p-1">
+                                    {{value.private_comment}}
+                                    </div>
+                                    <div class="p-2">
+                                        <a class="p-1 m-1 fs-5" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
+                                    </div>
+
+                                </div>
+
+                                {% endif %}  
+                            {% endif %}   
+                        {% endif %}   
+                        {% endautoescape %}
+
+                        </span>
                     {% include "core/partials/_crisis_cases_inline.html" %}
                         {% if not forloop.last %}
                         <hr class="light-narrow-hr">
                         {% endif %}
-                    {% endfor %}                            
+                    {% endfor %}   
+                                        
                 </div>
             {% endif %}
             {% endfor %}
@@ -2204,7 +2280,7 @@
                             </span>            
                         </span> 
                         <br>
-                        <span class="fs-4 fw-bold text-teal pt-2 pb-0 pe-2 ps-2 ms-2 me-2 mb-0 mt-1 highlighted-value-title">
+                        <span class="h5 fw-bold text-teal  pt-2 pb-0 pe-2 ps-1 mb-2 mt-1 highlighted-value-title">
                             <span class = "fw-bold text-danger">
                                 {{ value.predecessor }}
                             </span> 
@@ -2222,13 +2298,43 @@
                                     {% include "core/partials/_expert_checked_value_inline.html" %}
                                     {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
                                     <a class="p-0 m-0 fs-6" href="{% url 'power_transition-update' value.id %}">
-                                        <span class="badge rounded-pill bg-danger"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
+                                        <span class="badge bg-danger"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
                                     </a>  
+                                    {% if value.private_comment %}
+                                        {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                            <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='crisisdb' model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Private Comment (NEW) </span></a>
+                                        {% endif %}  
+                                    {% endif %}  
                                     {% endif %}
                 
                                 </div>
                             </div>
                         </span>
+                        <span class="bg-warning p-0 m-0">
+                            {% autoescape off %}
+
+                            {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                                {% if value.private_comment %}
+                                    {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+                                    {% else  %}
+                                    <div class="border border-5 border-top-0 border-warning p-0 m-0">
+                                        <div class="bg-warning fw-bold p-2 m-0">PRIVATE COMMENTS</div>
+
+                                        <div class="p-1">
+                                        {{value.private_comment}}
+                                        </div>
+                                        <div class="p-2">
+                                            <a class="p-1 m-1 fs-5" href="{% url 'seshatprivatecomment-update' value.private_comment.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
+                                        </div>
+
+                                    </div>
+
+                                    {% endif %}  
+                                {% endif %}   
+                            {% endif %}   
+                            {% endautoescape %}
+
+                            </span>
                         {% include "core/partials/_power_transitions_inline.html" %}
                     {% endfor %}                            
                 </div>
