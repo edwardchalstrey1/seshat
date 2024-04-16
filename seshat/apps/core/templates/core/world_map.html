@@ -656,7 +656,9 @@
 
             // Store the variable selection
             localStorage.setItem('variable', variable);
-            localStorage.setItem('categoricalVariableSelection', document.getElementById('chooseCategoricalVariableSelection').value);
+            if (variable in categorical_variables) {
+                localStorage.setItem(variable, document.getElementById('chooseCategoricalVariableSelection').value);
+            };
         }
 
         // Initial plot on page load

@@ -283,14 +283,19 @@ function updateLegend() {
 function updateCategoricalVariableSelection(variable){
     var dropdown = document.getElementById('chooseCategoricalVariableSelection');
     dropdown.innerHTML = '';
+    if (localStorage.getItem(variable)) {
+        document.getElementById('chooseCategoricalVariableSelection').value = localStorage.getItem(variable);
+    }
     categorical_variables[variable].forEach(function (choice) {
         var option = document.createElement('option');
         option.value = choice;
         option.text = choice;
 
         // Set some default selections if no selection has been made
-        if (localStorage.getItem('categoricalVariableSelection')) {
-            document.getElementById('chooseCategoricalVariableSelection').value = localStorage.getItem('categoricalVariableSelection');
+        if (localStorage.getItem(variable)) {
+            if (localStorage.getItem(variable) === choice) {
+                option.selected = true;
+            }
         } else {
             if (choice === 'Greek' || choice === 'Indo-European') {
                 option.selected = true;
