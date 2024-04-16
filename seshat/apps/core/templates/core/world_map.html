@@ -353,12 +353,6 @@
 
             // If variable has changed from the previous selection
             if (localStorage.getItem('variable') != variable) {
-                // Update weights in shapesData
-                var i = 0;
-                shapesData.forEach(function (shape) {
-                    shapesData[i]['weight'] = 0;
-                    i++;
-                });
                 // Update previously selected variable button
                 document.getElementById('previouslySelectedVariable').setAttribute('variableSelection', localStorage.getItem('variable'));
                 if (localStorage.getItem('variable') in categorical_variables || localStorage.getItem('variable') == 'polity'){
