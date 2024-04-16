@@ -127,7 +127,7 @@
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <button id="previouslySelectedVariable" type="button" onclick="previouslySelectedVariableButton()">Polity</button><br><br>
+                    <button id="previouslySelectedVariable" type="button" onclick="previouslySelectedVariableButton()" style="display: none">Polity</button><br><br>
                     <fieldset id="chooseCategoricalVariableSelectionFieldset">
                         <label for="chooseCategoricalVariableSelection"></label>
                         <select name="chooseCategoricalVariableSelection" id="chooseCategoricalVariableSelection" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">            
@@ -364,6 +364,7 @@
                 } else {
                     document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable')
                 }
+                document.getElementById('previouslySelectedVariable').style.display = 'block';
             }
 
             // If the variable is categorical, show the categorical variable selection dropdown
