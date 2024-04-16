@@ -187,7 +187,7 @@ function updateLegend() {
         // Add a legend for highlighted polities
         if (addedPolities.length > 0) {
             var legendTitle = document.createElement('h3');
-            legendTitle.textContent = 'Highlighted Polities';
+            legendTitle.textContent = 'Selected Polities';
             legendDiv.appendChild(legendTitle);
             for (var i = 0; i < addedPolities.length; i++) {
                 var legendItem = document.createElement('p');
