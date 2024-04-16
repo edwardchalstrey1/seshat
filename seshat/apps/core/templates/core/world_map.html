@@ -192,6 +192,11 @@
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
 
+        // If there's a variable stored in the local storage, set the variable selection to that
+        if (localStorage.getItem('variable')) {
+            document.getElementById('chooseVariable').value = localStorage.getItem('variable');
+        }
+
         var categorical_variables = {{ categorical_variables | safe }};
         updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
         
