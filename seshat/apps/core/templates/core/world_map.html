@@ -126,8 +126,11 @@
                                 </optgroup>
                             {% endif %}
                         {% endfor %}
-                    </select>
-                    <button id="previouslySelectedVariable" type="button" onclick="previouslySelectedVariableButton()" style="display: none; width: 280px; text-overflow: ellipsis;">Polity</button><br>
+                    </select><br>
+                    <fieldset id="previouslySelectedVariableFieldset" style="display: none">
+                        <label for="previouslySelectedVariable">Switch to </label>
+                        <button id="previouslySelectedVariable" type="button" onclick="previouslySelectedVariableButton()" style="width: 200px; text-overflow: ellipsis;">Polity</button><br>
+                    </fieldset>
                     <fieldset id="chooseCategoricalVariableSelectionFieldset">
                         <label for="chooseCategoricalVariableSelection"></label>
                         <select name="chooseCategoricalVariableSelection" id="chooseCategoricalVariableSelection" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">            
@@ -364,7 +367,7 @@
                 } else {
                     document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable')
                 }
-                document.getElementById('previouslySelectedVariable').style.display = 'block';
+                document.getElementById('previouslySelectedVariableFieldset').style.display = 'block';
             }
 
             // If the variable is categorical, show the categorical variable selection dropdown
