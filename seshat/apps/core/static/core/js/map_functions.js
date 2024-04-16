@@ -288,9 +288,13 @@ function updateCategoricalVariableSelection(variable){
         option.value = choice;
         option.text = choice;
 
-        // Set some default selections
-        if (choice === 'Greek' || choice === 'Indo-European') {
-            option.selected = true;
+        // Set some default selections if no selection has been made
+        if (localStorage.getItem('categoricalVariableSelection')) {
+            document.getElementById('chooseCategoricalVariableSelection').value = localStorage.getItem('categoricalVariableSelection');
+        } else {
+            if (choice === 'Greek' || choice === 'Indo-European') {
+                option.selected = true;
+            }
         }
 
         dropdown.appendChild(option);
