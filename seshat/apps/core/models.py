@@ -174,7 +174,7 @@ class SeshatPrivateComment(models.Model):
             private_comment_parts = []
             for private_comment_part in all_private_comment_parts:
                 my_color = give_me_a_color_for_expert(private_comment_part.private_comment_owner.id)
-                private_comment_full_text = f'<span class="badge text-dark" style="background:{my_color};">' + str(private_comment_part.private_comment_owner) + "</span> " + private_comment_part.private_comment_part_text + "<br>"
+                private_comment_full_text = f'<span class="badge text-dark fs-6 border border-dark" style="background:{my_color};">' + str(private_comment_part.private_comment_owner) + "</span> " + private_comment_part.private_comment_part_text + "<br>"
                 private_comment_parts.append(private_comment_full_text)
             if not private_comment_parts or private_comment_parts == [None]:
                 to_be_shown = " Nothing "

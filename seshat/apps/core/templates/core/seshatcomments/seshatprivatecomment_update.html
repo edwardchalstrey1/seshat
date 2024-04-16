@@ -37,7 +37,7 @@
         </div>
     {% if my_app_models %}
 
-    <table class="table align-middle border-top border-bottom border-4 border-top border-dark">
+    <table class="table align-middle border-bottom border-3 border-dark">
 
         <tbody>
             {% for my_inst in my_app_models %}
@@ -146,22 +146,22 @@
                     {% endif %}
                 </div>
             </legend>
-        <table id="table_id" class="table align-middle border border-1 border-dark"> 
+        <table id="table_id" class="table align-middle border-top border-1 border-dark"> 
             <thead>
                 <tr class="text-dark" style="background:#fefae6">
                   <th scope="col" style="text-align: left">Seshat Expert / Private Comment <span class="text-secondary">(Only visisble to Selected Seshat Experts/RAs)</span> </th>
                   <th scope="col" style="text-align: right"> Last Modified</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="py-1" style="border:none;">
                 {% autoescape off %}
 
                 {% if object.inner_private_comments_related.all %}
                 {% for subcom in object.inner_private_comments_related.all %}
 
-                    <tr>
-                        <td class="col-md-10 text-secondary" scope="row" style="text-align: left;">
-                            <span class="badge text-dark" style="background: {{subcom.private_comment_owner.id|give_me_a_color}};">{{subcom.private_comment_owner}}</span>
+                    <tr class="py-1"  style="border:none;">
+                        <td class="col-md-10 text-dark py-1" scope="row" style="text-align: left; border:none;">
+                            <span class="badge text-dark fs-6 border border-dark" style="background: {{subcom.private_comment_owner.id|give_me_a_color}};">{{subcom.private_comment_owner}}</span>
                                 {{ subcom.private_comment_part_text }}                                 
                                 <a href="{% url 'seshatprivatecommentpart-update' pk=subcom.pk  private_com_id=subcom.private_comment_id %}"><i class="fa-regular fa-sm fa-pen-to-square text-danger"></i></a>
                         </td>

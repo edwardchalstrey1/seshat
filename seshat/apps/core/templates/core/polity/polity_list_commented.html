@@ -7,6 +7,19 @@
 
 {% block content %}
 
+<style>
+    .hover-text {
+        display: inline-block;
+        overflow: hidden;
+        width: 0;
+        height: 1em; /* Adjust the height as needed */
+    }
+    
+    a:hover .hover-text {
+        width: auto; /* Set width to 'auto' to allow it to grow to fit the content */
+    }
+    
+</style>
 
 <div class="container pt-3">
     <div class="row">
@@ -49,20 +62,26 @@
     <table id="table_id" class="table align-middle table-striped pb-0 mb-0">
         <thead>
           <tr>
-            <th class="ps-2 text-secondary"> Polity Name</th>
-            <th class="ps-2 text-secondary"> Polity ID and Coded Data</th>
+            <th class="ps-2 text-secondary"> Polity Information</th>
             <th class="ps-2 text-secondary" style="text-align: left;"> Private Comment NEW</th>
           </tr>
         </thead>
         <tbody>
                 {% for a_polity in all_pols %}
+                {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+
+                {% if a_polity.private_comment_n %}
+                {% if a_polity.private_comment_n.id == 1 or a_polity.private_comment_n.inner_private_comments_related.all|length == 0 %}
+                {% else  %}
+
+
                 {% if a_polity.home_seshat_region.name == "Somewhere" %}
                 <tr style="background-color:#f78ea0">
                 {% else %}
                 <tr>
                 {% endif %}
 
-                <td class="col-md-3 ps-2 py-2" style="text-align: left; vertical-align: top;"> 
+                <td class="col-md-4 ps-2 py-2" style="text-align: left; vertical-align: top;"> 
                     {% if a_polity.long_name %}
                         <span class="fw-bold h5"> {{ a_polity.long_name }}</span>
                     {% else %}
@@ -97,9 +116,6 @@
                         {% endblock years_short_for_top_pol %}
                     </div>
 
-
-                </td>
-                <td class="col-md-3 ps-2 py-2" style="text-align: left; vertical-align: top;"> 
                     {% if a_polity.new_name %}
                     <a href="{% url 'polity-detail-main' a_polity.id %}" class="fs-6 fw-normal"><b>{{ a_polity.new_name }}</b></a>
 
@@ -154,13 +170,8 @@
                   
 
                 </td>
-                <td class="col-md-6 fs-6"  style="text-align: left; vertical-align: top;">
+                <td class="col-md-8 fs-6"  style="text-align: left; vertical-align: top;">
                     {% autoescape off %}
-                    {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
-                        {% if a_polity.private_comment_n %}
-                            {% if a_polity.private_comment_n.id == 1 or a_polity.private_comment_n.inner_private_comments_related.all|length == 0 %}
-                                <a class="p-0 m-0 fs-6" href="{% url 'create_private_subcomment_new' app_name='core' model_name='polity' instance_id=a_polity.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Private Comment (NEW) </span></a>
-                            {% else  %}
                             <div class=" p-0 m-0">
 
                                 <div class="p-1">
@@ -168,17 +179,21 @@
                                 </div>
 
                             </div>
+                            <div class="text-end">
+                                <a class="m-1 fs-5 text-end" href="{% url 'seshatprivatecomment-update' a_polity.private_comment_n.id %}"><span class="badge bg-warning text-dark">
+                                    <span class="hover-text pb-0">Add your Private Comment &nbsp;</span><i class="fa-solid fa-pen-to-square bg-warning text-dark"></i> 
+                                </span></a>
+                            </div>
 
-                            {% endif %}  
-
-                        {% endif %}   
-
-    
-                    {% endif %}
                     {% endautoescape %}
-                    <a class=" m-1 fs-5" href="{% url 'seshatprivatecomment-update' a_polity.private_comment_n.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
+
                 </td>
             </tr>
+            {% endif %}  
+
+            {% endif %}  
+
+            {% endif %}   
             {% endfor %}
 
         </tbody>

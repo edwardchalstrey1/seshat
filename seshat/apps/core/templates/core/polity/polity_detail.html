@@ -179,9 +179,13 @@
                         <span class="h6 text-dark" id="top_of_the_page">Home Region:&nbsp;</span> <span class="h3 text-dark federicka-medium">{{ object.home_seshat_region }}</span> 
                         <h1 class="h1 text-teal federicka-bigger"> {{ object.long_name }}</h1> 
                     </div>
-                    <div class="col-md-3">    
+                    <div class="col-md-3">   
+                        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+ 
                         <a href="{% url 'polity-update' object.pk  %}" class="btn btn-outline-danger my-2 float-end"><i class="fa-regular fa-pen-to-square"></i></a> 
                         <a class="my-2 float-end fs-6 btn btn-dark" href="{% url 'create_private_subcomment_new' app_name='core' model_name='polity' instance_id=object.id %}"><span class="text-warning fw-bold"> <i class=" fa-solid fa-plus"></i> Add a Private Comment (NEW) </span></a>
+                        {% endif %}
+
                     </div>
 
 
@@ -374,7 +378,12 @@
 
                 </div>
             </div>
-            {% if user.is_authenticated and object.private_comment_n and object.private_comment_n_id > 1  %}
+
+
+            
+            {% if user.is_authenticated and object.private_comment_n  %}
+            {% if object.private_comment_n.id == 1 or object.private_comment_n.inner_private_comments_related.all|length == 0 %}
+            {% else %}
             <div class="mb-4 p-3" style="background:#d5e7d7b2">
                 {% autoescape off %}
 
@@ -388,6 +397,8 @@
 
 
             </div>
+            {% endif %}
+
             {% endif %}
            
             <div class="row m-0 p-0">
