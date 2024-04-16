@@ -127,7 +127,7 @@
                             {% endif %}
                         {% endfor %}
                     </select>
-                    <button id="polButton" type="button" onclick="polityButton()">Polity</button><br><br>
+                    <button id="previouslySelectedVariable" type="button" onclick="previouslySelectedVariableButton()">Polity</button><br><br>
                     <fieldset id="chooseCategoricalVariableSelectionFieldset">
                         <label for="chooseCategoricalVariableSelection"></label>
                         <select name="chooseCategoricalVariableSelection" id="chooseCategoricalVariableSelection" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">            
@@ -338,7 +338,7 @@
             }
         }
 
-        function polityButton() {
+        function previouslySelectedVariableButton() {
             document.getElementById('chooseVariable').value = 'polity';
             plotPolities();
         }
@@ -356,6 +356,9 @@
                     shapesData[i]['weight'] = 0;
                     i++;
                 });
+                // Update previously selected variable button
+                document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable')
+                //.charAt(0).toUpperCase() + variable.slice(1);
             }
 
             // If the variable is categorical, show the categorical variable selection dropdown
