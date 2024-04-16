@@ -339,7 +339,7 @@
         }
 
         function previouslySelectedVariableButton() {
-            document.getElementById('chooseVariable').value = 'polity';
+            document.getElementById('chooseVariable').value = document.getElementById('previouslySelectedVariable').innerHTML;
             plotPolities();
         }
 
