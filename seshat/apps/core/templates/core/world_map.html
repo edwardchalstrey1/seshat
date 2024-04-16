@@ -357,8 +357,12 @@
                     i++;
                 });
                 // Update previously selected variable button
-                document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable')
-                //.charAt(0).toUpperCase() + variable.slice(1);
+                if (localStorage.getItem('variable') in categorical_variables) {
+                    // Categorical variables don't have a full name so we need to modify TODO: Make this more consistent
+                    document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable').replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                } else {
+                    document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable')
+                }
             }
 
             // If the variable is categorical, show the categorical variable selection dropdown
