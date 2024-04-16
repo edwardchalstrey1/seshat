@@ -339,7 +339,7 @@
         }
 
         function previouslySelectedVariableButton() {
-            document.getElementById('chooseVariable').value = document.getElementById('previouslySelectedVariable').innerHTML;
+            document.getElementById('chooseVariable').value = document.getElementById('previouslySelectedVariable').getAttribute('variableSelection');
             plotPolities();
         }
 
@@ -357,6 +357,7 @@
                     i++;
                 });
                 // Update previously selected variable button
+                document.getElementById('previouslySelectedVariable').setAttribute('variableSelection', localStorage.getItem('variable'));
                 if (localStorage.getItem('variable') in categorical_variables) {
                     // Categorical variables don't have a full name so we need to modify TODO: Make this more consistent
                     document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable').replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
