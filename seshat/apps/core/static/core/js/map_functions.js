@@ -224,8 +224,11 @@ function updateLegend() {
             if (key === 'Unknown') {
                 colorBox.style.border = '1px solid black';
             }
-
-            legendItem.appendChild(document.createTextNode(`${key}`));
+            if (key === 'Unknown') {
+                legendItem.appendChild(document.createTextNode('Coded unknown'));
+            } else {
+                legendItem.appendChild(document.createTextNode(`${key}`));
+            }
 
             legendDiv.appendChild(legendItem);
         };
@@ -254,6 +257,8 @@ function updateLegend() {
                 legendItem.appendChild(document.createTextNode('Absent then present'));
             } else if (key === 'P~A') {
                 legendItem.appendChild(document.createTextNode('Present then absent'));
+            } else if (key === 'unknown') {
+                legendItem.appendChild(document.createTextNode('Coded unknown'));
             } else {
                 legendItem.appendChild(document.createTextNode(`${key[0].toUpperCase()}${key.slice(1)}`));
             }
