@@ -326,7 +326,8 @@
             'P~A': 'orange',
             'A~P': 'blue',
             'unknown': 'yellow',
-            'uncoded': 'grey' 
+            'uncoded': 'grey',
+            'seshat page missing': 'black'
         };
 
         let oneLanguageColourMapping = {
@@ -334,7 +335,8 @@
             'Present': '#13d446',
             'Absent': 'red',
             'Unknown': 'yellow',
-            'Uncoded': 'grey'
+            'Uncoded': 'grey',
+            'Seshat page missing': 'black'
         };
 
         function switchBaseMapWorldMap() {
@@ -425,6 +427,8 @@
                                 shapeColour = oneLanguageColourMapping['Unknown'];
                             } else if (shape[variable][0] == 'Uncoded') {
                                 shapeColour = oneLanguageColourMapping['Uncoded'];
+                            } else if (shape[variable][0] == 'Seshat page missing') {
+                                shapeColour = oneLanguageColourMapping['Seshat page missing'];
                             } else {
                                 shapeColour = oneLanguageColourMapping['Absent'];
                             }

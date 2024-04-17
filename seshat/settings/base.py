@@ -159,6 +159,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "seshat.apps.core.middleware.AutoLoginMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware"
 
 ]
 

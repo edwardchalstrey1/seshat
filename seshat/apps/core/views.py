@@ -2661,6 +2661,8 @@ def assign_variables_to_shapes(shapes, app_map):
                             shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
+                else:
+                    shape[variable_formatted] = 'seshat page missing'
 
     return shapes, variables
 
@@ -2712,12 +2714,21 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                 shape['language'].extend([l.language for l in languages.get(polity.id, [])])
 
         # If no linguistic family, language genus, or language was found, append 'Uncoded'
-        if not shape['linguistic_family']:
-            shape['linguistic_family'].append('Uncoded')
-        if not shape['language_genus']:
-            shape['language_genus'].append('Uncoded')
-        if not shape['language']:
-            shape['language'].append('Uncoded')  
+        polity = polities.get(shape['seshat_id'])
+        if polity:
+            if not shape['linguistic_family']:
+                shape['linguistic_family'].append('Uncoded')
+            if not shape['language_genus']:
+                shape['language_genus'].append('Uncoded')
+            if not shape['language']:
+                shape['language'].append('Uncoded')
+        else:
+            if not shape['linguistic_family']:
+                shape['linguistic_family'].append('Seshat page missing')
+            if not shape['language_genus']:
+                shape['language_genus'].append('Seshat page missing')
+            if not shape['language']:
+                shape['language'].append('Seshat page missing')  
 
     return shapes, variables
 
