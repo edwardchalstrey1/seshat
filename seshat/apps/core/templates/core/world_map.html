@@ -594,6 +594,11 @@
                             }
                         }).addTo(map);
 
+                        // Ensure that shapes with multiple seshat_ids are behind their components
+                        if (shape['seshat_id'].includes(';')) {
+                            geoJSONLayer.bringToBack();
+                        }
+
                         // Listen for the click event on the map
                         map.on('click', function () {
                             if(variable == 'polity'){
