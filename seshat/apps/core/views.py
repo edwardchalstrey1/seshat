@@ -2528,6 +2528,8 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
 
     shapes = [{**shape, 'geom': shape.pop('simplified_geom').geojson} for shape in rows]
 
+    print('show the python version')
+    print(sys.version)
     print('shapes in get_polity_shape_content')
     print(shapes)
 
