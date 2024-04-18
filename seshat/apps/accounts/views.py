@@ -17,6 +17,7 @@ from django.views import generic
 from django.http import HttpResponseRedirect
 from django.contrib.auth import login, authenticate
 
+from ..core.models import SeshatPrivateComment, SeshatPrivateCommentPart
 
 
 def accounts(request):
@@ -98,6 +99,13 @@ def profile(request):
     if request.user.is_authenticated:
         user_profile_id = request.user.profile.id
     my_user = Profile.objects.get(pk = user_profile_id)
+    my_expert =  Seshat_Expert.objects.get(user_id=request.user.id)
+    print(f"my_profile_id: {user_profile_id}")
+    print(f"my_user_id: {request.user.id}")
+
+    all_my_private_comments = SeshatPrivateCommentPart.objects.filter(private_comment_reader__id=my_expert.id)
+    print(f"my_expert_id: {my_expert.id}")
+
     # try:
     #     for ct in ContentType.objects.all():
     #         m = ct.model_class()
@@ -127,7 +135,7 @@ def profile(request):
     #print(dir(my_user))
     #print(my_user_name.user_id)
     context = {
-        "facts_verified_by_user": verified_facts,
+        "facts_verified_by_user": all_my_private_comments,
         "all_facts": all_facts,
         'all_tasks_given': all_tasks_given
         }

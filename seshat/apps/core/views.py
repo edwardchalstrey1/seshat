@@ -17,7 +17,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormMixin
 from django.db import IntegrityError
 from django.db.models import Prefetch, F, Value, Q, Count
 from django.db.models.functions import Replace
@@ -603,13 +603,16 @@ class SeshatPrivateCommentPartCreate2(PermissionRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         logged_in_user = self.request.user
         logged_in_expert = Seshat_Expert.objects.get(user=logged_in_user)
+        #readers_experts = SeshatPrivateCommentPart.get()
         #print("Haloooooo_________ooooooooooo", self.kwargs['com_id'])
         #print("Halooooooooooooooooo", self.kwargs['subcom_order'])
         context["private_com_id"] = self.kwargs['private_com_id']
         context["private_comment_owner"] = logged_in_expert
+        #context["private_comment_reader"] = readers_experts
 
         #context["subcom_order"] = self.comment_order
         #print(context)
+        #print("2222222222222222222222222222222")
 
         return context
 
@@ -655,7 +658,7 @@ def seshat_comment_part_create_from_null_view_OLD(request, com_id, subcom_order)
                                     page_from=int(page_from),
                                     page_to=int(page_to)
                                 )
-                                print(page_from, "AAAAAAAAAAAAAAAAAAAAND ", page_to)
+                                #print(page_from, "AAAAAAAAAAAAAAAAAAAAND ", page_to)
                             else:
                                 citation, created = Citation.objects.get_or_create(
                                     ref=reference,
@@ -715,7 +718,7 @@ def seshat_comment_part_create_from_null_view(request, com_id, subcom_order):
             # Process the formset
             reference_formset = ReferenceFormSet2(request.POST, prefix='refs')
             if reference_formset.is_valid():
-                print("ALOOOOOOOOOOOOOOOOOOO: ", len(reference_formset))
+                #print("ALOOOOOOOOOOOOOOOOOOO: ", len(reference_formset))
                 to_be_added = []
                 to_be_deleted_later = []
                 for reference_form in reference_formset:
@@ -735,7 +738,7 @@ def seshat_comment_part_create_from_null_view(request, com_id, subcom_order):
                                     page_from=int(page_from),
                                     page_to=int(page_to)
                                 )
-                                print(page_from, "AAAAAAAAAAAAAAAAAAAAND ", page_to)
+                                #print(page_from, "AAAAAAAAAAAAAAAAAAAAND ", page_to)
                             else:
                                 citation, created = Citation.objects.get_or_create(
                                     ref=reference,
@@ -796,6 +799,7 @@ def seshat_private_comment_part_create_from_null_view(request, private_com_id):
 
         if form.is_valid():
             private_comment_part_text = form.cleaned_data['private_comment_part_text']
+            my_private_comment_readers = form.cleaned_data['private_comment_reader']
             user_logged_in = request.user
 
             try:
@@ -807,15 +811,22 @@ def seshat_private_comment_part_create_from_null_view(request, private_com_id):
 
             seshat_private_comment_part.save()
 
+            seshat_private_comment_part.private_comment_reader.add(*my_private_comment_readers) 
+
+            #print("4444444444444444444444444444444444444")
+
             return redirect(reverse('seshatprivatecomment-update', kwargs={'pk': private_com_id}))
 
     else:
         form = SeshatPrivateCommentPartForm()
+        #print('5555555555555555555555555555555')
 
     context = {
         'form': form,
         'private_com_id': private_com_id,
     }
+
+    #print("333333333333333333333333333333")
     return render(request, 'core/seshatcomments/seshatprivatecommentpart_create2.html', context)
 
     # return render(request, 'core/seshatcomments/seshatcommentpart_update2.html', {'form': form, 'formset': init_data, 'comm_num':pk, 'comm_part_display': comment_part})
@@ -860,6 +871,8 @@ class SeshatPrivateCommentPartUpdate(PermissionRequiredMixin, SuccessMessageMixi
         context["pk"] = self.kwargs['pk']
         #context["subcom_order"] = self.kwargs['subcom_order']
         context["private_comment_owner"] = logged_in_expert
+
+        #666666666666666666666666666")
 
         return context
 
@@ -1634,8 +1647,8 @@ class PolityDetailView(SuccessMessageMixin, generic.DetailView):
         except:
             context["nga_pol_rel"] = None
             #print("*************")
-        import django
-        print(django.get_version())
+        #import django
+        #print(django.get_version())
 
         return context
 
@@ -2060,10 +2073,10 @@ def do_zotero(results):
                         my_dic['title'] = good_title
                         if a_key == "MM6AEU7H":
                             print("I saw youuuuuuuuuuuuuuu more")
-                        pass #print (i, ": ", a_key, "    ", good_title)
+                        #pass #print (i, ": ", a_key, "    ", good_title)
                 except:
                     my_dic['title'] = item['data']['title']
-                    pass #print (i, ": ", a_key, "    ", item['data']['title'])
+                    #pass #print (i, ": ", a_key, "    ", item['data']['title'])
             except:
                 pass #print("No title for item with index: ", i)
             
@@ -2591,7 +2604,7 @@ def update_seshat_comment_part_view(request, pk):
             else:
                 reference_formset = ReferenceFormSet5(request.POST, prefix='refs')
             if reference_formset.is_valid():
-                print("ALOOOOOOOOOOOOOOOOOOO: ", len(reference_formset))
+                #print("ALOOOOOOOOOOOOOOOOOOO: ", len(reference_formset))
                 to_be_added = []
                 to_be_deleted_later = []
                 for reference_form in reference_formset:
@@ -2703,17 +2716,6 @@ def update_seshat_comment_part_view(request, pk):
 
     #print(formset)
     return render(request, 'core/seshatcomments/seshatcommentpart_update2.html', {'form': form, 'formset': init_data, 'comm_num':pk, 'comm_part_display': comment_part})
-
-
-
-
-
-
-
-
-
-
-
 
 
 #########################
@@ -2831,11 +2833,35 @@ def create_a_private_comment_with_a_private_subcomment_new(request, app_name, mo
     #return redirect('model-detail', pk=model_instance.id)
     return redirect('seshatprivatecomment-update', pk=private_comment_instance.id)
 
-class SeshatPrivateCommentUpdate(PermissionRequiredMixin, UpdateView):
+class SeshatPrivateCommentUpdate(PermissionRequiredMixin, UpdateView, FormMixin):
     model = SeshatPrivateComment
     form_class = SeshatPrivateCommentForm
     template_name = "core/seshatcomments/seshatprivatecomment_update.html"
     permission_required = 'core.add_capital'
+
+
+    def post(self, request, *args, **kwargs):
+        form = self.form()
+        if form.is_valid():
+            #print('hereeeeeeeeeeeee')
+            self.object = self.get_object()  # Assuming you have this method to get the object
+            new_experts = form.cleaned_data['private_comment_reader']
+            self.object.private_comment_reader.add(*new_experts)  # Add the new experts to the ManyToMany field
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+        
+    #def get_queryset(self):
+        
+    def get_another_form(self, request, *args, **kwargs):
+        """
+        Override this method to return the specific instance of another_form.
+        """
+        # Implement this method to return the specific instance of another_form
+        # For example:
+        #return self.kwargs['another_form']
+        #print("7777777777777777777")
+        return SeshatPrivateCommentPartForm(request.POST, request.another_form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2899,6 +2925,8 @@ class SeshatPrivateCommentUpdate(PermissionRequiredMixin, UpdateView):
 
         context['another_form'] = SeshatPrivateCommentPartForm()
 
+        #print("111111111111111111111111111")
+
         return context
 
 #############################
@@ -2942,7 +2970,7 @@ def seshatcomment_create_view(request):
 
                     for i, reference_form in enumerate(reference_formset):
                         if reference_form.is_valid():
-                            print("+++++++xxaaaaaaaaaxx+++++++")
+                            #print("+++++++xxaaaaaaaaaxx+++++++")
                             try:
                                 reference = reference_form.cleaned_data['ref']
                                 page_from = reference_form.cleaned_data['page_from']
@@ -2957,8 +2985,8 @@ def seshatcomment_create_view(request):
 
                                 # Associate the Citation with the SeshatCommentPart
                                 comment_part.comment_citations.add(citation)
-                                print("+++++++xxxx+++++++")
-                                print("I am here::::::", citation)
+                                #print("+++++++xxxx+++++++")
+                                #print("I am here::::::", citation)
                             except:
                                 print("OOOPsi")
                         else:

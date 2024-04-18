@@ -207,6 +207,12 @@ def clean_times_light(self):
         raise ValidationError({
             'year_from':  mark_safe('<span class="text-danger"> <i class="fa-solid fa-triangle-exclamation"></i> The start year is out of range!</span>'),
         })
+    
+def has_a_polity(self):
+    if not self.polity:
+        raise ValidationError({
+            'polity':  mark_safe('<span class="text-danger"> <i class="fa-solid fa-triangle-exclamation"></i> There is no selected Polity!</span>'),
+        })
 
 ########## End of Function Definitions for CrisisDB Models
 
@@ -476,6 +482,7 @@ class Power_transition(SeshatCommon):
 
     def clean(self):
         clean_times_light(self)
+        has_a_polity(self)
 
     def clean_name(self):
         return "power_transition"

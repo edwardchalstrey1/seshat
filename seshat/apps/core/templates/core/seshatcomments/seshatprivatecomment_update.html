@@ -126,9 +126,6 @@
 
       {% endif %}
 
-
-      <div class="pt-4 fs-5 fw-bold">
-      </div>
     <form action="" method="post">
             {% csrf_token %}
             <legend>
@@ -146,24 +143,36 @@
                     {% endif %}
                 </div>
             </legend>
-        <table id="table_id" class="table align-middle border-top border-1 border-dark"> 
+        <table id="table_id" class="table align-middle"> 
             <thead>
-                <tr class="text-dark" style="background:#fefae6">
-                  <th scope="col" style="text-align: left">Seshat Expert / Private Comment <span class="text-secondary">(Only visisble to Selected Seshat Experts/RAs)</span> </th>
-                  <th scope="col" style="text-align: right"> Last Modified</th>
+                <tr class="text-dark" style="background:#fefae6;">
+                    <div class="row">
+                        <th class="col-md-8" scope="col" style="text-align: left">Seshat Expert / Private Comment 
+                            <span class="text-secondary">(Only visisble to Selected Seshat Experts/RAs)</span>
+                        </th>
+                          <th class="col-md-2" scope="col" style="text-align: left"> Target Experts</th>
+                          <th class="col-md-2" scope="col" style="text-align: right"> Last Modified</th>
+                    </div>
                 </tr>
               </thead>
-              <tbody class="py-1" style="border:none;">
+              <tbody class="py-1">
                 {% autoescape off %}
 
                 {% if object.inner_private_comments_related.all %}
                 {% for subcom in object.inner_private_comments_related.all %}
 
-                    <tr class="py-1"  style="border:none;">
-                        <td class="col-md-10 text-dark py-1" scope="row" style="text-align: left; border:none;">
+                    <tr class="py-1" >
+                        <div class="row">
+
+                        <td class="col-md-8 text-dark py-1" style="text-align: left;">
                             <span class="badge text-dark fs-6 border border-dark" style="background: {{subcom.private_comment_owner.id|give_me_a_color}};">{{subcom.private_comment_owner}}</span>
                                 {{ subcom.private_comment_part_text }}                                 
                                 <a href="{% url 'seshatprivatecommentpart-update' pk=subcom.pk  private_com_id=subcom.private_comment_id %}"><i class="fa-regular fa-sm fa-pen-to-square text-danger"></i></a>
+                        </td>
+                        <td class="col-md-2">
+                            {% for an_expert in  subcom.private_comment_reader.all %}
+                            <span class="badge text-dark" style="background: {{an_expert.id|give_me_a_color}};">{{an_expert}}</span>
+                            {% endfor %}
                         </td>
                         <td class="col-md-2" style="text-align: right">
                             {% if subcom.last_modified_date %}
@@ -172,7 +181,7 @@
                             <i class="fa-solid fa-minus text-danger"></i>
                             {% endif %}
                         </td>
-
+                        </div>
                     </tr>
                 {% endfor %}
                 {% else %}
@@ -187,8 +196,6 @@
                 </tr>
                 {% endif %}
 
-
-
                 {% endautoescape %}
             </tbody>
           </table>
@@ -196,12 +203,18 @@
 
         <form method="post" action="{% url 'seshatprivatecommentpart-create2' private_com_id=object.id %}">
             {% csrf_token %}
-            <div class="row p-0 mx-0 mt-3">
-              <span class="fw-bold">Your Private Comment:</span>  
+            <div class="row mt-3">
 
-              <div class="col-md-12 p-0 mx-0 my-1">
-        
+              <div class="col-md-9 my-1">
+                <span class="fw-bold">Your Private Comment:</span>  
+
                 {{ another_form.private_comment_part_text }}
+        
+              </div>
+              <div class="col-md-3 my-1">
+                <span class="fw-bold">Experts to be informed:</span>  
+
+                {{ another_form.private_comment_reader }}
         
               </div>
                 <div class="col-md-3  p-0 m-0">
@@ -213,6 +226,11 @@
 </div>
 {% endif %}
 <script>
+    $(document).ready(function() {
+        $('.js-example-basic-multiple').select2({
+            allowClear: true,
+        });
+    });
     var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
     var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
       return new bootstrap.Popover(popoverTriggerEl)

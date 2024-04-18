@@ -216,7 +216,9 @@ def get_all_data_for_a_polity(polity_id, db_name):
             all_vars.append(m.__name__)
             #print(polity_id, ": ", m.__name__)
             my_data = m.objects.filter(polity = polity_id)
-            a_huge_context_data_dic[m.__name__ + "_for_polity"] = my_data
+            #a_huge_context_data_dic[m.__name__ + "_for_polity"] = my_data
+            a_huge_context_data_dic[str(m.__name__)] = my_data
+
             # coooooooooooool
             # this gets all the potential keys
             #print("___")
@@ -519,7 +521,8 @@ def get_all_crisis_cases_data_for_a_polity(polity_id):
     #my_data = Crisis_consequence.objects.filter(polity = polity_id)
     my_data = Crisis_consequence.objects.filter(Q(polity=polity_id) | Q(other_polity=polity_id))
     if my_data:
-        a_data_dic["crisis_cases"] = my_data
+        #a_data_dic["crisis_cases"] = my_data
+        a_data_dic["crisis_consequence"] = my_data
     #print(a_data_dic)
     return a_data_dic
 
@@ -530,7 +533,9 @@ def get_all_power_transitions_data_for_a_polity(polity_id):
     a_data_dic = {}
     my_data = Power_transition.objects.filter(polity = polity_id)
     if my_data:
-        a_data_dic["power_transitions"] = my_data
+        #a_data_dic["power_transitions"] = my_data
+        a_data_dic["power_transition"] = my_data
+
     #print(a_data_dic)
     return a_data_dic
 

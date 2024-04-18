@@ -196,6 +196,8 @@ class SeshatPrivateCommentPart(models.Model):
 
     private_comment_owner = models.ForeignKey(Seshat_Expert, on_delete=models.SET_NULL, related_name="%(app_label)s_%(class)s_related",
                                related_query_name="%(app_label)s_%(class)s", null=True, blank=True)
+    private_comment_reader = models.ManyToManyField(Seshat_Expert,  related_name="%(app_label)s_%(class)s_readers_related",
+                               related_query_name="%(app_label)s_%(class)ss_readers", blank=True,)
     created_date = models.DateTimeField(auto_now=True, blank=True, null=True)
     last_modified_date = models.DateTimeField(auto_now=True, blank=True, null=True)
 
@@ -207,8 +209,8 @@ class SeshatPrivateCommentPart(models.Model):
 
     def __str__(self) -> str:
         """string for epresenting the model obj in Admin Site"""
-        if self.comment_part_text:
-            return self.comment_part_text
+        if self.private_comment_part_text:
+            return self.private_comment_part_text
         else:
             return "NO_Private_COMMENTS_TO_SHOW"
         

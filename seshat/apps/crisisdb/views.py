@@ -276,13 +276,21 @@ def crisis_consequence_download(request):
                     'other_polity_new_ID', 'other_polity_old_ID', 'other_polity_long_name', 'crisis_consequence_id', 'decline', 'collapse', 'epidemic', 'downward_mobility', 'extermination', 'uprising', 'revolution', 'successful_revolution', 'civil_war', 'century_plus', 'fragmentation', 'capital', 'conquest', 'assassination', 'depose', 'constitution', 'labor', 'unfree_labor', 'suffrage', 'public_goods', 'religion', 'description'])
 
     for obj in items:
-        if obj.other_polity:
+        if obj.other_polity and obj.polity:
             writer.writerow([obj.year_from, obj.year_to,
                             obj.polity.new_name, obj.polity.name, obj.polity.long_name, 
                             obj.other_polity.new_name, obj.other_polity.name, obj.other_polity.long_name, obj.crisis_case_id, obj.decline, obj.collapse, obj.epidemic, obj.downward_mobility, obj.extermination, obj.uprising, obj.revolution, obj.successful_revolution, obj.civil_war, obj.century_plus, obj.fragmentation, obj.capital, obj.conquest, obj.assassination, obj.depose, obj.constitution, obj.labor, obj.unfree_labor, obj.suffrage, obj.public_goods, obj.religion, ])
-        else:
+        elif obj.polity:
             writer.writerow([obj.year_from, obj.year_to,
                             obj.polity.new_name, obj.polity.name, obj.polity.long_name, 
+                            "", "", "", obj.crisis_case_id, obj.decline, obj.collapse, obj.epidemic, obj.downward_mobility, obj.extermination, obj.uprising, obj.revolution, obj.successful_revolution, obj.civil_war, obj.century_plus, obj.fragmentation, obj.capital, obj.conquest, obj.assassination, obj.depose, obj.constitution, obj.labor, obj.unfree_labor, obj.suffrage, obj.public_goods, obj.religion, ])
+        elif obj.other_polity:
+            writer.writerow([obj.year_from, obj.year_to,
+                            "", "", "",
+                            obj.other_polity.new_name, obj.other_polity.name, obj.other_polity.long_name, obj.crisis_case_id, obj.decline, obj.collapse, obj.epidemic, obj.downward_mobility, obj.extermination, obj.uprising, obj.revolution, obj.successful_revolution, obj.civil_war, obj.century_plus, obj.fragmentation, obj.capital, obj.conquest, obj.assassination, obj.depose, obj.constitution, obj.labor, obj.unfree_labor, obj.suffrage, obj.public_goods, obj.religion, ])
+        else:
+            writer.writerow([obj.year_from, obj.year_to,
+                            "", "", "", 
                             "", "", "", obj.crisis_case_id, obj.decline, obj.collapse, obj.epidemic, obj.downward_mobility, obj.extermination, obj.uprising, obj.revolution, obj.successful_revolution, obj.civil_war, obj.century_plus, obj.fragmentation, obj.capital, obj.conquest, obj.assassination, obj.depose, obj.constitution, obj.labor, obj.unfree_labor, obj.suffrage, obj.public_goods, obj.religion, ])
 
 
@@ -539,8 +547,12 @@ def power_transition_download(request):
                      'polity_new_ID', 'polity_old_ID', 'polity_long_form_name', 'conflict_name', 'contested', 'overturn', 'predecessor_assassination', 'intra_elite', 'military_revolt', 'popular_uprising', 'separatist_rebellion', 'external_invasion', 'external_interference',])
 
     for obj in items:
-        writer.writerow([obj.year_from, obj.year_to, obj.predecessor, obj.successor,
+        if obj.polity:
+            writer.writerow([obj.year_from, obj.year_to, obj.predecessor, obj.successor,
                          obj.polity.new_name, obj.polity.name, obj.polity.long_name, obj.name, obj.contested, obj.overturn, obj.predecessor_assassination, obj.intra_elite, obj.military_revolt, obj.popular_uprising, obj.separatist_rebellion, obj.external_invasion, obj.external_interference])
+        else:
+            writer.writerow([obj.year_from, obj.year_to, obj.predecessor, obj.successor,
+                         "", "", "", obj.name, obj.contested, obj.overturn, obj.predecessor_assassination, obj.intra_elite, obj.military_revolt, obj.popular_uprising, obj.separatist_rebellion, obj.external_invasion, obj.external_interference])
 
     return response
 

@@ -235,18 +235,21 @@ class SeshatCommentPartForm(forms.ModelForm):
 class SeshatPrivateCommentPartForm(forms.ModelForm):
     class Meta:
         model = SeshatPrivateCommentPart
-        fields = ('private_comment', 'private_comment_part_text', 'private_comment_owner')
+        fields = ('private_comment', 'private_comment_part_text', 'private_comment_owner', 'private_comment_reader')
         labels = {
         'private_comment': '<b>PrivateDescription ID</b>',
         'private_comment_part_text': '<b>Private Conmment Text</b>',
         'private_comment_owner': '<b>Owner:</b>',
+        'private_comment_reader': '<b>Target:</b>',
+
         }
         widgets = {
             'private_comment': forms.NumberInput(
                 attrs={'class': 'form-control  mb-3 fw-bold', }),
             'private_comment_part_text': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 150px',}),
             'private_comment_owner': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
-        }
+            'private_comment_reader': forms.SelectMultiple(attrs={'class': 'form-control mb-3 js-states js-example-basic-multiple', 'text':'private_comment_readers[]' , 'style': 'height: 340px', 'multiple': 'multiple'}),       
+            }
 
 
 class SeshatPrivateCommentForm(forms.ModelForm):
