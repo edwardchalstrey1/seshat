@@ -2528,6 +2528,9 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
 
     shapes = [{**shape, 'geom': shape.pop('simplified_geom').geojson} for shape in rows]
 
+    print('shapes in get_polity_shape_content')
+    print(shapes)
+
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
     polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
     polity_info = [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
