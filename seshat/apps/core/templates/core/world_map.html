@@ -574,10 +574,11 @@
                                         } else {
                                             // Decrease the weight of the clicked layer
                                             newWeight = 0;
-                                            this.setStyle({
-                                                weight: newWeight
-                                            });
                                         };
+                                        // Update weight in this layer
+                                        this.setStyle({
+                                            weight: newWeight
+                                        });
                                         // Update weights in shapesData
                                         var i = 0;
                                         shapesData.forEach(function (shape2) {
