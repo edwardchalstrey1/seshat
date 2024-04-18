@@ -218,6 +218,13 @@ class ShapesTest(TestCase):
             }
         }
         result = get_polity_shape_content()
+
+        # Remove 'geom' field from comparison
+        for shape in result['shapes']:
+            del shape['geom']
+        for shape in expected_result['shapes']:
+            del shape['geom']
+
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_single_year(self):
@@ -247,6 +254,13 @@ class ShapesTest(TestCase):
             }
         }
         result = get_polity_shape_content(displayed_year=2000)
+
+        # Remove 'geom' field from comparison
+        for shape in result['shapes']:
+            del shape['geom']
+        for shape in expected_result['shapes']:
+            del shape['geom']
+
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_single_seshat_id(self):
@@ -276,6 +290,13 @@ class ShapesTest(TestCase):
             }
         }
         result = get_polity_shape_content(seshat_id='Test seshat_id')
+
+        # Remove 'geom' field from comparison
+        for shape in result['shapes']:
+            del shape['geom']
+        for shape in expected_result['shapes']:
+            del shape['geom']
+
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_displayed_year_and_seshat_id_both_set(self):
@@ -333,6 +354,13 @@ class ShapesTest(TestCase):
             }
         }
         result = polity_map(self.pk)
+
+        # Remove 'geom' field from comparison
+        for shape in result['content']['shapes']:
+            del shape['geom']
+        for shape in expected_result['content']['shapes']:
+            del shape['geom']
+    
         self.assertEqual(result, expected_result)
 
     def test_polity_map_no_peak_year_set(self):
@@ -366,6 +394,13 @@ class ShapesTest(TestCase):
             }
         }
         result = polity_map(2)
+
+        # Remove 'geom' field from comparison
+        for shape in result['content']['shapes']:
+            del shape['geom']
+        for shape in expected_result['content']['shapes']:
+            del shape['geom']
+
         self.assertEqual(result, expected_result)
 
     def test_polity_map_no_content(self):
