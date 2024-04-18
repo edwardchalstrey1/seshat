@@ -401,6 +401,11 @@ class ShapesTest(TestCase):
         for shape in expected_result['content']['shapes']:
             del shape['geom']
 
+        print('shapes')
+        print(result['content']['shapes'])
+        print('expected shapes')
+        print(expected_result['content']['shapes'])
+
         self.assertEqual(result, expected_result)
 
     def test_polity_map_no_content(self):
