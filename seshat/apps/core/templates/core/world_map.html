@@ -465,12 +465,6 @@
                             }
                         }
 
-                        // Set the weight and fill opacity for shapes with multiple seshat_ids
-                        if (shape['seshat_id'].includes(';')) {
-                            fillWeight = 0;
-                            shapeWeight = 6;
-                        }
-
                         // Add shape
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom), {
                             style: function (feature) {
@@ -584,6 +578,10 @@
                                         shapesData.forEach(function (shape2) {
                                             if (shape2.name === shape.name) {                                           
                                                 shapesData[i]['weight'] = newWeight;
+                                            }
+                                            // Set the weight for shapes with multiple seshat_ids e.g. personal unions
+                                            if (shape2.name.includes(shape.name) && shape2.seshat_id.includes(';')) {
+                                                shapesData[i]['weight'] = 6;
                                             }
                                             i++;
                                         });
