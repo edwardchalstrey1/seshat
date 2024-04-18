@@ -175,6 +175,18 @@ function updateLegend() {
                     // Add the polity to the list of added polities
                     addedPolities.push(shape);
                     addedPolityNames.push(shape.name);
+
+                    // Also add any shapes that are multi-polities e.g. Personal unions
+                    var i = 0;
+                    shapesData.forEach(function (shape2) {
+                        if (shape2.name.includes(shape.name) && shape2.seshat_id.includes(';')) {
+                            if (!addedPolityNames.includes(shape2.name)) {
+                                addedPolities.push(shape2);
+                                addedPolityNames.push(shape2.name);
+                            }
+                        }
+                        i++;
+                    });
                 };
             };
         });
@@ -187,7 +199,7 @@ function updateLegend() {
         // Add a legend for highlighted polities
         if (addedPolities.length > 0) {
             var legendTitle = document.createElement('h3');
-            legendTitle.textContent = 'Highlighted Polities';
+            legendTitle.textContent = 'Selected Polities';
             legendDiv.appendChild(legendTitle);
             for (var i = 0; i < addedPolities.length; i++) {
                 var legendItem = document.createElement('p');
@@ -224,8 +236,11 @@ function updateLegend() {
             if (key === 'Unknown') {
                 colorBox.style.border = '1px solid black';
             }
-
-            legendItem.appendChild(document.createTextNode(`${key}`));
+            if (key === 'Unknown') {
+                legendItem.appendChild(document.createTextNode('Coded unknown'));
+            } else {
+                legendItem.appendChild(document.createTextNode(`${key}`));
+            }
 
             legendDiv.appendChild(legendItem);
         };
@@ -254,6 +269,8 @@ function updateLegend() {
                 legendItem.appendChild(document.createTextNode('Absent then present'));
             } else if (key === 'P~A') {
                 legendItem.appendChild(document.createTextNode('Present then absent'));
+            } else if (key === 'unknown') {
+                legendItem.appendChild(document.createTextNode('Coded unknown'));
             } else {
                 legendItem.appendChild(document.createTextNode(`${key[0].toUpperCase()}${key.slice(1)}`));
             }
@@ -283,14 +300,23 @@ function updateLegend() {
 function updateCategoricalVariableSelection(variable){
     var dropdown = document.getElementById('chooseCategoricalVariableSelection');
     dropdown.innerHTML = '';
+    if (localStorage.getItem(variable)) {
+        document.getElementById('chooseCategoricalVariableSelection').value = localStorage.getItem(variable);
+    }
     categorical_variables[variable].forEach(function (choice) {
         var option = document.createElement('option');
         option.value = choice;
         option.text = choice;
 
-        // Set some default selections
-        if (choice === 'Greek' || choice === 'Indo-European') {
-            option.selected = true;
+        // Set some default selections if no selection has been made
+        if (localStorage.getItem(variable)) {
+            if (localStorage.getItem(variable) === choice) {
+                option.selected = true;
+            }
+        } else {
+            if (choice === 'Greek' || choice === 'Indo-European') {
+                option.selected = true;
+            }
         }
 
         dropdown.appendChild(option);

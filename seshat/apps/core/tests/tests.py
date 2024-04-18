@@ -2,8 +2,10 @@ from django.contrib.gis.geos import MultiPolygon, Polygon, GEOSGeometry
 from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import VideoShapefile, GADMShapefile, GADMCountries, GADMProvinces, Polity, Capital
-from ...general.models import Polity_capital, Polity_peak_years
-from ..views import get_provinces, get_polity_shape_content, get_all_polity_capitals
+from ...general.models import Polity_capital, Polity_peak_years, Polity_language
+from ...sc.models import Judge
+from ...rt.models import Gov_res_pub_pros
+from ..views import get_provinces, get_polity_shape_content, get_all_polity_capitals, assign_variables_to_shapes, assign_categorical_variables_to_shapes
 from ..templatetags.core_tags import get_polity_capitals, polity_map
 
 
@@ -120,6 +122,26 @@ class ShapesTest(TestCase):
             peak_year_from=2001,
             peak_year_to=2002
         )
+        Judge.objects.create(
+            name='judge',
+            judge='present',
+            polity_id=2
+        )
+        Gov_res_pub_pros.objects.create(
+            name='gov_res_pub_pros',
+            coded_value='absent',
+            polity_id=2
+        )
+        Polity_language.objects.create(
+            name='language',
+            language='English',
+            polity_id=2
+        )
+        Polity_language.objects.create(
+            name='language',
+            language='French',
+            polity_id=2
+        )
 
     # Model tests
 
@@ -196,6 +218,7 @@ class ShapesTest(TestCase):
             }
         }
         result = get_polity_shape_content()
+
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_single_year(self):
@@ -225,6 +248,7 @@ class ShapesTest(TestCase):
             }
         }
         result = get_polity_shape_content(displayed_year=2000)
+
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_single_seshat_id(self):
@@ -254,6 +278,7 @@ class ShapesTest(TestCase):
             }
         }
         result = get_polity_shape_content(seshat_id='Test seshat_id')
+
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_displayed_year_and_seshat_id_both_set(self):
@@ -311,6 +336,7 @@ class ShapesTest(TestCase):
             }
         }
         result = polity_map(self.pk)
+    
         self.assertEqual(result, expected_result)
 
     def test_polity_map_no_peak_year_set(self):
@@ -344,6 +370,7 @@ class ShapesTest(TestCase):
             }
         }
         result = polity_map(2)
+
         self.assertEqual(result, expected_result)
 
     def test_polity_map_no_content(self):
@@ -371,3 +398,62 @@ class ShapesTest(TestCase):
         """Test the provinces and countries view."""
         response = self.client.get(reverse('provinces_and_countries'))
         self.assertEqual(response.status_code, 200)
+
+    def test_assign_variables_to_shapes(self):
+        """Test the assign_variables_to_shapes function."""
+        shapes = [
+                    {
+                        'seshat_id': 'Test seshat_id 2',
+                        'name': 'Test shape 2',
+                        'start_year': 0,
+                        'end_year': 1000,
+                        'polity_start_year': 0,
+                        'polity_end_year': 1000,
+                        'colour': "#FFFFFF",
+                        'area': 100.0,
+                        'geom': self.geo_square
+                    }
+                ]
+        app_map = {
+            'sc': 'Social Complexity Variables',
+            'wf': 'Warfare Variables (Military Technologies)',
+            'rt': 'Religion Tolerance'
+        }
+        result_shapes, result_variables = assign_variables_to_shapes(shapes, app_map)
+        # Choose some example variables to test
+        expected_result_variables_judge = {
+            'formatted': 'Judge',
+            'full_name': 'Law: Judge'
+        }
+        expected_result_variables_gov_res_pub_pros = {
+            'formatted': 'Government Restrictions on Public Proselytizings',
+            'full_name': 'Government Restrictions: Government Restrictions on Public Proselytizings'
+        }
+        self.assertEqual(result_variables['Social Complexity Variables']['judge'], expected_result_variables_judge)
+        self.assertEqual(result_variables['Religion Tolerance']['gov_res_pub_pros'], expected_result_variables_gov_res_pub_pros)
+        # Test that the shapes have been updated with the variables
+        self.assertEqual(result_shapes[0]['Judge'], 'present')
+        self.assertEqual(result_shapes[0]['Government Restrictions on Public Proselytizings'], 'absent')
+
+    def test_assign_categorical_variables_to_shapes(self):
+        """Test the assign_categorical_variables_to_shapes function."""
+        shapes = [
+                    {
+                        'seshat_id': 'Test seshat_id 2',
+                        'name': 'Test shape 2',
+                        'start_year': 0,
+                        'end_year': 1000,
+                        'polity_start_year': 0,
+                        'polity_end_year': 1000,
+                        'colour': "#FFFFFF",
+                        'area': 100.0,
+                        'geom': self.geo_square
+                    }
+                ]
+        result_shapes, result_variables = assign_categorical_variables_to_shapes(shapes, {})
+        expected_result_variables_language = {
+            'formatted': 'language',
+            'full_name': 'Language'
+        }
+        self.assertEqual(result_variables['General Variables']['polity_language'], expected_result_variables_language)
+        self.assertEqual(result_shapes[0]['language'], ['English', 'French'])

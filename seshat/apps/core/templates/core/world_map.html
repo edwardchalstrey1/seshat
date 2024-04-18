@@ -126,8 +126,11 @@
                                 </optgroup>
                             {% endif %}
                         {% endfor %}
-                    </select>
-                    <button id="polButton" type="button" onclick="polityButton()">Polity</button><br><br>
+                    </select><br>
+                    <fieldset id="previouslySelectedVariableFieldset" style="display: none">
+                        <label for="previouslySelectedVariable">Switch to </label>
+                        <button id="previouslySelectedVariable" type="button" onclick="previouslySelectedVariableButton()" style="width: 200px; text-overflow: ellipsis;">Polity</button><br>
+                    </fieldset>
                     <fieldset id="chooseCategoricalVariableSelectionFieldset">
                         <label for="chooseCategoricalVariableSelection"></label>
                         <select name="chooseCategoricalVariableSelection" id="chooseCategoricalVariableSelection" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">            
@@ -151,12 +154,15 @@
                 </div>
             </fieldset>
             <ul>
-                <li>Click polity for info/ add to legend.</li>
-                <li>Click map to clear legend.</li>
-                <li>Select other tracked variables.</li>
+                <li>Choose the variable to view.</li>
+                <li>Click shape for polity info.</li>
+                <fieldset id="politySpecificInfo" style="display: block">
+                    <li>Click shape to update legend.</li>
+                    <li>Click map to clear legend.</li>
+                </fieldset>
                 <li>Double click to reach Seshat page.</li>
                 <li>Change the year or play animation.</li>
-                <li>Show capital city coordinates.</li>
+                <!-- <li>Show capital city coordinates.</li> -->
                 <li>Try different base maps.</li>
             </ul>
             <fieldset>
@@ -191,6 +197,11 @@
     </div>
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
+
+        // If there's a variable stored in the local storage, set the variable selection to that
+        if (localStorage.getItem('variable')) {
+            document.getElementById('chooseVariable').value = localStorage.getItem('variable');
+        }
 
         var categorical_variables = {{ categorical_variables | safe }};
         updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
@@ -315,7 +326,8 @@
             'P~A': 'orange',
             'A~P': 'blue',
             'unknown': 'yellow',
-            'uncoded': 'grey' 
+            'uncoded': '#ffa2a1',
+            'seshat page missing': 'grey'
         };
 
         let oneLanguageColourMapping = {
@@ -323,7 +335,8 @@
             'Present': '#13d446',
             'Absent': 'red',
             'Unknown': 'yellow',
-            'Uncoded': 'grey'
+            'Uncoded': '#ffa2a1',
+            'Seshat page missing': 'grey'
         };
 
         function switchBaseMapWorldMap() {
@@ -333,24 +346,36 @@
             }
         }
 
-        function polityButton() {
-            document.getElementById('chooseVariable').value = 'polity';
+        function previouslySelectedVariableButton() {
+            document.getElementById('chooseVariable').value = document.getElementById('previouslySelectedVariable').getAttribute('variableSelection');
             plotPolities();
         }
 
         function plotPolities() {  // This function is defined differently in the polity_map template
 
+            var runTwice = false;
+
             var variable = document.getElementById('chooseVariable').value;
             var selectedYear = document.getElementById('dateSlide').value;
 
+            // Show or hide the polity-specific info fieldset
+            if (variable == 'polity') {
+                document.getElementById('politySpecificInfo').style.display = 'block';
+            } else {
+                document.getElementById('politySpecificInfo').style.display = 'none';
+            }
+
             // If variable has changed from the previous selection
             if (localStorage.getItem('variable') != variable) {
-                // Update weights in shapesData
-                var i = 0;
-                shapesData.forEach(function (shape) {
-                    shapesData[i]['weight'] = 0;
-                    i++;
-                });
+                // Update previously selected variable button
+                document.getElementById('previouslySelectedVariable').setAttribute('variableSelection', localStorage.getItem('variable'));
+                if (localStorage.getItem('variable') in categorical_variables || localStorage.getItem('variable') == 'polity'){
+                    // Categorical variables don't have a full name so we need to modify TODO: Make this more consistent
+                    document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable').replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                } else {
+                    document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable')
+                }
+                document.getElementById('previouslySelectedVariableFieldset').style.display = 'block';
             }
 
             // If the variable is categorical, show the categorical variable selection dropdown
@@ -404,6 +429,8 @@
                                 shapeColour = oneLanguageColourMapping['Unknown'];
                             } else if (shape[variable][0] == 'Uncoded') {
                                 shapeColour = oneLanguageColourMapping['Uncoded'];
+                            } else if (shape[variable][0] == 'Seshat page missing') {
+                                shapeColour = oneLanguageColourMapping['Seshat page missing'];
                             } else {
                                 shapeColour = oneLanguageColourMapping['Absent'];
                             }
@@ -543,15 +570,21 @@
                                         } else {
                                             // Decrease the weight of the clicked layer
                                             newWeight = 0;
-                                            this.setStyle({
-                                                weight: newWeight
-                                            });
                                         };
+                                        // Update weight in this layer
+                                        this.setStyle({
+                                            weight: newWeight
+                                        });
                                         // Update weights in shapesData
                                         var i = 0;
                                         shapesData.forEach(function (shape2) {
                                             if (shape2.name === shape.name) {                                           
                                                 shapesData[i]['weight'] = newWeight;
+                                            }
+                                            // Set the weight for shapes with multiple seshat_ids e.g. personal unions
+                                            if (shape2.name.includes(shape.name) && shape2.seshat_id.includes(';')) {
+                                                shapesData[i]['weight'] = 6;
+                                                runTwice = true;
                                             }
                                             i++;
                                         });
@@ -561,6 +594,11 @@
                                 });
                             }
                         }).addTo(map);
+
+                        // Ensure that shapes with multiple seshat_ids are behind their components
+                        if (shape['seshat_id'].includes(';')) {
+                            geoJSONLayer.bringToBack();
+                        }
 
                         // Listen for the click event on the map
                         map.on('click', function () {
@@ -651,7 +689,12 @@
 
             // Store the variable selection
             localStorage.setItem('variable', variable);
-
+            if (variable in categorical_variables) {
+                localStorage.setItem(variable, document.getElementById('chooseCategoricalVariableSelection').value);
+            };
+            if (runTwice) {
+                plotPolities();
+            };
         }
 
         // Initial plot on page load
