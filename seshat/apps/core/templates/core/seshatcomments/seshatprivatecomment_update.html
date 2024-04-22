@@ -7,6 +7,22 @@
 
 
 {% block content %}
+
+<style>
+    .bg-colorful {
+        background-image: linear-gradient(to right, rgb(246, 127, 127, 0.216),rgb(242, 199, 119, 0.216),rgb(151, 230, 151, 0.216));
+    
+      }
+    
+      .bg-colorful-light {
+        background-image: linear-gradient(to right, rgb(246, 127, 127, 0.076),rgb(242, 199, 119, 0.076),rgb(151, 230, 151, 0.076));
+        border-radius: 10px;
+      }
+    
+</style>
+
+{% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions and 'core.add_seshatprivatecommentpart' in user.get_all_permissions %}
+
 {% if object.text == "No Descriptions provided." %}
 <div class="container pt-1">
     <h4>No Private Commnetsdiscriptions for this fact.</h4>
@@ -37,82 +53,112 @@
         </div>
     {% if my_app_models %}
 
-    <table class="table align-middle border-bottom border-3 border-dark">
+    <table class="table table-borderless align-middle bg-colorful-light" style="border-radius:5px;">
 
         <tbody>
             {% for my_inst in my_app_models %}
-
-              <tr>
-                  <td style="text-align: left;">
-                    {% if my_inst.my_var_name %}
-                    <span class="fs-5">Variable: </span>
-                    <span class="fw-bold fs-4">{{ my_inst.my_var_name }}</span> <br>
-                    {% endif %}
-                    {% if my_inst.my_value %}
-                    <span class="fs-5">Value: </span>
-                    <span class="fw-bold fs-4"> {{ my_inst.my_value }} </span>
-                    {% endif %}
-            
-                      <!-- Tag tag (Disputed/Suspected etc.) -->
-                      {% if my_inst.my_tag %}
-                            {% if my_inst.my_tag == "DSP" %}
-                                <span style="text-align: center;"><span class="badge rounded-pill bg-danger">{{my_inst.my_tag }}</span></span>                     <br>
-
-                            {% elif my_inst.my_tag == "SSP" %}
-                                <span style="text-align: center;"> <span class="badge rounded-pill bg-warning text-dark">{{my_inst.my_tag }}</span></span>                     <br>
-
-                            {% elif my_inst.my_tag == "UNK" %}
-                                <span style="text-align: center;"><span class="badge rounded-pill bg-secondary">{{my_inst.my_tag }}</span></span>                     <br>
-
-                            {% elif my_inst.my_tag == "IFR" %}
-                                <span style="text-align: center;"><span class="badge rounded-pill bg-primary">{{my_inst.my_tag }}</span></span>                     <br>
-
-                            {% else  %}
-                                <span style="text-align: center;"><span class="badge rounded-pill bg-success">{{my_inst.my_tag }}</span></span>                     <br>
-
+                    <tr >
+                        <td class="p-2" style="text-align: left;">
+                          {% if my_inst.my_var_name %}
+                          <span class="fs-6">Variable: </span>
+                          <span class="fw-bold fs-5">{{ my_inst.my_var_name }}</span> <br>
+                          {% endif %}
+                          {% if my_inst.my_value %}
+                          <span class="fs-6">Value: </span>
+                          <span class="fw-bold fs-5"> {{ my_inst.my_value }} </span>
+                          {% endif %}
+                            <sup class="fs-6">
+                                {% if my_inst.my_tag %}
+                                {% if my_inst.my_tag == "DSP" %}
+                                    <span style="text-align: center;"><span class="badge rounded-pill bg-danger">{{my_inst.my_tag }}</span></span>                     <br>
+    
+                                {% elif my_inst.my_tag == "SSP" %}
+                                    <span style="text-align: center;"> <span class="badge rounded-pill bg-warning text-dark">{{my_inst.my_tag }}</span></span>                     <br>
+    
+                                {% elif my_inst.my_tag == "UNK" %}
+                                    <span style="text-align: center;"><span class="badge rounded-pill bg-secondary">{{my_inst.my_tag }}</span></span>                     <br>
+    
+                                {% elif my_inst.my_tag == "IFR" %}
+                                    <span style="text-align: center;"><span class="badge rounded-pill bg-primary">{{my_inst.my_tag }}</span></span>                     <br>
+    
+                                {% else  %}
+                                    <span style="text-align: center;"><span class="badge rounded-pill bg-success">{{my_inst.my_tag }}</span></span>                     <br>
+    
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
+                            </sup>
+                            <!-- Tag tag (Disputed/Suspected etc.) -->
 
-                    <span class="fs-5">Polity: </span>
-                    <span class="fw-bold fs-4"><a href="{% url 'polity-detail-main' pk=my_inst.my_polity_id %}">{{my_inst.my_polity}}</a></span>
-                    <br>
-                    
-                    {% if my_inst.my_year_from == None %}
-                    {% elif my_inst.my_year_from == my_inst.my_year_to %}
-                    <span class="fs-5">Year Range: </span>
-                        {% if my_inst.my_year_from < 0 %}
-                        <span class="fw-bold fs-4" style="text-align: center;">{{ my_inst.my_year_from|abs|intcomma }} <span class="text-secondary">BCE</span> </span>
-                        {% else %}
-                        <span class="fw-bold fs-4" style="text-align: center;">{{ my_inst.my_year_from }} <span class="text-secondary">CE</span></span>
-                        {% endif %}
-                    {% elif my_inst.my_year_to == None %}
-                    <span class="fs-5">Year Range: </span>
-                        {% if my_inst.my_year_from < 0 %}
-                        <span class="fw-bold fs-4" style="text-align: center;">{{ my_inst.my_year_from|abs }} <span class="text-secondary">BCE</span></span>
-                        {% else %}
-                        <span class="fw-bold fs-4" style="text-align: center;">{{ my_inst.my_year_from }} <span class="text-secondary">CE</span></span>
-                        {% endif %}
-                    {% elif my_inst.my_year_to == None and my_inst.my_year_from == None %}
-                        <span class="fw-bold fs-4" style="text-align: center;"> <i class="fa-solid fa-minus"></i> </span>
-                    {% else %}
-                    <span class="fs-5">Year Range: </span>
-                        {% if my_inst.my_year_from < 0 and my_inst.my_year_to < 0 %}
-                        <span class="fw-bold fs-4" style="text-align: center;">{{ my_inst.my_year_from|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.my_year_to|abs }} <span class="text-secondary">BCE</span></span>
-                        {% elif my_inst.my_year_from < 0 and my_inst.my_year_to >= 0 %}
-                        <span class="fw-bold fs-4" style="text-align: center;">{{ my_inst.my_year_from|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.my_year_to }} <span class="text-secondary">CE</span></span>
-                        {% else %}
-                        <span class="fw-bold fs-4" style="text-align: center;">{{ my_inst.my_year_from }} <span class="text-secondary">CE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.my_year_to }} <span class="text-secondary">CE</span></span>
-                        {% endif %}
-                    {% endif %}
-
-                </td>
-            </tr>
+      
+                          <span class="fs-6">Polity: </span>
+                          <span class="fw-bold fs-5"><a href="{% url 'polity-detail-main' pk=my_inst.my_polity_id %}">{{my_inst.my_polity}}</a></span>
+                          <br>
+                          <span>
+                            {% block years_short_for_top_pol %}
+                            {% if my_inst.start_year == None %}
+                            {% elif  my_inst.start_year == my_inst.end_year %}
+                                {% if  my_inst.start_year < 0 %}
+                                    {{ my_inst.start_year|abs }} <span class="text-secondary fw-normal bce-color fs-6">BCE</span> 
+                                {% else %}
+                                    {{ my_inst.start_year }} <span class="text-secondary fw-normal ce-color fs-6">CE</span>
+                                {% endif %}
+                            {% elif my_inst.end_year == None %}
+                                {% if  my_inst.start_year < 0 %}
+                                    {{ my_inst.start_year|abs }} <span class="text-secondary fw-normal bce-color fs-6">BCE</span>
+                                {% else %}
+                                    {{ my_inst.start_year }} <span class="text-secondary fw-normal ce-color fs-6">CE</span>
+                                {% endif %}
+                            {% elif my_inst.end_year == None and  my_inst.start_year == None %}
+                                <i class="fa-solid fa-minus"></i> 
+                            {% else %}
+                                {% if  my_inst.start_year < 0 and my_inst.end_year < 0 %}
+                                    {{ my_inst.start_year|abs }} <span class="text-secondary fw-normal bce-color fs-6">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.end_year|abs }} <span class="text-secondary fw-normal bce-color fs-6">BCE</span>
+                                {% elif  my_inst.start_year < 0 and my_inst.end_year >= 0 %}
+                                    {{ my_inst.start_year|abs }} <span class="text-secondary fw-normal bce-color fs-6">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.end_year }} <span class="text-secondary fw-normal ce-color fs-6">CE</span>
+                                {% else %}
+                                    {{ my_inst.start_year }} <span class="text-secondary fw-normal ce-color fs-6">CE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.end_year }} <span class="text-secondary fw-normal ce-color fs-6">CE</span>
+                                {% endif %}
+                            {% endif %}
+                            {% endblock years_short_for_top_pol %}
+                          </span>
+                          
+                          {% if my_inst.my_year_from == None %}
+                          {% elif my_inst.my_year_from == my_inst.my_year_to %}
+                          <span class="fs-6">Year Range: </span>
+                              {% if my_inst.my_year_from < 0 %}
+                              <span class="fw-bold fs-5" style="text-align: center;">{{ my_inst.my_year_from|abs|intcomma }} <span class="text-secondary">BCE</span> </span>
+                              {% else %}
+                              <span class="fw-bold fs-5" style="text-align: center;">{{ my_inst.my_year_from }} <span class="text-secondary">CE</span></span>
+                              {% endif %}
+                          {% elif my_inst.my_year_to == None %}
+                          <span class="fs-6">Year Range: </span>
+                              {% if my_inst.my_year_from < 0 %}
+                              <span class="fw-bold fs-5" style="text-align: center;">{{ my_inst.my_year_from|abs }} <span class="text-secondary">BCE</span></span>
+                              {% else %}
+                              <span class="fw-bold fs-5" style="text-align: center;">{{ my_inst.my_year_from }} <span class="text-secondary">CE</span></span>
+                              {% endif %}
+                          {% elif my_inst.my_year_to == None and my_inst.my_year_from == None %}
+                              <span class="fw-bold fs-5" style="text-align: center;"> <i class="fa-solid fa-minus"></i> </span>
+                          {% else %}
+                          <span class="fs-6">Year Range: </span>
+                              {% if my_inst.my_year_from < 0 and my_inst.my_year_to < 0 %}
+                              <span class="fw-bold fs-5" style="text-align: center;">{{ my_inst.my_year_from|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.my_year_to|abs }} <span class="text-secondary">BCE</span></span>
+                              {% elif my_inst.my_year_from < 0 and my_inst.my_year_to >= 0 %}
+                              <span class="fw-bold fs-5" style="text-align: center;">{{ my_inst.my_year_from|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.my_year_to }} <span class="text-secondary">CE</span></span>
+                              {% else %}
+                              <span class="fw-bold fs-5" style="text-align: center;">{{ my_inst.my_year_from }} <span class="text-secondary">CE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ my_inst.my_year_to }} <span class="text-secondary">CE</span></span>
+                              {% endif %}
+                          {% endif %}
+      
+                      </td>
+                  </tr>
+             
             {% if my_inst.my_description %}
             {% autoescape off %}
             <tr>
                 <td>
                   <b> Public Comment (Description): </b> 
-                  {{my_inst.my_description|make_references_look_nicer}}
+                  <span > {{my_inst.my_description|make_references_look_nicer}}</span>
                 </td>
             </tr>
             {% endautoescape %}
@@ -145,7 +191,7 @@
             </legend>
         <table id="table_id" class="table align-middle"> 
             <thead>
-                <tr class="text-dark" style="background:#fefae6;">
+                <tr class="text-dark bg-colorful border border-1" >
                     <div class="row">
                         <th class="col-md-8" scope="col" style="text-align: left">Seshat Expert / Private Comment 
                             <span class="text-secondary">(Only visisble to Selected Seshat Experts/RAs)</span>
@@ -169,7 +215,7 @@
                                 {{ subcom.private_comment_part_text }}                                 
                                 <a href="{% url 'seshatprivatecommentpart-update' pk=subcom.pk  private_com_id=subcom.private_comment_id %}"><i class="fa-regular fa-sm fa-pen-to-square text-danger"></i></a>
                         </td>
-                        <td class="col-md-2">
+                        <td class="col-md-2" style="text-align: left">
                             {% for an_expert in  subcom.private_comment_reader.all %}
                             <span class="badge text-dark" style="background: {{an_expert.id|give_me_a_color}};">{{an_expert}}</span>
                             {% endfor %}
@@ -186,8 +232,11 @@
                 {% endfor %}
                 {% else %}
                 <tr>
-                    <td class="col-md-10 text-secondary" scope="row" style="text-align: left;">
+                    <td class="col-md-8 text-secondary" scope="row" style="text-align: left;">
                     No Private Comments yet.
+                    </td>
+                    <td class="col-md-2" style="text-align: left">
+                        -
                     </td>
                     <td class="col-md-2" style="text-align: right">
                     -
@@ -200,7 +249,7 @@
             </tbody>
           </table>
         </form>
-
+        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions and 'core.add_seshatprivatecommentpart' in user.get_all_permissions %}
         <form method="post" action="{% url 'seshatprivatecommentpart-create2' private_com_id=object.id %}">
             {% csrf_token %}
             <div class="row mt-3">
@@ -213,18 +262,22 @@
               </div>
               <div class="col-md-3 my-1">
                 <span class="fw-bold">Experts to be informed:</span>  
-
                 {{ another_form.private_comment_reader }}
-        
-              </div>
-                <div class="col-md-3  p-0 m-0">
-                    <input type="submit"  class="btn btn-success fw-bold px-4" value="Insert the New Private Comment">
+                    <input type="submit" class="btn mt-5 border border-dark bg-colorful fw-bold px-4"  value="Insert the New Private Comment">
                 </div>
         
           </div>
           </form>
+          {% endif %}
+
 </div>
 {% endif %}
+
+{% else %}
+<span class="fw-bold">You don't have the permissions to view thius page.</span>  
+
+{% endif %}
+
 <script>
     $(document).ready(function() {
         $('.js-example-basic-multiple').select2({

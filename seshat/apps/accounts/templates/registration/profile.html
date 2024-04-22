@@ -6,6 +6,19 @@
 
 
 {% block content %}
+
+<style>
+  .bg-colorful {
+      background-image: linear-gradient(to right, rgb(246, 127, 127, 0.216),rgb(242, 199, 119, 0.216),rgb(151, 230, 151, 0.216));
+  
+    }
+  
+    .bg-colorful-light {
+      background-image: linear-gradient(to right, rgb(246, 127, 127, 0.076),rgb(242, 199, 119, 0.076),rgb(151, 230, 151, 0.076));
+      border-radius: 10px;
+    }
+  
+</style>
 <div class="container">
     <div class="main-body">
     <!-- source: https://www.bootdey.com/snippets/view/profile-with-data-and-skills#css -->
@@ -60,21 +73,21 @@
 
                 <div class="row gutters-sm my-3">
                   <h4>Notifications:</h4>
+                  {% if facts_verified_by_user %}
                   <div class="table-responsive">
                       <table id="table_id" class="table align-middle table-bordered" style="padding: 0.25 rem !important;">
                           <thead>
-                              <tr class="bg-teal">
+                              <tr class="bg-colorful">
                                   <th scope="col" class="text-dark">Comment</th>
-                                  <th scope="col" class="text-dark">Link</th>
-                                  <th scope="col" class="text-dark">Last Modified</th>
-                                  <th scope="col" class="text-dark" style="text-align: center" >Status</th>
+                                  <th scope="col" class="text-dark"  style="text-align: center">Link</th>
+                                  <th scope="col" class="text-dark"  style="text-align: right">Last Modified</th>
                               </tr>
                           </thead>
                           <tbody>
 
                               {% for a_private_comment_part in facts_verified_by_user %}
                               <tr>
-                                  <td  class="col-md-6" scope="col" class="text-danger col-md-2">
+                                  <td  class="col-md-8" scope="col" class="text-danger col-md-2">
                                       {% autoescape off %}
                                       <span class="fw-light">
                                         <span class="badge text-dark fs-6 border border-dark" style="background: {{a_private_comment_part.private_comment_owner.id|give_me_a_color}};">{{a_private_comment_part.private_comment_owner}}</span>
@@ -83,26 +96,27 @@
                                       {% endautoescape %}
 
                                   </td>                                    
-                                  <td  class="col-md-2">
-                                    <a class="p-0 m-0" style="display:block;" href="{% url 'seshatprivatecomment-update' a_private_comment_part.private_comment_id %}"><span class="badge bg-teal text-dark fs-6"><span style="vertical-align:bottom;"> See Full Discussion</span>
+                                  <td  class="col-md-2"  style="text-align: center">
+                                    <a class="p-0 m-0" style="display:block;" href="{% url 'seshatprivatecomment-update' a_private_comment_part.private_comment_id %}"><span class="badge bg-colorful border border-dark text-dark fs-6"><span style="vertical-align:bottom;"> Full Discussion</span>
                                     </span></a>
                                   </td>
 
                                   {% autoescape off %}
-                                  <td  class="col-md-2">{{a_private_comment_part.last_modified_date|naturaltime}}</td>
+                                  <td  class="col-md-2"  style="text-align: right">{{a_private_comment_part.last_modified_date|naturaltime}}</td>
                                   {% endautoescape %}
-
-                                  <td class="col-md-2" class="text-success fw-bold col-md-1" style="text-align: center" > <i class="fa-solid fa-square-check fa-2x"></i></td>
                               </tr>
                               {% endfor %}
 
                           </tbody>
                       </table>
                   </div>
+                  {% else %}
+                  <h5>No Notifications for you.</h5>
+                  {% endif %}
+
               </div>
             </div>
           </div>
 
-        </div>
     </div>
 {% endblock content %}

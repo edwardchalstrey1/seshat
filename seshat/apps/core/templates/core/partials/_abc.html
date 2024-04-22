@@ -1,10 +1,10 @@
-{% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+{% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions and 'core.add_seshatprivatecommentpart' in user.get_all_permissions %}
 <span class="p-0 m-0" style="display:inline-block; vertical-align:top;">
 
 <a class="p-0 m-0" style="display:block;" type="button" href="{% url key|lower|add:'-update' value.id %}">
     <span class="badge bg-danger"> <i class=" fa-solid fa-pen-to-square text-white"></i><span class="hover-text"  style="vertical-align:bottom;"> &nbsp;&nbsp;Edit coded value </span></span>
 </a>  
-    {% if value.comment %}
+    {% if value.comment and 'core.add_seshatprivatecommentpart' in user.get_all_permissions  %}
         {% if value.comment.id == 1 or value.comment.inner_comments_related.all|length == 0 %}
             <a class="p-0 m-0" style="display:block;" href="{% url 'create_subcomment_new' app_name=my_app_name model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-teal text-dark"> <i class="fa-solid fa-pen-to-square"></i><span class="hover-text" style="vertical-align:bottom;">&nbsp;&nbsp;Create Description (NEW)</span></span></a>
         {% else  %}
@@ -14,7 +14,7 @@
         {% endif %}  
     {% endif %}   
 
-    {% if value.private_comment %}
+    {% if value.private_comment and 'core.add_seshatprivatecommentpart' in user.get_all_permissions  %}
         {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
             <a class="p-0 m-0"  style="display:block;" href="{% url 'create_private_subcomment_new' app_name=my_app_name model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-warning text-dark"><i class="fa-regular fa-comment"></i><span class="hover-text" style="vertical-align:bottom;"> &nbsp;&nbsp;Create Private Comment (NEW) </span></span></a>
         {% endif %}  
@@ -24,7 +24,7 @@
 
 <span class="bg-warning p-0 m-0">
 
-    {% if value.private_comment %}
+    {% if value.private_comment and 'core.add_seshatprivatecommentpart' in  user.get_all_permissions  %}
         {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
         {% else  %}
         <div class="border border-4 border-warning p-0 m-0 rounded">

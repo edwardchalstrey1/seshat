@@ -26,6 +26,11 @@ def accounts(request):
 def accounts_new(request):
     return HttpResponse('<h1>Hello Aiiiiiiiccounts.</h1>')
 
+
+def has_add_scp_prv_permission(user):
+    return user.has_perm('core.add_seshatprivatecommentpart')
+
+
 # @login_required
 # def edit_profile(request):
 #     if request.method == 'POST':
@@ -54,7 +59,7 @@ class ProfileUpdate(PermissionRequiredMixin, UpdateView):
     form_class = ProfileForm
     template_name = "registration/profile_update.html"
     queryset = Profile.objects.all()
-    permission_required = 'core.add_capital'
+    permission_required = 'core.add_seshatprivatecommentpart'
 
     def get_context_data(self, **kwargs):
         context = super(ProfileUpdate, self).get_context_data(**kwargs)
@@ -80,6 +85,7 @@ class ProfileUpdate(PermissionRequiredMixin, UpdateView):
 #     permission_required = 'core.add_capital'
 
 @login_required
+@permission_required('core.add_seshatprivatecommentpart', raise_exception=True)
 def profile(request):
     # all_vars = []
     # a_huge_context_data_dic = {}
@@ -147,7 +153,7 @@ class Seshat_taskCreate(PermissionRequiredMixin, CreateView):
     model = Seshat_Task
     form_class = Seshat_TaskForm
     template_name = "registration/seshat_task/seshat_task_form.html"
-    permission_required = 'core.add_capital'
+    permission_required = 'core.add_seshatprivatecommentpart'
 
 
 # class Seshat_taskDelete(PermissionRequiredMixin, DeleteView):

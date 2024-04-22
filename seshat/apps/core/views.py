@@ -588,7 +588,7 @@ class SeshatPrivateCommentPartCreate2(PermissionRequiredMixin, CreateView):
     model = SeshatPrivateCommentPart
     form_class = SeshatPrivateCommentPartForm
     template_name = "core/seshatcomments/seshatprivatecommentpart_form_prefilled.html"
-    permission_required = 'core.add_capital'
+    permission_required = 'core.add_seshatprivatecommentpart'
 
     def get_absolute_url(self):
         return reverse('seshatprivatecommentpart-create2')
@@ -791,7 +791,7 @@ def seshat_comment_part_create_from_null_view(request, com_id, subcom_order):
 
 
 # Function based NEW:
-@permission_required('core.add_capital')
+@permission_required('core.add_seshatprivatecommentpart')
 def seshat_private_comment_part_create_from_null_view(request, private_com_id):
     if request.method == 'POST':
         form = SeshatPrivateCommentPartForm(request.POST)
@@ -859,7 +859,7 @@ class SeshatPrivateCommentPartUpdate(PermissionRequiredMixin, SuccessMessageMixi
     model = SeshatPrivateCommentPart
     form_class = SeshatPrivateCommentPartForm
     template_name = "core/seshatcomments/seshatprivatecommentpart_update2.html"
-    permission_required = 'core.add_capital'
+    permission_required = 'core.add_seshatprivatecommentpart'
     success_message = "You successfully updated the Private comment."
 
 
@@ -1458,7 +1458,7 @@ class PolityListView(SuccessMessageMixin, generic.ListView):
 class PolityListViewCommented(PermissionRequiredMixin, SuccessMessageMixin, generic.ListView):
     model = Polity
     template_name = "core/polity/polity_list_commented.html"
-    permission_required = 'core.add_capital'
+    permission_required = 'core.add_seshatprivatecommentpart'
 
 
     def get_absolute_url(self):
@@ -2296,11 +2296,6 @@ def seshatindex(request):
 
     context['eight_srs'] = eight_srs
 
-
-
-  
-  
-
     for app_name in app_names:
         models = apps.get_app_config(app_name).get_models()
         unique_politys = set()
@@ -2773,6 +2768,7 @@ def create_a_comment_with_a_subcomment_new(request, app_name, model_name, instan
 
 
 @login_required
+@permission_required('core.add_seshatprivatecommentpart')
 def create_a_private_comment_with_a_private_subcomment_new(request, app_name, model_name, instance_id):
     """
     Create a Privatecomment and assign it to a model instance.
@@ -2837,7 +2833,7 @@ class SeshatPrivateCommentUpdate(PermissionRequiredMixin, UpdateView, FormMixin)
     model = SeshatPrivateComment
     form_class = SeshatPrivateCommentForm
     template_name = "core/seshatcomments/seshatprivatecomment_update.html"
-    permission_required = 'core.add_capital'
+    permission_required = 'core.add_seshatprivatecommentpart'
 
 
     def post(self, request, *args, **kwargs):
@@ -2906,11 +2902,15 @@ class SeshatPrivateCommentUpdate(PermissionRequiredMixin, UpdateView, FormMixin)
                         my_instance = mymodel.objects.get(private_comment_n=self.object.id)
                         my_polity = my_instance
                         my_polity_id = my_instance.id
+                        my_start_year = my_instance.start_year
+                        my_end_year = my_instance.end_year
 
                         abc.append({
                             'my_polity': my_polity,
                             'my_polity_id': my_polity_id,
                             'commented_pols_link': True,
+                            'start_year': my_start_year,
+                            'end_year': my_end_year,
 
                         })
 
