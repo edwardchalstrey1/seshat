@@ -837,7 +837,7 @@ class Polity_suprapolity_relations(SeshatCommon):
 
     def show_value(self):
         if self.supra_polity_relations and self.other_polity:
-            return self.get_supra_polity_relations_display() +f" to: [{self.other_polity.new_name}]"
+            return self.get_supra_polity_relations_display() +f" [{self.other_polity.new_name}]"
         elif self.supra_polity_relations:
             return self.get_supra_polity_relations_display()
         else:

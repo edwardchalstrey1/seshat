@@ -1,24 +1,63 @@
 {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions and 'core.add_seshatprivatecommentpart' in user.get_all_permissions %}
 <span class="p-0 m-0" style="display:inline-block; vertical-align:top;">
 
-<a class="p-0 m-0" style="display:block;" type="button" href="{% url key|lower|add:'-update' value.id %}">
-    <span class="badge bg-danger"> <i class=" fa-solid fa-pen-to-square text-white"></i><span class="hover-text"  style="vertical-align:bottom;"> &nbsp;&nbsp;Edit coded value </span></span>
+<a class="p-0 m-0" 
+style="display:block; overflow: hidden;" 
+href="{% url key|lower|add:'-update' value.id %}">
+    <span class="badge bg-danger text-white" style="vertical-align:bottom; white-space: nowrap; z-index:997;">
+        <i class=" fa-solid fa-pen-to-square"></i>
+        <span class="hover-text" style="vertical-align:bottom; position:absolute; color:black;"> &nbsp;&nbsp;&nbsp;&nbsp;Edit coded value </span>
+    </span>
 </a>  
     {% if value.comment and 'core.add_seshatprivatecommentpart' in user.get_all_permissions  %}
         {% if value.comment.id == 1 or value.comment.inner_comments_related.all|length == 0 %}
-            <a class="p-0 m-0" style="display:block;" href="{% url 'create_subcomment_new' app_name=my_app_name model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-teal text-dark"> <i class="fa-solid fa-pen-to-square"></i><span class="hover-text" style="vertical-align:bottom;">&nbsp;&nbsp;Create Description (NEW)</span></span></a>
+            <a class="p-0 m-0" 
+            style="display:block; overflow: hidden;"
+             href="{% url 'create_subcomment_new' app_name=my_app_name model_name=value.clean_name instance_id=value.id %}">
+                <span class="badge bg-teal text-dark" style="vertical-align:bottom; white-space: nowrap; z-index:998;">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span class="hover-text" style="vertical-align:bottom; white-space: nowrap; z-index:998; position:absolute;"> &nbsp;&nbsp;&nbsp;&nbsp;Create Description (NEW)
+                    </span>
+                </span>
+            </a>
         {% else  %}
-
-            <a class="p-0 m-0" style="display:block;" href="{% url 'seshatcomment-update' value.comment.id %}"><span class="badge bg-teal text-dark"> <i class="fa-solid fa-pen-to-square"></i><span class="hover-text" style="vertical-align:bottom;"> &nbsp;&nbsp;Edit Description (NEW)</span>
-                </span></a>
+            <a class="p-0 m-0" 
+            style="display:block; overflow: hidden;" 
+            href="{% url 'seshatcomment-update' value.comment.id %}">
+                <span class="badge bg-teal text-dark" style="vertical-align:bottom; white-space: nowrap; z-index:998; ">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span class="hover-text" style="vertical-align:bottom; position:absolute;">
+                        &nbsp;&nbsp;&nbsp;&nbsp;Edit Description (NEW)
+                    </span>
+                </span>
+            </a>
         {% endif %}  
     {% endif %}   
 
-    {% if value.private_comment and 'core.add_seshatprivatecommentpart' in user.get_all_permissions  %}
-        {% if value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
-            <a class="p-0 m-0"  style="display:block;" href="{% url 'create_private_subcomment_new' app_name=my_app_name model_name=value.clean_name instance_id=value.id %}"><span class="badge bg-warning text-dark"><i class="fa-regular fa-comment"></i><span class="hover-text" style="vertical-align:bottom;"> &nbsp;&nbsp;Create Private Comment (NEW) </span></span></a>
+    {% if 'core.add_seshatprivatecommentpart' in user.get_all_permissions  %}
+        {% if not value.private_comment or value.private_comment.id == 1 or value.private_comment.inner_private_comments_related.all|length == 0 %}
+            <a class="p-0 m-0"  
+            style="display:block;overflow: hidden;" 
+            href="{% url 'create_private_subcomment_new' app_name=my_app_name model_name=value.clean_name instance_id=value.id %}">
+                <span class="badge bg-warning text-dark" style="vertical-align:bottom; white-space: nowrap; z-index:999; ">
+                    <i class="fa-regular fa-comment"></i>
+                    <span class="hover-text" style="vertical-align:bottom; position:absolute;"> &nbsp;&nbsp;&nbsp;&nbsp;Create Private Comment (NEW)
+                    </span>
+                </span>
+            </a>
         {% endif %}  
     {% endif %}   
+
+    <a class="p-0 m-0"  
+    style="display:block;overflow: hidden;" 
+    href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}">
+    <span class="badge bg-info text-dark" style="vertical-align:bottom; white-space: nowrap; z-index:995;">
+        <i class="fa-solid fa-plus"></i>
+            <span class="hover-text" style="vertical-align:bottom; position:absolute;">
+            &nbsp;&nbsp;&nbsp;&nbsp; Add a new row of Data
+        </span>
+    </span>
+    </a> 
 
 </span>
 

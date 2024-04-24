@@ -1,5 +1,51 @@
 {% load static %}
 
+<style>
+    .search-container {
+        position: relative;
+
+    }
+    
+    #search-input {
+        width: 200px; /* Adjust width as needed */
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    #search-results {
+        position: fixed;
+        top: 100%;
+        left: 0;
+        z-index: 1000; /* Ensure the search results appear on top */
+        background-color: #fefae6;
+        border-top: none;
+        border-radius: 0 0 4px 4px; /* Rounded corners for bottom */
+        box-shadow: 0 2px 4px teal;
+        max-height: 300px; /* Adjust maximum height as needed */
+        overflow-y: auto; /* Enable scroll if needed */
+    }
+    
+    /* Style each search result item */
+    #search-results .search-item {
+        padding: 8px;
+        cursor: pointer;
+    }
+    
+    /* Highlight on hover */
+    #search-results .search-item:hover {
+        background-color: #782823;
+    }
+
+    #search-results .search-item.selected {
+        background-color: #782823; /* Example backgroun 782823 d color */
+        color: orange; /* Selected color */
+        text-decoration: none; /* Remove underline */
+    }
+
+    
+    
+</style>
 <nav class="navbar navbar-expand-lg navbar-dark navbar-brown  navbar-hide-on-scroll sticky-top" id="my_seshat_navbar" style="z-index: 1000;">
     <div class="container">
             <span>
@@ -74,25 +120,42 @@
                 <li class="nav-item">
                     <a href="{% url 'seshat-olddownloads' %}" class="nav-link  active"><strong>Downloads </strong></a>
                 </li>
+                <li class="nav-item mx-5">
+                    {% autoescape off %}
+    
+                    <div class="search-container" >
+                        <form action="{% url 'search' %}" method="GET" accept-charset="UTF-8">
+                            {% csrf_token %}
+
+                            <input type="text" id="search-input" name="search" style="height:35px; width: 300px;" placeholder="&#128270; Search for a polity" autocomplete="off">
+                        </form>
+    
+                    </div>
+                    {% endautoescape %}
+    
+                    <div id="search-results"></div>
+    
+                </li>
         </ul>
         <ul class="navbar-nav ms-auto d-lg-inline-flex">
             {% if user.is_authenticated %}
             <li class="nav-item mx-1">
                 <a href="{% url 'account_logout' %}" class="pe-3  fw-light nav-link active" style="color:rgba(255,255,255,.55)"><strong>Logout </strong></a>
             </li>
+
             {%  if  'core.add_capital' in user.get_all_permissions and 'core.add_seshatprivatecommentpart' in user.get_all_permissions %}
-
             <li class="nav-item mx-1">
-                <a href="{% url 'user-profile' %}" class="pe-3 text-light nav-link active fw-light"><strong>Profile </strong>     <sup class="badge rounded-pill  fw-bold" style="padding: 3px 5px 2px 5px; color:#782823; background-color:#fffdf2;">{{ notifications_count }}</sup>
+                <a href="{% url 'user-profile' %}" class="pe-2 text-light nav-link active"> <i class="fas fa-user-check text-light"></i> &nbsp; Logged in as: <strong> {{ user.email }} </strong>
+                    <sup class="badge rounded-pill  fw-bold" style="padding: 3px 5px 2px 5px; color:#782823; background-color:#fffdf2;">{{ notifications_count }}</sup>
                 </a>
+            </li>
 
+            {% else %}
+            <li class="nav-item mx-1">
+                <a href="#" class="pe-2 text-light nav-link active"> <i class="fas fa-user-check text-light"></i> &nbsp; Logged in as: <strong> {{ user.email }} </strong>
+                </a>
             </li>
             {% endif %}
-
-            <li class="nav-item mx-1">
-
-                <a href="{% url 'account_login' %}" class="pe-2 text-light nav-link active"> <i class="fas fa-user-check text-light"></i> &nbsp; Logged in as: <strong> {{ user.email }} </strong></a>
-            </li>
 
             {% else %}
         <li class="nav-item mx-1">
@@ -109,5 +172,119 @@
           </ul>
 
         </div>
+
+        
     </div>
+
+    
 </nav>
+
+<script>
+    $(document).ready(function(){
+        // Function to close search results
+        function closeSearchResults() {
+            $('#search-results').empty().hide();
+        }
+
+        // Function to position search results
+        function positionSearchResults() {
+            var inputPos = $('#search-input').offset();
+            var scrollTop = $(window).scrollTop(); // Get current scroll position
+            $('#search-results').css({
+                'top': inputPos.top + $('#search-input').outerHeight() - scrollTop,
+                'left': inputPos.left
+            });
+        }
+
+        // Keyup event on search input
+        $('#search-input').keyup(function(event){
+            var search_term = $(this).val();
+            var keyCode = event.keyCode || event.which;
+
+            // Make AJAX request only for alphanumeric keys, backspace, and space
+            if ((keyCode >= 48 && keyCode <= 255) || keyCode === 8 || keyCode === 32) {
+                // Make AJAX request
+                $.ajax({
+                    url: '/search_suggestions/',
+                    method: 'GET',
+                    data: {'search': search_term},
+                    success: function(data){
+                        $('#search-results').html(data);
+                        positionSearchResults();
+                        $('#search-results').show();
+                    }
+                });
+            }
+
+            // Handle up arrow key
+            if (keyCode === 38) {
+                var selectedItem = $('#search-results .search-item.selected');
+                if (selectedItem.length) {
+                    var prevItem = selectedItem.prev('.search-item');
+                    if (prevItem.length) {
+                        selectedItem.removeClass('selected');
+                        prevItem.addClass('selected');
+                    }
+                } else {
+                    $('#search-results .search-item:last-child').addClass('selected');
+                }
+            }
+
+            // Handle down arrow key
+            if (keyCode === 40) {
+                var selectedItem = $('#search-results .search-item.selected');
+                if (selectedItem.length) {
+                    var nextItem = selectedItem.next('.search-item');
+                    if (nextItem.length) {
+                        selectedItem.removeClass('selected');
+                        nextItem.addClass('selected');
+                    }
+                } else {
+                    $('#search-results .search-item:first-child').addClass('selected');
+                }
+            }
+
+            // Enter key
+            else if (event.keyCode === 13) {
+                var selectedItem = $('.search-item.selected');
+                if (selectedItem.length > 0) {
+                    var url = selectedItem.attr('href');
+                    if (url) {
+                        window.location.href = url;
+                    }
+                }
+            }
+        });
+
+
+
+        // Handle click event on suggested search items
+        $(document).on('click', '.search-item', function(){
+            var polityName = $(this).text();
+            window.location.href = '/polity-detail-main/?name=' + encodeURIComponent(polityName);
+        });
+
+        // Click event anywhere on the document
+        $(document).click(function(event) {
+            // Close search results if click is outside search container
+            if (!$(event.target).closest('.search-container').length) {
+                closeSearchResults();
+            }
+        });
+
+        // Scroll event anywhere on the document
+        $(window).scroll(function() {
+            // Reposition search results on scroll
+            positionSearchResults();
+        });
+
+        // Initial position of search results
+        positionSearchResults();
+    });
+
+
+</script>
+
+
+
+

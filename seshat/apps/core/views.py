@@ -3000,3 +3000,28 @@ def seshatcomment_create_view(request):
 
     return render(request, 'core/seshatcomments/seshatcomment_create.html', {'form': form})
 
+
+
+def search_view(request):
+    search_term = request.GET.get('search', '')
+    if search_term:
+        try:
+            polity = Polity.objects.filter(name__icontains=search_term).first()
+            if polity:
+                return redirect('polity-detail-main', pk=polity.pk)
+            else:
+                # No polity found
+                return redirect('seshat-index')  # Redirect to home or any other page
+        except Polity.DoesNotExist:
+            # Handle the case where no polity matches the search term
+            pass
+    return redirect('seshat-index')  # Redirect to home or any other page if no search term is provided or no match is found
+
+def search_suggestions(request):
+    search_term = request.GET.get('search', '')
+    polities = Polity.objects.filter(
+        Q(name__icontains=search_term) | 
+        Q(long_name__icontains=search_term) |
+        Q(new_name__icontains=search_term)
+    ).order_by('start_year')  # Limit to 5 suggestions [:5]
+    return render(request, 'core/partials/_search_suggestions.html', {'polities': polities})

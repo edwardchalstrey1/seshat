@@ -1,4 +1,4 @@
-from .models import SeshatPrivateCommentPart
+from .models import SeshatPrivateCommentPart, Polity
 from ..accounts.models import Seshat_Expert
 
 def notifications(request):
@@ -14,5 +14,16 @@ def notifications(request):
     else:
         notifications_count = 0
 
+    # Get all polities for the search bar
+    all_polities = Polity.objects.all()
+
+    # Get the search term if submitted
+    search_term = request.GET.get('search', '')
+
     # Return the data as a dictionary
-    return {'notifications_count': notifications_count}
+    return {
+        'notifications_count': notifications_count,
+        'all_polities': all_polities,
+        'search_term': search_term,
+    }
+

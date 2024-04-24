@@ -1265,7 +1265,7 @@
                 {% if values %}
                     <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
                             {% for value in values %}
-                            <div class="col-md-7">
+                            <div class="col-md-9">
                                 <span class="h5 text-teal pt-0 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
                                     {% if key == "Polity_suprapolity_relations" %}
                                     <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
@@ -1298,8 +1298,8 @@
                                     {% include "core/partials/_abc.html" %}
                                 {% endwith %}
                             </div>
-                            <div class="col-md-5">
-                                <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light">View all values of <b> <u> {{ values.0.clean_name_spaced|slice:"7:" }}</u></b></a>
+                            <div class="col-md-3">
+                                <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light"><b> <u>View all such values</u></b></a>
                             </div>
                             {% if value.description %}
                                 <div class="col-md-12 highlighted-value my-0 py-0">
@@ -1350,7 +1350,7 @@
                 {% if values %}
                     <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
                             {% for value in values %}
-                            <div class="col-md-7">
+                            <div class="col-md-9">
                                 <span class="h5 text-teal pt-2 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
                                     <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
                                         <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
@@ -1373,8 +1373,8 @@
                                 {% endwith %}
 
                             </div>
-                            <div class="col-md-5">
-                                <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light">View all values of <b> <u> {{ value.clean_name_spaced }}</u></b></a>
+                            <div class="col-md-3">
+                                <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light"><b><u>View all such values</u></b></a>
                             </div>
                             {% if value.description %}
                                 <div class="col-md-12 highlighted-value my-0 py-0">
@@ -1435,7 +1435,7 @@
                     {% if values %}
                         <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
                                 {% for value in values %}
-                                <div class="col-md-7">
+                                <div class="col-md-9">
                                     <span class="h5 text-teal pt-2 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
                                         <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
                                             <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
@@ -1449,6 +1449,8 @@
                                                 {% include "core/partials/_disputed_value_inline.html" %}
                                                 {% include "core/partials/_uncertain_value_inline.html" %}
                                                 {% include "core/partials/_expert_checked_value_inline.html" %}
+                                                <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-secondary"></i>
+                                                </a> 
                                             </div>
                                         </div>
                                     </span>
@@ -1458,8 +1460,8 @@
                                     {% endwith %}
 
                                 </div>
-                                <div class="col-md-5">
-                                    <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light">View all values of <b> <u> {{ value.clean_name_spaced }}</u></b></a>
+                                <div class="col-md-3">
+                                    <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light"><b><u>View all such values</u></b></a>
                                 </div>
                                 {% if value.description %}
                                     <div class="col-md-12 highlighted-value my-0 py-0">
@@ -1542,7 +1544,7 @@
                                         {% endwith %}
                                     </div>
                                     <div class="col-md-2">
-                                        <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light"> <b> <u>View all such values</u></b></a>
+                                        <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light"><b><u>View all such values</u></b></a>
                                     </div>
                                     {% if value.description %}
                                         <div class="col-md-12 highlighted-value my-0 py-0">
@@ -1656,7 +1658,7 @@
             </div>
 
             <div class="col-md-6 pt-5">
-                <a href="{% url 'crisis_consequences_all' %}" class="btn float-end fw-light">View all values of <b> <u>Crisis Consequences</u></b>
+                <a href="{% url 'crisis_consequences_all' %}" class="btn float-end fw-light">View all <b> <u>Crisis Consequences</u></b>
                 </a>
             </div>
         </div>
@@ -1750,7 +1752,7 @@
 
             </div>
             <div class="col-md-4 pt-5 pb-4">
-                <a href="{% url 'power_transitions_all' %}" class="btn float-end fw-light">View all values of <b> <u>Power Transitions</u></b>
+                <a href="{% url 'power_transitions_all' %}" class="btn float-end fw-light">View all <b> <u>Power Transitions</u></b>
                 </a>
             </div>
         </div>

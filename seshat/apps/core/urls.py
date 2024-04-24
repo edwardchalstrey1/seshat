@@ -63,7 +63,8 @@ urlpatterns += [
          name="capital-download"),
 
 
-
+    path('search/', views.search_view, name='search'),
+     path('search_suggestions/', views.search_suggestions, name='search_suggestions'),
     path('signup/', views.signup_traditional, name='signup'),
     path('signup_followup/', views.signupfollowup, name='signup-followup'),
     # re_path(r'^account_activation_sent/$', views.account_activation_sent,
