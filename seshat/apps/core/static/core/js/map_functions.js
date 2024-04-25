@@ -179,7 +179,7 @@ function updateLegend() {
                     // Also add any shapes that are multi-polities e.g. Personal unions
                     var i = 0;
                     shapesData.forEach(function (shape2) {
-                        if (shape2.name.includes(shape.name) && shape2.seshat_id.includes(';')) {
+                        if (shape2.seshat_id.includes(shape.seshat_id) && shape2.seshat_id.includes(';')) {
                             if (!addedPolityNames.includes(shape2.name)) {
                                 addedPolities.push(shape2);
                                 addedPolityNames.push(shape2.name);
