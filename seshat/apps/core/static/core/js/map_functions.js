@@ -167,26 +167,22 @@ function updateLegend() {
         var addedPolities = [];
         var addedPolityNames = [];
         shapesData.forEach(function (shape) {
-            if (shape.weight > 0 && !addedPolityNames.includes(shape.name)) {
+            shape_name_col_dict = {};
+            if (shape.union_name) {
+                shape_name_col_dict['name'] = shape.union_name;
+                shape_name_col_dict['colour'] = shape.union_colour;
+            } else {
+                shape_name_col_dict['name'] = shape.name;
+                shape_name_col_dict['colour'] = shape.colour;
+            };
+            if (shape.weight > 0 && !addedPolityNames.includes(shape_name_col_dict['name'])) {
                 // If the shape spans the selected year
                 var selectedYear = document.getElementById('dateSlide').value;
                 var selectedYearInt = parseInt(selectedYear);
                 if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
                     // Add the polity to the list of added polities
-                    addedPolities.push(shape);
-                    addedPolityNames.push(shape.name);
-
-                    // Also add any shapes that are multi-polities e.g. Personal unions
-                    var i = 0;
-                    shapesData.forEach(function (shape2) {
-                        if (shape2.seshat_id.includes(shape.seshat_id) && shape2.seshat_id.includes(';')) {
-                            if (!addedPolityNames.includes(shape2.name)) {
-                                addedPolities.push(shape2);
-                                addedPolityNames.push(shape2.name);
-                            }
-                        }
-                        i++;
-                    });
+                    addedPolities.push(shape_name_col_dict);
+                    addedPolityNames.push(shape_name_col_dict['name']);
                 };
             };
         });
