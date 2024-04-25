@@ -416,6 +416,17 @@
                     if (variable == 'polity') {  
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
+
+                        // If the polity shape is part of a personal union or meta-polity during the selected year, set the colour based on the union
+                        var i = 0;
+                        shapesData.forEach(function (shape2) {
+                            if (shape2.seshat_id.includes(shape.seshat_id) && shape2.seshat_id.includes(';')) {
+                                if ((parseInt(shape2.start_year) <= selectedYearInt && parseInt(shape2.end_year) >= selectedYearInt)) {
+                                    shapeColour = shape2.colour;
+                                };
+                            };
+                            i++;
+                        });
                     } else if (variable in categorical_variables){
                         shapeWeight = 2;
                         if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
@@ -442,7 +453,7 @@
 
                     // If the shape spans the selected year
                     if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
-                        
+
                         // Format the area float
                         const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
                             minimumFractionDigits: 0,
