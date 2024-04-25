@@ -2530,6 +2530,17 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     for shape in rows:
         simplified_geom = shape.pop('simplified_geom').geojson
         shape['geom'] = simplified_geom
+
+        # If the polity shape is part of a personal union or meta-polity, add colour and polity years for the union
+        if shape['seshat_id']:
+            for shape2 in rows:
+                if shape2['seshat_id']:
+                    if shape['seshat_id'] in shape2['seshat_id'] and ';' in shape2['seshat_id']:
+                        shape['union_colour'] = shape2['colour']
+                        shape['union_start_year'] = shape2['polity_start_year']
+                        shape['union_end_year'] = shape2['polity_end_year']
+                        break  # Exit the loop once the matching shape is found
+
         shapes.append(shape)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
