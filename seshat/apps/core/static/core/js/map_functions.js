@@ -168,12 +168,13 @@ function updateLegend() {
         var addedPolityNames = [];
         shapesData.forEach(function (shape) {
             shape_name_col_dict = {};
+            shape_name_col_dict['name'] = shape.name;
+            shape_name_col_dict['colour'] = shape.colour;
             if (shape.union_name) {
-                shape_name_col_dict['name'] = shape.union_name;
-                shape_name_col_dict['colour'] = shape.union_colour;
-            } else {
-                shape_name_col_dict['name'] = shape.name;
-                shape_name_col_dict['colour'] = shape.colour;
+                if ((parseInt(shape.unionstart_year) <= selectedYearInt && parseInt(shape.union_end_year) >= selectedYearInt)) {
+                    shape_name_col_dict['name'] = shape.union_name;
+                    shape_name_col_dict['colour'] = shape.union_colour;
+                };
             };
             if (shape.weight > 0 && !addedPolityNames.includes(shape_name_col_dict['name'])) {
                 // If the shape spans the selected year
