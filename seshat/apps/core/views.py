@@ -2535,7 +2535,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         if shape['seshat_id']:
             for shape2 in rows:
                 if shape2['seshat_id']:
-                    if shape['seshat_id'] in shape2['seshat_id'] and ';' in shape2['seshat_id']:
+                    if shape['seshat_id'] in shape2['seshat_id'] and ';' in shape2['seshat_id'] and shape['seshat_id'] != shape2['seshat_id']:
                         shape['union_colour'] = shape2['colour']
                         shape['union_name'] = shape2['name']
                         shape['union_start_year'] = shape2['polity_start_year']
