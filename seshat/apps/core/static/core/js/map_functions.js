@@ -159,6 +159,8 @@ function switchBaseMap() {
 function updateLegend() {
     var variable = document.getElementById('chooseVariable').value;
     var legendDiv = document.getElementById('variableLegend');
+    var selectedYear1 = document.getElementById('dateSlide').value;  // Giving it the same name as a var used in the templated JS caused an error
+    var selectedYearInt1 = parseInt(selectedYear1);
 
     // Clear the current legend
     legendDiv.innerHTML = '';
@@ -167,23 +169,24 @@ function updateLegend() {
         var addedPolities = [];
         var addedPolityNames = [];
         shapesData.forEach(function (shape) {
-            shape_name_col_dict = {};
-            shape_name_col_dict['name'] = shape.name;
-            shape_name_col_dict['colour'] = shape.colour;
+            // If the polity shape is part of a personal union or meta-polity active in the selected year, don't add it to the legend
+            var ignore = false;
             if (shape.union_name) {
-                if ((parseInt(shape.unionstart_year) <= selectedYearInt && parseInt(shape.union_end_year) >= selectedYearInt)) {
-                    shape_name_col_dict['name'] = shape.union_name;
-                    shape_name_col_dict['colour'] = shape.union_colour;
+                if ((parseInt(shape.union_start_year) <= selectedYearInt1 && parseInt(shape.union_end_year) >= selectedYearInt1)) {
+                    ignore = true;
                 };
             };
-            if (shape.weight > 0 && !addedPolityNames.includes(shape_name_col_dict['name'])) {
-                // If the shape spans the selected year
-                var selectedYear = document.getElementById('dateSlide').value;
-                var selectedYearInt = parseInt(selectedYear);
-                if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
-                    // Add the polity to the list of added polities
-                    addedPolities.push(shape_name_col_dict);
-                    addedPolityNames.push(shape_name_col_dict['name']);
+            if (!ignore) {
+                shape_name_col_dict = {};
+                shape_name_col_dict['name'] = shape.name;
+                shape_name_col_dict['colour'] = shape.colour;
+                if (shape.weight > 0 && !addedPolityNames.includes(shape_name_col_dict['name'])) {
+                    // If the shape spans the selected year
+                    if ((parseInt(shape.start_year) <= selectedYearInt1 && parseInt(shape.end_year) >= selectedYearInt1)) {
+                        // Add the polity to the list of added polities
+                        addedPolities.push(shape_name_col_dict);
+                        addedPolityNames.push(shape_name_col_dict['name']);
+                    };
                 };
             };
         });
