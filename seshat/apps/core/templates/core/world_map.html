@@ -353,8 +353,6 @@
 
         function plotPolities() {  // This function is defined differently in the polity_map template
 
-            var runTwice = false;
-
             var variable = document.getElementById('chooseVariable').value;
             var selectedYear = document.getElementById('dateSlide').value;
 
@@ -591,7 +589,7 @@
                                             // Set the weight for shapes with multiple seshat_ids e.g. personal unions
                                             if (shape2.name.includes(shape.name) && shape2.seshat_id.includes(';')) {
                                                 shapesData[i]['weight'] = 2;
-                                                runTwice = true;
+                                                plotPolities();
                                             }
                                             i++;
                                         });
@@ -698,9 +696,6 @@
             localStorage.setItem('variable', variable);
             if (variable in categorical_variables) {
                 localStorage.setItem(variable, document.getElementById('chooseCategoricalVariableSelection').value);
-            };
-            if (runTwice) {
-                plotPolities();
             };
         }
 
