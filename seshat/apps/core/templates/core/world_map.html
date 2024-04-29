@@ -590,11 +590,11 @@
                                                 shapesData[i]['weight'] = newWeight;
                                             }
                                             // Set the weight for shapes with multiple seshat_ids e.g. personal unions
-                                            if (shape2.name.includes(shape.name) && shape2.seshat_id.includes(';') && shape2.seshat_id != shape.seshat_id) {
+                                            if (shape2.seshat_id.includes(shape.seshat_id) && shape2.seshat_id.includes(';') && shape2.seshat_id != shape.seshat_id) {
                                                 shapesData[i]['weight'] = newWeight;
                                                 // Split shape2.seshat_id into an array of seshat_ids
                                                 var seshat_ids = shape2.seshat_id.split(';');
-                                                // Update the weight of the corresponding layer TODO: try moving this below as was done before with runTwice
+                                                // Update the weight of the corresponding layer
                                                 map.eachLayer(function (layer) {
                                                     if (layer.feature && layer.feature.properties && seshat_ids.includes(layer.feature.properties.seshat_id)) {
                                                         layer.setStyle({
