@@ -575,9 +575,13 @@
                                             this.setStyle({
                                                 weight: newWeight
                                             });
+                                            // Open the popup
+                                            layer.openPopup();
                                         } else {
                                             // Decrease the weight of the clicked layer
                                             newWeight = 0;
+                                            // Close the popup
+                                            layer.closePopup();
                                         };
                                         // Update weight in this layer
                                         this.setStyle({
