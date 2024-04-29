@@ -2678,7 +2678,7 @@ def assign_variables_to_shapes(shapes, app_map):
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
                 else:
-                    shape[variable_formatted] = 'seshat page missing'
+                    shape[variable_formatted] = 'no seshat page'
 
     return shapes, variables
 
@@ -2740,11 +2740,11 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                 shape['language'].append('Uncoded')
         else:
             if not shape['linguistic_family']:
-                shape['linguistic_family'].append('Seshat page missing')
+                shape['linguistic_family'].append('No seshat page')
             if not shape['language_genus']:
-                shape['language_genus'].append('Seshat page missing')
+                shape['language_genus'].append('No seshat page')
             if not shape['language']:
-                shape['language'].append('Seshat page missing')  
+                shape['language'].append('No seshat page')  
 
     return shapes, variables
 
