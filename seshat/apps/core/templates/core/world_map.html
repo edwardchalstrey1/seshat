@@ -158,7 +158,7 @@
                 <li>Click shape for polity info.</li>
                 <fieldset id="politySpecificInfo" style="display: block">
                     <li>Click shape to update legend.</li>
-                    <li>Click map to clear legend.</li>
+                    <li>Click again to remove from legend.</li>
                 </fieldset>
                 <li>Double click to reach Seshat page.</li>
                 <li>Change the year or play animation.</li>
@@ -624,24 +624,22 @@
                             geoJSONLayer.bringToBack();
                         }
 
-                        // Listen for the click event on the map
-                        map.on('click', function () {
-                            if(variable == 'polity'){
-                                // Update weights in shapesData
-                                var i = 0;
-                                shapesData.forEach(function (shape2) {
-                                    shapesData[i]['weight'] = 0;
-                                    i++;
-                                });
-                                // Reset the weight of all layers when the map is clicked
-                                geoJSONLayer.eachLayer(function (layer) {
-                                    layer.setStyle({
-                                        weight: shapeWeight
-                                    });
-                                });
-                                updateLegend();
-                            };
-                        });
+                        // Click outside a shape on the map to clear legend
+                        // REMOVED: This is very slow and I don't think it's necessary, leave it in case we want to re-enable it
+                        // map.on('click', function () {
+                        //     if(variable == 'polity'){
+                        //         // Update weights in shapesData
+                        //         shapesData = shapesData.map(shape => ({...shape, weight: 0}));
+
+                        //         // Reset the weight of all layers when the map is clicked
+                        //         geoJSONLayer.eachLayer(function (layer) {
+                        //             layer.setStyle({
+                        //                 weight: 0
+                        //             });
+                        //         });
+                        //         updateLegend();
+                        //     };
+                        // });
 
                         // Open the corresponding Seshat page in a new browser tab when a shape is double-clicked
                         geoJSONLayer.on('dblclick', function (event) {
