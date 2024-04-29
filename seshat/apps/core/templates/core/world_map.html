@@ -600,6 +600,13 @@
                                                         layer.setStyle({
                                                             weight: newWeight
                                                         });
+                                                        j = 0;
+                                                        shapesData.forEach(function (shape3) {
+                                                            if (layer.feature.properties.seshat_id === shape3.seshat_id) {
+                                                                shapesData[j]['weight'] = newWeight;
+                                                            }
+                                                            j++;
+                                                        });
                                                     }
                                                 });
                                             }
