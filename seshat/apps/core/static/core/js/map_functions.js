@@ -159,6 +159,8 @@ function switchBaseMap() {
 function updateLegend() {
     var variable = document.getElementById('chooseVariable').value;
     var legendDiv = document.getElementById('variableLegend');
+    var selectedYear1 = document.getElementById('dateSlide').value;  // Giving it the same name as a var used in the templated JS caused an error
+    var selectedYearInt1 = parseInt(selectedYear1);
 
     // Clear the current legend
     legendDiv.innerHTML = '';
@@ -167,26 +169,24 @@ function updateLegend() {
         var addedPolities = [];
         var addedPolityNames = [];
         shapesData.forEach(function (shape) {
-            if (shape.weight > 0 && !addedPolityNames.includes(shape.name)) {
-                // If the shape spans the selected year
-                var selectedYear = document.getElementById('dateSlide').value;
-                var selectedYearInt = parseInt(selectedYear);
-                if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
-                    // Add the polity to the list of added polities
-                    addedPolities.push(shape);
-                    addedPolityNames.push(shape.name);
-
-                    // Also add any shapes that are multi-polities e.g. Personal unions
-                    var i = 0;
-                    shapesData.forEach(function (shape2) {
-                        if (shape2.name.includes(shape.name) && shape2.seshat_id.includes(';')) {
-                            if (!addedPolityNames.includes(shape2.name)) {
-                                addedPolities.push(shape2);
-                                addedPolityNames.push(shape2.name);
-                            }
-                        }
-                        i++;
-                    });
+            // If the polity shape is part of a personal union or meta-polity active in the selected year, don't add it to the legend
+            var ignore = false;
+            if (shape.union_name) {
+                if ((parseInt(shape.union_start_year) <= selectedYearInt1 && parseInt(shape.union_end_year) >= selectedYearInt1)) {
+                    ignore = true;
+                };
+            };
+            if (!ignore) {
+                shape_name_col_dict = {};
+                shape_name_col_dict['name'] = shape.name;
+                shape_name_col_dict['colour'] = shape.colour;
+                if (shape.weight > 0 && !addedPolityNames.includes(shape_name_col_dict['name'])) {
+                    // If the shape spans the selected year
+                    if ((parseInt(shape.start_year) <= selectedYearInt1 && parseInt(shape.end_year) >= selectedYearInt1)) {
+                        // Add the polity to the list of added polities
+                        addedPolities.push(shape_name_col_dict);
+                        addedPolityNames.push(shape_name_col_dict['name']);
+                    };
                 };
             };
         });

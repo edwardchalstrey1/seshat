@@ -2530,6 +2530,18 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     for shape in rows:
         simplified_geom = shape.pop('simplified_geom').geojson
         shape['geom'] = simplified_geom
+
+        # If the polity shape is part of a personal union or meta-polity, add colour and polity years for the union
+        if shape['seshat_id']:
+            for shape2 in rows:
+                if shape2['seshat_id']:
+                    if shape['seshat_id'] in shape2['seshat_id'] and ';' in shape2['seshat_id'] and shape['seshat_id'] != shape2['seshat_id']:
+                        shape['union_colour'] = shape2['colour']
+                        shape['union_name'] = shape2['name']
+                        shape['union_start_year'] = shape2['polity_start_year']
+                        shape['union_end_year'] = shape2['polity_end_year']
+                        break  # Exit the loop once the matching shape is found
+
         shapes.append(shape)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
@@ -2666,7 +2678,7 @@ def assign_variables_to_shapes(shapes, app_map):
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
                 else:
-                    shape[variable_formatted] = 'seshat page missing'
+                    shape[variable_formatted] = 'no seshat page'
 
     return shapes, variables
 
@@ -2728,11 +2740,11 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                 shape['language'].append('Uncoded')
         else:
             if not shape['linguistic_family']:
-                shape['linguistic_family'].append('Seshat page missing')
+                shape['linguistic_family'].append('No Seshat page')
             if not shape['language_genus']:
-                shape['language_genus'].append('Seshat page missing')
+                shape['language_genus'].append('No Seshat page')
             if not shape['language']:
-                shape['language'].append('Seshat page missing')  
+                shape['language'].append('No Seshat page')  
 
     return shapes, variables
 

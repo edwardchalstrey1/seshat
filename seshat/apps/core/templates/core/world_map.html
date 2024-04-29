@@ -158,7 +158,7 @@
                 <li>Click shape for polity info.</li>
                 <fieldset id="politySpecificInfo" style="display: block">
                     <li>Click shape to update legend.</li>
-                    <li>Click map to clear legend.</li>
+                    <li>Click again to remove from legend.</li>
                 </fieldset>
                 <li>Double click to reach Seshat page.</li>
                 <li>Change the year or play animation.</li>
@@ -327,7 +327,7 @@
             'A~P': 'blue',
             'unknown': 'yellow',
             'uncoded': '#ffa2a1',
-            'seshat page missing': 'grey'
+            'no seshat page': 'grey'
         };
 
         let oneLanguageColourMapping = {
@@ -336,7 +336,7 @@
             'Absent': 'red',
             'Unknown': 'yellow',
             'Uncoded': '#ffa2a1',
-            'Seshat page missing': 'grey'
+            'No Seshat page': 'grey'
         };
 
         function switchBaseMapWorldMap() {
@@ -352,8 +352,6 @@
         }
 
         function plotPolities() {  // This function is defined differently in the polity_map template
-
-            var runTwice = false;
 
             var variable = document.getElementById('chooseVariable').value;
             var selectedYear = document.getElementById('dateSlide').value;
@@ -416,6 +414,13 @@
                     if (variable == 'polity') {  
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
+
+                        // If the polity shape is part of a personal union or meta-polity during the selected year, set the colour based on the union
+                        if (shape.union_colour) {
+                            if ((parseInt(shape.union_start_year) <= selectedYearInt && parseInt(shape.union_end_year) >= selectedYearInt)) {
+                                shapeColour = shape.union_colour;
+                            };
+                        };
                     } else if (variable in categorical_variables){
                         shapeWeight = 2;
                         if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
@@ -429,8 +434,8 @@
                                 shapeColour = oneLanguageColourMapping['Unknown'];
                             } else if (shape[variable][0] == 'Uncoded') {
                                 shapeColour = oneLanguageColourMapping['Uncoded'];
-                            } else if (shape[variable][0] == 'Seshat page missing') {
-                                shapeColour = oneLanguageColourMapping['Seshat page missing'];
+                            } else if (shape[variable][0] == 'No Seshat page') {
+                                shapeColour = oneLanguageColourMapping['No Seshat page'];
                             } else {
                                 shapeColour = oneLanguageColourMapping['Absent'];
                             }
@@ -442,7 +447,7 @@
 
                     // If the shape spans the selected year
                     if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
-                        
+
                         // Format the area float
                         const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
                             minimumFractionDigits: 0,
@@ -485,6 +490,9 @@
                                 return style;
                             },
                             onEachFeature: function (feature, layer) {
+                                // Add seshat_id to the layer and add a blank string if it doesn't exist
+                                layer.feature.properties.seshat_id = shape.seshat_id || '';
+
                                 var popupContent = `
                                     <table>
                                         <tr>
@@ -533,7 +541,7 @@
                                             <td><span style="text-transform: capitalize;">${shape.language_genus.join(', ')}</span></td>
                                         </tr>
                                         <tr>
-                                            <td>Language Family</td>
+                                            <td>Linguistic Family</td>
                                             <td><span style="text-transform: capitalize;">${shape.linguistic_family.join(', ')}</span></td>
                                         </tr>
                                     `;
@@ -567,9 +575,13 @@
                                             this.setStyle({
                                                 weight: newWeight
                                             });
+                                            // Open the popup
+                                            layer.openPopup();
                                         } else {
                                             // Decrease the weight of the clicked layer
                                             newWeight = 0;
+                                            // Close the popup
+                                            layer.closePopup();
                                         };
                                         // Update weight in this layer
                                         this.setStyle({
@@ -582,9 +594,25 @@
                                                 shapesData[i]['weight'] = newWeight;
                                             }
                                             // Set the weight for shapes with multiple seshat_ids e.g. personal unions
-                                            if (shape2.name.includes(shape.name) && shape2.seshat_id.includes(';')) {
-                                                shapesData[i]['weight'] = 6;
-                                                runTwice = true;
+                                            if (shape2.seshat_id.includes(shape.seshat_id) && shape2.seshat_id.includes(';') && shape2.seshat_id != shape.seshat_id) {
+                                                shapesData[i]['weight'] = newWeight;
+                                                // Split shape2.seshat_id into an array of seshat_ids
+                                                var seshat_ids = shape2.seshat_id.split(';');
+                                                // Update the weight of the corresponding layer
+                                                map.eachLayer(function (layer) {
+                                                    if (layer.feature && layer.feature.properties && seshat_ids.includes(layer.feature.properties.seshat_id)) {
+                                                        layer.setStyle({
+                                                            weight: newWeight
+                                                        });
+                                                        j = 0;
+                                                        shapesData.forEach(function (shape3) {
+                                                            if (layer.feature.properties.seshat_id === shape3.seshat_id) {
+                                                                shapesData[j]['weight'] = newWeight;
+                                                            }
+                                                            j++;
+                                                        });
+                                                    }
+                                                });
                                             }
                                             i++;
                                         });
@@ -600,24 +628,22 @@
                             geoJSONLayer.bringToBack();
                         }
 
-                        // Listen for the click event on the map
-                        map.on('click', function () {
-                            if(variable == 'polity'){
-                                // Update weights in shapesData
-                                var i = 0;
-                                shapesData.forEach(function (shape2) {
-                                    shapesData[i]['weight'] = 0;
-                                    i++;
-                                });
-                                // Reset the weight of all layers when the map is clicked
-                                geoJSONLayer.eachLayer(function (layer) {
-                                    layer.setStyle({
-                                        weight: shapeWeight
-                                    });
-                                });
-                                updateLegend();
-                            };
-                        });
+                        // Click outside a shape on the map to clear legend
+                        // REMOVED: This is very slow and I don't think it's necessary, leave it in case we want to re-enable it
+                        // map.on('click', function () {
+                        //     if(variable == 'polity'){
+                        //         // Update weights in shapesData
+                        //         shapesData = shapesData.map(shape => ({...shape, weight: 0}));
+
+                        //         // Reset the weight of all layers when the map is clicked
+                        //         geoJSONLayer.eachLayer(function (layer) {
+                        //             layer.setStyle({
+                        //                 weight: 0
+                        //             });
+                        //         });
+                        //         updateLegend();
+                        //     };
+                        // });
 
                         // Open the corresponding Seshat page in a new browser tab when a shape is double-clicked
                         geoJSONLayer.on('dblclick', function (event) {
@@ -691,9 +717,6 @@
             localStorage.setItem('variable', variable);
             if (variable in categorical_variables) {
                 localStorage.setItem(variable, document.getElementById('chooseCategoricalVariableSelection').value);
-            };
-            if (runTwice) {
-                plotPolities();
             };
         }
 
