@@ -2740,11 +2740,11 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                 shape['language'].append('Uncoded')
         else:
             if not shape['linguistic_family']:
-                shape['linguistic_family'].append('No seshat page')
+                shape['linguistic_family'].append('No Seshat page')
             if not shape['language_genus']:
-                shape['language_genus'].append('No seshat page')
+                shape['language_genus'].append('No Seshat page')
             if not shape['language']:
-                shape['language'].append('No seshat page')  
+                shape['language'].append('No Seshat page')  
 
     return shapes, variables
 
