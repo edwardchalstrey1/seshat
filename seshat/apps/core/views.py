@@ -2524,10 +2524,12 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     else:
         rows = VideoShapefile.objects.all()
 
-    rows = rows.values('seshat_id', 'name', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom')
+    rows = rows.values('seshat_id', 'name', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom', 'geom')
 
     shapes = []
     for shape in rows:
+        if shape['simplified_geom'] == None:  # This may occur if the shape is so small that simplification reduced it to nothing
+            shape['simplified_geom'] = shape['geom']  # Use the original geometry in this case
         simplified_geom = shape.pop('simplified_geom').geojson
         shape['geom'] = simplified_geom
 
