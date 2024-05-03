@@ -58,14 +58,14 @@ class Command(BaseCommand):
                 for feature in geojson_data['features']:
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
-                        polity_id = properties['Name'].replace(' ', '_').replace('(', '').replace(')', '')  # Remove spaces and brackets from name
-                        polity_colour_key = polity_id
+                        polity_name = properties['Name'].replace('(', '').replace(')', '')  # Remove spaces and brackets from name
+                        polity_colour_key = polity_name
                         try:
                             if properties['Components']:
                                 # If a shape has components we'll load the components instead
                                 # Unless the components have their own components, then load the top level component
                                 if len(properties['Components']) > 0 and '(' not in properties['Components']:
-                                    polity_id = None
+                                    polity_name = None
                         except KeyError:
                             pass
 
@@ -78,19 +78,19 @@ class Command(BaseCommand):
                             pass
 
                         # Save the years so we can determine the end year
-                        if polity_id:
-                            if polity_id not in polity_years:
-                                polity_years[polity_id] = []
-                            polity_years[polity_id].append(properties['Year'])
-                            if polity_id not in polity_shapes:
-                                polity_shapes[polity_id] = {}
-                                polity_shapes[polity_id]['features'] = []
-                                polity_shapes[polity_id]['colour_key'] = polity_colour_key
-                            polity_shapes[polity_id]['features'].append(feature)
+                        if polity_name:
+                            if polity_name not in polity_years:
+                                polity_years[polity_name] = []
+                            polity_years[polity_name].append(properties['Year'])
+                            if polity_name not in polity_shapes:
+                                polity_shapes[polity_name] = {}
+                                polity_shapes[polity_name]['features'] = []
+                                polity_shapes[polity_name]['colour_key'] = polity_colour_key
+                            polity_shapes[polity_name]['features'].append(feature)
 
                             all_polities.add(polity_colour_key)
 
-                            self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_id} ({properties["Year"]})'))
+                            self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_name} ({properties["Year"]})'))
 
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
@@ -99,15 +99,15 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
 
         # Iterate through polity_shapes and create VideoShapefile instances
-        for polity_id, all_shapes_features in polity_shapes.items():
+        for polity_name, all_shapes_features in polity_shapes.items():
             features = all_shapes_features['features']
             polity_colour_key = all_shapes_features['colour_key']
             for feature in features:
                 properties = feature['properties']
-                self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_id} ({properties["Year"]})'))
+                self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_name} ({properties["Year"]})'))
                 
                 # Get a sorted list of the shape years this polity
-                this_polity_years = sorted(polity_years[polity_id])
+                this_polity_years = sorted(polity_years[polity_name])
 
                 # Get the polity start and end years
                 polity_start_year = this_polity_years[0]
@@ -135,8 +135,8 @@ class Command(BaseCommand):
 
                 VideoShapefile.objects.create(
                     geom=geom,
-                    name=properties['Name'].replace('(', '').replace(')', ''),  # Remove brackets from name
-                    polity=polity_id,
+                    name=polity_name,
+                    polity=polity_colour_key,
                     wikipedia_name=properties['Wikipedia'],
                     seshat_id=properties['SeshatID'],
                     area=properties['Area_km2'],
@@ -149,7 +149,7 @@ class Command(BaseCommand):
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
 
-            self.stdout.write(self.style.SUCCESS(f'Successfully imported all shapes for {polity_id}'))
+            self.stdout.write(self.style.SUCCESS(f'Successfully imported all shapes for {polity_name}'))
 
         self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
 
