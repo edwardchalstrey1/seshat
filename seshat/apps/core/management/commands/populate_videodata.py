@@ -75,13 +75,6 @@ class Command(BaseCommand):
                                     # If a shape is a component, get the parent polity to use as the polity_colour_key
                                     if len(properties['Member_of']) > 0:
                                         polity_colour_key = properties['Member_of'].replace('(', '').replace(')', '')
-                                        # If the polity has a seshat ID, add it to the polity_colour_key
-                                        try:
-                                            if properties['SeshatID']:
-                                                if len(properties['SeshatID']) > 0:
-                                                    polity_colour_key += f' ({properties["SeshatID"]})'
-                                        except KeyError:
-                                            pass
                             except KeyError:
                                 pass
 
