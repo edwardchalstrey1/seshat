@@ -108,9 +108,9 @@ class Command(BaseCommand):
         # Iterate through polity_shapes and create VideoShapefile instances
         for polity_colour_key, all_shapes_features in polity_shapes.items():
             features = all_shapes_features['features']
-            polity_name = all_shapes_features['name']
             for feature in features:
                 properties = feature['properties']
+                polity_name = properties["Name"].replace('(', '').replace(')', '')
                 self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_name} ({properties["Year"]})'))
                 
                 # Get a sorted list of the shape years this polity
@@ -154,7 +154,7 @@ class Command(BaseCommand):
                     colour=pol_col_map[polity_colour_key]
                 )
 
-                self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
+                self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {polity_name} ({properties["Year"]})'))
 
             self.stdout.write(self.style.SUCCESS(f'Successfully imported all shapes for {polity_name}'))
 
