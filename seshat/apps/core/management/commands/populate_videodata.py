@@ -78,9 +78,9 @@ class Command(BaseCommand):
                             pass
 
                         if polity_name:
-                            if polity_colour_key not in polity_years:
-                                polity_years[polity_colour_key] = []
-                            polity_years[polity_colour_key].append(properties['Year'])
+                            if polity_name not in polity_years:
+                                polity_years[polity_name] = []
+                            polity_years[polity_name].append(properties['Year'])
                             if polity_colour_key not in polity_shapes:
                                 polity_shapes[polity_colour_key] = []
                             polity_shapes[polity_colour_key].append(feature)
@@ -103,7 +103,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_name} ({properties["Year"]})'))
                 
                 # Get a sorted list of the shape years this polity
-                this_polity_years = sorted(polity_years[polity_colour_key])
+                this_polity_years = sorted(polity_years[polity_name])
 
                 # Get the polity start and end years
                 polity_start_year = this_polity_years[0]
