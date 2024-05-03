@@ -85,7 +85,7 @@ class Command(BaseCommand):
                             if polity_id not in polity_shapes:
                                 polity_shapes[polity_id] = {}
                                 polity_shapes[polity_id]['features'] = []
-                                polity_shapes[polity_id]['name'] = polity_colour_key
+                                polity_shapes[polity_id]['colour_key'] = polity_colour_key
                             polity_shapes[polity_id]['features'].append(feature)
 
                             all_polities.add(polity_colour_key)
@@ -101,7 +101,7 @@ class Command(BaseCommand):
         # Iterate through polity_shapes and create VideoShapefile instances
         for polity_id, all_shapes_features in polity_shapes.items():
             features = all_shapes_features['features']
-            polity_colour_key = all_shapes_features['name']
+            polity_colour_key = all_shapes_features['colour_key']
             for feature in features:
                 properties = feature['properties']
                 self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_id} ({properties["Year"]})'))
