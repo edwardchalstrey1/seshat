@@ -58,19 +58,13 @@ class Command(BaseCommand):
                 for feature in geojson_data['features']:
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
+                        polity_id = properties['Name'].replace(' ', '_')
                         try:
-                            polity_id = properties['PolID']  # Older versions of Cliopatria have a PolID field
+                            if properties['Components']:
+                                if len(properties['Components']) > 0:  # If a shape has components we'll load the components instead
+                                    polity_id = None
                         except KeyError:
-                            polity_id = properties['Name'].replace(' ', '_')  # Newer versions of Cliopatria don't have a PolID field
-                            try:
-                                if properties['Components']:  # Cliopatria from 04172024 (US date format) have Components and Member_of fields
-                                    if len(properties['Components']) > 0:  # If a shape has components the name will be enclosed in brackets
-                                        polity_id = properties['Name'].replace('(', '').replace(')', '').replace(' ', '_')
-                                if properties['Member_of']:
-                                    if len(properties['Member_of']) > 0:  # Ignore polity shapes that are contained in another polity
-                                        polity_id = None
-                            except KeyError:
-                                pass
+                            pass
 
                         # Save the years so we can determine the end year
                         if polity_id:
