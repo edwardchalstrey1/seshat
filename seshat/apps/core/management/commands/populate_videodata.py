@@ -58,26 +58,38 @@ class Command(BaseCommand):
                 for feature in geojson_data['features']:
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
-                        polity_id = properties['Name'].replace(' ', '_')
+                        polity_id = properties['Name'].replace(' ', '_').replace('(', '').replace(')', '')  # Remove spaces and brackets from name
+                        polity_name = polity_id
                         try:
                             if properties['Components']:
-                                if len(properties['Components']) > 0:  # If a shape has components we'll load the components instead
+                                # If a shape has components we'll load the components instead
+                                # Unless the components have their own components, then load the top level component
+                                if len(properties['Components']) > 0 and '(' not in properties['Components']:
                                     polity_id = None
                         except KeyError:
                             pass
 
+                        try:
+                            if properties['Member_of']:
+                                # If a shape is a component, get the parent polity to use as the polity_name
+                                if len(properties['Member_of']) > 0:
+                                    polity_name = properties['Member_of'].replace('(', '').replace(')', '')
+                        except KeyError:
+                            pass
+
                         # Save the years so we can determine the end year
-                        if polity_id:
-                            if polity_id not in polity_years:
-                                polity_years[polity_id] = []
-                            polity_years[polity_id].append(properties['Year'])
-                            if polity_id not in polity_shapes:
-                                polity_shapes[polity_id] = []
-                            polity_shapes[polity_id].append(feature)
+                        if polity_id not in polity_years:
+                            polity_years[polity_id] = []
+                        polity_years[polity_id].append(properties['Year'])
+                        if polity_id not in polity_shapes:
+                            polity_shapes[polity_id] = {}
+                            polity_shapes[polity_id]['features'] = []
+                            polity_shapes[polity_id]['name'] = polity_name
+                        polity_shapes[polity_id]['features'].append(feature)
 
-                            all_polities.add(polity_id)
+                        all_polities.add(polity_name)
 
-                            self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_id} ({properties["Year"]})'))
+                        self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_id} ({properties["Year"]})'))
 
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
@@ -87,7 +99,9 @@ class Command(BaseCommand):
 
         # Iterate through polity_shapes and create VideoShapefile instances
         for polity_id, all_shapes_features in polity_shapes.items():
-            for feature in all_shapes_features:
+            features = all_shapes_features['features']
+            polity_name = all_shapes_features['name']
+            for feature in features:
                 properties = feature['properties']
                 self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_id} ({properties["Year"]})'))
                 
@@ -129,7 +143,7 @@ class Command(BaseCommand):
                     end_year=end_year,
                     polity_start_year=polity_start_year,
                     polity_end_year=polity_end_year,
-                    colour=pol_col_map[polity_id]
+                    colour=pol_col_map[polity_name]
                 )
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
