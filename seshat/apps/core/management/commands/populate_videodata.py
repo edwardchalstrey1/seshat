@@ -58,39 +58,46 @@ class Command(BaseCommand):
                 for feature in geojson_data['features']:
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
-                        polity_name = properties['Name'].replace('(', '').replace(')', '')  # Remove spaces and brackets from name
-                        polity_colour_key = polity_name
-                        try:
-                            if properties['Components']:
-                                # If a shape has components we'll load the components instead
-                                # Unless the components have their own components, then load the top level component
-                                if len(properties['Components']) > 0 and '(' not in properties['Components']:
-                                    polity_name = None
-                        except KeyError:
-                            pass
+                        if 'Habsburg' in properties['Name']:
+                            polity_name = properties['Name'].replace('(', '').replace(')', '')  # Remove spaces and brackets from name
+                            polity_colour_key = polity_name
+                            try:
+                                if properties['Components']:
+                                    # If a shape has components we'll load the components instead
+                                    # Unless the components have their own components, then load the top level component
+                                    if len(properties['Components']) > 0 and '(' not in properties['Components']:
+                                        polity_name = None
+                            except KeyError:
+                                pass
 
-                        try:
-                            if properties['Member_of']:
-                                # If a shape is a component, get the parent polity to use as the polity_colour_key
-                                if len(properties['Member_of']) > 0:
-                                    polity_colour_key = polity_colour_key + ' - ' + properties['Member_of'].replace('(', '').replace(')', '')
-                        except KeyError:
-                            pass
+                            try:
+                                if properties['Member_of']:
+                                    # If a shape is a component, get the parent polity to use as the polity_colour_key
+                                    if len(properties['Member_of']) > 0:
+                                        polity_colour_key = properties['Member_of'].replace('(', '').replace(')', '')
+                                        # If the polity has a seshat ID, add it to the polity_colour_key
+                                        try:
+                                            if properties['SeshatID']:
+                                                if len(properties['SeshatID']) > 0:
+                                                    polity_colour_key += f' ({properties["SeshatID"]})'
+                                        except KeyError:
+                                            pass
+                            except KeyError:
+                                pass
 
-                        # Save the years so we can determine the end year
-                        if polity_name:
-                            if polity_name not in polity_years:
-                                polity_years[polity_name] = []
-                            polity_years[polity_name].append(properties['Year'])
-                            if polity_name not in polity_shapes:
-                                polity_shapes[polity_name] = {}
-                                polity_shapes[polity_name]['features'] = []
-                                polity_shapes[polity_name]['colour_key'] = polity_colour_key
-                            polity_shapes[polity_name]['features'].append(feature)
+                            if polity_name:
+                                if polity_colour_key not in polity_years:
+                                    polity_years[polity_colour_key] = []
+                                polity_years[polity_colour_key].append(properties['Year'])
+                                if polity_colour_key not in polity_shapes:
+                                    polity_shapes[polity_colour_key] = {}
+                                    polity_shapes[polity_colour_key]['features'] = []
+                                    polity_shapes[polity_colour_key]['name'] = polity_name
+                                polity_shapes[polity_colour_key]['features'].append(feature)
 
-                            all_polities.add(polity_colour_key)
+                                all_polities.add(polity_colour_key)
 
-                            self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_name} ({properties["Year"]})'))
+                                self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_name} ({properties["Year"]})'))
 
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
@@ -99,15 +106,15 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
 
         # Iterate through polity_shapes and create VideoShapefile instances
-        for polity_name, all_shapes_features in polity_shapes.items():
+        for polity_colour_key, all_shapes_features in polity_shapes.items():
             features = all_shapes_features['features']
-            polity_colour_key = all_shapes_features['colour_key']
+            polity_name = all_shapes_features['name']
             for feature in features:
                 properties = feature['properties']
                 self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_name} ({properties["Year"]})'))
                 
                 # Get a sorted list of the shape years this polity
-                this_polity_years = sorted(polity_years[polity_name])
+                this_polity_years = sorted(polity_years[polity_colour_key])
 
                 # Get the polity start and end years
                 polity_start_year = this_polity_years[0]
