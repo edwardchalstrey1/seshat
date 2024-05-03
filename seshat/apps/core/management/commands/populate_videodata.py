@@ -73,7 +73,7 @@ class Command(BaseCommand):
                             if properties['Member_of']:
                                 # If a shape is a component, get the parent polity to use as the polity_colour_key
                                 if len(properties['Member_of']) > 0:
-                                    polity_colour_key = properties['Member_of'].replace('(', '').replace(')', '')
+                                    polity_colour_key = polity_colour_key + ' - ' + properties['Member_of'].replace('(', '').replace(')', '')
                         except KeyError:
                             pass
 
