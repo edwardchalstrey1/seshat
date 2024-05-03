@@ -59,7 +59,7 @@ class Command(BaseCommand):
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
                         polity_id = properties['Name'].replace(' ', '_').replace('(', '').replace(')', '')  # Remove spaces and brackets from name
-                        polity_name = polity_id
+                        polity_colour_key = polity_id
                         try:
                             if properties['Components']:
                                 # If a shape has components we'll load the components instead
@@ -71,9 +71,9 @@ class Command(BaseCommand):
 
                         try:
                             if properties['Member_of']:
-                                # If a shape is a component, get the parent polity to use as the polity_name
+                                # If a shape is a component, get the parent polity to use as the polity_colour_key
                                 if len(properties['Member_of']) > 0:
-                                    polity_name = properties['Member_of'].replace('(', '').replace(')', '')
+                                    polity_colour_key = properties['Member_of'].replace('(', '').replace(')', '')
                         except KeyError:
                             pass
 
@@ -85,10 +85,10 @@ class Command(BaseCommand):
                             if polity_id not in polity_shapes:
                                 polity_shapes[polity_id] = {}
                                 polity_shapes[polity_id]['features'] = []
-                                polity_shapes[polity_id]['name'] = polity_name
+                                polity_shapes[polity_id]['name'] = polity_colour_key
                             polity_shapes[polity_id]['features'].append(feature)
 
-                            all_polities.add(polity_name)
+                            all_polities.add(polity_colour_key)
 
                             self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_id} ({properties["Year"]})'))
 
@@ -101,7 +101,7 @@ class Command(BaseCommand):
         # Iterate through polity_shapes and create VideoShapefile instances
         for polity_id, all_shapes_features in polity_shapes.items():
             features = all_shapes_features['features']
-            polity_name = all_shapes_features['name']
+            polity_colour_key = all_shapes_features['name']
             for feature in features:
                 properties = feature['properties']
                 self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_id} ({properties["Year"]})'))
@@ -144,7 +144,7 @@ class Command(BaseCommand):
                     end_year=end_year,
                     polity_start_year=polity_start_year,
                     polity_end_year=polity_end_year,
-                    colour=pol_col_map[polity_name]
+                    colour=pol_col_map[polity_colour_key]
                 )
 
                 self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
