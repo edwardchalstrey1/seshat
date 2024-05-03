@@ -58,37 +58,36 @@ class Command(BaseCommand):
                 for feature in geojson_data['features']:
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
-                        if 'Habsburg' in properties['Name']:
-                            polity_name = properties['Name'].replace('(', '').replace(')', '')  # Remove spaces and brackets from name
-                            polity_colour_key = polity_name
-                            try:
-                                if properties['Components']:
-                                    # If a shape has components we'll load the components instead
-                                    # Unless the components have their own components, then load the top level component
-                                    if len(properties['Components']) > 0 and '(' not in properties['Components']:
-                                        polity_name = None
-                            except KeyError:
-                                pass
+                        polity_name = properties['Name'].replace('(', '').replace(')', '')  # Remove spaces and brackets from name
+                        polity_colour_key = polity_name
+                        try:
+                            if properties['Components']:
+                                # If a shape has components we'll load the components instead
+                                # Unless the components have their own components, then load the top level component
+                                if len(properties['Components']) > 0 and '(' not in properties['Components']:
+                                    polity_name = None
+                        except KeyError:
+                            pass
 
-                            try:
-                                if properties['Member_of']:
-                                    # If a shape is a component, get the parent polity to use as the polity_colour_key
-                                    if len(properties['Member_of']) > 0:
-                                        polity_colour_key = properties['Member_of'].replace('(', '').replace(')', '')
-                            except KeyError:
-                                pass
+                        try:
+                            if properties['Member_of']:
+                                # If a shape is a component, get the parent polity to use as the polity_colour_key
+                                if len(properties['Member_of']) > 0:
+                                    polity_colour_key = properties['Member_of'].replace('(', '').replace(')', '')
+                        except KeyError:
+                            pass
 
-                            if polity_name:
-                                if polity_colour_key not in polity_years:
-                                    polity_years[polity_colour_key] = []
-                                polity_years[polity_colour_key].append(properties['Year'])
-                                if polity_colour_key not in polity_shapes:
-                                    polity_shapes[polity_colour_key] = []
-                                polity_shapes[polity_colour_key].append(feature)
+                        if polity_name:
+                            if polity_colour_key not in polity_years:
+                                polity_years[polity_colour_key] = []
+                            polity_years[polity_colour_key].append(properties['Year'])
+                            if polity_colour_key not in polity_shapes:
+                                polity_shapes[polity_colour_key] = []
+                            polity_shapes[polity_colour_key].append(feature)
 
-                                all_polities.add(polity_colour_key)
+                            all_polities.add(polity_colour_key)
 
-                                self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_name} ({properties["Year"]})'))
+                            self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_name} ({properties["Year"]})'))
 
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
