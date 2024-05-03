@@ -78,18 +78,19 @@ class Command(BaseCommand):
                             pass
 
                         # Save the years so we can determine the end year
-                        if polity_id not in polity_years:
-                            polity_years[polity_id] = []
-                        polity_years[polity_id].append(properties['Year'])
-                        if polity_id not in polity_shapes:
-                            polity_shapes[polity_id] = {}
-                            polity_shapes[polity_id]['features'] = []
-                            polity_shapes[polity_id]['name'] = polity_name
-                        polity_shapes[polity_id]['features'].append(feature)
+                        if polity_id:
+                            if polity_id not in polity_years:
+                                polity_years[polity_id] = []
+                            polity_years[polity_id].append(properties['Year'])
+                            if polity_id not in polity_shapes:
+                                polity_shapes[polity_id] = {}
+                                polity_shapes[polity_id]['features'] = []
+                                polity_shapes[polity_id]['name'] = polity_name
+                            polity_shapes[polity_id]['features'].append(feature)
 
-                        all_polities.add(polity_name)
+                            all_polities.add(polity_name)
 
-                        self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_id} ({properties["Year"]})'))
+                            self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_id} ({properties["Year"]})'))
 
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
