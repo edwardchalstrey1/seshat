@@ -90,10 +90,8 @@ class Command(BaseCommand):
                                     polity_years[polity_colour_key] = []
                                 polity_years[polity_colour_key].append(properties['Year'])
                                 if polity_colour_key not in polity_shapes:
-                                    polity_shapes[polity_colour_key] = {}
-                                    polity_shapes[polity_colour_key]['features'] = []
-                                    polity_shapes[polity_colour_key]['name'] = polity_name
-                                polity_shapes[polity_colour_key]['features'].append(feature)
+                                    polity_shapes[polity_colour_key] = []
+                                polity_shapes[polity_colour_key].append(feature)
 
                                 all_polities.add(polity_colour_key)
 
@@ -106,8 +104,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
 
         # Iterate through polity_shapes and create VideoShapefile instances
-        for polity_colour_key, all_shapes_features in polity_shapes.items():
-            features = all_shapes_features['features']
+        for polity_colour_key, features in polity_shapes.items():
             for feature in features:
                 properties = feature['properties']
                 polity_name = properties["Name"].replace('(', '').replace(')', '')
