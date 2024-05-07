@@ -61,14 +61,15 @@ class Command(BaseCommand):
                         polity_name = properties['Name'].replace('(', '').replace(')', '')  # Remove spaces and brackets from name
                         polity_colour_key = polity_name
                         try:
+                            # If a shape has components we'll load the components instead
+                            # ... unless the components have their own components, then load the top level shape
+                            # ... or the shape is a personal union, then load the personal union shape
                             if properties['Components']:
-                                # If a shape has components we'll load the components instead
-                                # Unless the components have their own components, then load the top level component
-                                if len(properties['Components']) > 0 and '(' not in properties['Components']:
-                                    polity_name = None
+                                if ';' not in properties['SeshatID']:
+                                    if len(properties['Components']) > 0 and '(' not in properties['Components']:
+                                        polity_name = None
                         except KeyError:
                             pass
-
                         try:
                             if properties['Member_of']:
                                 # If a shape is a component, get the parent polity to use as the polity_colour_key
@@ -76,7 +77,6 @@ class Command(BaseCommand):
                                     polity_colour_key = properties['Member_of'].replace('(', '').replace(')', '')
                         except KeyError:
                             pass
-
                         if polity_name:
                             if polity_name not in polity_years:
                                 polity_years[polity_name] = []
