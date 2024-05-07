@@ -58,32 +58,36 @@ class Command(BaseCommand):
                 for feature in geojson_data['features']:
                     properties = feature['properties']
                     if properties['Type'] == 'POLITY':
+                        polity_name = properties['Name'].replace('(', '').replace(')', '')  # Remove spaces and brackets from name
+                        polity_colour_key = polity_name
                         try:
-                            polity_id = properties['PolID']  # Older versions of Cliopatria have a PolID field
+                            if properties['Components']:
+                                # If a shape has components we'll load the components instead
+                                # Unless the components have their own components, then load the top level component
+                                if len(properties['Components']) > 0 and '(' not in properties['Components']:
+                                    polity_name = None
                         except KeyError:
-                            polity_id = properties['Name'].replace(' ', '_')  # Newer versions of Cliopatria don't have a PolID field
-                            try:
-                                if properties['Components']:  # Cliopatria from 04172024 (US date format) have Components and Member_of fields
-                                    if len(properties['Components']) > 0:  # If a shape has components the name will be enclosed in brackets
-                                        polity_id = properties['Name'].replace('(', '').replace(')', '').replace(' ', '_')
-                                if properties['Member_of']:
-                                    if len(properties['Member_of']) > 0:  # Ignore polity shapes that are contained in another polity
-                                        polity_id = None
-                            except KeyError:
-                                pass
+                            pass
 
-                        # Save the years so we can determine the end year
-                        if polity_id:
-                            if polity_id not in polity_years:
-                                polity_years[polity_id] = []
-                            polity_years[polity_id].append(properties['Year'])
-                            if polity_id not in polity_shapes:
-                                polity_shapes[polity_id] = []
-                            polity_shapes[polity_id].append(feature)
+                        try:
+                            if properties['Member_of']:
+                                # If a shape is a component, get the parent polity to use as the polity_colour_key
+                                if len(properties['Member_of']) > 0:
+                                    polity_colour_key = properties['Member_of'].replace('(', '').replace(')', '')
+                        except KeyError:
+                            pass
 
-                            all_polities.add(polity_id)
+                        if polity_name:
+                            if polity_name not in polity_years:
+                                polity_years[polity_name] = []
+                            polity_years[polity_name].append(properties['Year'])
+                            if polity_colour_key not in polity_shapes:
+                                polity_shapes[polity_colour_key] = []
+                            polity_shapes[polity_colour_key].append(feature)
 
-                            self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_id} ({properties["Year"]})'))
+                            all_polities.add(polity_colour_key)
+
+                            self.stdout.write(self.style.SUCCESS(f'Found shape for {polity_name} ({properties["Year"]})'))
 
         # Sort the polities and generate a colour mapping
         unique_polities = sorted(all_polities)
@@ -92,13 +96,14 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Colour mapping generated'))
 
         # Iterate through polity_shapes and create VideoShapefile instances
-        for polity_id, all_shapes_features in polity_shapes.items():
-            for feature in all_shapes_features:
+        for polity_colour_key, features in polity_shapes.items():
+            for feature in features:
                 properties = feature['properties']
-                self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_id} ({properties["Year"]})'))
+                polity_name = properties["Name"].replace('(', '').replace(')', '')
+                self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_name} ({properties["Year"]})'))
                 
                 # Get a sorted list of the shape years this polity
-                this_polity_years = sorted(polity_years[polity_id])
+                this_polity_years = sorted(polity_years[polity_name])
 
                 # Get the polity start and end years
                 polity_start_year = this_polity_years[0]
@@ -126,8 +131,8 @@ class Command(BaseCommand):
 
                 VideoShapefile.objects.create(
                     geom=geom,
-                    name=properties['Name'].replace('(', '').replace(')', ''),  # Remove brackets from name
-                    polity=polity_id,
+                    name=polity_name,
+                    polity=polity_colour_key,
                     wikipedia_name=properties['Wikipedia'],
                     seshat_id=properties['SeshatID'],
                     area=properties['Area_km2'],
@@ -135,12 +140,12 @@ class Command(BaseCommand):
                     end_year=end_year,
                     polity_start_year=polity_start_year,
                     polity_end_year=polity_end_year,
-                    colour=pol_col_map[polity_id]
+                    colour=pol_col_map[polity_colour_key]
                 )
 
-                self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {properties["Name"]} ({properties["Year"]})'))
+                self.stdout.write(self.style.SUCCESS(f'Successfully imported shape for {polity_name} ({properties["Year"]})'))
 
-            self.stdout.write(self.style.SUCCESS(f'Successfully imported all shapes for {polity_id}'))
+            self.stdout.write(self.style.SUCCESS(f'Successfully imported all shapes for {polity_name}'))
 
         self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
 

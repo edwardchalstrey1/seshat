@@ -492,11 +492,13 @@
                             onEachFeature: function (feature, layer) {
                                 // Add seshat_id to the layer and add a blank string if it doesn't exist
                                 layer.feature.properties.seshat_id = shape.seshat_id || '';
+                                // Add polity name to the layer
+                                layer.feature.properties.polity = shape.polity;
 
                                 var popupContent = `
                                     <table>
                                         <tr>
-                                            <th>${shape.name}</th>
+                                            <th>${shape.polity}</th>
                                             <th></th>
                                         </tr>
                                 `;
@@ -583,14 +585,18 @@
                                             // Close the popup
                                             layer.closePopup();
                                         };
-                                        // Update weight in this layer
-                                        this.setStyle({
-                                            weight: newWeight
+                                        // Update weights in this layer and others of the same polity
+                                        map.eachLayer(function (layer) {
+                                            if (layer.feature && layer.feature.properties && layer.feature.properties.polity === shape.polity ) {
+                                                layer.setStyle({
+                                                    weight: newWeight
+                                                });
+                                            }
                                         });
                                         // Update weights in shapesData
                                         var i = 0;
                                         shapesData.forEach(function (shape2) {
-                                            if (shape2.name === shape.name) {                                           
+                                            if (shape2.polity === shape.polity) {                                           
                                                 shapesData[i]['weight'] = newWeight;
                                             }
                                             // Set the weight for shapes with multiple seshat_ids e.g. personal unions
