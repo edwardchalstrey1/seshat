@@ -141,13 +141,14 @@
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
                     <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
                     <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;"><br>
-                    <label for="sliderDate">Selected year:</label>
-                    <span id="sliderDate"></span><br><br>
+                    <label for="sliderDate">Selected year:</label><span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
                     <button id="playButton" type="button" onclick="startPlay()" disabled>▶️</button>
                     <button id="stopButton" type="button" onclick="stopPlay()" disabled>⏸</button><br>
                     <label for="playRate">Animation speed:</label>
-                    <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" onchange="plotPolities()" disabled><br><br>
+                    <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" onchange="plotPolities()" disabled><br>
+                    <label for="opacitySlide">Opacity:</label>
+                    <input type="range" name="opacitySlide" id="opacitySlide" min="0.1" max="1" step="0.1" value="0.5" class="slider" onchange="plotPolities()" style="width: 150px;"><br><br>
                     <!-- TODO: Uncomment this when there are more capitals with coordinates in the database -->
                     <!-- <label for="showCapitals">Show capital cities</label>
                     <input type="checkbox" id="showCapitals" name="showCapitals" onclick=plotPolities()><br><br> -->
@@ -355,6 +356,7 @@
 
             var variable = document.getElementById('chooseVariable').value;
             var selectedYear = document.getElementById('dateSlide').value;
+            var opacity = document.getElementById('opacitySlide').value;
 
             // Show or hide the polity-specific info fieldset
             if (variable == 'polity') {
@@ -410,7 +412,6 @@
                 shapesData.forEach(function (shape) {
 
                     // Set weight and colour based on the variable
-                    fillWeight = 0.5;
                     if (variable == 'polity') {  
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
@@ -479,7 +480,7 @@
                                 var style = {
                                     fillColor: shapeColour,        // Set the fill color
                                     weight: shapeWeight,          // Set the border weight
-                                    fillOpacity: fillWeight      // Set the fill opacity
+                                    fillOpacity: opacity         // Set the fill opacity
                                 };
                                 // Set the border color
                                 if (shape[variable] == 'unknown' || shape[variable] == 'Unknown'){
