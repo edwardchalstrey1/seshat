@@ -178,14 +178,14 @@ function updateLegend() {
             };
             if (!ignore) {
                 shape_name_col_dict = {};
-                shape_name_col_dict['name'] = shape.name;
+                shape_name_col_dict['polity'] = shape.polity;
                 shape_name_col_dict['colour'] = shape.colour;
-                if (shape.weight > 0 && !addedPolityNames.includes(shape_name_col_dict['name'])) {
+                if (shape.weight > 0 && !addedPolityNames.includes(shape_name_col_dict['polity'])) {
                     // If the shape spans the selected year
                     if ((parseInt(shape.start_year) <= selectedYearInt1 && parseInt(shape.end_year) >= selectedYearInt1)) {
                         // Add the polity to the list of added polities
                         addedPolities.push(shape_name_col_dict);
-                        addedPolityNames.push(shape_name_col_dict['name']);
+                        addedPolityNames.push(shape_name_col_dict['polity']);
                     };
                 };
             };
@@ -193,7 +193,7 @@ function updateLegend() {
 
         // Sort the polities by name
         addedPolities.sort(function (a, b) {
-            return a.name.localeCompare(b.name);
+            return a.polity.localeCompare(b.polity);
         });
 
         // Add a legend for highlighted polities
@@ -211,7 +211,7 @@ function updateLegend() {
                 colorBox.style.border = '1px solid black';
                 colorBox.style.marginRight = '10px';
                 legendItem.appendChild(colorBox);
-                legendItem.appendChild(document.createTextNode(addedPolities[i].name));
+                legendItem.appendChild(document.createTextNode(addedPolities[i].polity));
                 legendDiv.appendChild(legendItem);
             }
         };
