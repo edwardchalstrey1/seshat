@@ -112,8 +112,12 @@ class Command(BaseCommand):
                 start_end_years = name_years[properties['Name']]
                 end_years = [x[1] for x in start_end_years]
 
-                polity_start_year = this_polity_years[0]
+                polity_start_year = start_end_years[0][0]
                 polity_end_year = end_years[-1]
+
+                # Raise an error if the shape year is not the start year of the polity
+                if this_polity_years[0] != polity_start_year:
+                    raise ValueError(f'First shape year for {polity_name} is not the start year of the polity')
 
                 if properties['Year'] in end_years:
                     end_year = properties['Year']
