@@ -503,6 +503,14 @@
                                             <th></th>
                                         </tr>
                                 `;
+                                if (shape.polity != shape.name) {
+                                    popupContent = popupContent + `
+                                        <tr>
+                                            <td>Component</td>
+                                            <td>${shape.name}</td>
+                                        </tr>
+                                    `;
+                                }
                                 if (shape.seshat_id in seshat_id_page_id) {
                                     longName = seshat_id_page_id[shape.seshat_id]['long_name'];
                                     if (longName == ''){

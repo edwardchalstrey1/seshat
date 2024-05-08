@@ -61,14 +61,15 @@ class Command(BaseCommand):
                         polity_name = properties['Name'].replace('(', '').replace(')', '')  # Remove spaces and brackets from name
                         polity_colour_key = polity_name
                         try:
+                            # If a shape has components we'll load the components instead
+                            # ... unless the components have their own components, then load the top level shape
+                            # ... or the shape is a personal union, then load the personal union shape
                             if properties['Components']:
-                                # If a shape has components we'll load the components instead
-                                # Unless the components have their own components, then load the top level component
-                                if len(properties['Components']) > 0 and '(' not in properties['Components']:
-                                    polity_name = None
+                                if ';' not in properties['SeshatID']:
+                                    if len(properties['Components']) > 0 and '(' not in properties['Components']:
+                                        polity_name = None
                         except KeyError:
                             pass
-
                         try:
                             if properties['Member_of']:
                                 # If a shape is a component, get the parent polity to use as the polity_colour_key
@@ -76,7 +77,6 @@ class Command(BaseCommand):
                                     polity_colour_key = properties['Member_of'].replace('(', '').replace(')', '')
                         except KeyError:
                             pass
-
                         if polity_name:
                             if polity_name not in polity_years:
                                 polity_years[polity_name] = []
@@ -105,16 +105,20 @@ class Command(BaseCommand):
                 # Get a sorted list of the shape years this polity
                 this_polity_years = sorted(polity_years[polity_name])
 
-                # Get the polity start and end years
-                polity_start_year = this_polity_years[0]
-                polity_end_year = this_polity_years[-1]
-
                 # Get the end year for a shape    
                 # Most of the time, the shape end year is the year of the next shape
                 # Some polities have a gap in their active years
                 # For a shape year at the start of a gap, set the end year to be the shape year, so it doesn't cover the inactive period
                 start_end_years = name_years[properties['Name']]
                 end_years = [x[1] for x in start_end_years]
+
+                polity_start_year = start_end_years[0][0]
+                polity_end_year = end_years[-1]
+
+                # Raise an error if the shape year is not the start year of the polity
+                if this_polity_years[0] != polity_start_year:
+                    raise ValueError(f'First shape year for {polity_name} is not the start year of the polity')
+
                 if properties['Year'] in end_years:
                     end_year = properties['Year']
                 else:
