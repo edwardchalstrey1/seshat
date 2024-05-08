@@ -105,16 +105,16 @@ class Command(BaseCommand):
                 # Get a sorted list of the shape years this polity
                 this_polity_years = sorted(polity_years[polity_name])
 
-                # Get the polity start and end years
-                polity_start_year = this_polity_years[0]
-                polity_end_year = this_polity_years[-1]
-
                 # Get the end year for a shape    
                 # Most of the time, the shape end year is the year of the next shape
                 # Some polities have a gap in their active years
                 # For a shape year at the start of a gap, set the end year to be the shape year, so it doesn't cover the inactive period
                 start_end_years = name_years[properties['Name']]
                 end_years = [x[1] for x in start_end_years]
+
+                polity_start_year = this_polity_years[0]
+                polity_end_year = end_years[-1]
+
                 if properties['Year'] in end_years:
                     end_year = properties['Year']
                 else:
