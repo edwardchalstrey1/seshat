@@ -1,7 +1,7 @@
 from django.db import connection
 from django.contrib.gis.gdal import DataSource
 from django.core.management.base import BaseCommand
-from seshat.apps.core.models import GADMShapefile
+from seshat.apps.core.models import GADMShapefile, GADMCountries, GADMProvinces
 
 class Command(BaseCommand):
     help = 'Populates the GADMShapefile table with features from a GeoPackage'
@@ -10,6 +10,19 @@ class Command(BaseCommand):
         parser.add_argument('gpkg_file', type=str, help='Path to the GeoPackage file')
 
     def handle(self, *args, **options):
+
+        # Clear the GADMShapefile table
+        self.stdout.write(self.style.SUCCESS('Clearing GADMShapefile table...'))
+        GADMShapefile.objects.all().delete()
+        self.stdout.write(self.style.SUCCESS('GADMShapefile table cleared'))
+        # Clear the core_gadmcountries table
+        self.stdout.write(self.style.SUCCESS('Clearing core_gadmcountries table...'))
+        GADMCountries.objects.all().delete()
+        self.stdout.write(self.style.SUCCESS('core_gadmcountries table cleared'))
+        # Clear the core_gadmprovinces table
+        self.stdout.write(self.style.SUCCESS('Clearing core_gadmprovinces table...'))
+        GADMProvinces.objects.all().delete()
+
         gpkg_file = options['gpkg_file']
 
         data_source = DataSource(gpkg_file)
