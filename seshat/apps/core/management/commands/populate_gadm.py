@@ -89,6 +89,7 @@ class Command(BaseCommand):
         # The 0.01 value is the simplification tolerance.
         # Using a lower value will increase the resolution of the shapes used, but result in slower loading in the django app.
         # Some smaller countries/provinces cannot be simplified with 0.01, so try 0.001.
+        self.stdout.write(self.style.SUCCESS(f"Populating the core_gadmcountries table..."))
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO core_gadmcountries (geom, "COUNTRY")
@@ -102,6 +103,7 @@ class Command(BaseCommand):
             """)
         self.stdout.write(self.style.SUCCESS(f"Successfully populated the core_gadmcountries table."))
 
+        self.stdout.write(self.style.SUCCESS(f"Populating the core_gadmprovinces table..."))
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO core_gadmprovinces (geom, "COUNTRY", "NAME_1", "ENGTYPE_1")
