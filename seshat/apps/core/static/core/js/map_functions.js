@@ -106,6 +106,10 @@ function switchBaseMap() {
         baseShapeData.forEach(function (shape) {
             // Ensure the geometry is not empty
             if (shape.geometry && shape.geometry.type) {
+                gadmFillColour = 'none';  // Default fill colour
+                if (shape.country.toLowerCase().includes('sea')) {
+                    gadmFillColour = 'lightblue';
+                }
                 // Loop through each polygon and add it to the map
                 for (var i = 0; i < shape.geometry.coordinates.length; i++) {
                     var coordinates = shape.geometry.coordinates[i][0];
@@ -114,36 +118,38 @@ function switchBaseMap() {
                         return [coord[1], coord[0]];
                     });
                     var polygon = L.polygon(coordinates).addTo(map);
-                    if (base == 'province') {
-                        var popupContent = `
-                            <table>
-                                <tr>
-                                    <th>${shape.province}</th>
-                                    <th></th>
-                                </tr>
-                                <tr>
-                                    <td>Type</td>
-                                    <td>${shape.provinceType}</td>
-                                </tr>
-                                <tr>
-                                    <td>Country</td>
-                                    <td>Modern ${shape.country}</td>
-                                </tr>
-                            </table>
-                        `;
-                    } else if (base == 'country') {
-                        var popupContent = `
-                            <table>
-                                <tr>
-                                    <th>Modern ${shape.country}</td>
-                                </tr>
-                            </table>
-                        `;
-                    }
-                    polygon.bindPopup(popupContent);
+                    if (!shape.country.toLowerCase().includes('sea')) {
+                        if (base == 'province') {
+                            var popupContent = `
+                                <table>
+                                    <tr>
+                                        <th>${shape.province}</th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <td>Type</td>
+                                        <td>${shape.provinceType}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Country</td>
+                                        <td>Modern ${shape.country}</td>
+                                    </tr>
+                                </table>
+                            `;
+                        } else if (base == 'country') {
+                            var popupContent = `
+                                <table>
+                                    <tr>
+                                        <th>Modern ${shape.country}</td>
+                                    </tr>
+                                </table>
+                            `;
+                        }
+                        polygon.bindPopup(popupContent);
+                    };               
                     // Set the style using the style method
                     polygon.setStyle({
-                        fillColor: 'white',   // Set the fill color based on the "colour" field
+                        fillColor: gadmFillColour,   // Set the fill color based on the "colour" field
                         color: 'black',       // Set the border color
                         weight: 1,            // Set the border weight
                         fillOpacity: 1        // Set the fill opacity
