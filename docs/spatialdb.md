@@ -28,33 +28,7 @@ To create a new shape dataset for use in the Seshat map explorer, you can do the
 ## GADM
 
 1. [Download](https://geodata.ucdavis.edu/gadm/gadm4.1/gadm_410-gpkg.zip) the whole world GeoPackage file from the [GADM website](https://gadm.org/download_world.html).
-2. Populate the `core_gadmshapefile` table
+2. Populate the `core_gadmshapefile`, `core_gadmcountries` and `core_gadmprovinces` tables
     ```
         python manage.py populate_gadm /path/to/gpkg_file
     ```
-3. To populate the `core_gadmcountries`, go into the database (`psql -U postgres -d <seshat_db_name>`) and run the following query:
-    ```{SQL}
-        INSERT INTO core_gadmcountries (geom, "COUNTRY")
-        SELECT 
-            COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Simplify(ST_Union(geom), 0.001)) AS geom,
-            "COUNTRY"
-        FROM 
-            core_gadmshapefile
-        GROUP BY 
-            "COUNTRY";
-    ```
-4. To populate the `core_gadmprovinces`, go into the database (`psql -U postgres -d <seshat_db_name>`) and run the following query:
-    ```{SQL}
-        INSERT INTO core_gadmprovinces (geom, "COUNTRY", "NAME_1", "ENGTYPE_1")
-        SELECT 
-            COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Simplify(ST_Union(geom), 0.001)) AS geom,
-            "COUNTRY",
-            "NAME_1",
-            "ENGTYPE_1"
-        FROM 
-            core_gadmshapefile
-        GROUP BY 
-            "COUNTRY", "NAME_1", "ENGTYPE_1";
-    ```
-
-The 0.01 value is the simplification tolerance. Using a lower value will increase the resolution of the shapes used, but result in slower loading in the django app. Some smaller countries/provinces cannot be simplified with 0.01, so try 0.001.

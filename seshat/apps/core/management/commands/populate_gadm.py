@@ -1,3 +1,4 @@
+from django.db import connection
 from django.contrib.gis.gdal import DataSource
 from django.core.management.base import BaseCommand
 from seshat.apps.core.models import GADMShapefile
@@ -77,3 +78,40 @@ class Command(BaseCommand):
             )
 
             self.stdout.write(self.style.SUCCESS(f"Inserted feature into the GADMShapefile table."))
+
+        self.stdout.write(self.style.SUCCESS(f"Successfully populated the GADMShapefile table."))
+
+        # Close the connection to the GeoPackage file
+        data_source.close()
+
+        # Populate the core_gadmcountries and core_gadmprovinces table
+        # The 0.01 value is the simplification tolerance.
+        # Using a lower value will increase the resolution of the shapes used, but result in slower loading in the django app.
+        # Some smaller countries/provinces cannot be simplified with 0.01, so try 0.001.
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO core_gadmcountries (geom, "COUNTRY")
+                SELECT 
+                    COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Simplify(ST_Union(geom), 0.001)) AS geom,
+                    "COUNTRY"
+                FROM 
+                    core_gadmshapefile
+                GROUP BY 
+                    "COUNTRY";
+            """)
+        self.stdout.write(self.style.SUCCESS(f"Successfully populated the core_gadmcountries table."))
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO core_gadmprovinces (geom, "COUNTRY", "NAME_1", "ENGTYPE_1")
+                SELECT 
+                    COALESCE(ST_Simplify(ST_Union(geom), 0.01), ST_Simplify(ST_Union(geom), 0.001)) AS geom,
+                    "COUNTRY",
+                    "NAME_1",
+                    "ENGTYPE_1"
+                FROM 
+                    core_gadmshapefile
+                GROUP BY 
+                    "COUNTRY", "NAME_1", "ENGTYPE_1";
+            """)
+        self.stdout.write(self.style.SUCCESS(f"Successfully populated the core_gadmprovinces table."))
