@@ -248,7 +248,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         ```
         - Note: you could first check the available libgeos version with: `sudo apt search libgeos`
         </details>
-    - Open `seshat/settings/local.py` and edit the following variables:
+    - Open `seshat/settings/local.py` and check (or update) the paths in the following variables, which should be to your local `gdal` and `geos` installations
         - `GDAL_LIBRARY_PATH`
         - `GEOS_LIBRARY_PATH`
     - Note: there are hardcoded paths in local.py for the Mac and Ubuntu instructions above included
