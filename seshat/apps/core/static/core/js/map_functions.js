@@ -106,7 +106,7 @@ function switchBaseMap() {
         baseShapeData.forEach(function (shape) {
             // Ensure the geometry is not empty
             if (shape.geometry && shape.geometry.type) {
-                gadmFillColour = 'white';  // Default fill colour
+                gadmFillColour = 'none';  // Default fill colour
                 if (shape.country.toLowerCase().includes('sea')) {
                     gadmFillColour = 'lightblue';
                 }
