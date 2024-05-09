@@ -21,6 +21,7 @@ class Command(BaseCommand):
             geom_gis = geom.geos
 
             # Create an entry in the GADMShapefile model for each feature in the layer
+            self.stdout.write(self.style.SUCCESS(f"Inserting features into the GADMShapefile table for feature UID: {feature.get('COUNTRY')}..."))
             GADMShapefile.objects.create(
                 geom=geom_gis,
                 UID=feature.get('UID'),
