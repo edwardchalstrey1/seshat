@@ -15,9 +15,11 @@ How to run a full setup of the Seshat django app on Azure with Pulumi based on [
 ### Pre-requisites
 
 1. [Install Pulumi](https://www.pulumi.com/docs/clouds/azure/get-started/begin/). e.g. on Mac:
-    ```
-        brew install pulumi/tap/pulumi
-    ```
+    - Install `brew` if you don't have it already, see [here](https://brew.sh/)
+    - Install pulumi with brew
+        ```
+            brew install pulumi/tap/pulumi
+        ```
 2. Install the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 
 Use the configuration in `/pulumi` or set up from scratch:
@@ -124,9 +126,11 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
 <details><summary>Example Ubuntu VM setup on Mac</summary>
 
 1. A quick way is to use multipass which can be installed with brew:
-    ```
-        brew install multipass
-    ```
+    - Install `brew` if you don't have it already, see [here](https://brew.sh/)
+    - Install multipass with brew
+        ```
+            brew install multipass
+        ```
     - Note: the images used by Multipass don’t have a pre-installed graphical desktop
 2. Create a VM (Ubuntu 22.04)
     ```
@@ -227,10 +231,12 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
 9. Install and configure GDAL and GEOS
     - <details><summary>Install instructions for macOS</summary>
 
-        ```
-            brew install gdal
-            brew install geos
-        ```
+        - Install `brew` if you don't have it already, see [here](https://brew.sh/)
+        - Install `gdal` and `geos` with brew
+            ```
+                brew install gdal
+                brew install geos
+            ```
         </details>
     - <details><summary>Install instructions Ubuntu</summary>
 
@@ -242,7 +248,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         ```
         - Note: you could first check the available libgeos version with: `sudo apt search libgeos`
         </details>
-    - Open `seshat/settings/local.py` and edit the following variables:
+    - Open `seshat/settings/local.py` and check (or update) the paths in the following variables, which should be to your local `gdal` and `geos` installations
         - `GDAL_LIBRARY_PATH`
         - `GEOS_LIBRARY_PATH`
     - Note: there are hardcoded paths in local.py for the Mac and Ubuntu instructions above included
