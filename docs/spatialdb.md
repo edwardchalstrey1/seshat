@@ -17,10 +17,9 @@ To create a new shape dataset for use in the Seshat map explorer, you can do the
     - views at `seshat/apps/core/views.py`
     - template e.g. `seshat/apps/core/templates/core/world_map.html`
 
-## RA curated dataset
+## Cliopatria shape dataset
 
-1. Download and unzip the [dataset](https://drive.google.com/file/d/1qrBnwSdIM2LLBsgVWtn0k1C_cO8l2FQR/view?usp=drive_link) dataset
-    - Note: this is a private drive link
+1. Download and unzip the Cliopatria dataset. *TODO: add a link to the published data*
 2. Populate `core_videoshapefile` table
     ```
         python manage.py populate_videodata /path/to/data
