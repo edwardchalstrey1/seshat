@@ -82,9 +82,6 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f"Successfully populated the GADMShapefile table."))
 
-        # Close the connection to the GeoPackage file
-        data_source.close()
-
         # Populate the core_gadmcountries and core_gadmprovinces table
         # The 0.01 value is the simplification tolerance.
         # Using a lower value will increase the resolution of the shapes used, but result in slower loading in the django app.
