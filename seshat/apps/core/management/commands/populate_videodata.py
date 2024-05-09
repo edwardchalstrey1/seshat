@@ -118,20 +118,26 @@ class Command(BaseCommand):
                 # Raise an error if the shape year is not the start year of the polity
                 if this_polity_years[0] != polity_start_year:
                     raise ValueError(f'First shape year for {polity_name} is not the start year of the polity')
+                
+                # Find the closest higher value from end_years to the shape year
+                next_end_year = min(end_years, key=lambda x: x if x >= properties['Year'] else float('inf'))
 
-                if properties['Year'] in end_years:
+                if properties['Year'] in end_years:  # If the shape year is in the list of polity end years, the start year is the end year
                     end_year = properties['Year']
                 else:
-                    this_year_index = this_polity_years.index(properties['Year'])
-                    try:
-                        end_year = this_polity_years[this_year_index + 1] - 1
-                    except IndexError:
+                    this_year_index = this_polity_years.index(properties['Year'])  
+                    try:  # Try to use the next shape year minus one as the end year if possible, unless it's higher than the next_end_year
+                        next_shape_year_minus_one = this_polity_years[this_year_index + 1] - 1
+                        end_year = next_shape_year_minus_one if next_shape_year_minus_one < next_end_year else next_end_year
+                    except IndexError:  # Otherwise assume the end year of the shape is the end year of the polity
                         end_year = polity_end_year
                 
                 # Save geom and convert Polygon to MultiPolygon if necessary
                 geom = GEOSGeometry(json.dumps(feature['geometry']))
                 if geom.geom_type == 'Polygon':
                     geom = MultiPolygon(geom)
+
+                self.stdout.write(self.style.SUCCESS(f'Creating VideoShapefile instance for {polity_name} ({properties["Year"]} - {end_year})'))
 
                 VideoShapefile.objects.create(
                     geom=geom,
