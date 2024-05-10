@@ -7,11 +7,23 @@ from django.contrib.auth.models import User
 from django.forms.formsets import BaseFormSet
 
 
-from seshat.apps.core.models import Section, Subsection, Variablehierarchy, Reference, Citation, SeshatComment, SeshatCommentPart, Polity, Capital, Nga, SeshatPrivateCommentPart, SeshatPrivateComment
+from seshat.apps.core.models import Section, Subsection, Variablehierarchy, Reference, Citation, SeshatComment, SeshatCommentPart, Polity, Capital, Nga, SeshatPrivateCommentPart, SeshatPrivateComment, Religion
 from django.core.exceptions import NON_FIELD_ERRORS
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.core.exceptions import ValidationError
+
+
+#from .models import Religion
+
+class ReligionForm(forms.ModelForm):
+    class Meta:
+        model = Religion
+        fields = ['religion_name',]
+
+        widgets = {
+            'religion_name': forms.TextInput(
+                attrs={'class': 'form-control mb-3', })}
 
 
 class ReferenceForm(forms.ModelForm):

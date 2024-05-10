@@ -19,6 +19,7 @@ from ..core.models import Citation, Reference, Polity, Section, Subsection, Coun
 from django.conf import settings
 
 from django.urls import reverse, reverse_lazy
+from django.db.models import Q
 
 from django.views import generic
 import csv
@@ -2347,7 +2348,33 @@ class Polity_preceding_entityUpdate(PermissionRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+
+        if self.object.polity and self.object.other_polity:
+            all_rels = Polity_preceding_entity.objects.filter(
+                Q(polity_id=self.object.polity.pk) |
+                Q(other_polity_id=self.object.polity.pk) |
+                Q(polity_id=self.object.other_polity.pk) |
+                Q(other_polity_id=self.object.other_polity.pk)
+            ).exclude(id=self.object.pk)
+        elif self.object.polity:
+            # If other_polity is None, exclude it from the filter
+            all_rels = Polity_preceding_entity.objects.filter(
+                Q(polity_id=self.object.polity.pk) |
+                Q(other_polity_id=self.object.polity.pk)
+            ).exclude(id=self.object.pk)
+        elif self.object.other_polity:
+            # If polity is None, exclude it from the filter
+            all_rels = Polity_preceding_entity.objects.filter(
+                Q(polity_id=self.object.other_polity.pk) |
+                Q(other_polity_id=self.object.other_polity.pk)
+            ).exclude(id=self.object.pk)
+        else:
+            # If both polity and other_polity are None, exclude both from the filter
+            all_rels = Polity_preceding_entity.objects.none()
+
         context["myvar"] = "Polity Preceding Entity"
+        context["all_rels"] = all_rels
 
         return context
 

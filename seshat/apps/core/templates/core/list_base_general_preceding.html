@@ -1,0 +1,241 @@
+{% extends "core/seshat-base.html" %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+
+{% block content %}
+<div class="container">
+    {% if object_list %}
+    <div class="row d-flex mt-3">
+        <div class="col-md-4">
+            <!-- <h5 class="lead-2">List of all the data for: {{object_list.0.section}}</h5> -->
+            <div class="col-md-12 justify-content-end my-3">
+                <h6><span class="text-secondary text-end">Section</span>: <mark>{{var_section}}</mark></h6>
+                <h6><span class="text-secondary text-end">Subsection</span>: <mark>{{var_subsection}} </mark> </h6>      
+            <!-- <h5 class="lead-2">List of all the data for: {{object_list.0.section}}</h5> -->
+          </div>
+          <div>
+            <h1 class="mb-3"><span class="display-6">{{myvar}}</span></h1>
+          </div>
+            <div>
+                <h6 class="fw-bold"><span class="fw-normal"><i class="fa-solid fa-caret-right"></i> {{var_main_desc}} &nbsp;</span>
+                    {% if var_main_desc_source and var_main_desc_source != "None" %}
+                    <a href="{{var_main_desc_source}}">(See here)</a>
+                    {% endif %}
+                </h6>
+            </div>
+            <div class="contributors mt-4">
+                <h6><span class="text-secondary text-end">
+                    <i class="fa-solid fa-people-group"></i> Contributors</span>: 
+                </h6>   
+            </div>
+        </div>
+          <div class="col-md-8">
+            {% if inner_vars %}
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="py-2 my-2 fw-bold">Metadata:</h5>
+                </div>
+                <div class="col-md-6">
+                    {% block metadownload_button %}
+                    {% endblock metadownload_button %}
+                </div>
+            </div>
+            <div class="accordion accordion-flush" id="accordionExample">
+                <div class="accordion-item" style="background-color:#fffdf2;">
+                  <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="background-color:#fffdf2;">
+                      <span class="text-success"><i class="fa-solid fa-chevron-right"></i>  &nbsp; General</span> 
+                    </button>
+                  </h2>
+                  <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne">
+                    <div class="accordion-body table-responsive p-0">
+                            <table class="table align-middle table-success table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="col-md-2">Variable</th>
+                                        <th scope="col" class="col-md-10">Definition</th> 
+                                        <!-- <th scope="col" class="col-md-2">Scale</th>
+                                        <th scope="col" class="col-md-2">Units</th>  -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td scope="row" class="col-md-2 text-secondary">Polity</td>
+                                        <td scope="row" class="col-md-10 text-secondary">The Seshat Polity ID</td>
+                                    </tr>
+                                    <tr>
+                                        <td scope="row" class="col-md-2 text-secondary">Year(s)</td>
+                                        <td scope="row" class="col-md-10 text-secondary">The years for which we have the data. [negative = BCE]</td>
+                                    </tr>
+                                    <tr>
+                                        <td scope="row"  class="col-md-2 text-secondary">Tag</td>
+                                        <td scope="row"  class="col-md-10 text-secondary">[Evidenced, Disputed, Suspected, Inferred, Unknown]</td>
+                                    </tr>
+                                    <tr>
+                                        <td scope="row"  class="col-md-2 text-secondary">Verified</td>
+                                        <td scope="row"  class="col-md-10 text-secondary">A Seshat Expert has approved this piece of data.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item" style="background-color:#fffdf2;">
+                  <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button px-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo" style="background-color:#fffdf2;">
+                    <span class="text-success"><i class="fa-solid fa-chevron-right"></i> &nbsp; Specific to <strong>{{myvar}}</strong></span> 
+                    </button>
+                  </h2>
+                  <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo">
+                    <div class="accordion-body table-responsive p-0 m-0">
+                        <table class="table align-middle table-success table-striped table-bordered">
+                            <thead>   
+                                <tr>
+                                    <th scope="col" class="col-md-2">Variable</th>
+                                        <th scope="col">Definition</th> 
+                                    {% for pot_col in potential_cols %}
+                                    <th scope="col">{{pot_col}}</th> 
+                                    {% endfor %}
+
+                                </tr>
+
+                            </thead>
+                            <tbody>
+                                {% for ktop, vtop in inner_vars.items %}
+                                <tr>
+                                    <td scope="row">{{ktop}}</td>
+                                    {% if vtop.var_exp %}
+                                        <td scope="col">{{vtop.var_exp}}</td> 
+                                        {% elif "Definition" in potential_cols %}
+                                        <td scope="col"></td> 
+                                    {% endif %}
+                                    {% if vtop.scale %}
+                                        <td scope="col">{{vtop.scale}}</td>
+                                        {% elif "Scale" in potential_cols %}
+                                        <td scope="col"></td> 
+                                    {% endif %}
+                                    {% if vtop.units %}
+                                        <td scope="col">{{vtop.units}}</td> 
+                                        {% elif "Units" in potential_cols %}
+                                        <td scope="col"></td> 
+                                    {% endif %}
+                                    {% if vtop.min %}
+                                        <td scope="col">{{vtop.min}}</td> 
+                                        {% elif "Min" in potential_cols %}
+                                        <td scope="col"></td> 
+                                    {% endif %}
+                                    {% if vtop.max %}
+                                        <td scope="col">{{vtop.max}}</td> 
+                                    {% elif "Max" in potential_cols %}
+                                    <td scope="col"></td> 
+                                    {% endif %}
+                                <tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+          </div>
+      </div>
+    {% block main_description %}
+    {% endblock main_description %}
+    {% block secondary_description %}
+    {% endblock secondary_description %}
+    <hr>
+    <div class="row d-flex align-items-center mb-3">
+        <div class="col-md-6">
+            <h5 class="fw-bold">Actual Data:</h5>
+        </div>
+        <div class="col-md-6">      
+        <!-- Download and Create Buttons -->
+    {% block download_button %}
+    {% endblock download_button %}
+    </div>
+    </div>
+    <div class="table-container">
+        <table id="table_id" class="table align-middle table-hover table-striped table-bordered" style="padding: 0.25 rem !important;">
+            <thead  class="sticky-top" style="background-color:#FFCCCC; height:40px;  top: 55px; z-index:900;">              <tr>
+                <th scope="col" class="text-secondary">#</th>
+                <th scope="col" style="text-align: center" class="fw-light"> 
+                    Succeeding Polity </th>
+                <!-- headings for extra vars -->
+                {% block myheadings_list %}
+                {% endblock myheadings_list %}
+                <th scope="col" style="text-align: center" class="fw-light">Edit</th>
+
+              </tr>
+            </thead>
+            <tbody>
+                {% for obj in object_list %}
+                    <tr>
+                    <div>
+                    <td class="text-secondary" scope="row">{{ forloop.counter0|add:page_obj.start_index }}</td>
+                    {% if obj.polity %}
+                    <td style="text-align: center;">
+                        {% if obj.polity.long_name %}
+                        <h6>
+                            (<a href="{% url 'polity-detail-main' obj.polity.id %}">{{ obj.polity.long_name }}</a>)
+                        </h6>
+                        {% else %}
+                        <h6>
+                            (<a href="{% url 'polity-detail-main' obj.polity.id %}">{{ obj.polity.name }}</a>)
+                        </h6>
+                        {% endif %}
+                    </td>
+                    {% else %}
+                    <td style="text-align: center;">-</td>
+                    {% endif%}
+
+                    <!-- extra vars come here -->
+                    {% block extra_vars_list %}
+                    {% endblock extra_vars_list %}
+
+
+
+                    {% block update_button %}
+                    {% endblock update_button %}
+                </div>
+                </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+          {% if is_paginated %}
+          <div class="pagination my-4 pe-4 float-end">
+            <span class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}"><button class="btn btn-primary btn-md"> <i class="fas fa-step-backward"></i> Prev </button></a>
+                {% else %}
+                <button class="btn btn-outline-primary btn-md" disabled> <i class="fas fa-step-backward"></i>  Prev</button>
+                {% endif %}
+                <span class="page-current">
+                    &nbsp; Page <b>{{ page_obj.number }}</b> <span class="text-secondary">(of <b>{{ page_obj.paginator.num_pages }}</b>) </span> &nbsp; 
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}"><button class="btn btn-primary btn-md"> Next <i class="fas fa-step-forward"></i></button></a>
+                    {% else %}
+                    <button class="btn btn-outline-primary btn-md" disabled> Next <i class="fas fa-step-forward"></i></button>
+                {% endif %}
+            </span>
+            </div>
+            
+          {% endif %}
+    {% else %}
+    <div class="row">
+        <div class="col-md-12 mt-4">
+            <h3> <i class="fa-solid fa-triangle-exclamation"></i> There are no Facts for this variable in the Database.</h3>
+        </div>
+    </div>
+    {% endif %}
+    </div>
+    <script>
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+          return new bootstrap.Popover(popoverTriggerEl)
+        })
+    </script>
+  {% endblock %}

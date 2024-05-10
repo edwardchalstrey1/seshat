@@ -1291,7 +1291,11 @@ class Polity_relationship_to_preceding_entity(SeshatCommon):
         
 class Polity_preceding_entity(SeshatCommon):
     name = models.CharField(max_length=100, default="Polity_preceding_entity")
+    merged_old_data = models.CharField(max_length=1000, blank=True, null=True)
+    relationship_to_preceding_entity = models.CharField(max_length=500, choices=POLITY_RELATIONSHIP_TO_PRECEDING_ENTITY_CHOICES, blank=True,null=True)
     preceding_entity = models.CharField(max_length=500, blank=True, null=True)
+    other_polity = models.ForeignKey(Polity, models.SET_NULL,blank=True,null=True)
+
 
     class Meta:
         verbose_name = 'Polity_preceding_entity'
@@ -1311,8 +1315,30 @@ class Polity_preceding_entity(SeshatCommon):
     def clean_name_spaced(self):
         return "Polity Preceding Entity"
     
+    # def show_value(self):
+    #     if self.preceding_entity:
+    #         return self.preceding_entity
+    #     else:
+    #         return " - "
+
+    def display_value(self):
+        if self.preceding_entity and self.other_polity and self.polity:
+            polity_url = reverse('polity-detail-main', args=[self.polity.id]) 
+            other_polity_url = reverse('polity-detail-main', args=[self.other_polity.id]) 
+            return f"<a  data-bs-toggle='tooltip' data-bs-html='true'  title='{self.other_polity.long_name}' href='{other_polity_url}'>{self.other_polity.new_name}</a> <span class='badge bg-secondary text-white'>  {self.relationship_to_preceding_entity} &nbsp;&nbsp;<i class='fa-solid fa-right-long'></i></span> <a  data-bs-toggle='tooltip' data-bs-html='true'  title='{self.polity.long_name}' href='{polity_url}'>{self.polity.new_name}</a>"
+        elif self.preceding_entity == "none":
+            return self.preceding_entity
+        elif self.preceding_entity:
+            return f"{self.preceding_entity} [---]"
+        else:
+            return " - "
+        
     def show_value(self):
-        if self.preceding_entity:
+        if self.preceding_entity and self.polity and self.other_polity:
+            return self.preceding_entity +f" [{self.other_polity.new_name}]" + ' ---> ' + self.polity.long_name + f" [{self.polity.new_name}]" 
+        elif self.preceding_entity and self.polity:
+            return self.preceding_entity
+        elif self.preceding_entity:
             return self.preceding_entity
         else:
             return " - "

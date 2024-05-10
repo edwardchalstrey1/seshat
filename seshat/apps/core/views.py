@@ -1,7 +1,7 @@
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
 
 from django.contrib.sites.shortcuts import get_current_site
-from seshat.apps.core.forms import SignUpForm, VariablehierarchyFormNew, CitationForm, ReferenceForm, SeshatCommentForm, SeshatCommentPartForm, PolityForm, PolityUpdateForm, CapitalForm, NgaForm, SeshatCommentPartForm2, SeshatPrivateCommentPartForm, ReferenceFormSet2, ReferenceFormSet5,CommentPartFormSet, ReferenceWithPageForm, SeshatPrivateCommentForm
+from seshat.apps.core.forms import SignUpForm, VariablehierarchyFormNew, CitationForm, ReferenceForm, SeshatCommentForm, SeshatCommentPartForm, PolityForm, PolityUpdateForm, CapitalForm, NgaForm, SeshatCommentPartForm2, SeshatPrivateCommentPartForm, ReferenceFormSet2, ReferenceFormSet5,CommentPartFormSet, ReferenceWithPageForm, SeshatPrivateCommentForm, ReligionForm
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render
@@ -26,11 +26,12 @@ from django.views.decorators.http import require_GET
 
 from django.contrib.auth.decorators import login_required, permission_required
 from seshat.apps.accounts.models import Seshat_Expert
+from seshat.apps.general.models import Polity_preceding_entity
 
 from django.core.paginator import Paginator
 
 from django.http import FileResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 import os
 
 from django.apps import apps
@@ -57,7 +58,7 @@ from ..general.models import Polity_research_assistant, Polity_duration
 from ..crisisdb.models import Power_transition
 
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, SeshatCommon, ScpThroughCtn, SeshatPrivateComment, SeshatPrivateCommentPart
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, SeshatCommon, ScpThroughCtn, SeshatPrivateComment, SeshatPrivateCommentPart, Religion
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -66,7 +67,43 @@ from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic
 
 from django.shortcuts import HttpResponse
 
+from django.views.generic import ListView
 
+@login_required
+@permission_required('core.add_seshatprivatecommentpart')
+def religion_create(request):
+    if request.method == 'POST':
+        form = ReligionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('religion_list')
+    else:
+        form = ReligionForm()
+    return render(request, 'core/religion_create.html', {'form': form})
+
+@login_required
+@permission_required('core.add_seshatprivatecommentpart')
+def religion_update(request, pk):
+    religion = get_object_or_404(Religion, pk=pk)
+    if request.method == 'POST':
+        form = ReligionForm(request.POST, instance=religion)
+        if form.is_valid():
+            form.save()
+            return redirect('religion_list')
+    else:
+        form = ReligionForm(instance=religion)
+    return render(request, 'core/religion_update.html', {'form': form})
+
+class ReligionListView(ListView):
+    model = Religion
+    template_name = 'core/religion_list.html'
+    context_object_name = 'religions'
+    ordering = ['religion_name']
+    permission_required = 'core.add_seshatprivatecommentpart'
+
+
+
+######
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
@@ -1649,6 +1686,21 @@ class PolityDetailView(SuccessMessageMixin, generic.DetailView):
             #print("*************")
         #import django
         #print(django.get_version())
+
+        preceding_data = []
+        succeeding_data = []
+
+        prec_data = Polity_preceding_entity.objects.filter(
+                    Q(polity_id=self.object.pk) | Q(other_polity_id=self.object.pk))
+        for vv in prec_data:
+            if vv.polity and vv.polity.id == self.object.pk:
+                preceding_data.append(vv)
+            elif vv.other_polity and vv.other_polity.id == self.object.pk:
+                succeeding_data.append(vv)
+
+        # Pass the data to the template
+        context['preceding_data'] = preceding_data
+        context['succeeding_data'] = succeeding_data
 
         return context
 

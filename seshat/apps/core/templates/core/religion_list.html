@@ -1,0 +1,25 @@
+{% extends "core/seshat-base.html" %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+
+{% block content %}
+<div class="container">
+    <h1 class="py-3">Religion List</h1>
+<a class='btn btn-success fs-5 mb-3'  href="{% url 'religion_create' %}"> + Create a new Religion</a>
+    <table class="table table-bordered">
+        <body class="">
+            {% for religion in religions %}
+            <tr>
+                <td class="fs-5">
+                    {{ religion.religion_name }}
+&nbsp; &nbsp; <a href="{% url 'religion_update' religion.id %}"><i class="fa-solid fa-pen fa-sm"></i></a> </td>
+
+            </tr>
+
+            {% endfor %}
+        </body>
+    </table>
+
+</div>
+{% endblock content %}

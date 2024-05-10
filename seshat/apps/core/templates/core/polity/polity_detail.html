@@ -249,48 +249,139 @@
                         <a href="#power_transition_var"><span class="badge bg-info text-dark  p-1 me-2 fs-5">PT</span></a>
                     </span>
                         {% endif %}
+                        <!-- tag -->
+                        {% if object.polity_tag == 'POL_AFR_WEST' %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW West African Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-1">New WA</span>    
+                    {% elif object.polity_tag == "POL_AFR_EAST" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW East African Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-1">New EA</span> 
+                    {% elif object.polity_tag == "POL_AFR_SA" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW Southern African Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-1">New SA</span> 
+                    {% elif object.polity_tag == "POL_SA_SI" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW South East Indian Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-2">New SEA</span> 
+                    {% elif object.polity_tag == "LEGACY" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="An Equinox 2020 Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light px-2 py-1 fs-6">EQ 2020</span> 
+                    </span> 
+                    {% elif object.polity_tag == "CRISISDB_POLITIES" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="A CrisisDB-specific Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-1">CrisisDB</span> 
+                    {% elif object.polity_tag == "OTHER_TAG" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="Unknown Polity Category" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-1">OTHER</span> 
+                    {% endif %}
+
+                    {% if object.new_name %}
+                    <span class="fs-5 fw-normal"><b>&nbsp;{{ object.new_name }}</b></span>
+
+                    {% if object.new_name != object.name %}
+                    <span class="text-secondary">/ {{ object.name }}</span>
+                    {% endif %}
+
+
+                    {% else %}
+                    (<a href="{% url 'polity-detail-main' object.id %}"><b>{{ object.name }}</b></a>) 
+                    <span class="text-danger"><b>NEW_Polity_ID</b>  missing</span>  
+                    <a href="{% url 'polity-update' object.id %}"><span class="badge bg-small bg-warning text-dark">update</span></a>
+                    {% endif %}
                 </div>
             </div>
             <div>
                 <div class="col-md-12 row pb-3">
                     <div class="col-md-8">
-                        <!-- tag -->
-                        {% if object.polity_tag == 'POL_AFR_WEST' %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW West African Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">New WA</span>    
-                        {% elif object.polity_tag == "POL_AFR_EAST" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW East African Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">New EA</span> 
-                        {% elif object.polity_tag == "POL_AFR_SA" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW Southern African Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">New SA</span> 
-                        {% elif object.polity_tag == "POL_SA_SI" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW South East Indian Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-2">New SEA</span> 
-                        {% elif object.polity_tag == "LEGACY" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="An Equinox 2020 Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light px-2 py-1 fs-6">EQ 2020</span> 
-                        </span> 
-                        {% elif object.polity_tag == "CRISISDB_POLITIES" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A CrisisDB-specific Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">CrisisDB</span> 
-                        {% elif object.polity_tag == "OTHER_TAG" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="Unknown Polity Category" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">OTHER</span> 
-                        {% endif %}
+                        <br>
+                            <span class="h5 fw-bold">Preceding:</span>
+                            {% if preceding_data %}
 
-                        {% if object.new_name %}
-                        <span class="fs-5 fw-normal"><b>&nbsp;{{ object.new_name }}</b></span>
-    
-                        {% if object.new_name != object.name %}
-                        <span class="text-secondary">/ {{ object.name }}</span>
-                        {% endif %}
+                            {% for vv in preceding_data %}
+                            {% if vv.polity and  vv.other_polity %}
+                                <div>
+                                    {% if  vv.other_polity.start_year == vv.other_polity.end_year %}
+                                        {% if  vv.other_polity.start_year < 0 %}
+                                        {{ vv.other_polity.start_year|abs }} <span class="text-secondary">BCE</span> 
+                                        {% else %}
+                                        {{ vv.other_polity.start_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% elif vv.other_polity.end_year == None %}
+                                        {% if  vv.other_polity.start_year < 0 %}
+                                        {{ vv.other_polity.start_year|abs }} <span class="text-secondary">BCE</span>
+                                        {% else %}
+                                        {{ vv.other_polity.start_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% elif vv.other_polity.end_year == None and  vv.other_polity.start_year == None %}
+                                        <i class="fa-solid fa-minus"></i> 
+                                    {% else %}
+                                        {% if  vv.other_polity.start_year < 0 and vv.other_polity.end_year < 0 %}
+                                        {{ vv.other_polity.start_year|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.other_polity.end_year|abs }} <span class="text-secondary">BCE</span>
+                                        {% elif  vv.other_polity.start_year < 0 and vv.other_polity.end_year >= 0 %}
+                                        {{ vv.other_polity.start_year|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.other_polity.end_year }} <span class="text-secondary">CE</span>
+                                        {% else %}
+                                        {{ vv.other_polity.start_year }} <span class="text-secondary">CE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.other_polity.end_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    <span class="h6 text-teal fw-bold ps-2">
+                                        <a href="{% url 'polity-detail-main' vv.other_polity.id %}">{{ vv.other_polity }}</a>
 
-    
+                                    </span>
+                                    <span class="h6 text-secondary fw-normal">&nbsp;&nbsp; [{{ vv.get_relationship_to_preceding_entity_display }}]</span>
+                                </div>
+                                {% else %}
+                                <div>
+                                    [{{ vv.merged_old_data }}]   [{{ vv.get_relationship_to_preceding_entity_display }}]&nbsp;&nbsp; <a class="fw-bold" href="{% url 'polity_preceding_entity-update' vv.id %}">Update here</a>
+                                </div>
+                            {% endif %}
+                            {% endfor %}
                         {% else %}
-                        (<a href="{% url 'polity-detail-main' object.id %}"><b>{{ object.name }}</b></a>) 
-                        <span class="text-danger"><b>NEW_Polity_ID</b>  missing</span>  
-                        <a href="{% url 'polity-update' object.id %}"><span class="badge bg-small bg-warning text-dark">update</span></a>
+                            <div>No Polity found. Add one <a class="fw-bold" href="{% url 'polity_preceding_entity-create' %}">here</a>.</div>
+                        {% endif %}
+
+                        <br>
+
+                        <span class="h5 fw-bold">Succeeding:</span>
+                        {% if succeeding_data %}
+
+                            {% for vv in succeeding_data %}
+                            {% if vv.polity and  vv.other_polity %}
+                                <div>
+                                    {% if  vv.polity.start_year == vv.polity.end_year %}
+                                        {% if  vv.polity.start_year < 0 %}
+                                        {{ vv.polity.start_year|abs }} <span class="text-secondary">BCE</span> 
+                                        {% else %}
+                                        {{ vv.polity.start_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% elif vv.polity.end_year == None %}
+                                        {% if  vv.polity.start_year < 0 %}
+                                        {{ vv.polity.start_year|abs }} <span class="text-secondary">BCE</span>
+                                        {% else %}
+                                        {{ vv.polity.start_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% elif vv.polity.end_year == None and  vv.polity.start_year == None %}
+                                        <i class="fa-solid fa-minus"></i> 
+                                    {% else %}
+                                        {% if  vv.polity.start_year < 0 and vv.polity.end_year < 0 %}
+                                        {{ vv.polity.start_year|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.polity.end_year|abs }} <span class="text-secondary">BCE</span>
+                                        {% elif  vv.polity.start_year < 0 and vv.polity.end_year >= 0 %}
+                                        {{ vv.polity.start_year|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.polity.end_year }} <span class="text-secondary">CE</span>
+                                        {% else %}
+                                        {{ vv.polity.start_year }} <span class="text-secondary">CE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.polity.end_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    <span class="h6 text-teal fw-bold ps-2">
+                                        <a href="{% url 'polity-detail-main' vv.polity.id %}">{{ vv.polity }}</a>
+                                    </span>
+                                    <span class="h6 text-secondary fw-normal">&nbsp;&nbsp; [{{ vv.get_relationship_to_preceding_entity_display }}]</span>
+                                </div>
+                                {% else %}
+                                    <div>
+                                        {{ vv.merged_old_data }}   [{{ vv.get_relationship_to_preceding_entity_display }}] &nbsp;&nbsp; <a class="fw-bold" href="{% url 'polity_preceding_entity-update' vv.id %}">Update here</a>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                        <div>No Polity found. Add one <a class="fw-bold" href="{% url 'polity_preceding_entity-create' %}">here</a>.</div>
                         {% endif %}
 
                     </div>
@@ -492,6 +583,26 @@
                                             <span class="h6 text-danger fw-bold">{{ vv.show_value }}</span> 
                                             {% elif key == "Polity_suprapolity_relations" %}
                                             <span class="h6 text-teal fw-bold">{{ vv.display_value }}</span> 
+                                            {% elif key == "Polity_preceding_entity" %}
+                                                {% if vv.polity and vv.other_polity and vv.other_polity.id == object.id %}
+                                                    <span class="h6 text-dark fw-bold">Succeeding: </span> 
+                                                    <span class="h6 text-teal fw-bold ps-2">
+                                                        <a href="{% url 'polity-detail-main' vv.polity.id %}">{{ vv.polity }}</a>
+                                                        </span> 
+                                                {% elif vv.polity and vv.other_polity and vv.polity.id == object.id %}
+                                                    <span class="h6 text-dark fw-bold">Preceding:&nbsp;&nbsp; </span> 
+                                                    <span class="h6 text-teal fw-bold ps-2">
+                                                        <a href="{% url 'polity-detail-main' vv.other_polity.id %}">{{ vv.other_polity }}</a>
+                                                        </span> 
+                                                {% else %}
+                                                    <span class="h6 text-dark fw-bold">UNCLEAR: </span> 
+                                                {% endif %}
+
+
+
+
+                                                <span class="h6 text-secondary fw-normal">&nbsp;&nbsp; [{{ vv.get_relationship_to_preceding_entity_display }}]</span>                     
+                    
                                             {% else %}
                                             <span class="h6 text-teal fw-bold">{{ vv.show_value }}</span> 
                                             {% endif %}

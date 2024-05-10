@@ -31,7 +31,7 @@ commonwidgets = {
     'polity': forms.Select(attrs={'class': 'form-control  mb-1 js-example-basic-single', 'id': 'id_polity', 'name': 'polity'}),    
     'year_from': forms.NumberInput(attrs={'class': 'form-control  mb-3',}),
     'year_to': forms.NumberInput(attrs={'class': 'form-control  mb-3', }),
-    'description': Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 340px', 'placeholder':'Add a meaningful description (optional)'}),
+    'description': Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 200px', 'placeholder':'Add a meaningful description (optional)'}),
     'citations': forms.SelectMultiple(attrs={'class': 'form-control mb-3 js-states js-example-basic-multiple', 'text':'citations[]' , 'style': 'height: 340px', 'multiple': 'multiple'}),
     'tag': forms.RadioSelect(),
     "is_disputed" : forms.CheckboxInput(attrs={'class': 'mb-3', }),
@@ -246,11 +246,21 @@ class Polity_preceding_entityForm(forms.ModelForm):
     class Meta:
         model = Polity_preceding_entity
         fields = commonfields.copy()
-        fields.append('preceding_entity')
+        #fields.append('preceding_entity')
+        fields.append('merged_old_data')
+        fields.append('relationship_to_preceding_entity')
+        fields.append('other_polity')
         labels = commonlabels
+
+        labels['other_polity'] = 'Entity (A): Prior'
+        labels['polity'] = 'Entity (B): Subsequent'
+
         
         widgets = dict(commonwidgets)
-        widgets['preceding_entity'] = forms.TextInput(attrs={'class': 'form-control  mb-3', })
+        #widgets['preceding_entity'] = forms.TextInput(attrs={'class': 'form-control  mb-3', 'readonly': "True" })
+        widgets['merged_old_data'] = forms.TextInput(attrs={'class': 'form-control  mb-3', 'readonly': "True"})
+        widgets['relationship_to_preceding_entity'] = forms.Select(attrs={'class': 'form-control  mb-3', })
+        widgets['other_polity'] = forms.Select(attrs={'class': 'form-control  mb-4 pb-4 js-example-basic-single', 'id': 'id_other_polity', 'name': 'other_polity'}) 
         
 
 class Polity_succeeding_entityForm(forms.ModelForm):

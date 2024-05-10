@@ -20,6 +20,9 @@ urlpatterns += [path('polity_filter_options/', views.polity_filter_options_view,
 
 
 urlpatterns += [
+     path('core/religions_all/', views.ReligionListView.as_view(), name='religion_list'),
+     path('core/create_religion/', views.religion_create, name='religion_create'),
+     path('core/update_religion/<int:pk>/', views.religion_update, name='religion_update'),
      path('core/references/', views.ReferenceListView.as_view(), name='references'),
      path('core/nlp-references/', views.NlpReferenceListView.as_view(), name='nlp-references'),
      path('core/references/create/', views.ReferenceCreate.as_view(),

@@ -1,14 +1,101 @@
-{% extends "core/form_base_general.html" %}
+{% extends "core/form_base_general_preceding.html" %}
 {% load crispy_forms_tags %}
 {% load humanize %}
+{% load mathfilters %}
+{% load custom_filters %}
+
+{% block existing_vals %}
+
+{% if all_rels %}
+    <table class="table mb-4">
+        <thead>
+            <th>Entity A (Prior)</th>
+            <th>Relationship</th>
+            <th>Entity B (Subsequent)</th>
+            <th>Edit</th>
+
+        </thead>
+        <tbody>
+
+
+        {% for vv in all_rels %}
+        <tr>
+            {% if vv.polity and vv.other_polity %}
+
+                <td class="h6 text-teal fw-bold ps-2">
+                    <a href="{% url 'polity-detail-main' vv.other_polity.id %}">{{ vv.other_polity }}</a>
+                </td>
+                <td class="h6 text-secondary fw-normal">&nbsp;&nbsp; [{{ vv.get_relationship_to_preceding_entity_display }}]</td>
+                <td class="h6 text-teal fw-bold ps-2">
+                    <a href="{% url 'polity-detail-main' vv.polity.id %}">{{ vv.polity }}</a>
+                </td>
+                <td>
+                    <a class="fw-bold text-danger" href="{% url 'polity_preceding_entity-update' vv.id %}"><i class="fa-regular fa-pen-to-square"></i></a>
+                </td>
+
+            {% elif vv.polity and not vv.other_polity %}
+            <td class="h6 text-dark fw-bold ps-2">
+                <span>{{ vv.merged_old_data }}</span>
+            </td>
+            <td class="h6 text-secondary fw-normal">&nbsp;&nbsp; [{{ vv.get_relationship_to_preceding_entity_display }}]</td>
+            <td class="h6 text-teal fw-bold ps-2">
+                <a href="{% url 'polity-detail-main' vv.polity.id %}">{{ vv.polity }}</a>
+            </td>
+            <td>
+                <a class="fw-bold text-danger" href="{% url 'polity_preceding_entity-update' vv.id %}"><i class="fa-regular fa-pen-to-square"></i></a>
+            </td>
+            {% elif vv.other_polity and not vv.polity %}
+            <td class="h6 text-teal fw-bold ps-2">
+                <a href="{% url 'polity-detail-main' vv.other_polity.id %}">{{ vv.other_polity }}</a>
+            </td>
+            <td class="h6 text-secondary fw-normal">&nbsp;&nbsp; [{{ vv.get_relationship_to_preceding_entity_display }}]</td>
+            <td class="h6 text-dark fw-bold ps-2">
+                <span>{{ vv.merged_old_data }}</span>
+            </td>
+            <td>
+                <a class="fw-bold text-danger" href="{% url 'polity_preceding_entity-update' vv.id %}"><i class="fa-regular fa-pen-to-square"></i></a>
+            </td>
+            {% else %}
+            <td class="h6 text-dark fw-bold ps-2">
+                <span>{{ vv.merged_old_data }}</span>
+            </td>
+            <td class="h6 text-secondary fw-normal">&nbsp;&nbsp; [{{ vv.get_relationship_to_preceding_entity_display }}]</td>
+            <td class="h6 text-dark fw-bold ps-2">
+                <span>{{ vv.merged_old_data }}</span>
+            </td>
+            <td>
+                <a class="fw-bold text-danger" href="{% url 'polity_preceding_entity-update' vv.id %}"><i class="fa-regular fa-pen-to-square"></i></a>
+            </td>
+            {% endif %}
+                        
+        </tr>
+        {% endfor %}
+    </tbody>
+
+    </table>
+{% else %}
+<span>No other relations found. Add one <a class="fw-bold" href="{% url 'polity_preceding_entity-create' %}">here</a>.</span>
+{% endif %}
+
+{% endblock existing_vals %}
+
 
 {% block extra_vars %}
-    
-    <div class="col-md-3 mb-2">
-        {{ form.preceding_entity|as_crispy_field }}
-    </div>
-                
-    
+
+<div class="col-md-4 mb-2">
+    {{ form.other_polity|as_crispy_field }}
+</div>
+<div class="col-md-4 mb-2">
+    {{ form.relationship_to_preceding_entity|as_crispy_field }}
+</div>
+<div class="col-md-4 mb-2">
+    {{ form.polity|as_crispy_field }}
+  </div>
+
+
+<div class="col-md-6 mb-2">
+    {{ form.merged_old_data|as_crispy_field }}
+</div>
 {% endblock extra_vars %}
 
 {% block delete_button %}

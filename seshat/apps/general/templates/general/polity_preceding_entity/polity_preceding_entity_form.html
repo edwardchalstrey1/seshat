@@ -1,13 +1,26 @@
-{% extends "core/form_base_general.html" %}
+{% extends "core/form_base_general_preceding.html" %}
 {% load crispy_forms_tags %}
 {% load humanize %}
 
 {% block extra_vars %}
-    
-    <div class="col-md-3 mb-2">
-        {{ form.preceding_entity|as_crispy_field }}
-    </div>
-                
+
+
+<div class="col-md-4 mb-2">
+    {{ form.other_polity|as_crispy_field }}
+</div>
+
+<div class="col-md-4 mb-2">
+    {{ form.relationship_to_preceding_entity|as_crispy_field }}
+</div>
+<div class="col-md-4 mb-2">
+    {{ form.polity|as_crispy_field }}
+  </div>
+
+
+<div class="col-md-6 mb-2">
+    {{ form.merged_old_data|as_crispy_field }}
+</div>
+ 
     
 {% endblock extra_vars %}
         
