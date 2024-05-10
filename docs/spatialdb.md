@@ -24,6 +24,7 @@ To create a new shape dataset for use in the Seshat map explorer, you can do the
     ```
         python manage.py populate_videodata /path/to/data
     ```
+    - Note: if you wish to further simplify the Cliopatria shape resolution used by the world map after loading it into the database, open `seshat/apps/core/management/commands/populate_videodata.py` and modify the SQL query under the comment: "Adjust the tolerance param of ST_Simplify as needed"
 
 ## GADM
 
