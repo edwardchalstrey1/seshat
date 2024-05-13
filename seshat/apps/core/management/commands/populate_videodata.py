@@ -159,12 +159,24 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'Successfully imported all data from {filename}'))
 
+        ###########################################################
+        ### Adjust the tolerance param of ST_Simplify as needed ###
+        ###########################################################
+
         self.stdout.write(self.style.SUCCESS('Adding simplified geometries for faster loading...'))
-        # Adjust the tolerance param of ST_Simplify as needed
+
+        ## Use this code if you want to simplify the geometries
+        # with connection.cursor() as cursor:
+        #     cursor.execute("""
+        #         UPDATE core_videoshapefile 
+        #         SET simplified_geom = ST_Simplify(geom, 0.07);
+        #     """)
+
+        ## Use this code if you don't need to simplify the geometries
         with connection.cursor() as cursor:
             cursor.execute("""
-                UPDATE core_videoshapefile 
-                SET simplified_geom = ST_Simplify(geom, 0.07);
+                UPDATE core_videoshapefile
+                SET simplified_geom = geom;
             """)
         self.stdout.write(self.style.SUCCESS('Simplified geometries added'))
 
