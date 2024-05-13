@@ -254,7 +254,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
     - Open `seshat/settings/base.py` and check (or update) the paths in the following variables, which should be to your local `gdal` and `geos` installations
         - `GDAL_LIBRARY_PATH`
         - `GEOS_LIBRARY_PATH`
-    - Note: there are hardcoded paths in local.py for the Mac and Ubuntu instructions above included
+    - Note: there are hardcoded paths in base.py for the Mac and Ubuntu instructions above included
 
 6. After PostgreSQL, GDAL and GEOS are installed, install the Python packages in your environment (some packages have these as dependencies). From the top level of the `seshat` repo:
     ```
