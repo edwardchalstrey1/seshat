@@ -7,6 +7,7 @@ import django_heroku
 
 import dj_database_url
 from decouple import Csv, config
+import sys
 
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
@@ -16,6 +17,8 @@ MESSAGE_TAGS = {
         messages.WARNING: 'alert-warning',
         messages.ERROR: 'alert-danger',
 }
+
+local_env_path = str(Path.cwd()) + "/seshat/settings/.env"
 
 # base_dir is calculated based on this file (base.py) and then goes to parents above.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,6 +76,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     #'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
+    'django.contrib.gis',
+    'leaflet',
     #'easyaudit',
 ]
 
@@ -108,24 +113,25 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 #SOCIALACCOUNT_AUTO_SIGNUP = False
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': config('GOOGLE_APP_CLIENT_ID'),
-            'secret': config('GOOGLE_APP_SECRET_KEY'),
-            'redirect_uris': ['https://seshat-db.com/accounts/google/login/callback/'],
-           # 'key': ''
-         },
+if not os.path.exists(local_env_path) and not os.getenv('GITHUB_ACTIONS') == 'true':
+    SOCIALACCOUNT_PROVIDERS = {
+        'google': {
+            'APP': {
+                'client_id': config('GOOGLE_APP_CLIENT_ID'),
+                'secret': config('GOOGLE_APP_SECRET_KEY'),
+                'redirect_uris': ['https://seshat-db.com/accounts/google/login/callback/'],
+            # 'key': ''
+            },
 
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
+            'SCOPE': [
+                'profile',
+                'email',
+            ],
+            'AUTH_PARAMS': {
+                'access_type': 'online',
+            }
         }
     }
-}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -195,16 +201,18 @@ TEMPLATES = [
 # DATABASES['default'].update(db_from_env)
 
 # Qing data database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': 'localhost',
-        'PORT': 5432,
+if not os.path.exists(local_env_path) and not os.getenv('GITHUB_ACTIONS') == 'true':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': 'localhost',
+            'PORT': 5432,
+        }
     }
-}
+
 #DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
 # ==============================================================================
@@ -250,12 +258,13 @@ USE_TZ = True
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
 # Email config BACKUP:
-EMAIL_FROM_USER = config('EMAIL_FROM_USER')
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
+if not os.path.exists(local_env_path) and not os.getenv('GITHUB_ACTIONS') == 'true':
+    EMAIL_FROM_USER = config('EMAIL_FROM_USER')
+    EMAIL_HOST = config('EMAIL_HOST')
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = True
+    EMAIL_PORT = 587
 
 ######EMAIL_CONFIRMATION_BRANCH is the keyword that needs to be searched
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -292,6 +301,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 #STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+if 'test' in sys.argv:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # We might need to turn these on in production!
 # STATICFILES_FINDERS = (

@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load mathfilters %}
 {% load custom_filters %}
+{% load core_tags %}
 
 
 {% block content %}
@@ -182,6 +183,10 @@
 <!-- showcase for index -->
 
 <div class="container">
+    <div>
+        <span class="fw-bolder fs-1 text-teal"><i class="fa-solid fa-star fa-sm"></i> {{ object.long_name }}</span>
+        {% polity_map pk %}
+    </div>
     <div class="row mt-3">
         <div class="col-md-12">
             <div class="row d-flex align-items-center mb-2">

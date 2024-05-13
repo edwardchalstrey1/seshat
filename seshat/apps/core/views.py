@@ -1,3 +1,6 @@
+import sys
+import importlib
+
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
 
 from django.contrib.sites.shortcuts import get_current_site
@@ -12,14 +15,16 @@ from django.template.loader import render_to_string
 from .tokens import account_activation_token
 from django.contrib.auth.models import User
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+from django.utils.text import slugify
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormMixin
-from django.db import IntegrityError
-from django.db.models import Prefetch, F, Value, Q, Count
+from django.db import IntegrityError, connection
+from django.db.models import Prefetch, F, Value, Q, Min, Max, Count
 from django.db.models.functions import Replace
 
 from django.views.decorators.http import require_GET
@@ -53,12 +58,11 @@ from django.urls import reverse, reverse_lazy
 
 from django.contrib.messages.views import SuccessMessageMixin
 
-from ..general.models import Polity_research_assistant, Polity_duration
+from ..general.models import Polity_research_assistant, Polity_duration, Polity_linguistic_family, Polity_language_genus, Polity_language, POLITY_LINGUISTIC_FAMILY_CHOICES, POLITY_LANGUAGE_GENUS_CHOICES, POLITY_LANGUAGE_CHOICES
 
 from ..crisisdb.models import Power_transition
 
-
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, SeshatCommon, ScpThroughCtn, SeshatPrivateComment, SeshatPrivateCommentPart, Religion
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, VideoShapefile, GADMCountries, GADMProvinces, SeshatCommon, ScpThroughCtn, SeshatPrivateComment, SeshatPrivateCommentPart, Religion
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -67,6 +71,9 @@ from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic
 
 from django.shortcuts import HttpResponse
 
+from math import floor, ceil
+from django.contrib.gis.geos import GEOSGeometry
+from distinctipy import get_colors, get_hex
 from django.views.generic import ListView
 
 @login_required
@@ -106,7 +113,6 @@ class ReligionListView(ListView):
 ######
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-
 
 def ajax_test(request):
     if is_ajax(request=request):
@@ -973,6 +979,11 @@ class PolityUpdate(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     template_name = "core/polity/polity_form.html"
     permission_required = 'core.add_capital'
     success_message = "You successfully updated the Polity."
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pk'] = self.object.pk
+        return context
     
     def get_success_url(self):
         return reverse_lazy('polity-detail-main', kwargs={'pk': self.object.pk})
@@ -1550,6 +1561,7 @@ class PolityDetailView(SuccessMessageMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['pk'] = self.kwargs['pk']
         try:
             context["all_data"] = get_all_data_for_a_polity(self.object.pk, "crisisdb") 
             context["all_general_data"], context["has_any_general_data"] = get_all_general_data_for_a_polity(self.object.pk)
@@ -2618,6 +2630,368 @@ def seshatcommentpart_create_view(request):
 
     return render(request, 'core/seshatcomments/seshatcommentpart_create.html', {'form': form})
 
+
+
+# Shapefile views
+
+def get_provinces(selected_base_map_gadm='province'):
+    """
+        Get all the province or country shapes for the map base layer.
+    """
+
+    # Use the appropriate Django ORM query based on the selected baseMapGADM value
+    if selected_base_map_gadm == 'country':
+        rows = GADMCountries.objects.values_list('geom', 'COUNTRY')
+        provinces = [
+            {
+                'aggregated_geometry': GEOSGeometry(geom).geojson,
+                'country': country
+            }
+            for geom, country in rows if geom is not None
+        ]
+    elif selected_base_map_gadm == 'province':
+        rows = GADMProvinces.objects.values_list('geom', 'COUNTRY', 'NAME_1', 'ENGTYPE_1')
+        provinces = [
+            {
+                'aggregated_geometry': GEOSGeometry(geom).geojson,
+                'country': country,
+                'province': name,
+                'province_type': engtype
+            }
+            for geom, country, name, engtype in rows if geom is not None
+        ]
+
+    return provinces
+
+def get_polity_shape_content(displayed_year="all", seshat_id="all"):
+    """
+        This function returns the polity shapes and other content for the map.
+        Only one of displayed_year or seshat_id should be set not both.
+        Setting displayed_year to "all" will return all polities.
+        Setting displayed_year to a year will return polities that were active in that year.
+        Setting seshat_id to the value of the seshat_id will result in only the shapes for that polity being returned.
+        Note: seshat_id in VideoShapefile is new_name in Polity.
+    """
+    if displayed_year != "all" and seshat_id != "all":
+        raise ValueError("Only one of displayed_year or seshat_id should be set not both.")
+
+    if displayed_year != "all":
+        rows = VideoShapefile.objects.filter(polity_start_year__lte=displayed_year, polity_end_year__gte=displayed_year)
+    elif seshat_id != "all":
+        rows = VideoShapefile.objects.filter(seshat_id=seshat_id)
+    else:
+        rows = VideoShapefile.objects.all()
+
+    rows = rows.values('seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom', 'geom')
+
+    shapes = []
+    for shape in rows:
+        if shape['simplified_geom'] == None:  # This may occur if the shape is so small that simplification reduced it to nothing
+            shape['simplified_geom'] = shape['geom']  # Use the original geometry in this case
+        simplified_geom = shape.pop('simplified_geom').geojson
+        shape['geom'] = simplified_geom
+
+        # If the polity shape is part of a personal union or meta-polity, add colour and polity years for the union
+        if shape['seshat_id']:
+            for shape2 in rows:
+                if shape2['seshat_id']:
+                    if shape['seshat_id'] in shape2['seshat_id'] and ';' in shape2['seshat_id'] and shape['seshat_id'] != shape2['seshat_id']:
+                        shape['union_colour'] = shape2['colour']
+                        shape['union_name'] = shape2['name']
+                        shape['union_start_year'] = shape2['polity_start_year']
+                        shape['union_end_year'] = shape2['polity_end_year']
+                        break  # Exit the loop once the matching shape is found
+
+        shapes.append(shape)
+
+    seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
+    polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
+    polity_info = [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
+
+    seshat_id_page_id = {new_name: {'id': id, 'long_name': long_name or ""} for new_name, id, long_name in polity_info}
+
+    if 'migrate' not in sys.argv:
+        result = VideoShapefile.objects.aggregate(
+            min_year=Min('polity_start_year'), 
+            max_year=Max('polity_end_year')
+        )
+        earliest_year = result['min_year']
+        latest_year = result['max_year']
+        initial_displayed_year = earliest_year
+    else:
+        earliest_year, latest_year = 2014, 2014
+        initial_displayed_year = -3400
+
+    if displayed_year == "all":
+        displayed_year = initial_displayed_year 
+
+    if seshat_id != "all":
+        earliest_year = min([shape['start_year'] for shape in shapes])
+        displayed_year = earliest_year
+        latest_year = max([shape['end_year'] for shape in shapes])
+
+    content = {
+        'shapes': shapes,
+        'earliest_year': earliest_year,
+        'display_year': displayed_year,
+        'latest_year': latest_year,
+        'seshat_id_page_id': seshat_id_page_id
+    }
+
+    return content
+
+def get_all_polity_capitals():
+    """
+        Get capital cities for polities that have them.
+    """
+    from seshat.apps.core.templatetags.core_tags import get_polity_capitals
+
+    # Try to get the capitals from the cache
+    all_capitals_info = cache.get('all_capitals_info')
+
+    if all_capitals_info is None:
+        all_capitals_info = {}
+        for polity in Polity.objects.all():
+            caps = get_polity_capitals(polity.id)
+
+            if caps:
+                # Set the start and end years to be the same as the polity where missing
+                modified_caps = caps
+                i = 0
+                for capital_info in caps:
+                    if capital_info['year_from'] == None:
+                        modified_caps[i]['year_from'] = polity.start_year
+                    if capital_info['year_to'] == None:
+                        modified_caps[i]['year_to'] = polity.end_year
+                    i+=1
+                all_capitals_info[polity.new_name] = modified_caps
+        # Store the capitals in the cache for 1 hour
+        cache.set('all_capitals_info', all_capitals_info, 3600)
+
+    return all_capitals_info
+
+def assign_variables_to_shapes(shapes, app_map):
+    """
+        Assign the absent/present variables to the shapes.
+    """
+    from seshat.apps.sc.models import ABSENT_PRESENT_CHOICES  # These should be the same in the other apps
+    # Try to get the variables from the cache
+    variables = cache.get('variables')
+    if variables is None:
+        variables = {}
+        for app_name, app_name_long in app_map.items():
+            module = apps.get_app_config(app_name)
+            variables[app_name_long] = {}
+            for model in module.get_models():
+                for field in model._meta.get_fields():
+                    if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
+                        # Get the variable name and formatted name
+                        if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
+                            var_name = model.__name__.lower()
+                            var_long = getattr(model._meta, 'verbose_name_plural', model.__name__.lower())
+                            if var_name == var_long:
+                                variable_formatted = var_name.capitalize().replace('_', ' ')
+                            else:
+                                variable_formatted = var_long
+                        else:  # Use the field name for other models
+                            var_name = field.name
+                            variable_formatted = field.name.capitalize().replace('_', ' ')
+                        variables[app_name_long][var_name] = {}
+                        variables[app_name_long][var_name]['formatted'] = variable_formatted
+                        # Get the variable subsection and subsubsection if they exist
+                        variable_full_name = variable_formatted
+                        instance = model()
+                        if hasattr(instance, 'subsubsection'):
+                            variable_full_name = instance.subsubsection() + ': ' + variable_full_name
+                        if hasattr(instance, 'subsection'):
+                            variable_full_name = instance.subsection() + ': ' + variable_full_name 
+                        variables[app_name_long][var_name]['full_name'] = variable_full_name
+
+            # Sort a given app's variables alphabetically by full name
+            variables[app_name_long] = dict(sorted(variables[app_name_long].items(), key=lambda item: item[1]['full_name']))
+
+        # Store the variables in the cache for 1 hour
+        cache.set('variables', variables, 3600)
+
+    for app_name, app_name_long in app_map.items():
+
+        app_variables_list = list(variables[app_name_long].keys())
+        module_path = 'seshat.apps.' + app_name + '.models'
+        module = __import__(module_path, fromlist=[variable.capitalize() for variable in app_variables_list])
+        variable_classes = {variable: getattr(module, variable.capitalize()) for variable in app_variables_list}
+
+        seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id'] != 'none']
+        polities = {polity.new_name: polity for polity in Polity.objects.filter(new_name__in=seshat_ids)}
+
+        for variable, class_ in variable_classes.items():
+            variable_formatted = variables[app_name_long][variable]['formatted']
+            variable_objs = {obj.polity_id: obj for obj in class_.objects.filter(polity_id__in=polities.values())}
+
+            for shape in shapes:
+                shape[variable_formatted] = 'uncoded'  # Default value
+                polity = polities.get(shape['seshat_id'])
+                if polity:
+                    variable_obj = variable_objs.get(polity.id)
+                    if variable_obj:
+                        try:
+                            shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
+                        except AttributeError:  # For rt models where coded_value is used
+                            shape[variable_formatted] = getattr(variable_obj, 'coded_value')
+                else:
+                    shape[variable_formatted] = 'no seshat page'
+
+    return shapes, variables
+
+def assign_categorical_variables_to_shapes(shapes, variables):
+    """
+        Assign the categorical variables to the shapes.
+        Currently only language is implemented.
+    """
+    # Add language variables to the variables
+    variables['General Variables'] = {
+        'polity_linguistic_family': {'formatted': 'linguistic_family', 'full_name': 'Linguistic Family'},
+        'polity_language_genus': {'formatted': 'language_genus', 'full_name': 'Language Genus'},
+        'polity_language': {'formatted': 'language', 'full_name': 'Language'}
+    }
+
+    # Fetch all polities and store them in a dictionary for quick access
+    polities = {polity.new_name: polity for polity in Polity.objects.all()}
+
+    # Fetch all linguistic families, language genuses, and languages and store them in dictionaries for quick access
+    linguistic_families = {}
+    for lf in Polity_linguistic_family.objects.all():
+        if lf.polity_id not in linguistic_families:
+            linguistic_families[lf.polity_id] = []
+        linguistic_families[lf.polity_id].append(lf)
+
+    language_genuses = {}
+    for lg in Polity_language_genus.objects.all():
+        if lg.polity_id not in language_genuses:
+            language_genuses[lg.polity_id] = []
+        language_genuses[lg.polity_id].append(lg)
+
+    languages = {}
+    for l in Polity_language.objects.all():
+        if l.polity_id not in languages:
+            languages[l.polity_id] = []
+        languages[l.polity_id].append(l)
+
+    # Add language variable info to polity shapes
+    for shape in shapes:
+        shape['linguistic_family'] = []
+        shape['language_genus'] = []
+        shape['language'] = []
+        if shape['seshat_id'] != 'none':  # Skip shapes with no seshat_id
+            polity = polities.get(shape['seshat_id'])
+            if polity:
+                # Get the linguistic family, language genus, and language for the polity
+                shape['linguistic_family'].extend([lf.linguistic_family for lf in linguistic_families.get(polity.id, [])])
+                shape['language_genus'].extend([lg.language_genus for lg in language_genuses.get(polity.id, [])])
+                shape['language'].extend([l.language for l in languages.get(polity.id, [])])
+
+        # If no linguistic family, language genus, or language was found, append 'Uncoded'
+        polity = polities.get(shape['seshat_id'])
+        if polity:
+            if not shape['linguistic_family']:
+                shape['linguistic_family'].append('Uncoded')
+            if not shape['language_genus']:
+                shape['language_genus'].append('Uncoded')
+            if not shape['language']:
+                shape['language'].append('Uncoded')
+        else:
+            if not shape['linguistic_family']:
+                shape['linguistic_family'].append('No Seshat page')
+            if not shape['language_genus']:
+                shape['language_genus'].append('No Seshat page')
+            if not shape['language']:
+                shape['language'].append('No Seshat page')  
+
+    return shapes, variables
+
+# Get all the variables used in the map view
+app_map = {
+    'sc': 'Social Complexity Variables',
+    'wf': 'Warfare Variables (Military Technologies)',
+    'rt': 'Religion Tolerance',
+    # 'general': 'General Variables',
+}
+
+# Get sorted lists of choices for each categorical variable
+categorical_variables = {
+    'linguistic_family': sorted([x[0] for x in POLITY_LINGUISTIC_FAMILY_CHOICES]),
+    'language_genus': sorted([x[0] for x in POLITY_LANGUAGE_GENUS_CHOICES]),
+    'language': sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
+}
+
+def map_view_initial(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The inital view just loads the polities for the initial_displayed_year.
+    """
+
+    # Check if 'year' parameter is in the request
+    if 'year' in request.GET:
+        # If 'year' parameter is present, store it in the session
+        # Ensures that if a user clicks through to a polity page from the world map,
+        # then hits the back button in browser, the initial year loaded is what they were previously looking at
+        request.session['year'] = request.GET['year']
+        displayed_year = request.GET['year']
+    else:
+        # If 'year' parameter is not present, redirect to the same view with 'year' set to 1900
+        return redirect('{}?year={}'.format(request.path, 1900))
+
+    content = get_polity_shape_content(displayed_year=displayed_year)
+
+    # Add in the present/absent variables to view for the shapes
+    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+
+    # Add in the categorical variables to view for the shapes
+    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
+
+    # Load the capital cities for polities that have them
+    caps = get_all_polity_capitals()
+    content['all_capitals_info'] = caps
+
+    # Add categorical variable choices to content for dropdown selection
+    content['categorical_variables'] = categorical_variables
+    
+    return render(request,
+                  'core/world_map.html',
+                  content
+                  )
+
+def map_view_all(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The view loads all polities for the range of years.
+    """
+    content = get_polity_shape_content()
+
+    # Add in the present/absent variables to view for the shapes
+    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+
+    # Add in the categorical variables to view for the shapes
+    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
+
+    # Load the capital cities for polities that have them
+    caps = get_all_polity_capitals()
+    content['all_capitals_info'] = caps
+
+    # Add categorical variable choices to content for dropdown selection
+    content['categorical_variables'] = categorical_variables
+    
+    return JsonResponse(content)
+
+def provinces_and_countries_view(request):
+    provinces = get_provinces()
+    countries = get_provinces(selected_base_map_gadm='country')
+
+    content = {
+        'provinces': provinces,
+        'countries': countries,
+    }
+
+    return JsonResponse(content)
 ######################
 
 def update_seshat_comment_part_view(request, pk):

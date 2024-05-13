@@ -1,0 +1,792 @@
+{% load leaflet_tags %}
+{% load humanize %}
+{% load static %}
+
+<head>
+    {% block title %}
+    <title>Seshat World Map</title>
+    {% endblock %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Be+Vietnam+Pro:wght@400;600;900&family=Lobster&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Mochiy+Pop+P+One&family=Neonderthaw&display=swap"
+        rel="stylesheet" />
+    <link rel="icon" type="image/png" href="http://seshatdatabank.info/databrowser/img/seshat-icon.png" />
+    <link rel="shortcut icon" href="#" />
+    
+    <!-- Datatbales for Srting tables -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css" />
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    
+    <script src="https://kit.fontawesome.com/3299560c1d.js" crossorigin="anonymous"></script>
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script> -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous"> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'core/treeview.css' %}">
+    <!-- jQury minified -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+    <!-- Multiple Select Select2 JavaScript -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- Added for dynamicdropdowns in sections -->
+    {% block dynamicdropdownjs %} {% endblock %}
+
+    {% load leaflet_tags %}
+    {% leaflet_js %}
+    {% leaflet_css %}
+    {% load static %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+</head>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Nunito Sans', sans-serif;
+    }
+
+    .wrapper {
+        min-height: 100vh;
+        /* Minimum height to cover the full viewport height */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .inner-content {
+        flex-grow: 1;
+        /* Allow content to grow and fill remaining space */
+        /* Add any additional styles for your content here */
+    }
+    .leaflet-popup-content-wrapper {
+        width: 320px;
+    }
+
+    #variableLegend {
+    position: absolute;
+    bottom: 75;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 200px;
+    z-index: 999;
+}
+
+</style>
+<body style="background-color: #fffdf2;">
+    <div class="wrapper">
+    <div class="inner-content">
+    {% include "core/partials/_navbar.html" %}
+    {% block content %}
+    <div style="display: flex;">
+        <div>
+            <fieldset>
+                <legend>
+                    <h3>Polities</h3>
+                    <!-- Add a loading indicator -->
+                    <div id="loadingIndicator">
+                        <p id="loadingText" style="font-size: 16px;">Loading polities for all years...</p>
+                        <p style="font-size: 16px;">Note: You may adjust the year<br>now to quickly load a year of interest,<br>but this will slow loading all polities!</p>
+                        <div class="spinner"></div>                   
+                    </div>
+                </legend>
+
+                <div class="slidecontainer">
+                    <label for="chooseVariable">Variable: </label>
+                    <select name="chooseVariable" id="chooseVariable" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">
+                        <option value="polity">Polity</option>
+                        {% for category, variables in variables.items %}
+                            {% if category == 'General Variables' %}
+                                <optgroup label="{{ category }}">
+                                    {% for variable, details in variables.items %}
+                                        <option value="{{ details.formatted }}">{{ details.full_name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endif %}
+                        {% endfor %}
+                        {% for category, variables in variables.items %}
+                            {% if category != 'General Variables' %}
+                                <optgroup label="{{ category }}">
+                                    {% for variable, details in variables.items %}
+                                        <option value="{{ details.formatted }}">{{ details.full_name }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+                    <fieldset id="previouslySelectedVariableFieldset" style="display: none">
+                        <label for="previouslySelectedVariable">Switch to </label>
+                        <button id="previouslySelectedVariable" type="button" onclick="previouslySelectedVariableButton()" style="width: 200px; text-overflow: ellipsis;">Polity</button><br>
+                    </fieldset>
+                    <fieldset id="chooseCategoricalVariableSelectionFieldset">
+                        <label for="chooseCategoricalVariableSelection"></label>
+                        <select name="chooseCategoricalVariableSelection" id="chooseCategoricalVariableSelection" onchange="plotPolities()" style="width: 150px; text-overflow: ellipsis;">            
+                        </select><br><br>
+                    </fieldset>
+                    <label for="enterYear">Enter year:</label>
+                    <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" onchange="storeYear()">
+                    <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
+                    <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
+                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;"><br>
+                    <label for="sliderDate">Selected year:</label><span id="sliderDate"></span><br><br>
+                    <label for="playButton">Run animation:</label>
+                    <button id="playButton" type="button" onclick="startPlay()" disabled>▶️</button>
+                    <button id="stopButton" type="button" onclick="stopPlay()" disabled>⏸</button><br>
+                    <label for="playRate">Animation speed:</label>
+                    <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" onchange="plotPolities()" disabled><br>
+                    <label for="opacitySlide">Opacity:</label>
+                    <input type="range" name="opacitySlide" id="opacitySlide" min="0.1" max="1" step="0.1" value="0.5" class="slider" onchange="plotPolities()" style="width: 150px;"><br><br>
+                    <!-- TODO: Uncomment this when there are more capitals with coordinates in the database -->
+                    <!-- <label for="showCapitals">Show capital cities</label>
+                    <input type="checkbox" id="showCapitals" name="showCapitals" onclick=plotPolities()><br><br> -->
+                </div>
+            </fieldset>
+            <ul>
+                <li>Choose the variable to view.</li>
+                <li>Click shape for polity info.</li>
+                <fieldset id="politySpecificInfo" style="display: block">
+                    <li>Click shape to update legend.</li>
+                    <li>Click again to remove from legend.</li>
+                </fieldset>
+                <li>Double click to reach Seshat page.</li>
+                <li>Change the year or play animation.</li>
+                <!-- <li>Show capital city coordinates.</li> -->
+                <li>Try different base maps.</li>
+            </ul>
+            <fieldset>
+                <legend>
+                    <h3>Base Map</h3>
+                </legend>
+                <label for="baseMapOnly">Base map only</label>
+                <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br>
+                <label><input type="radio" name="baseMap" id="baseMapBasic" value="cartobasic" onclick="switchBaseMapWorldMap()"
+                        checked>Basic</label><br>
+                <label><input type="radio" name="baseMap" id="baseMapOSM" value="osm"
+                        onclick="switchBaseMapWorldMap()">OpenStreetMap</label><br>
+                <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMapWorldMap()"
+                        disabled>Current borders (<a href="https://gadm.org/maps.html" target="_blank">GADM</a>)</label>
+                <!-- Add a loading indicator for Current borders -->
+                <div id="baseMapCurrentLoadingIndicator">
+                    <p>Loading current borders...</p>
+                    <div class="spinner"></div>
+                </div><br>
+            </fieldset>
+            <fieldset id="baseMapGADMFieldset">
+                <label for="baseMapGADM">Current borders:</label>
+                <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMapWorldMap()">
+                    <option value="country">Countries</option>
+                    <option value="province">Provinces</option>
+                </select><br>
+                <p>Click a country or province.</p>
+            </fieldset>
+        </div>
+        <div id="map" style="height: 85vh; flex: 1;"></div>
+        <div id="variableLegend"></div>
+    </div>
+    <script src="{% static 'core/js/map_functions.js' %}"></script>
+    <script>
+
+        // If there's a variable stored in the local storage, set the variable selection to that
+        if (localStorage.getItem('variable')) {
+            document.getElementById('chooseVariable').value = localStorage.getItem('variable');
+        }
+
+        var categorical_variables = {{ categorical_variables | safe }};
+        updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
+        
+        var displayedShapes = [];
+        var polityBorderWeight = 0;
+
+        // Load inital polity shapes for the displayed year
+        var shapesData = [
+            // JavaScript object representing shape data
+            {% for shape in shapes %}
+                {
+                    {% for key, value in shape.items %}
+                        '{{ key }}': '{{ value|escapejs }}',
+                    {% endfor %}
+                    'weight': polityBorderWeight,
+                },
+            {% endfor %}
+        ];
+
+        // Iterate through shapesData and ensure that fields that are lists are interpreted properly
+        shapesData.forEach(function (shape) {
+            if (shape.language) {
+                shape.language = JSON.parse(shape.language.replace(/'/g, '"'));
+            }
+            if (shape.language_colour) {
+                shape.language_colour = JSON.parse(shape.language_colour.replace(/'/g, '"'));
+            }
+            if (shape.language_genus) {
+                shape.language_genus = JSON.parse(shape.language_genus.replace(/'/g, '"'));
+            }
+            if (shape.linguistic_family) {
+                shape.linguistic_family = JSON.parse(shape.linguistic_family.replace(/'/g, '"'));
+            }
+        });
+
+        // Load seshat_id_page_id dictionary
+        var seshat_id_page_id = {{ seshat_id_page_id | safe }};
+
+        // Load capital info
+        var allCapitalsInfo = {{ all_capitals_info | safe }};
+
+        var provinceShapeData;
+        var countryShapeData;
+
+        var allPolitiesLoaded = false; // Used within storeYear() function
+
+        // Load all polity shapes and modern province/country shapes in background
+        window.addEventListener('load', function () {
+            fetch('/core/world_map_all/')
+                .then(response => response.json())
+                .then(data => {
+                    shapesData = data.shapes.map(function (shape) {
+                        shape.weight = polityBorderWeight;
+                        return shape;
+                    });
+
+                    // Update seshat_id_page_id from the JSON response
+                    seshat_id_page_id = data.seshat_id_page_id;
+
+                    // Update allCapitalsInfo from the JSON response
+                    allCapitalsInfo = data.all_capitals_info;
+
+                    // Call plotPolities() after shapesData is updated
+                    plotPolities();
+
+                    allPolitiesLoaded = true;
+
+                    // Hide the loading indicator and enable the buttons after the fetch request is done
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                    document.getElementById('enterYear').disabled = false;
+                    document.getElementById('minusButton').disabled = false;
+                    document.getElementById('plusButton').disabled = false;
+                    document.getElementById('dateSlide').disabled = false;
+                    document.getElementById('playButton').disabled = false;
+                    document.getElementById('stopButton').disabled = false;
+                    document.getElementById('playRate').disabled = false;
+                    document.getElementById('chooseVariable').disabled = false;
+
+                    // Start the second fetch after the first one is complete
+                    return fetch('/core/provinces_and_countries');
+                })
+                .then(response => response.json())
+                .then(data => {
+                    provinceShapeData = data.provinces.map(function (shape) {
+                        return {
+                            geometry: JSON.parse(shape.aggregated_geometry),
+                            country: shape.country,
+                            province: shape.province,
+                            provinceType: shape.province_type
+                        };
+                    });
+
+                    countryShapeData = data.countries.map(function (shape) {
+                        return {
+                            geometry: JSON.parse(shape.aggregated_geometry),
+                            country: shape.country
+                        };
+                    });
+
+                    // Enable the radio selection after the fetch request is done
+                    document.getElementById('baseMapCurrentLoadingIndicator').style.display = 'none';
+                    document.getElementById('baseMapCurrent').disabled = false;
+                });
+        });
+
+        var map = L.map('map').setView([0, 0], 2);
+
+        var baseLayers = {
+            "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}.png'),
+            "osm": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        };
+
+        // Select carto as the default base layer
+        var currentLayer = baseLayers.carto.addTo(map);
+        var provinceLayers = []; // Keep track of province layers to remove them later
+
+        // Note: these are the choices for the variable values as encoded in sc.models
+        let variableColourMapping = {
+            'present': 'green',
+            'absent': 'red',
+            'P~A': 'orange',
+            'A~P': 'blue',
+            'unknown': 'yellow',
+            'uncoded': '#ffa2a1',
+            'no seshat page': 'grey'
+        };
+
+        let oneLanguageColourMapping = {
+            'Present exclusively': 'green',
+            'Present': '#13d446',
+            'Absent': 'red',
+            'Unknown': 'yellow',
+            'Uncoded': '#ffa2a1',
+            'No Seshat page': 'grey'
+        };
+
+        function switchBaseMapWorldMap() {
+            switchBaseMap();
+            if (document.getElementById('chooseVariable').value != 'polity') {
+                updateLegend();
+            }
+        }
+
+        function previouslySelectedVariableButton() {
+            document.getElementById('chooseVariable').value = document.getElementById('previouslySelectedVariable').getAttribute('variableSelection');
+            plotPolities();
+        }
+
+        function plotPolities() {  // This function is defined differently in the polity_map template
+
+            var variable = document.getElementById('chooseVariable').value;
+            var selectedYear = document.getElementById('dateSlide').value;
+            var opacity = document.getElementById('opacitySlide').value;
+
+            // Show or hide the polity-specific info fieldset
+            if (variable == 'polity') {
+                document.getElementById('politySpecificInfo').style.display = 'block';
+            } else {
+                document.getElementById('politySpecificInfo').style.display = 'none';
+            }
+
+            // If variable has changed from the previous selection
+            if (localStorage.getItem('variable') != variable) {
+                // Update previously selected variable button
+                document.getElementById('previouslySelectedVariable').setAttribute('variableSelection', localStorage.getItem('variable'));
+                if (localStorage.getItem('variable') in categorical_variables || localStorage.getItem('variable') == 'polity'){
+                    // Categorical variables don't have a full name so we need to modify TODO: Make this more consistent
+                    document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable').replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                } else {
+                    document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable')
+                }
+                document.getElementById('previouslySelectedVariableFieldset').style.display = 'block';
+            }
+
+            // If the variable is categorical, show the categorical variable selection dropdown
+            if (variable in categorical_variables) {
+                // if variable has changed from the previous selection
+                if (localStorage.getItem('variable') != variable) {
+                    updateCategoricalVariableSelection(variable);
+                }
+                document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'block';              
+            } else {
+                document.getElementById('chooseCategoricalVariableSelectionFieldset').style.display = 'none';
+            }
+
+            updateLegend();
+
+            // Load capital info if not already loaded
+            if (typeof allCapitalsInfo === 'undefined') {
+                var allCapitalsInfo = {{ all_capitals_info | safe }};
+            };
+
+            // Remove all existing layers from the map
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.GeoJSON || layer instanceof L.MarkerClusterGroup || layer instanceof L.CircleMarker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Convert to int, because for some reason JS converts it to a string
+            var selectedYearInt = parseInt(selectedYear);
+            // Add shapes to the map
+            // Don't plot them if "Base map only" checkbox selected
+            if (!document.getElementById('baseMapOnly').checked){
+                // Iterate over all shapes
+                shapesData.forEach(function (shape) {
+
+                    // Set weight and colour based on the variable
+                    if (variable == 'polity') {  
+                        shapeWeight = shape.weight;
+                        shapeColour = shape.colour;
+
+                        // If the polity shape is part of a personal union or meta-polity during the selected year, set the colour based on the union
+                        if (shape.union_colour) {
+                            if ((parseInt(shape.union_start_year) <= selectedYearInt && parseInt(shape.union_end_year) >= selectedYearInt)) {
+                                shapeColour = shape.union_colour;
+                            };
+                        };
+                    } else if (variable in categorical_variables){
+                        shapeWeight = 2;
+                        if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
+                            if (shape[variable].length > 1) {
+                                shapeColour = oneLanguageColourMapping['Present'];
+                            } else {
+                                shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
+                            }
+                        } else {
+                            if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
+                                shapeColour = oneLanguageColourMapping['Unknown'];
+                            } else if (shape[variable][0] == 'Uncoded') {
+                                shapeColour = oneLanguageColourMapping['Uncoded'];
+                            } else if (shape[variable][0] == 'No Seshat page') {
+                                shapeColour = oneLanguageColourMapping['No Seshat page'];
+                            } else {
+                                shapeColour = oneLanguageColourMapping['Absent'];
+                            }
+                        }                          
+                    } else {  // Absent-present variables
+                        shapeWeight = 2;
+                        shapeColour = variableColourMapping[shape[variable]];
+                    }
+
+                    // If the shape spans the selected year
+                    if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+
+                        // Format the area float
+                        const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                            useGrouping: true
+                        });
+                        
+                        // Format the years
+                        if (parseInt(shape.polity_start_year) < 0) {
+                            displaystart_year = Math.abs(parseInt(shape.polity_start_year)) + ' BCE';
+                        } else {
+                            displaystart_year = shape.polity_start_year + ' CE';
+                        }
+
+                        if (parseInt(shape.polity_end_year) == {{ latest_year }}){
+                            displayend_year = 'Present';
+                        } else {
+                            if (parseInt(shape.polity_end_year) < 0) {
+                                displayend_year = Math.abs(parseInt(shape.polity_end_year)) + ' BCE';
+                            } else {
+                                displayend_year = shape.polity_end_year + ' CE';
+                            }
+                        }
+
+                        // Add shape
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom), {
+                            style: function (feature) {
+                                // Create the style object
+                                var style = {
+                                    fillColor: shapeColour,        // Set the fill color
+                                    weight: shapeWeight,          // Set the border weight
+                                    fillOpacity: opacity         // Set the fill opacity
+                                };
+                                // Set the border color
+                                if (shape[variable] == 'unknown' || shape[variable] == 'Unknown'){
+                                    style.color = 'black';
+                                } else {
+                                    style.color = shapeColour;
+                                }
+                                return style;
+                            },
+                            onEachFeature: function (feature, layer) {
+                                // Add seshat_id to the layer and add a blank string if it doesn't exist
+                                layer.feature.properties.seshat_id = shape.seshat_id || '';
+                                // Add polity name to the layer
+                                layer.feature.properties.polity = shape.polity;
+
+                                var popupContent = `
+                                    <table>
+                                        <tr>
+                                            <th>${shape.polity}</th>
+                                            <th></th>
+                                        </tr>
+                                `;
+                                if (shape.polity != shape.name) {
+                                    popupContent = popupContent + `
+                                        <tr>
+                                            <td>Component</td>
+                                            <td>${shape.name}</td>
+                                        </tr>
+                                    `;
+                                }
+                                if (shape.seshat_id in seshat_id_page_id) {
+                                    longName = seshat_id_page_id[shape.seshat_id]['long_name'];
+                                    if (longName == ''){
+                                        longName = '[Page empty]'
+                                    }
+                                    popupContent = popupContent + `
+                                        <tr>
+                                            <td>Seshat Page</td>
+                                            <td>${longName}</td>
+                                        </tr>
+                                    `;
+                                }
+                                popupContent = popupContent + `
+                                        <tr>
+                                            <td>Duration</td>
+                                            <td>${displaystart_year} to ${displayend_year}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Area (est.)</td>
+                                            <td>${formattedArea} Km<sup>2</sup></td>
+                                        </tr>
+                                `;
+                                if (variable != 'polity' && !categorical_variables.hasOwnProperty(variable)) {
+                                    popupContent = popupContent + `
+                                        <tr>
+                                            <td><span style="text-transform: capitalize;">${variable}</span></td>
+                                            <td><span style="text-transform: capitalize;">${shape[variable]}</span></td>
+                                        </tr>
+                                    `;
+                                }
+                                if (variable == 'language' || variable == 'linguistic_family' || variable == 'language_genus') {
+                                    popupContent = popupContent + `
+                                        <tr>
+                                            <td>Languages</td>
+                                            <td><span style="text-transform: capitalize;">${shape.language.join(', ')}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Language Genus</td>
+                                            <td><span style="text-transform: capitalize;">${shape.language_genus.join(', ')}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Linguistic Family</td>
+                                            <td><span style="text-transform: capitalize;">${shape.linguistic_family.join(', ')}</span></td>
+                                        </tr>
+                                    `;
+                                }
+                                if (allCapitalsInfo[shape.seshat_id]) {
+                                    if (allCapitalsInfo[shape.seshat_id]['year_from'] <= selectedYearInt && allCapitalsInfo[shape.seshat_id]['year_to'] >= selectedYearInt) {
+                                        popupContent = popupContent + `
+                                            <tr>
+                                                <td>Capital: </td>
+                                                <td>${allCapitalsInfo[shape.seshat_id].map(capital => capital.capital).join(', ')}</td>
+                                            </tr>
+                                        `;
+                                    
+                                        popupContent = popupContent + `
+                                                <tr>
+                                                    <td>Capital: </td>
+                                                    <td>${allCapitalsInfo[shape.seshat_id].map(capital => capital.capital).join(', ')}</td>
+                                                </tr>
+                                            `;
+                                    };
+                                };
+                                popupContent = popupContent + `</table>`;
+                                layer.bindPopup(popupContent);
+
+                                // Listen for the click event on the layer
+                                layer.on('click', function (e) {            
+                                    if (allPolitiesLoaded && variable == 'polity'){
+                                        if (shape.weight === 0) {
+                                            // Increase the weight of the clicked layer
+                                            newWeight = 2;
+                                            this.setStyle({
+                                                weight: newWeight
+                                            });
+                                            // Open the popup
+                                            layer.openPopup();
+                                        } else {
+                                            // Decrease the weight of the clicked layer
+                                            newWeight = 0;
+                                            // Close the popup
+                                            layer.closePopup();
+                                        };
+                                        // Update weights in this layer and others of the same polity
+                                        map.eachLayer(function (layer) {
+                                            if (layer.feature && layer.feature.properties && layer.feature.properties.polity === shape.polity ) {
+                                                layer.setStyle({
+                                                    weight: newWeight
+                                                });
+                                            }
+                                        });
+                                        // Update weights in shapesData
+                                        var i = 0;
+                                        shapesData.forEach(function (shape2) {
+                                            if (shape2.polity === shape.polity) {                                           
+                                                shapesData[i]['weight'] = newWeight;
+                                            }
+                                            // Set the weight for shapes with multiple seshat_ids e.g. personal unions
+                                            if (shape2.seshat_id.includes(shape.seshat_id) && shape2.seshat_id.includes(';') && shape2.seshat_id != shape.seshat_id) {
+                                                shapesData[i]['weight'] = newWeight;
+                                                // Split shape2.seshat_id into an array of seshat_ids
+                                                var seshat_ids = shape2.seshat_id.split(';');
+                                                // Update the weight of the corresponding layer
+                                                map.eachLayer(function (layer) {
+                                                    if (layer.feature && layer.feature.properties && seshat_ids.includes(layer.feature.properties.seshat_id)) {
+                                                        layer.setStyle({
+                                                            weight: newWeight
+                                                        });
+                                                        j = 0;
+                                                        shapesData.forEach(function (shape3) {
+                                                            if (layer.feature.properties.seshat_id === shape3.seshat_id) {
+                                                                shapesData[j]['weight'] = newWeight;
+                                                            }
+                                                            j++;
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                            i++;
+                                        });
+                                        updateLegend();
+                                    };
+                                    L.DomEvent.stopPropagation(e);
+                                });
+                            }
+                        }).addTo(map);
+
+                        // Ensure that shapes with multiple seshat_ids are behind their components
+                        if (shape['seshat_id'].includes(';')) {
+                            geoJSONLayer.bringToBack();
+                        }
+
+                        // Click outside a shape on the map to clear legend
+                        // REMOVED: This is very slow and I don't think it's necessary, leave it in case we want to re-enable it
+                        // map.on('click', function () {
+                        //     if(variable == 'polity'){
+                        //         // Update weights in shapesData
+                        //         shapesData = shapesData.map(shape => ({...shape, weight: 0}));
+
+                        //         // Reset the weight of all layers when the map is clicked
+                        //         geoJSONLayer.eachLayer(function (layer) {
+                        //             layer.setStyle({
+                        //                 weight: 0
+                        //             });
+                        //         });
+                        //         updateLegend();
+                        //     };
+                        // });
+
+                        // Open the corresponding Seshat page in a new browser tab when a shape is double-clicked
+                        geoJSONLayer.on('dblclick', function (event) {
+                            // Check if the shape has a corresponding seshat_id
+                            if (shape.seshat_id in seshat_id_page_id) {
+                                // Open the corresponding URL
+                                var polityId = seshat_id_page_id[shape.seshat_id]['id'];
+                                window.open('/core/polity/' + polityId, '_blank');
+                            }
+                        });
+
+                        // Plot capital cities for those polities that have them
+                        // TODO: Uncomment this when there are more capitals with coordinates in the database
+                        // if (document.getElementById('showCapitals').checked) {
+                        //     if (allCapitalsInfo[shape.seshat_id]) {
+                        //         // Plot capital markers       
+                        //         var markers = L.markerClusterGroup({
+                        //             iconCreateFunction: function (cluster) {
+                        //                 return L.divIcon({
+                        //                     html: '<div style="background-color:' + shape.colour + '; color: #fff; border-radius: 50%; text-align: center; line-height: 40px;"><b>' + cluster.getChildCount() + '</b></div>',
+                        //                     className: 'myClusterIcon',
+                        //                     iconSize: L.point(40, 40)
+                        //                 });
+                        //             }
+                        //         });
+                        //         allCapitalsInfo[shape.seshat_id].forEach(function (capital) {                          
+                        //             // If the capital existed in the selected year (or years not specified)
+                        //             if ((capital['year_from'] <= selectedYearInt && capital['year_to'] >= selectedYearInt)) {
+                        //                     popupContent = `
+                        //                     <table>
+                        //                         <tr>
+                        //                             <th>${capital.capital}</th>
+                        //                         </tr>
+                        //                         <tr>
+                        //                             <td>${shape.name}</td>
+                        //                         </tr>
+                        //                     </table>
+                        //                 `;
+                        //                 var marker = L.circleMarker([capital.latitude, capital.longitude], {
+                        //                     color: 'black', // Set the border color
+                        //                     fillColor: shape.colour,  // Set the fill color based on the "colour" field
+                        //                     weight: 2,  // Set the border weight
+                        //                     fillOpacity: 0.5,  // Set the fill opacity
+                        //                     radius: 5
+                        //                 });
+                        //                 marker.bindTooltip(popupContent, {
+                        //                     permanent: true,
+                        //                     direction: "top",
+                        //                     offset: L.point({ x: 0, y: 0 })
+                        //                 });
+
+                        //                 marker.bindPopup(popupContent);
+                        //                 markers.addLayer(marker); // add each marker to the MarkerClusterGroup
+                        //             };
+                        //         });
+
+                        //         map.addLayer(markers); // add the MarkerClusterGroup to the map
+
+                        //     }
+                        // }
+
+                        // Update the displayedShapes array
+                        if (displayedShapes.indexOf(shape.name) === -1) {
+                            displayedShapes.push(shape.name);
+                        }
+                    }
+                });
+            };
+
+            // Store the variable selection
+            localStorage.setItem('variable', variable);
+            if (variable in categorical_variables) {
+                localStorage.setItem(variable, document.getElementById('chooseCategoricalVariableSelection').value);
+            };
+        }
+
+        // Initial plot on page load
+        switchBaseMapWorldMap()
+        plotPolities()
+
+        // Display slider value
+        var slider = document.getElementById("dateSlide");
+        var enterYearInput = document.getElementById("enterYear");
+        var output = document.getElementById("sliderDate");
+        updateSliderOutput(); // Display the default slider value
+
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function () {
+            updateSliderOutput();
+            // Sync enterYear input with dateSlide value
+            enterYearInput.value = slider.value;
+        }
+
+        var playInterval;
+        var playRateInput = document.getElementById("playRate");
+
+        // Add event listener to stop playing when adjusting the slider manually
+        slider.addEventListener("input", stopPlay);
+
+        // Add event listener to update play rate when the input changes
+        playRateInput.addEventListener("change", function () {
+            stopPlay(); // Stop current play if ongoing
+            startPlay(); // Start with the updated play rate
+        });
+
+        // Make sure Radio selection is kept on page refresh
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get the country parameter from the URL
+            var urlParams = new URLSearchParams(window.location.search);
+
+            // Trigger filtering when the page refreshes
+            plotPolities();
+
+        });
+
+        // Update the enterYear input value when the user hits return
+        enterYearInput.addEventListener("keyup", function (event) {
+            if (event.key === "Enter") {
+                // Update the slider value
+                slider.value = enterYearInput.value;
+                updateSliderOutput();
+                plotPolities();
+            }
+        });
+
+    </script>
+    {% endblock %}
+    </div>
+    {% include "core/partials/_footer_bar.html" %}
+    </div>
+</body>
