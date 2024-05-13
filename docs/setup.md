@@ -324,7 +324,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
 
 9. Ensure that all Django database migrations have run:
     ```
-        python manage.py migrate core
+        python manage.py migrate
     ```
 
 10. If the shape data tables are not yet populated in your copy of the Seshat core database and you have access to source data, populate one or more of them with the instructions in [spatialdb.md](spatialdb.md).
