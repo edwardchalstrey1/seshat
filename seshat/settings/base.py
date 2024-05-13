@@ -364,3 +364,18 @@ django_heroku.settings(locals())
 #print(STATICFILES_DIRS)
 #print(STATIC_ROOT)
 #print(STATIC_URL)
+
+# Geospatial stuff: modify the paths to the libraries for your system setup
+GEOGRAPHIC_DB = True
+
+if sys.platform.startswith('darwin'): # macOS
+    GDAL_LIBRARY_PATH = '/opt/homebrew/opt/gdal/lib/libgdal.dylib'
+    GEOS_LIBRARY_PATH = '/opt/homebrew/opt/geos/lib/libgeos_c.dylib'
+else: # linux
+    GDAL_LIBRARY_PATH = '/usr/lib/libgdal.so'
+    if os.getenv('GITHUB_ACTIONS') == 'true':
+        GEOS_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgeos_c.so'
+    else:
+        # TODO: find a way to specify this based on the VM: aarch64 or x86_64
+        # GEOS_LIBRARY_PATH = '/usr/lib/aarch64-linux-gnu/libgeos_c.so'
+        GEOS_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgeos_c.so'
