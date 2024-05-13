@@ -322,7 +322,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
         ```
     - The presence of this file will ensure Django connects to your local database
 
-9. Ensure that database migrations have run for the "core" Django app:
+9. Ensure that all Django database migrations have run:
     ```
         python manage.py migrate core
     ```
