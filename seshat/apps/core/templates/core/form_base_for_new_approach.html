@@ -83,7 +83,10 @@
                     <h4><span >{{ myvar }}</span></h4>
                 </div>
                 <div class="col-md-8 border-dark">
+                    {% autoescape off %}
                     <h6 class="lead-2 text-secondary"><span class="text-dark fw-bold">{{ myvar }}: </span> {{my_exp}}</h6>
+                    {% endautoescape %}
+
                 </div> 
 
             </div> 
@@ -111,32 +114,32 @@
         </ul>
         <hr class="bg-colorful">
         {% endif %}
-        <div class="row pt-2 ps-2" style="background:blanchedalmond;">
-            <div class="col-md-6 row">
-                <div class="col-md-12 pb-2">
+        <div class="row pt-2 ps-2" style="background:rgba(255, 235, 205, 0.664);">
+            <div class="col-sm-6 row">
+                <div class="col-sm-12 pb-2">
                     {{ form.polity|as_crispy_field }}
                 </div>
-                <div class="col-md-6 pb-2">
+                <div class="col-sm-6 pb-2">
                     {{ form.year_from|as_crispy_field }}
                   </div>
-                  <div class="col-md-6 pb-2">
+                  <div class="col-sm-6 pb-2">
                     {{ form.year_to|as_crispy_field }}
                   </div>
                   {% block extra_vars %}
                   {% endblock extra_vars %}
-                  <div class="col-md-6 mb-1">
+                  <div class="col-sm-6 mb-1">
                     {{ form.is_disputed|as_crispy_field }}
                     {{ form.is_uncertain|as_crispy_field }}
                     {{ form.expert_reviewed|as_crispy_field }}
                 </div>
-                <div class="col-md-6 pe-0">
+                <div class="col-sm-6 pe-0">
                     <fieldset>
                         <div class="form-check pb-4 justify-content-end">
                             {% for radio in form.tag %}
                                 <label class="ps-4 pb-1 pe-0 h6 form-check-label" for="{{ radio.id_for_label }}">
                                     {{ radio.tag }}
                                     <span class="badge rounded-pill px-3 py-1 border border-dark
-                                        {% if radio.choice_label == 'Evidenced' %}
+                                        {% if radio.choice_label == 'Confident' %}
                                             bg-success
                                         {% elif radio.choice_label == 'Inferred' %}
                                             bg-primary 
@@ -152,15 +155,15 @@
                     </fieldset>
                 </div>
             </div>
-            <div class="col-md-6 row">
-                <div class="col-md-12">
+            <div class="col-sm-6 row">
+                <div class="col-sm-12">
                     {{ form.description|as_crispy_field }}
                 </div>
-                <div class="col-md-6 mb-2 py-2 d-grid mx-auto">
+                <div class="col-sm-6 mb-2 py-2 d-grid mx-auto">
                     {% block delete_button %}
                     {% endblock delete_button %}
                 </div>
-                <div class="col-md-6 mb-2 py-2 d-grid mx-auto">
+                <div class="col-sm-6 mb-2 py-2 d-grid mx-auto">
                     <button type="submit" class="btn btn-outline-success my-auto btn-block btn-lg">Submit for Review*</button>
                 </div>
             </div>

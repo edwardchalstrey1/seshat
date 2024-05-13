@@ -113,13 +113,15 @@
                   <h1 class="py-3 ps-0"><span class="badge rounded-pill bg-teal text-dark">Religion Tolerance Variables</span> 
                   </h1>               
                  </div>
-                  <div class="col-md-3">    
-                    <a href='{% url "problematic_rt_data_table" %}' class="btn btn-outline-danger mx-1 my-2 float-end"> <i class="fa-solid fa-up-right-from-square fa-sm"></i>  &nbsp;Inconsistent Year Ranges</a>
-                </div>
-                <div class="col-md-3 px-0">    
-                    <a href='{% url "download_csv_all_rt" %}' class="btn btn-outline-success mx-1 my-2 float-end"> <i class="fa-solid fa-file-csv"></i> &nbsp; Download <b>All</b> (.CSV) </a>
-                </div>
+                  <div class="col-md-6">    
 
+                    <a href='{% url "download_csv_all_rt" %}' class="btn btn-outline-success mx-1 my-2 float-end"> <i class="fa-solid fa-file-csv"></i> &nbsp; Download <b>All</b> (.CSV) </a>
+                    <a href='{% url "problematic_rt_data_table" %}' class="btn btn-outline-danger mx-1 my-2 float-end"> <i class="fa-solid fa-up-right-from-square fa-sm"></i>  &nbsp;Inconsistent Year Ranges</a>
+                    {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions and 'core.add_seshatprivatecommentpart' in user.get_all_permissions %}
+                      <a href='{% url "religion_list" %}' class="btn btn-outline-success mx-1 my-2 float-end">See all Religions</a>
+                      {% endif%}
+
+              </div>
 
             </div>
 

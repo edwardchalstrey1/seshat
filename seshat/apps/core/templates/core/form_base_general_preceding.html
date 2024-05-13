@@ -1,0 +1,157 @@
+{% extends "core/seshat-base.html" %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load mathfilters %}
+{% load custom_filters %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+
+
+<style>
+    /* Style the dropdown */
+    .select2-container .select2-selection--single {
+      height: 38px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px;
+    }
+
+    .select2-container .select2-results__option:hover {
+        background-color: #782823;
+        color: beige;
+      }
+
+
+      .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #782823;
+        color: beige;
+      }
+  
+    /* Style the dropdown arrow */
+    .select2-container .select2-selection__arrow {
+      height: 36px;
+      margin-top: 4px; /* Adjust the margin-top as needed */
+    }
+  </style>
+<!-- form-row and form-group etc are removed in Bootstrap 5 -->
+<div class="container mt-3">
+    <h6 class="lead-2 text-secondary">Other existing data for the polities on this page:</h6>
+
+    {% block existing_vals %}
+    {% endblock existing_vals %}
+    <form action="" method="post">
+        {% csrf_token %}
+
+        <legend>
+
+
+            <div class="row d-flex align-items-center pb-2">
+                <div class="col-md-12">
+                    <h6 class="lead-2 text-secondary">Enter data for:</h6>
+                    <h6><span class="display-6">Consecutive Polities</span></h6>
+                    <h6 class="lead-2 text-secondary">{{my_exp}}</h6>
+                </div>
+
+
+
+            </div> 
+             </legend>
+        {% if messages %}
+        <ul class="messages mt-3">
+            {% for message in messages %}
+            <div class="container-fluid p-0">
+                <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+                    <i class="fa-solid fa-circle-info"></i> Thank you <b>{{ user }}</b>. {{ message }}
+                </div>
+            </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+            <div class="container-fluid p-0">
+              <div class="text-danger" role="alert" >
+                <i class="fa-solid fa-triangle-exclamation"></i>  {{ error }}
+              </div>
+            </div>
+            {% endfor %}
+            <hr> 
+            {% endif %}
+        </ul>
+        {% endif %}
+
+
+        <div class="row">
+
+                  <!-- Here come the extra vars -->
+          {% block extra_vars %}
+          {% endblock extra_vars %}
+          <div class="col-md-2">
+            <fieldset>
+                    <div class="form-check pb-4 justify-content-end">
+                        {% for radio in form.tag %}
+                            <label class="ps-4 pb-1 pe-0 h6 form-check-label" for="{{ radio.id_for_label }}">
+                                {{ radio.tag }}
+                                <span class="badge rounded-pill px-3 py-1 border border-dark
+                                    {% if radio.choice_label == 'Confident' %}
+                                        bg-success
+                                    {% elif radio.choice_label == 'Inferred' %}
+                                        bg-primary 
+                                    {% elif radio.choice_label == 'Suspected' %}
+                                        bg-warning text-dark 
+                                    {% endif %}
+                                ">  
+                                    {{ radio.choice_label }}
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+            </fieldset>
+          </div>
+            <div class="col-md-2">
+                {{ form.is_disputed|as_crispy_field }}
+                {{ form.is_uncertain|as_crispy_field }}
+                {{ form.expert_reviewed|as_crispy_field }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                    {{ form.description|as_crispy_field }}
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-2 py-2 d-grid mx-auto">
+                {% block delete_button %}
+                {% endblock delete_button %}
+            </div>
+            <div class="col-md-4 mb-2 py-2 d-grid mx-auto">
+                <button type="submit" class="btn btn-outline-success my-auto btn-block btn-lg">Submit for Review*</button>
+            </div>
+
+        </div>
+
+        <!-- {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="text-danger"><h3> {{ error }} </h3></div>
+            {% endfor %}
+        {% endfor %}
+        {% endif %} -->
+          </form>
+
+        {% block delete_option %}
+        {% endblock delete_option %}
+
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Initialize Select2 with an empty dataset
+        $('.js-example-basic-single').select2();
+    });    
+</script>
+{% endblock %}

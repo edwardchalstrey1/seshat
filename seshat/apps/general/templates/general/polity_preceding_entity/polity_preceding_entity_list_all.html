@@ -1,4 +1,4 @@
-{% extends "core/list_base_all_general.html" %}
+{% extends "core/list_base_all_general_preceding.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 {% load humanize %}
@@ -18,26 +18,47 @@
 {% endblock main_description %}
 
 {% block myheadings_list %}
-<th class = "fw-bold" style="text-align: center;" scope="col"><span>
-    <a href="{% url 'polity_preceding_entitys_all' %}?orderby=preceding_entity&orderby2=tag"><i class="fa-solid fa-caret-down"></i></a>
-</span>Preceding Entity
+<th class = "fw-bold" style="text-align: left;" scope="col"><span>
+    <a href="{% url 'polity_preceding_entitys_all' %}?orderby=other_polity&orderby2=tag"><i class="fa-solid fa-caret-down"></i></a>
+</span>Entity A (Prior)
 </th>
+<th class = "fw-bold" style="text-align: left;" scope="col">
+    Relationship
+</th>
+<th scope="col" style="text-align: left" class="fw-bold">
+    <span>
+        <a href="{% url 'polity_preceding_entitys_all' %}?orderby=polity&orderby2=tag"><i class="fa-solid fa-caret-down"></i></a>
+    </span>
+    Entity B (Subsequent)</th>
 {% endblock myheadings_list %}
 
 {% block extra_vars_list %}
 
-<td class = "{% if obj.tag == 'DSP' %}
-text-danger
-{% elif obj.tag == 'SSP' %}
-text-warning
-{% elif obj.tag == 'UNK' %}
-text-secondary
-{% elif obj.tag == 'IFR' %}
-text-primary
-{% else %}
-text-success
-{% endif %} fw-normal" style="text-align: center;">
-<h6 class="pt-3">{{ obj.preceding_entity }}</h6>
+<td style="text-align: left;">
+    {% if obj.other_polity %}
+    <span class="fw-bold">
+        <a href="{% url 'polity-detail-main' obj.other_polity.id %}">{{ obj.other_polity }}</a>
+    </span>
+    {% else %}
+    <span class="fw-bold">
+        <span >{{ obj.merged_old_data }}</span>
+    </span>
+    {% endif %}
+</td>
+<td style="text-align: left;">
+{{ obj.relationship_to_preceding_entity }}
+</td>
+<td style="text-align: left;">
+    {% if obj.polity %}
+    <span class="fw-bold">
+        <a href="{% url 'polity-detail-main' obj.polity.id %}">{{ obj.polity }}</a>
+    </span>
+    {% else %}
+    <span class="fw-bold">
+        <span >{{ obj.merged_old_data }}</span>
+    </span>
+    {% endif %}
+
 </td>
 {% endblock extra_vars_list %}
 

@@ -18,8 +18,12 @@
                     <a href="{% url 'capitals' %}" class="btn btn-outline-success mx-3 my-4 float-end"><i class="fa-solid fa-table-list"></i> &nbsp; All Capitals</a>
                 </div>
             </div>
+            <div>
+              <p class="fs-5">
+                * Keep in mind that this is a separate entity and does not have any connection to the polity (no polity dropdown menus here). Instead, once you create a capital instance here, it will be available in the polity_capital dropdown menu, e.g. <a href="{% url 'polity_capital-create' %}">here</a>.
+              </p>
+            </div>
             </div> 
-            <hr>
             {% if messages %}
             <ul class="messages mt-3">
                 {% for message in messages %}
@@ -46,11 +50,8 @@
             {% endif %}
         </legend>
         <div class="row">
-          <div class="col-md-2 mb-2">
+          <div class="col-md-4 mb-2">
             {{ form.name|as_crispy_field }}
-          </div>
-          <div class="col-md-3 mb-2">
-            {{ form.polity_cap|as_crispy_field }}
           </div>
           <div class="col-md-2 mb-2">
             {{ form.longitude|as_crispy_field }}
@@ -58,17 +59,22 @@
           <div class="col-md-2 mb-2">
                 {{ form.latitude|as_crispy_field }}
           </div>
-          <div class="col-md-3 mb-2">
+          <div class="col-md-4 mb-2">
             {{ form.current_country|as_crispy_field }}
         </div>
         </div>
         <div class="row">
-          <div class="col-md-6 mb-2">
-              {{ form.url_on_the_map|as_crispy_field }}
+          <div class="col-md-12 mb-2">
+              {{ form.alternative_names|as_crispy_field }}
           </div>
-          <div class="col-md-6 mb-2">
-            {{ form.note|as_crispy_field }}
         </div>
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                {{ form.url_on_the_map|as_crispy_field }}
+            </div>
+            <div class="col-md-6 mb-2">
+              {{ form.note|as_crispy_field }}
+          </div>
           </div>
           <div class="row">
             <div class="col-md-12 mb-2" style="text-align:center;">
@@ -78,13 +84,14 @@
         <div class="row">
             <div class="col-md-4 mb-2 py-2 d-grid mx-auto">
                 <button type="submit" class="btn btn-outline-success my-auto btn-block btn-lg">Submit for Review*</button>
+            </div>
             {% block delete_button %}
             <div class="col-md-4 mb-2 py-2 d-grid mx-auto">
             <a href="{% url 'capital-delete' object.id %}" type="cancel" class="btn btn-outline-danger my-auto btn-block btn-lg">Delete </a>
             {% endblock delete_button %}
           </div>
-
         </div>
+
 
         <!-- {% if form.errors %}
         {% for field in form %}

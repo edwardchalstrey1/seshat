@@ -14,11 +14,12 @@ import uuid
 
 from django.utils import translation
 
-from ..core.models import SeshatCommon, Certainty, Tags, Section, Subsection
+from ..core.models import SeshatCommon, Polity, Certainty, Tags, Section, Subsection, Capital
 from seshat.apps.accounts.models import Seshat_Expert
 
 
 ########## End of Model Imports
+
 
 ########## Beginning of tuple choices for general Models
 POLITY_DEGREE_OF_CENTRALIZATION_CHOICES = (
@@ -26,35 +27,44 @@ POLITY_DEGREE_OF_CENTRALIZATION_CHOICES = (
 ('confederated state', 'confederated state'),
 ('unitary state', 'unitary state'),
 ('nominal', 'nominal'),
-('confederate state', 'confederate state'),
 ('quasi-polity', 'quasi-polity'),
-('suspected unknown', 'suspected unknown'),
 ('none', 'none'),
 ('unknown', 'unknown'),
-('confederation', 'confederation'),
-('polity', 'polity'),
-('NO_VALUE_ON_WIKI', 'NO_VALUE_ON_WIKI'),
-('nominal allegiance', 'nominal allegiance'),
-('unitary', 'unitary'),
-('feudal', 'feudal'),
-)
-
-POLITY_SUPRAPOLITY_RELATIONS_CHOICES = (
-('none', 'none'),
-('vassalage', 'vassalage'),
-('alliance', 'alliance'),
-('nominal allegiance', 'nominal allegiance'),
-('suspected unknown', 'suspected unknown'),
-('nominal', 'nominal'),
-('personal union', 'personal union'),
-('NO_VALUE_ON_WIKI', 'NO_VALUE_ON_WIKI'),
-('unknown', 'unknown'),
-('Nominal', 'Nominal'),
-('Alliance', 'Alliance'),
 ('uncoded', 'uncoded'),
 )
 
+POLITY_CONSECUTIVE_ENTITY_CHOICES = (
+('continuity', 'continuity'),
+('elite migration', 'elite migration'),
+('cultural assimilation', 'cultural assimilation'),
+('continuation', 'continuation'),
+('indigenous revolt', 'indigenous revolt'),
+('replacement', 'replacement'),
+('population migration', 'population migration'),
+('hostile', 'hostile'),
+('disruption/continuity', 'disruption/continuity'),
+('continuity/discontinuity', 'continuity/discontinuity'),
+('NO_VALUE_ON_WIKI', 'NO_VALUE_ON_WIKI'),
+('suspected unknown', 'suspected unknown'),
+('vassalage', 'vassalage'),
+('not applicable', 'not applicable'),
+('unknown', 'unknown'),
+('economic displacement', 'economic displacement'),
+('secession', 'secession'),
+)
+
+POLITY_SUPRAPOLITY_RELATIONS_CHOICES = (
+('vassalage', 'vassalage to'),
+('alliance', 'alliance with'),
+('nominal allegiance', 'nominal allegiance to'),
+('personal union', 'personal union with'),
+('unknown', 'unknown'),
+('uncoded', 'uncoded'),
+('none', 'none'),
+)
+
 POLITY_LANGUAGE_CHOICES = (
+('Polish', 'Polish'),
 ('Pashto', 'Pashto'),
 ('Persian', 'Persian'),
 ('Greek', 'Greek'),
@@ -786,9 +796,13 @@ class Polity_degree_of_centralization(SeshatCommon):
         return call_my_name(self)
              
 # Be aware that this variable name deviates from the name. Notice supra_polity 
+    
+
+#    a type="button" class="fs-6" data-bs-toggle="tooltip" data-bs-html="true"  title="References: {{ value.display_citations }}"
 class Polity_suprapolity_relations(SeshatCommon):
     name = models.CharField(max_length=100, default="Polity_suprapolity_relations")
     supra_polity_relations = models.CharField(max_length=500, choices=POLITY_SUPRAPOLITY_RELATIONS_CHOICES)
+    other_polity = models.ForeignKey(Polity, models.SET_NULL,blank=True,null=True)
 
     class Meta:
         verbose_name = 'Polity_suprapolity_relations'
@@ -808,8 +822,23 @@ class Polity_suprapolity_relations(SeshatCommon):
     def clean_name_spaced(self):
         return "Polity Suprapolity Relations"
     
+    def display_value(self):
+        if self.supra_polity_relations and self.other_polity and self.polity:
+            polity_url = reverse('polity-detail-main', args=[self.polity.id]) 
+            other_polity_url = reverse('polity-detail-main', args=[self.other_polity.id]) 
+            return f"<a  data-bs-toggle='tooltip' data-bs-html='true'  title='{self.polity.long_name}' href='{polity_url}'>{self.polity.new_name}</a> <span class='badge bg-warning text-dark'><i class='fa-solid fa-left-long'></i>  {self.get_supra_polity_relations_display()}  <i class='fa-solid fa-right-long'></i></span> <a  data-bs-toggle='tooltip' data-bs-html='true'  title='{self.other_polity.long_name}' href='{other_polity_url}'>{self.other_polity.new_name}</a>"
+        elif self.supra_polity_relations == "none":
+            return self.get_supra_polity_relations_display()
+        elif self.supra_polity_relations:
+            return f"{self.get_supra_polity_relations_display()} [---]"
+        else:
+            return " - "
+    
+
     def show_value(self):
-        if self.supra_polity_relations:
+        if self.supra_polity_relations and self.other_polity:
+            return self.get_supra_polity_relations_display() +f" [{self.other_polity.new_name}]"
+        elif self.supra_polity_relations:
             return self.get_supra_polity_relations_display()
         else:
             return " - "
@@ -825,6 +854,62 @@ class Polity_suprapolity_relations(SeshatCommon):
 
     def __str__(self) -> str:
         return call_my_name(self)
+    
+# class Polity_consecutive_entity(SeshatCommon):
+#     name = models.CharField(max_length=100, default="Polity_consecutive_entity")
+#     consecutive_polity_relations = models.CharField(max_length=500, choices=POLITY_CONSECUTIVE_ENTITY_CHOICES)
+#     other_polity = models.ForeignKey(Polity, models.SET_NULL,blank=True,null=True)
+
+#     class Meta:
+#         verbose_name = 'Polity_consecutive_entity'
+#         verbose_name_plural = 'Polity_consecutive_entity'
+#         ordering = ['year_from', 'year_to']
+
+#     @property
+#     def display_citations(self):
+#         return return_citations(self)
+
+#     def clean(self):
+#         clean_times(self)
+
+#     def clean_name(self):
+#         return "polity_consecutive_entity"
+
+#     def clean_name_spaced(self):
+#         return "Polity Consecutive Entities"
+    
+#     def display_value(self):
+#         if self.consecutive_polity_relations and self.other_polity and self.polity:
+#             polity_url = reverse('polity-detail-main', args=[self.polity.id]) 
+#             other_polity_url = reverse('polity-detail-main', args=[self.other_polity.id]) 
+#             return f"<a  data-bs-toggle='tooltip' data-bs-html='true'  title='{self.polity.long_name}' href='{polity_url}'>{self.polity.new_name}</a> <span class='badge bg-warning text-dark'><i class='fa-solid fa-left-long'></i>  {self.get_consecutive_polity_relations_display()}  <i class='fa-solid fa-right-long'></i></span> <a  data-bs-toggle='tooltip' data-bs-html='true'  title='{self.other_polity.long_name}' href='{other_polity_url}'>{self.other_polity.new_name}</a>"
+#         elif self.consecutive_polity_relations == "none":
+#             return self.get_consecutive_polity_relations_display()
+#         elif self.consecutive_polity_relations:
+#             return f"{self.get_consecutive_polity_relations_display()} [---]"
+#         else:
+#             return " - "
+    
+
+#     def show_value(self):
+#         if self.consecutive_polity_relations and self.other_polity:
+#             return self.get_consecutive_polity_relations_display() +f" to: [{self.other_polity.new_name}]"
+#         elif self.consecutive_polity_relations:
+#             return self.get_consecutive_polity_relations_display()
+#         else:
+#             return " - "
+        
+#     def subsection(self):
+#         return "Political and Cultural Relations"
+
+#     def sub_subsection(self):
+#         return None     
+        
+#     def get_absolute_url(self):
+#         return reverse('polity_consecutive_entity-detail', args=[str(self.id)])
+
+#     def __str__(self) -> str:
+#         return call_my_name(self)
     
 class Polity_utm_zone(SeshatCommon):
     name = models.CharField(max_length=100, default="Polity_utm_zone")
@@ -866,11 +951,12 @@ class Polity_utm_zone(SeshatCommon):
     def __str__(self) -> str:
         return call_my_name(self)
              
-             
         
 class Polity_capital(SeshatCommon):
     name = models.CharField(max_length=100, default="Polity_capital")
     capital = models.CharField(max_length=500, blank=True, null=True)
+    polity_cap = models.ForeignKey(Capital, on_delete=models.SET_NULL, null=True, related_name="polity_caps")  
+
 
     class Meta:
         verbose_name = 'Polity_capital'
@@ -891,10 +977,12 @@ class Polity_capital(SeshatCommon):
         return "Polity Capital"
     
     def show_value(self):
-        if self.capital:
+        if self.polity_cap:
+            return self.polity_cap
+        elif self.capital:
             return self.capital
         else:
-            return " - "
+            return call_my_name(self)
         
     def subsection(self):
         return "Identity and Location"
@@ -906,7 +994,12 @@ class Polity_capital(SeshatCommon):
         return reverse('polity_capital-detail', args=[str(self.id)])
 
     def __str__(self) -> str:
-        return call_my_name(self)
+        if self.polity_cap:
+            return self.polity_cap.name
+        elif self.capital:
+            return self.capital
+        else:
+            return call_my_name(self)
              
         
 class Polity_language(SeshatCommon):
@@ -1198,7 +1291,11 @@ class Polity_relationship_to_preceding_entity(SeshatCommon):
         
 class Polity_preceding_entity(SeshatCommon):
     name = models.CharField(max_length=100, default="Polity_preceding_entity")
+    merged_old_data = models.CharField(max_length=1000, blank=True, null=True)
+    relationship_to_preceding_entity = models.CharField(max_length=500, choices=POLITY_RELATIONSHIP_TO_PRECEDING_ENTITY_CHOICES, blank=True,null=True)
     preceding_entity = models.CharField(max_length=500, blank=True, null=True)
+    other_polity = models.ForeignKey(Polity, models.SET_NULL,blank=True,null=True)
+
 
     class Meta:
         verbose_name = 'Polity_preceding_entity'
@@ -1218,8 +1315,30 @@ class Polity_preceding_entity(SeshatCommon):
     def clean_name_spaced(self):
         return "Polity Preceding Entity"
     
+    # def show_value(self):
+    #     if self.preceding_entity:
+    #         return self.preceding_entity
+    #     else:
+    #         return " - "
+
+    def display_value(self):
+        if self.preceding_entity and self.other_polity and self.polity:
+            polity_url = reverse('polity-detail-main', args=[self.polity.id]) 
+            other_polity_url = reverse('polity-detail-main', args=[self.other_polity.id]) 
+            return f"<a  data-bs-toggle='tooltip' data-bs-html='true'  title='{self.other_polity.long_name}' href='{other_polity_url}'>{self.other_polity.new_name}</a> <span class='badge bg-secondary text-white'>  {self.relationship_to_preceding_entity} &nbsp;&nbsp;<i class='fa-solid fa-right-long'></i></span> <a  data-bs-toggle='tooltip' data-bs-html='true'  title='{self.polity.long_name}' href='{polity_url}'>{self.polity.new_name}</a>"
+        elif self.preceding_entity == "none":
+            return self.preceding_entity
+        elif self.preceding_entity:
+            return f"{self.preceding_entity} [---]"
+        else:
+            return " - "
+        
     def show_value(self):
-        if self.preceding_entity:
+        if self.preceding_entity and self.polity and self.other_polity:
+            return self.preceding_entity +f" [{self.other_polity.new_name}]" + ' ---> ' + self.polity.long_name + f" [{self.polity.new_name}]" 
+        elif self.preceding_entity and self.polity:
+            return self.preceding_entity
+        elif self.preceding_entity:
             return self.preceding_entity
         else:
             return " - "

@@ -7,11 +7,23 @@ from django.contrib.auth.models import User
 from django.forms.formsets import BaseFormSet
 
 
-from seshat.apps.core.models import Section, Subsection, Variablehierarchy, Reference, Citation, SeshatComment, SeshatCommentPart, Polity, Capital, Nga
+from seshat.apps.core.models import Section, Subsection, Variablehierarchy, Reference, Citation, SeshatComment, SeshatCommentPart, Polity, Capital, Nga, SeshatPrivateCommentPart, SeshatPrivateComment, Religion
 from django.core.exceptions import NON_FIELD_ERRORS
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.core.exceptions import ValidationError
+
+
+#from .models import Religion
+
+class ReligionForm(forms.ModelForm):
+    class Meta:
+        model = Religion
+        fields = ['religion_name',]
+
+        widgets = {
+            'religion_name': forms.TextInput(
+                attrs={'class': 'form-control mb-3', })}
 
 
 class ReferenceForm(forms.ModelForm):
@@ -75,7 +87,7 @@ class CitationForm(forms.ModelForm):
 class PolityForm(forms.ModelForm):
     class Meta:
         model = Polity
-        fields = ('name', 'new_name', 'long_name', 'start_year', 'end_year','home_seshat_region', 'polity_tag' ,'private_comment','general_description')
+        fields = ('name', 'new_name', 'long_name', 'start_year', 'end_year','home_seshat_region', 'polity_tag' , 'shapefile_name', 'private_comment','general_description')
         labels = {
         'name': 'Polity ID (Old)',
         'new_name': 'Polity ID (New)',
@@ -84,6 +96,7 @@ class PolityForm(forms.ModelForm):
         'end_year': 'End Year',
         'home_seshat_region': 'Home Seshat Region',
         'polity_tag': 'Polity Tag',
+        'shapefile_name': 'Shapefile name',
         'private_comment': 'Private Comment (optional)',
         'general_description': 'General Description of the Polity',
 
@@ -101,6 +114,7 @@ class PolityForm(forms.ModelForm):
                 attrs={'class': 'form-control mb-3 fw-bold', }),
             'home_seshat_region': forms.Select(attrs={'class': 'form-control  js-example-basic-single form-select mb-3',}),
             'polity_tag': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
+            'shapefile_name': forms.TextInput(attrs={'class': 'form-control mb-3', }),
             'private_comment': forms.Textarea(attrs={'class': 'form-control', 'style': 'height: 100px', 'placeholder':'Add a private comment that will only be visible to Seshat experts and RAs.\nUse this box to request edits to the polity map data.'}),
             'general_description': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 265px', 'placeholder':'Add a general description (optional)'}),
 
@@ -109,7 +123,7 @@ class PolityForm(forms.ModelForm):
 class PolityUpdateForm(forms.ModelForm):
     class Meta:
         model = Polity
-        fields = ('name', 'new_name', 'long_name', 'start_year', 'end_year','home_seshat_region', 'polity_tag', 'private_comment','general_description')
+        fields = ('name', 'new_name', 'long_name', 'start_year', 'end_year','home_seshat_region', 'polity_tag', 'shapefile_name',  'private_comment','general_description')
         labels = {
         'name': 'Polity ID (Old)',
         'new_name': 'Polity ID (New)',
@@ -117,6 +131,7 @@ class PolityUpdateForm(forms.ModelForm):
         'start_year': 'Start Year',
         'end_year': 'End Year',
         'home_seshat_region': 'Home Seshat Region',
+        'shapefile_name': 'Shapefile name',
         'polity_tag': 'Polity Tag',
         'private_comment': 'Private Comment (optional)',
         'general_description': 'General Description of the Polity',
@@ -165,22 +180,24 @@ class NgaForm(forms.ModelForm):
 class CapitalForm(forms.ModelForm):
     class Meta:
         model = Capital
-        fields = ('name', 'latitude', 'longitude', 'polity_cap', 'current_country', 'is_verified', 'url_on_the_map', 'note')
+        fields = ('name', 'latitude', 'longitude', 'current_country', 'alternative_names','is_verified', 'url_on_the_map', 'note')
         labels = {
-        'name': '<b>Capital</b>',
-        'latitude': '<b>Latitude</b>',
-        'longitude': '<b>Longitude</b>',
-        'polity_cap': '<b>Polity</b>',
-        'current_country': '<b>Current Country</b>',
-        'is_verified': '<b class="text-primary">Verified?</b>',
-        'url_on_the_map': '<b>Link on Google Maps</b>',
-        'note': '<b>Add an optional Note</b>',
+        'name': 'City Name',
+        'latitude': 'Latitude',
+        'longitude': 'Longitude',
+        'alternative_names': 'Alternative Names',
+        'current_country': 'Current Country',
+        'is_verified': 'Verified?',
+        'url_on_the_map': 'Link on Google Maps',
+        'note': 'Add an optional Note',
         }
         widgets = {
             'name': forms.TextInput(
                 attrs={'class': 'form-control mb-3', }),
-            'polity_cap': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
+            #'polity_cap': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
             'current_country': forms.TextInput(
+                attrs={'class': 'form-control mb-3', }),
+            'alternative_names': forms.TextInput(
                 attrs={'class': 'form-control mb-3', }),
             'url_on_the_map': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 120px', 'placeholder':'Add the full URL from Google Maps (optional)'}),
             'note': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 120px', 'placeholder':'Add a note (optional)'}),
@@ -188,7 +205,7 @@ class CapitalForm(forms.ModelForm):
                 attrs={'class': 'form-control  mb-3 fw-bold', }),
             'longitude': forms.NumberInput(
                 attrs={'class': 'form-control  mb-3 fw-bold', }),
-            'is_verified' : forms.CheckboxInput(attrs={'type': 'checkbox', 'class': 'form-control form-check-input mb-3'}),
+            'is_verified' : forms.CheckboxInput(attrs={'class': 'mb-3', }),
             #'is_verified' : forms.Select(attrs={'class': 'form-control form-select mb-3',}),
         }
 
@@ -223,6 +240,38 @@ class SeshatCommentPartForm(forms.ModelForm):
             'comment_part_text': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 300px',}),
             'comment_citations': forms.SelectMultiple(attrs={'class': 'form-control mb-3 js-states js-example-basic-multiple', 'text':'citations[]' , 'style': 'height: 340px', 'multiple': 'multiple'}),
             'comment_curator': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
+        }
+
+
+class SeshatPrivateCommentPartForm(forms.ModelForm):
+    class Meta:
+        model = SeshatPrivateCommentPart
+        fields = ('private_comment', 'private_comment_part_text', 'private_comment_owner', 'private_comment_reader')
+        labels = {
+        'private_comment': '<b>PrivateDescription ID</b>',
+        'private_comment_part_text': '<b>Private Conmment Text</b>',
+        'private_comment_owner': '<b>Owner:</b>',
+        'private_comment_reader': '<b>Target:</b>',
+
+        }
+        widgets = {
+            'private_comment': forms.NumberInput(
+                attrs={'class': 'form-control  mb-3 fw-bold', }),
+            'private_comment_part_text': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 150px',}),
+            'private_comment_owner': forms.Select(attrs={'class': 'form-control form-select mb-3',}),
+            'private_comment_reader': forms.SelectMultiple(attrs={'class': 'form-control mb-3 js-states js-example-basic-multiple', 'text':'private_comment_readers[]' , 'style': 'height: 340px', 'multiple': 'multiple'}),       
+            }
+
+
+class SeshatPrivateCommentForm(forms.ModelForm):
+    class Meta:
+        model = SeshatPrivateComment
+        fields = ('text',)
+        labels = {
+        'text': '<b>Private Comment</b>',
+        }
+        widgets = {
+            'text': forms.Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 100px',}),
         }
 
 class ReferenceWithPageForm(forms.Form):

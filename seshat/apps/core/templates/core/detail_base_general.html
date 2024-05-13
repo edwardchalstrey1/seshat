@@ -59,13 +59,13 @@
             <div>
               <th class="text-secondary" scope="row">1</th>
               <td style="text-align: center;">
-                {% if object.polity.long_name %}
+                {% if object.polity %}
                 <h6 class="fw-bold">
-                    <a href="{% url 'polity-detail-main' object.polity.id %}">{{ object.polity.long_name }}</a>
+                    <a href="{% url 'polity-detail-main' object.polity.id %}">{{ object.polity }}</a>
                 </h6>
                 {% else %}
                 <h6 class="fw-bold">
-                    <a href="{% url 'polity-detail-main' object.polity.id %}">{{ object.polity.name }}</a>
+                    No polity provided.
                 </h6>
                 {% endif %}
               

@@ -1,0 +1,74 @@
+<!-- seshatcommentpart_create.html -->
+{% extends "core/seshat-base.html" %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% crispy ReferenceWithPageForm ReferenceWithPageForm.helper %}
+
+
+
+{% block content %}
+
+<style>
+    .bg-colorful {
+        background-image: linear-gradient(to right, rgb(246, 127, 127, 0.216),rgb(242, 199, 119, 0.216),rgb(151, 230, 151, 0.216));
+    
+      }
+    
+      .bg-colorful-light {
+        background-image: linear-gradient(to right, rgb(246, 127, 127, 0.076),rgb(242, 199, 119, 0.076),rgb(151, 230, 151, 0.076));
+        border-radius: 10px;
+      }
+    
+</style>
+
+<div class="container p-4">
+
+<!-- seshatcommentpart_create.html -->
+<form method="post" action="{% url 'seshatprivatecommentpart-update' pk=pk private_com_id=private_com_id %}">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-md-9">
+        <span class="fw-bold">Private Comment (to be updated):</span>  
+
+     {{ form.private_comment_part_text }}<br>
+
+      </div>
+      <div class="col-md-3 my-1">
+        <span class="fw-bold">Experts to be informed:</span>  
+      {{ form.private_comment_reader}}
+      <input type="submit" class="btn mt-5 border border-dark bg-colorful fw-bold px-4"  value="Update Private Comment">
+    </div>
+
+      <div class="col-md-12" style="display: none;">
+
+        {{ form.private_comment }}<br>
+   
+         </div>
+
+         <div class="col-md-12" style="display: none;">
+
+            {{ form.private_comment_owner }}<br>
+       
+             </div>
+
+  </div>
+  </form>
+</div>
+<!-- seshatcommentpart_create.html -->
+<script>
+    
+$(document).ready(function() {
+    $('.js-example-basic-multiple').select2({
+        allowClear: true,
+    });
+});
+
+var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+  return new bootstrap.Popover(popoverTriggerEl)
+})
+</script>
+ 
+{% endblock %}
+
+  

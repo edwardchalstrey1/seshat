@@ -4,7 +4,7 @@ import importlib
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
 
 from django.contrib.sites.shortcuts import get_current_site
-from seshat.apps.core.forms import SignUpForm, VariablehierarchyFormNew, CitationForm, ReferenceForm, SeshatCommentForm, SeshatCommentPartForm, PolityForm, PolityUpdateForm, CapitalForm, NgaForm, SeshatCommentPartForm2, ReferenceFormSet2, ReferenceFormSet5,CommentPartFormSet, ReferenceWithPageForm
+from seshat.apps.core.forms import SignUpForm, VariablehierarchyFormNew, CitationForm, ReferenceForm, SeshatCommentForm, SeshatCommentPartForm, PolityForm, PolityUpdateForm, CapitalForm, NgaForm, SeshatCommentPartForm2, SeshatPrivateCommentPartForm, ReferenceFormSet2, ReferenceFormSet5,CommentPartFormSet, ReferenceWithPageForm, SeshatPrivateCommentForm, ReligionForm
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render
@@ -22,7 +22,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormMixin
 from django.db import IntegrityError, connection
 from django.db.models import Prefetch, F, Value, Q, Min, Max, Count
 from django.db.models.functions import Replace
@@ -31,11 +31,12 @@ from django.views.decorators.http import require_GET
 
 from django.contrib.auth.decorators import login_required, permission_required
 from seshat.apps.accounts.models import Seshat_Expert
+from seshat.apps.general.models import Polity_preceding_entity
 
 from django.core.paginator import Paginator
 
 from django.http import FileResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 import os
 
 from django.apps import apps
@@ -46,7 +47,7 @@ from decouple import config
 from markupsafe import Markup, escape
 from django.http import JsonResponse
 
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, send_mail
 import html
 import datetime
 import csv
@@ -61,7 +62,7 @@ from ..general.models import Polity_research_assistant, Polity_duration, Polity_
 
 from ..crisisdb.models import Power_transition
 
-from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, VideoShapefile, GADMCountries, GADMProvinces, SeshatCommon, ScpThroughCtn
+from .models import Citation, Polity, Section, Subsection, Variablehierarchy, Reference, SeshatComment, SeshatCommentPart, Nga, Ngapolityrel, Capital, Seshat_region, Macro_region, VideoShapefile, GADMCountries, GADMProvinces, SeshatCommon, ScpThroughCtn, SeshatPrivateComment, SeshatPrivateCommentPart, Religion
 import pprint
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -73,7 +74,43 @@ from django.shortcuts import HttpResponse
 from math import floor, ceil
 from django.contrib.gis.geos import GEOSGeometry
 from distinctipy import get_colors, get_hex
+from django.views.generic import ListView
 
+@login_required
+@permission_required('core.add_seshatprivatecommentpart')
+def religion_create(request):
+    if request.method == 'POST':
+        form = ReligionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('religion_list')
+    else:
+        form = ReligionForm()
+    return render(request, 'core/religion_create.html', {'form': form})
+
+@login_required
+@permission_required('core.add_seshatprivatecommentpart')
+def religion_update(request, pk):
+    religion = get_object_or_404(Religion, pk=pk)
+    if request.method == 'POST':
+        form = ReligionForm(request.POST, instance=religion)
+        if form.is_valid():
+            form.save()
+            return redirect('religion_list')
+    else:
+        form = ReligionForm(instance=religion)
+    return render(request, 'core/religion_update.html', {'form': form})
+
+class ReligionListView(ListView):
+    model = Religion
+    template_name = 'core/religion_list.html'
+    context_object_name = 'religions'
+    ordering = ['religion_name']
+    permission_required = 'core.add_seshatprivatecommentpart'
+
+
+
+######
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
@@ -490,6 +527,7 @@ class SeshatCommentUpdate(PermissionRequiredMixin, UpdateView):
         
         context['my_app_models'] = abc
 
+
         return context
 
 
@@ -587,6 +625,39 @@ class SeshatCommentPartCreate2(PermissionRequiredMixin, CreateView):
         #print(context)
 
         return context
+    
+
+class SeshatPrivateCommentPartCreate2(PermissionRequiredMixin, CreateView):
+    model = SeshatPrivateCommentPart
+    form_class = SeshatPrivateCommentPartForm
+    template_name = "core/seshatcomments/seshatprivatecommentpart_form_prefilled.html"
+    permission_required = 'core.add_seshatprivatecommentpart'
+
+    def get_absolute_url(self):
+        return reverse('seshatprivatecommentpart-create2')
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        return HttpResponseRedirect(reverse('seshat-index'))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        logged_in_user = self.request.user
+        logged_in_expert = Seshat_Expert.objects.get(user=logged_in_user)
+        #readers_experts = SeshatPrivateCommentPart.get()
+        #print("Haloooooo_________ooooooooooo", self.kwargs['com_id'])
+        #print("Halooooooooooooooooo", self.kwargs['subcom_order'])
+        context["private_com_id"] = self.kwargs['private_com_id']
+        context["private_comment_owner"] = logged_in_expert
+        #context["private_comment_reader"] = readers_experts
+
+        #context["subcom_order"] = self.comment_order
+        #print(context)
+        #print("2222222222222222222222222222222")
+
+        return context
 
   
 # Function based:
@@ -630,7 +701,7 @@ def seshat_comment_part_create_from_null_view_OLD(request, com_id, subcom_order)
                                     page_from=int(page_from),
                                     page_to=int(page_to)
                                 )
-                                print(page_from, "AAAAAAAAAAAAAAAAAAAAND ", page_to)
+                                #print(page_from, "AAAAAAAAAAAAAAAAAAAAND ", page_to)
                             else:
                                 citation, created = Citation.objects.get_or_create(
                                     ref=reference,
@@ -690,7 +761,7 @@ def seshat_comment_part_create_from_null_view(request, com_id, subcom_order):
             # Process the formset
             reference_formset = ReferenceFormSet2(request.POST, prefix='refs')
             if reference_formset.is_valid():
-                print("ALOOOOOOOOOOOOOOOOOOO: ", len(reference_formset))
+                #print("ALOOOOOOOOOOOOOOOOOOO: ", len(reference_formset))
                 to_be_added = []
                 to_be_deleted_later = []
                 for reference_form in reference_formset:
@@ -710,7 +781,7 @@ def seshat_comment_part_create_from_null_view(request, com_id, subcom_order):
                                     page_from=int(page_from),
                                     page_to=int(page_to)
                                 )
-                                print(page_from, "AAAAAAAAAAAAAAAAAAAAND ", page_to)
+                                #print(page_from, "AAAAAAAAAAAAAAAAAAAAND ", page_to)
                             else:
                                 citation, created = Citation.objects.get_or_create(
                                     ref=reference,
@@ -760,6 +831,49 @@ def seshat_comment_part_create_from_null_view(request, com_id, subcom_order):
     }
     return render(request, 'core/seshatcomments/seshatcommentpart_create2.html', context)
 
+
+
+# Function based NEW:
+@permission_required('core.add_seshatprivatecommentpart')
+def seshat_private_comment_part_create_from_null_view(request, private_com_id):
+    if request.method == 'POST':
+        form = SeshatPrivateCommentPartForm(request.POST)
+        big_father = SeshatPrivateComment.objects.get(id=private_com_id)
+
+        if form.is_valid():
+            private_comment_part_text = form.cleaned_data['private_comment_part_text']
+            my_private_comment_readers = form.cleaned_data['private_comment_reader']
+            user_logged_in = request.user
+
+            try:
+                seshat_expert_instance = Seshat_Expert.objects.get(user=user_logged_in)
+            except:
+                seshat_expert_instance = None
+
+            seshat_private_comment_part = SeshatPrivateCommentPart(private_comment_part_text=private_comment_part_text, private_comment_owner=seshat_expert_instance, private_comment= big_father)
+
+            seshat_private_comment_part.save()
+
+            seshat_private_comment_part.private_comment_reader.add(*my_private_comment_readers) 
+
+            #print("4444444444444444444444444444444444444")
+
+            return redirect(reverse('seshatprivatecomment-update', kwargs={'pk': private_com_id}))
+
+    else:
+        form = SeshatPrivateCommentPartForm()
+        #print('5555555555555555555555555555555')
+
+    context = {
+        'form': form,
+        'private_com_id': private_com_id,
+    }
+
+    #print("333333333333333333333333333333")
+    return render(request, 'core/seshatcomments/seshatprivatecommentpart_create2.html', context)
+
+    # return render(request, 'core/seshatcomments/seshatcommentpart_update2.html', {'form': form, 'formset': init_data, 'comm_num':pk, 'comm_part_display': comment_part})
+
 class SeshatCommentPartUpdate(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
     model = SeshatCommentPart
     form_class = SeshatCommentPartForm
@@ -781,6 +895,27 @@ class SeshatCommentPartUpdate(PermissionRequiredMixin, SuccessMessageMixin, Upda
         #context["subcom_order"] = self.comment_order
 
         #print(context)
+
+        return context
+    
+class SeshatPrivateCommentPartUpdate(PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = SeshatPrivateCommentPart
+    form_class = SeshatPrivateCommentPartForm
+    template_name = "core/seshatcomments/seshatprivatecommentpart_update2.html"
+    permission_required = 'core.add_seshatprivatecommentpart'
+    success_message = "You successfully updated the Private comment."
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        logged_in_user = self.request.user
+        logged_in_expert = Seshat_Expert.objects.get(user=logged_in_user)
+        context["private_com_id"] = self.kwargs['private_com_id']
+        context["pk"] = self.kwargs['pk']
+        #context["subcom_order"] = self.kwargs['subcom_order']
+        context["private_comment_owner"] = logged_in_expert
+
+        #666666666666666666666666666")
 
         return context
 
@@ -1161,8 +1296,8 @@ class PolityListViewLight(SuccessMessageMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        import time
-        start_time = time.time()
+        #import time
+        #start_time = time.time()
         all_srs_unsorted = Seshat_region.objects.all()
         all_mrs_unsorted = Macro_region.objects.all()
 
@@ -1214,8 +1349,8 @@ class PolityListViewLight(SuccessMessageMixin, generic.ListView):
         freq_dic['pol_count'] = pol_count
         context["freq_data"] = freq_dic
 
-        end_time = time.time()
-        print('elapsed_time ', end_time-start_time)
+        #end_time = time.time()
+        #print('elapsed_time ', end_time-start_time)
 
         return context
 
@@ -1228,8 +1363,8 @@ class PolityListView(SuccessMessageMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        import time
-        start_time = time.time()
+        #import time
+        #start_time = time.time()
         all_srs_unsorted = Seshat_region.objects.all()
         all_mrs_unsorted = Macro_region.objects.all()
 
@@ -1362,8 +1497,8 @@ class PolityListView(SuccessMessageMixin, generic.ListView):
         freq_dic['pol_count'] = pol_count
         context["freq_data"] = freq_dic
 
-        end_time = time.time()
-        print('elapsed_time ', end_time-start_time)
+        #end_time = time.time()
+        #print('elapsed_time ', end_time-start_time)
 
         return context
     
@@ -1371,7 +1506,7 @@ class PolityListView(SuccessMessageMixin, generic.ListView):
 class PolityListViewCommented(PermissionRequiredMixin, SuccessMessageMixin, generic.ListView):
     model = Polity
     template_name = "core/polity/polity_list_commented.html"
-    permission_required = 'core.add_capital'
+    permission_required = 'core.add_seshatprivatecommentpart'
 
 
     def get_absolute_url(self):
@@ -1381,7 +1516,8 @@ class PolityListViewCommented(PermissionRequiredMixin, SuccessMessageMixin, gene
         context = super().get_context_data(**kwargs)
 
         #all_pols = Polity.objects.filter(private_comment__isnull=False).order_by('start_year')
-        all_pols = Polity.objects.exclude(Q(private_comment__isnull=True) | Q(private_comment=''))
+        #all_pols = Polity.objects.exclude(Q(private_comment__isnull=True) | Q(private_comment=''))
+        all_pols = Polity.objects.exclude(Q(private_comment_n__isnull=True) | Q(private_comment_n=1))
 
         pol_count = len(all_pols)
 
@@ -1560,6 +1696,23 @@ class PolityDetailView(SuccessMessageMixin, generic.DetailView):
         except:
             context["nga_pol_rel"] = None
             #print("*************")
+        #import django
+        #print(django.get_version())
+
+        preceding_data = []
+        succeeding_data = []
+
+        prec_data = Polity_preceding_entity.objects.filter(
+                    Q(polity_id=self.object.pk) | Q(other_polity_id=self.object.pk))
+        for vv in prec_data:
+            if vv.polity and vv.polity.id == self.object.pk:
+                preceding_data.append(vv)
+            elif vv.other_polity and vv.other_polity.id == self.object.pk:
+                succeeding_data.append(vv)
+
+        # Pass the data to the template
+        context['preceding_data'] = preceding_data
+        context['succeeding_data'] = succeeding_data
 
         return context
 
@@ -1652,11 +1805,11 @@ def capital_download(request):
     response['Content-Disposition'] = 'attachment; filename="capitals.csv"'
 
     writer = csv.writer(response, delimiter='|')
-    writer.writerow(['capital', 'polity_old_ID', 'polity_new_ID', 'polity_long_name',
+    writer.writerow(['capital', 
                      'current_country', 'longitude', 'latitude','is_verified', 'note'])
 
     for obj in items:
-        writer.writerow([obj.name, obj.polity_cap.name, obj.polity_cap.new_name, obj.polity_cap.long_name, obj.current_country, obj.longitude, obj.latitude, obj.is_verified, obj.note])
+        writer.writerow([obj.name, obj.current_country, obj.longitude, obj.latitude, obj.is_verified, obj.note])
 
     return response
 
@@ -1668,14 +1821,23 @@ def signup_traditional(request):
             user = form.save(commit=False)
             user.is_active = False
             user.save()
+
             #current_site = get_current_site(request)
             #subject = 'Activate Your Seshat Account'
-            #message = render_to_string('core/account_activation_email.html', {
-            #     'user': user,
-            #     'domain': current_site,
-            #     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            #     'token': account_activation_token.make_token(user)
-            # })
+            message = render_to_string('core/account_activation_email.html', {
+                'user': user,
+                'domain': 'seshat-db.com',
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user)
+            })
+
+            send_mail(
+                'Seshat-DB Email Verification',
+                message,
+                'seshatdb@gmail.com',  # Replace with your sender email
+                [user.email],  # Replace with recipient email(s)
+                fail_silently=False,
+            )
             #user.email_user(subject, message)
             # to_be_sent_email = EmailMessage(subject=subject, body=message,
             #                                 from_email=settings.EMAIL_FROM_USER, to=[user.email])
@@ -1705,6 +1867,7 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.profile.email_confirmed = True
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
         user.save()
         login(request, user)
         return redirect('signup-followup')
@@ -1974,10 +2137,10 @@ def do_zotero(results):
                         my_dic['title'] = good_title
                         if a_key == "MM6AEU7H":
                             print("I saw youuuuuuuuuuuuuuu more")
-                        pass #print (i, ": ", a_key, "    ", good_title)
+                        #pass #print (i, ": ", a_key, "    ", good_title)
                 except:
                     my_dic['title'] = item['data']['title']
-                    pass #print (i, ": ", a_key, "    ", item['data']['title'])
+                    #pass #print (i, ": ", a_key, "    ", item['data']['title'])
             except:
                 pass #print("No title for item with index: ", i)
             
@@ -2197,11 +2360,6 @@ def seshatindex(request):
 
     context['eight_srs'] = eight_srs
 
-
-
-  
-  
-
     for app_name in app_names:
         models = apps.get_app_config(app_name).get_models()
         unique_politys = set()
@@ -2323,7 +2481,7 @@ def download_csv_all_polities(request):
     writer = csv.writer(response, delimiter='|')
 
     # type the headers
-    writer.writerow(['macro_region', 'home_seshat_region',  'polity_new_id', 'polity_old_id', 'polity_long_name', 'start_year', 'end_year', 'home_nga', 'G', "SC", "WF", "RT", "HS", "CC", "PT", 'polity_tag'])
+    writer.writerow(['macro_region', 'home_seshat_region',  'polity_new_id', 'polity_old_id', 'polity_long_name', 'start_year', 'end_year', 'home_nga', 'G', "SC", "WF", "RT", "HS", "CC", "PT", 'polity_tag', 'shapefile_name'])
 
     items = Polity.objects.all()
     coded_value_data, freq_data = give_polity_app_data()
@@ -2333,9 +2491,9 @@ def download_csv_all_polities(request):
         #print(obj.id)
         #print(type(obj))
         if obj.home_seshat_region:
-            writer.writerow([obj.home_seshat_region.mac_region.name, obj.home_seshat_region.name, obj.new_name, obj.name, obj.long_name, obj.start_year, obj.end_year, obj.home_nga,  coded_value_data[obj.id]['g'], coded_value_data[obj.id]['sc'], coded_value_data[obj.id]['wf'], coded_value_data[obj.id]['rt'], coded_value_data[obj.id]['hs'], coded_value_data[obj.id]['cc'], coded_value_data[obj.id]['pt'], obj.get_polity_tag_display()])
+            writer.writerow([obj.home_seshat_region.mac_region.name, obj.home_seshat_region.name, obj.new_name, obj.name, obj.long_name, obj.start_year, obj.end_year, obj.home_nga,  coded_value_data[obj.id]['g'], coded_value_data[obj.id]['sc'], coded_value_data[obj.id]['wf'], coded_value_data[obj.id]['rt'], coded_value_data[obj.id]['hs'], coded_value_data[obj.id]['cc'], coded_value_data[obj.id]['pt'], obj.get_polity_tag_display(), obj.shapefile_name])
         else:
-            writer.writerow(["None", "None", obj.new_name, obj.name, obj.long_name, obj.start_year, obj.end_year, obj.home_nga,  coded_value_data[obj.id]['g'], coded_value_data[obj.id]['sc'], coded_value_data[obj.id]['wf'], coded_value_data[obj.id]['rt'], coded_value_data[obj.id]['hs'], coded_value_data[obj.id]['cc'], coded_value_data[obj.id]['pt'], obj.get_polity_tag_display()])
+            writer.writerow(["None", "None", obj.new_name, obj.name, obj.long_name, obj.start_year, obj.end_year, obj.home_nga,  coded_value_data[obj.id]['g'], coded_value_data[obj.id]['sc'], coded_value_data[obj.id]['wf'], coded_value_data[obj.id]['rt'], coded_value_data[obj.id]['hs'], coded_value_data[obj.id]['cc'], coded_value_data[obj.id]['pt'], obj.get_polity_tag_display(), obj.shapefile_name])
 
     return response
 
@@ -2867,7 +3025,7 @@ def update_seshat_comment_part_view(request, pk):
             else:
                 reference_formset = ReferenceFormSet5(request.POST, prefix='refs')
             if reference_formset.is_valid():
-                print("ALOOOOOOOOOOOOOOOOOOO: ", len(reference_formset))
+                #print("ALOOOOOOOOOOOOOOOOOOO: ", len(reference_formset))
                 to_be_added = []
                 to_be_deleted_later = []
                 for reference_form in reference_formset:
@@ -2981,17 +3139,6 @@ def update_seshat_comment_part_view(request, pk):
     return render(request, 'core/seshatcomments/seshatcommentpart_update2.html', {'form': form, 'formset': init_data, 'comm_num':pk, 'comm_part_display': comment_part})
 
 
-
-
-
-
-
-
-
-
-
-
-
 #########################
 
 @login_required
@@ -3001,7 +3148,10 @@ def create_a_comment_with_a_subcomment_new(request, app_name, model_name, instan
     """
     # Get the model class dynamically using the provided model_name
     #model_class = globals()[model_name]
-    model_class = apps.get_model(app_label=app_name, model_name=model_name)
+    if model_name == 'general':
+        model_class = apps.get_model(app_label=app_name, model_name='polity_' + model_name)
+    else:
+        model_class = apps.get_model(app_label=app_name, model_name= model_name)
     
     # Check if the model class exists
     if model_class is None:
@@ -3043,6 +3193,167 @@ def create_a_comment_with_a_subcomment_new(request, app_name, model_name, instan
     return redirect('seshatcomment-update', pk=comment_instance.id)
 
 
+@login_required
+@permission_required('core.add_seshatprivatecommentpart')
+def create_a_private_comment_with_a_private_subcomment_new(request, app_name, model_name, instance_id):
+    """
+    Create a Privatecomment and assign it to a model instance.
+    """
+    # Get the model class dynamically using the provided model_name
+    #model_class = globals()[model_name]
+    #if app_name == 'general':
+    #    model_class = apps.get_model(app_label=app_name, model_name='polity_' + #model_name)
+    #else:
+    model_class = apps.get_model(app_label=app_name, model_name= model_name)
+    
+    # Check if the model class exists
+    if model_class is None:
+        # Handle the case where the model class does not exist
+        return HttpResponse("Model not found", status=404)
+
+    # Get the instance of the model using the provided instance_id
+    model_instance = get_object_or_404(model_class, id=instance_id)
+
+    # Create a new comment instance and save it to the database
+    if str(app_name) == 'core':
+        if model_instance.private_comment_n and model_instance.private_comment_n.id > 1:
+            private_comment_instance = model_instance.private_comment_n
+        else:
+            private_comment_instance = SeshatPrivateComment.objects.create(text='a new_private_comment_text new approach for polity')
+    else:
+        if model_instance.private_comment and model_instance.private_comment.id > 1:
+            private_comment_instance = model_instance.private_comment
+        else:
+            private_comment_instance = SeshatPrivateComment.objects.create(text='a new_private_comment_text new approach')
+    user_logged_in = request.user
+    
+    # Get the Seshat_Expert instance associated with the user
+    # try:
+    #     seshat_expert_instance = Seshat_Expert.objects.get(user=user_logged_in)
+    # except Seshat_Expert.DoesNotExist:
+    #     seshat_expert_instance = None
+
+    # Create the subcomment instance and save it to the database
+    # subprivatecomment_instance = SeshatPrivateCommentPart.objects.create(
+    #     private_comment_part_text='A subdescription text placeholder (to be edited) using the new approach',
+    #     private_comment=private_comment_instance,
+    #     private_comment_owner=seshat_expert_instance,
+    #     created_date=datetime.datetime.now()
+    # )
+
+    # Assign the comment to the model instance
+    if app_name == 'core':
+        model_instance.private_comment_n = private_comment_instance
+    else:
+        model_instance.private_comment = private_comment_instance
+
+    model_instance.save()
+
+    # Redirect to the appropriate page
+    # You may need to define the URL pattern for the model detail view
+    # and replace 'model-detail' with the actual name of your detail view
+    #return redirect('model-detail', pk=model_instance.id)
+    return redirect('seshatprivatecomment-update', pk=private_comment_instance.id)
+
+class SeshatPrivateCommentUpdate(PermissionRequiredMixin, UpdateView, FormMixin):
+    model = SeshatPrivateComment
+    form_class = SeshatPrivateCommentForm
+    template_name = "core/seshatcomments/seshatprivatecomment_update.html"
+    permission_required = 'core.add_seshatprivatecommentpart'
+
+
+    def post(self, request, *args, **kwargs):
+        form = self.form()
+        if form.is_valid():
+            #print('hereeeeeeeeeeeee')
+            self.object = self.get_object()  # Assuming you have this method to get the object
+            new_experts = form.cleaned_data['private_comment_reader']
+            self.object.private_comment_reader.add(*new_experts)  # Add the new experts to the ManyToMany field
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+        
+    #def get_queryset(self):
+        
+    def get_another_form(self, request, *args, **kwargs):
+        """
+        Override this method to return the specific instance of another_form.
+        """
+        # Implement this method to return the specific instance of another_form
+        # For example:
+        #return self.kwargs['another_form']
+        #print("7777777777777777777")
+        return SeshatPrivateCommentPartForm(request.POST, request.another_form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_apps=['core', 'rt', 'general', 'sc', 'wf', 'crisisdb']
+        my_app_models = {name: apps.all_models[name] for name in my_apps}
+
+        #context['my_app_models'] = my_app_models
+        abc = []
+
+        for myapp, mymodels in my_app_models.items():
+            if myapp != 'core':
+                for mm, mymodel in mymodels.items():
+                    if '_citations' not in mm and '_curator' not in mm and not mm.startswith('us_') and mymodel.objects.filter(private_comment=self.object.id):
+                        my_instance = mymodel.objects.get(private_comment=self.object.id)
+                        my_polity = my_instance.polity
+                        my_polity_id = my_instance.polity.id
+                        try:
+                            my_var_name = my_instance.clean_name_spaced()
+                        except:
+                            my_var_name = my_instance.name
+
+                        my_value = my_instance.show_value
+                        my_desc = my_instance.description
+                        my_year_from = my_instance.year_from
+                        my_year_to = my_instance.year_to
+                        my_tag = my_instance.get_tag_display()
+
+
+                        abc.append({
+                            'my_polity': my_polity,
+                            'my_value': my_value,
+                            'my_year_from': my_year_from,
+                            'my_year_to': my_year_to,
+                            'my_tag': my_tag,
+                            'my_var_name': my_var_name,
+                            'my_polity_id': my_polity_id,
+                            'my_description': my_desc,
+                        })
+            else:
+                for mm, mymodel in mymodels.items():
+                    if mm == 'polity' and mymodel.objects.filter(private_comment_n=self.object.id):
+                        my_instance = mymodel.objects.get(private_comment_n=self.object.id)
+                        my_polity = my_instance
+                        my_polity_id = my_instance.id
+                        my_start_year = my_instance.start_year
+                        my_end_year = my_instance.end_year
+
+                        abc.append({
+                            'my_polity': my_polity,
+                            'my_polity_id': my_polity_id,
+                            'commented_pols_link': True,
+                            'start_year': my_start_year,
+                            'end_year': my_end_year,
+
+                        })
+
+        # for model_name in related_models:
+        #     print(model_name)
+        #     related_objects = getattr(self.object, model_name)
+        #     if related_objects:
+        #         context['related_objects'] = related_objects
+        #         break
+        
+        context['my_app_models'] = abc
+
+        context['another_form'] = SeshatPrivateCommentPartForm()
+
+        #print("111111111111111111111111111")
+
+        return context
 
 #############################
 def seshatcomment_create_view(request):
@@ -3085,7 +3396,7 @@ def seshatcomment_create_view(request):
 
                     for i, reference_form in enumerate(reference_formset):
                         if reference_form.is_valid():
-                            print("+++++++xxaaaaaaaaaxx+++++++")
+                            #print("+++++++xxaaaaaaaaaxx+++++++")
                             try:
                                 reference = reference_form.cleaned_data['ref']
                                 page_from = reference_form.cleaned_data['page_from']
@@ -3100,8 +3411,8 @@ def seshatcomment_create_view(request):
 
                                 # Associate the Citation with the SeshatCommentPart
                                 comment_part.comment_citations.add(citation)
-                                print("+++++++xxxx+++++++")
-                                print("I am here::::::", citation)
+                                #print("+++++++xxxx+++++++")
+                                #print("I am here::::::", citation)
                             except:
                                 print("OOOPsi")
                         else:
@@ -3115,3 +3426,28 @@ def seshatcomment_create_view(request):
 
     return render(request, 'core/seshatcomments/seshatcomment_create.html', {'form': form})
 
+
+
+def search_view(request):
+    search_term = request.GET.get('search', '')
+    if search_term:
+        try:
+            polity = Polity.objects.filter(name__icontains=search_term).first()
+            if polity:
+                return redirect('polity-detail-main', pk=polity.pk)
+            else:
+                # No polity found
+                return redirect('seshat-index')  # Redirect to home or any other page
+        except Polity.DoesNotExist:
+            # Handle the case where no polity matches the search term
+            pass
+    return redirect('seshat-index')  # Redirect to home or any other page if no search term is provided or no match is found
+
+def search_suggestions(request):
+    search_term = request.GET.get('search', '')
+    polities = Polity.objects.filter(
+        Q(name__icontains=search_term) | 
+        Q(long_name__icontains=search_term) |
+        Q(new_name__icontains=search_term)
+    ).order_by('start_year')  # Limit to 5 suggestions [:5]
+    return render(request, 'core/partials/_search_suggestions.html', {'polities': polities})

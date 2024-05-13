@@ -78,7 +78,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'django.contrib.gis',
     'leaflet',
-
+    #'easyaudit',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -95,9 +95,9 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_REDIRECT_URL = 'seshat-index'
 ACCOUNT_LOGOUT_REDIRECT = 'seshat-index'
 SITE_ID = 2
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ######EMAIL_CONFIRMATION_BRANCH is the keyword that needs to be searched
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 
 #ACCOUNT_USER_MODEL_USERNAME_FIELD = None
@@ -152,6 +152,7 @@ WSGI_APPLICATION = "seshat.wsgi.application"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    #"easyaudit.middleware.easyaudit.EasyAuditMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -162,6 +163,7 @@ MIDDLEWARE = [
 
 ]
 
+#DJANGO_EASY_AUDIT_REGISTERED_CLASSES = ['sc.script']
 
 # ==============================================================================
 # TEMPLATES SETTINGS
@@ -178,6 +180,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "seshat.apps.core.context_processors.notifications",  # Add your context processor
             ],
         },
     },

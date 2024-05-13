@@ -49,16 +49,23 @@
         padding-left: 5px; /* Adjust the padding to create spacing between the border and content */
     }
 
+    .highlighted-value-title {
+        display: inline-block; 
+        border: none; /* 1px solid #198754;*/ 
+        padding: 5px; 
+        border-radius: 5px;
+        box-shadow: 0 0 4px rgba(25, 135, 84, 0.5); 
+        background-color:#fefae6; /* fffdf2   fefae6*/
+    }
+
     .highlighted-value {
         display: inline-block; 
         border: none; /* 1px solid #198754;*/ 
         padding: 5px; 
         border-radius: 5px;
-        box-shadow: 0 0 5px rgba(25, 135, 84, 0.5); 
-        background-color:#fefae6;
-        
+        box-shadow: 0 0 2px rgba(25, 135, 84, 0.5); 
+        background-color:#fffdf2; /* fffdf2   fefae6*/
     }
-
     .montserrat-font {
         font-family: 'Montserrat', sans-serif;
     }
@@ -130,6 +137,47 @@
                 color: #782823;
             }
 
+    .off-vars {
+        color:rgba(125, 125, 125, 0.734); 
+        background:rgba(252, 252, 252, 0.734); 
+        border:1px solid #a5bf892e;
+    }
+
+    .federicka-huge {
+        font-family: 'Fredericka the Great', serif;
+        font-size: 78px;
+    }
+
+    .federicka-bigger {
+        font-family: 'Fredericka the Great', serif;
+        font-size: 48px;
+    }
+
+    .federicka-big {
+        font-family: 'Fredericka the Great', serif;
+        font-size: 32px;
+    }
+
+    .federicka-medium {
+        font-family: 'Fredericka the Great', serif;
+        font-size: 24px;
+    }
+
+    .federicka-small {
+        font-family: 'Fredericka the Great', serif;
+        font-size: 16px;
+    }
+
+    .hover-text {
+        display: inline-block;
+        overflow: hidden;
+        width: 0;
+    }
+    
+    a:hover .hover-text {
+        width: auto; /* Set width to 'auto' to allow it to grow to fit the content */
+    }
+    
 </style>
 
 <!-- showcase for index -->
@@ -142,80 +190,209 @@
     <div class="row mt-3">
         <div class="col-md-12">
             <div class="row d-flex align-items-center mb-2">
-                <div class="col-md-8">
-                    <div class="pb-0">
-                        <span class="h6 text-secondary" id="top_of_the_page">Home Seshat Region:</span> <span class="h6 text-dark">{{ object.home_seshat_region }}</span>
+                    <div class="col-md-9">
+                        <span class="h6 text-dark" id="top_of_the_page">Home Region:&nbsp;</span> <span class="h3 text-dark federicka-medium">{{ object.home_seshat_region }}</span> 
+                        <h1 class="h1 text-teal federicka-bigger"> {{ object.long_name }}</h1> 
+                    </div>
+                    <div class="col-md-3">   
+                        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions and 'core.add_seshatprivatecommentpart' in user.get_all_permissions  %}
+ 
+                        <a href="{% url 'polity-update' object.pk  %}" class="btn btn-outline-danger my-2 float-end"><i class="fa-regular fa-pen-to-square"></i></a> 
+                        <a class="my-2 float-end fs-6 btn btn-dark" href="{% url 'create_private_subcomment_new' app_name='core' model_name='polity' instance_id=object.id %}"><span class="text-warning fw-bold"> <i class=" fa-solid fa-plus"></i> Add a Private Comment (NEW) </span></a>
+                        {% endif %}
+
                     </div>
 
-                    <div class="py-2">
+
+                    <div class="col-md-8 py-2">
                         {% if object.general_description %}
-                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="General Description" data-bs-html="true" data-bs-trigger="focus">
-                        <a href="#"><span class="badge text-dark p-1  me-2 fs-4 custom-left-border-shadowed_2" style="background-color: rgb(195, 195, 195);">D</span></a>
+                        <span type="button" class="mx-0 px-0"  tabindex="0" data-bs-toggle="popover" title="General Description" data-bs-html="true" data-bs-trigger="focus">
+                        <a href="#" class="mx-0 px-0">    
+                            <span class="badge text-dark p-1 mx-0 fs-5" style="background-color: rgb(195, 195, 195);">D</span>
+                        </a>
                         </span>
                         {% endif %}
                         {% if has_any_general_data %}
-                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="General Variables" data-bs-html="true" data-bs-trigger="focus">
-                        <a href="#general_var"><span class="badge bg-warning text-dark p-1 me-2 fs-4 custom-left-border-shadowed_2">G</span></a>
+                        <span type="button" class="mx-0 px-0"  tabindex="0" data-bs-toggle="popover" title="General Variables" data-bs-html="true" data-bs-trigger="focus">
+                        <a href="#general_var"><span class="badge bg-warning text-dark p-1 mx-0 fs-5 ">G</span></a>
                         </span>
                         {% endif %}
 
                         {% if has_any_sc_data %}
-                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="Social Complexity Variables" data-bs-html="true" data-bs-trigger="focus">
-                        <a href="#sc_var"><span class="badge bg-primary p-1 me-2 fs-4 custom-left-border-shadowed_2">SC</span></a>
+                        <span type="button" class="mx-0 px-0"  tabindex="0" data-bs-toggle="popover" title="Social Complexity Variables" data-bs-html="true" data-bs-trigger="focus">
+                        <a href="#sc_var"><span class="badge bg-primary p-1 mx-0 fs-5 ">SC</span></a>
                         </span>
                         {% endif %}
 
                         {% if has_any_wf_data %}
-                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="Warfare Variables (MilTech)" data-bs-html="true" data-bs-trigger="focus">
-                        <a href="#wf_var"><span class="badge bg-danger p-1 me-2 fs-4 custom-left-border-shadowed_2">WF</span></a>
+                        <span type="button" class="mx-0 px-0"  tabindex="0" data-bs-toggle="popover" title="Warfare Variables (MilTech)" data-bs-html="true" data-bs-trigger="focus">
+                        <a href="#wf_var"><span class="badge bg-danger p-1 mx-0 fs-5 ">WF</span></a>
                         </span>
                         {% endif %}
 
                         {% if has_any_rt_data and 'core.view_capital' in user.get_all_permissions or object.new_name == "kh_chenla" or object.new_name == "pe_wari_emp" or object.new_name == "in_kampili_k" or object.new_name == "in_kalyani_chalukya_emp" or object.new_name == "in_hoysala_k" or object.new_name == "et_aksum_emp_3" or object.new_name == "et_aksum_emp_2" or object.new_name == "ni_proto_yoruboid" or object.new_name == "ni_sokoto" or object.new_name == "gm_kaabu_emp" %}
-                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="Religion Tolerance" data-bs-html="true" data-bs-trigger="focus">
-                        <a href="#rt_var"><span class="badge p-1 me-2 fs-4 custom-left-border-shadowed_2" style="background: #59007f;">RT</span></a>
+                        <span type="button" class="mx-0 px-0"  tabindex="0" data-bs-toggle="popover" title="Religion Tolerance" data-bs-html="true" data-bs-trigger="focus">
+                        <a href="#rt_var"><span class="badge p-1 mx-0 fs-5 " style="background: #59007f;">RT</span></a>
                         </span>
                         {% endif %}
 
-                        {% if "Human_sacrifice_for_polity" in all_data.keys and all_data.Human_sacrifice_for_polity %}
-                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="Human Sacrifice Data" data-bs-html="true" data-bs-trigger="focus">
-                        <a href="#hs_var"><span class="badge bg-success text-light p-1 me-2 fs-4 custom-left-border-shadowed_2">HS</span></a>
+                        {% if "Human_sacrifice" in all_data.keys and all_data.Human_sacrifice %}
+                        <span type="button" class="mx-0 px-0"  tabindex="0" data-bs-toggle="popover" title="Human Sacrifice Data" data-bs-html="true" data-bs-trigger="focus">
+                        <a href="#hs_var"><span class="badge bg-success text-light p-1 mx-0 fs-5 ">HS</span></a>
                         </span>
                         {% endif %}
 
                         {% if all_crisis_cases_data %}
-                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="Crisis Consequences" data-bs-html="true" data-bs-trigger="focus">
-                        <a href="#crisis_case_var"><span class="badge bg-dark p-1 me-2 fs-4 custom-left-border-shadowed_2">CC</span></a>
+                        <span type="button" class="mx-0 px-0"  tabindex="0" data-bs-toggle="popover" title="Crisis Consequences" data-bs-html="true" data-bs-trigger="focus">
+                        <a href="#crisis_case_var"><span class="badge bg-dark p-1 mx-0 fs-5 ">CC</span></a>
                         </span>
                         {% endif %}
 
 
                         {% if all_power_transitions_data %}
-                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="Power Transition" data-bs-html="true" data-bs-trigger="focus">
-                        <a href="#power_transition_var"><span class="badge bg-info text-dark  p-1 me-2 fs-4 custom-left-border-shadowed_2">PT</span></a>
+                        <span type="button" class="mx-0 px-0"  tabindex="0" data-bs-toggle="popover" title="Power Transition" data-bs-html="true" data-bs-trigger="focus">
+                        <a href="#power_transition_var"><span class="badge bg-info text-dark  p-1 me-2 fs-5">PT</span></a>
                     </span>
                         {% endif %}
-                        
-                    </div>
-                   
+                        <!-- tag -->
+                        {% if object.polity_tag == 'POL_AFR_WEST' %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW West African Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-1">New WA</span>    
+                    {% elif object.polity_tag == "POL_AFR_EAST" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW East African Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-1">New EA</span> 
+                    {% elif object.polity_tag == "POL_AFR_SA" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW Southern African Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-1">New SA</span> 
+                    {% elif object.polity_tag == "POL_SA_SI" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW South East Indian Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-2">New SEA</span> 
+                    {% elif object.polity_tag == "LEGACY" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="An Equinox 2020 Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light px-2 py-1 fs-6">EQ 2020</span> 
+                    </span> 
+                    {% elif object.polity_tag == "CRISISDB_POLITIES" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="A CrisisDB-specific Polity" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-1">CrisisDB</span> 
+                    {% elif object.polity_tag == "OTHER_TAG" %}
+                        <span type="button"  tabindex="0" data-bs-toggle="popover" title="Unknown Polity Category" data-bs-html="true" data-bs-trigger="focus">
+                        <span class="badge bg-secondary text-light p-1">OTHER</span> 
+                    {% endif %}
 
+                    {% if object.new_name %}
+                    <span class="fs-5 fw-normal"><b>&nbsp;{{ object.new_name }}</b></span>
+
+                    {% if object.new_name != object.name %}
+                    <span class="text-secondary">/ {{ object.name }}</span>
+                    {% endif %}
+
+
+                    {% else %}
+                    (<a href="{% url 'polity-detail-main' object.id %}"><b>{{ object.name }}</b></a>) 
+                    <span class="text-danger"><b>NEW_Polity_ID</b>  missing</span>  
+                    <a href="{% url 'polity-update' object.id %}"><span class="badge bg-small bg-warning text-dark">update</span></a>
+                    {% endif %}
                 </div>
-                <div class="col-md-4">    
-                    <div class="row">
+            </div>
+            <div>
+                <div class="col-md-12 row pb-3">
+                    <div class="col-md-8">
+                        <br>
+                            <span class="h5 fw-bold">Preceding:</span>
+                            {% if preceding_data %}
 
+                            {% for vv in preceding_data %}
+                            {% if vv.polity and  vv.other_polity %}
+                                <div>
+                                    {% if  vv.other_polity.start_year == vv.other_polity.end_year %}
+                                        {% if  vv.other_polity.start_year < 0 %}
+                                        {{ vv.other_polity.start_year|abs }} <span class="text-secondary">BCE</span> 
+                                        {% else %}
+                                        {{ vv.other_polity.start_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% elif vv.other_polity.end_year == None %}
+                                        {% if  vv.other_polity.start_year < 0 %}
+                                        {{ vv.other_polity.start_year|abs }} <span class="text-secondary">BCE</span>
+                                        {% else %}
+                                        {{ vv.other_polity.start_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% elif vv.other_polity.end_year == None and  vv.other_polity.start_year == None %}
+                                        <i class="fa-solid fa-minus"></i> 
+                                    {% else %}
+                                        {% if  vv.other_polity.start_year < 0 and vv.other_polity.end_year < 0 %}
+                                        {{ vv.other_polity.start_year|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.other_polity.end_year|abs }} <span class="text-secondary">BCE</span>
+                                        {% elif  vv.other_polity.start_year < 0 and vv.other_polity.end_year >= 0 %}
+                                        {{ vv.other_polity.start_year|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.other_polity.end_year }} <span class="text-secondary">CE</span>
+                                        {% else %}
+                                        {{ vv.other_polity.start_year }} <span class="text-secondary">CE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.other_polity.end_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    <span class="h6 text-teal fw-bold ps-2">
+                                        <a href="{% url 'polity-detail-main' vv.other_polity.id %}">{{ vv.other_polity }}</a>
 
-                        <div class="col-md-6">    
+                                    </span>
+                                    <span class="h6 text-secondary fw-normal">&nbsp;&nbsp; [{{ vv.get_relationship_to_preceding_entity_display }}]</span>
+                                </div>
+                                {% else %}
+                                <div>
+                                    [{{ vv.merged_old_data }}]   [{{ vv.get_relationship_to_preceding_entity_display }}]&nbsp;&nbsp; <a class="fw-bold" href="{% url 'polity_preceding_entity-update' vv.id %}">Update here</a>
+                                </div>
+                            {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div>No Polity found. Add one <a class="fw-bold" href="{% url 'polity_preceding_entity-create' %}">here</a>.</div>
+                        {% endif %}
 
-                        <a href="{% url 'polities' %}" class="btn btn-outline-success my-2 float-end"><i class="fa-solid fa-list-ul"></i> &nbsp; See All Polities</a>                       
+                        <br>
+
+                        <span class="h5 fw-bold">Succeeding:</span>
+                        {% if succeeding_data %}
+
+                            {% for vv in succeeding_data %}
+                            {% if vv.polity and  vv.other_polity %}
+                                <div>
+                                    {% if  vv.polity.start_year == vv.polity.end_year %}
+                                        {% if  vv.polity.start_year < 0 %}
+                                        {{ vv.polity.start_year|abs }} <span class="text-secondary">BCE</span> 
+                                        {% else %}
+                                        {{ vv.polity.start_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% elif vv.polity.end_year == None %}
+                                        {% if  vv.polity.start_year < 0 %}
+                                        {{ vv.polity.start_year|abs }} <span class="text-secondary">BCE</span>
+                                        {% else %}
+                                        {{ vv.polity.start_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% elif vv.polity.end_year == None and  vv.polity.start_year == None %}
+                                        <i class="fa-solid fa-minus"></i> 
+                                    {% else %}
+                                        {% if  vv.polity.start_year < 0 and vv.polity.end_year < 0 %}
+                                        {{ vv.polity.start_year|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.polity.end_year|abs }} <span class="text-secondary">BCE</span>
+                                        {% elif  vv.polity.start_year < 0 and vv.polity.end_year >= 0 %}
+                                        {{ vv.polity.start_year|abs }} <span class="text-secondary">BCE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.polity.end_year }} <span class="text-secondary">CE</span>
+                                        {% else %}
+                                        {{ vv.polity.start_year }} <span class="text-secondary">CE</span> <i class="fas fa-long-arrow-alt-right"></i> {{ vv.polity.end_year }} <span class="text-secondary">CE</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    <span class="h6 text-teal fw-bold ps-2">
+                                        <a href="{% url 'polity-detail-main' vv.polity.id %}">{{ vv.polity }}</a>
+                                    </span>
+                                    <span class="h6 text-secondary fw-normal">&nbsp;&nbsp; [{{ vv.get_relationship_to_preceding_entity_display }}]</span>
+                                </div>
+                                {% else %}
+                                    <div>
+                                        {{ vv.merged_old_data }}   [{{ vv.get_relationship_to_preceding_entity_display }}] &nbsp;&nbsp; <a class="fw-bold" href="{% url 'polity_preceding_entity-update' vv.id %}">Update here</a>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                        <div>No Polity found. Add one <a class="fw-bold" href="{% url 'polity_preceding_entity-create' %}">here</a>.</div>
+                        {% endif %}
+
                     </div>
-                    <div class="col-md-6">    
-
-                        <a href="{% url 'polity-update' object.pk  %}" class="btn btn-outline-danger my-2 float-end"><i class="fa-regular fa-pen-to-square"></i> &nbsp; Edit This Polity</a> 
-                    </div>
-
-                    </div>
-                    {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                    <div class="row pt-3">
+                                        
+                    {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                    <div class="col-md-4 pb-3">
                         <table class="table">
                             <tbody>
                                 <tr style="text-align: right;">
@@ -298,66 +475,29 @@
                 </div>
                 {% endif %}
 
-
-            </div>
-            <div>
-                <div class="col-md-12 row pb-3">
-                    <div class="col-md-6">
-                        <i class="fa-solid fa-circle text-secondary fa-xs"></i>
-
-                        <!-- tag -->
-                        {% if object.polity_tag == 'POL_AFR_WEST' %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW West African Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">New WA</span>    
-                        {% elif object.polity_tag == "POL_AFR_EAST" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW East African Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">New EA</span> 
-                        {% elif object.polity_tag == "POL_AFR_SA" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW Southern African Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">New SA</span> 
-                        {% elif object.polity_tag == "POL_SA_SI" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A NEW South East Indian Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-2">New SEA</span> 
-                        {% elif object.polity_tag == "LEGACY" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="An Equinox 2020 Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light px-2 py-1 fs-6">EQ 2020</span> 
-                        </span> 
-                        {% elif object.polity_tag == "CRISISDB_POLITIES" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="A CrisisDB-specific Polity" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">CrisisDB</span> 
-                        {% elif object.polity_tag == "OTHER_TAG" %}
-                            <span type="button"  tabindex="0" data-bs-toggle="popover" title="Unknown Polity Category" data-bs-html="true" data-bs-trigger="focus">
-                            <span class="badge bg-secondary text-light p-1">OTHER</span> 
-                        {% endif %}
-
-                        {% if object.new_name %}
-                        <span class="fs-5 fw-normal"><b>&nbsp;{{ object.new_name }}</b></span>
-    
-                        {% if object.new_name != object.name %}
-                        <span class="text-secondary">/ {{ object.name }}</span>
-                        {% endif %}
-
-    
-                        {% else %}
-                        (<a href="{% url 'polity-detail-main' object.id %}"><b>{{ object.name }}</b></a>) 
-                        <span class="text-danger"><b>NEW_Polity_ID</b>  missing</span>  
-                        <a href="{% url 'polity-update' object.id %}"><span class="badge bg-small bg-warning text-dark">update</span></a>
-                        {% endif %}
-
-                    </div>
-
                 </div>
             </div>
-            {% if user.is_authenticated and object.private_comment %}
-            <div class="bg-light custom-left-border-shadowed_2">
 
-                <div class="badge bg-info text-dark  p-1-1 me-2 fs-5 custom-left-border-shadowed_2">PRIVATE COMMENT:</div> <span class="text-secondary">(only Visible to Seshat Experts and RAs)</span>
+
+            
+            {% if user.is_authenticated and object.private_comment_n  %}
+            {% if object.private_comment_n.id == 1 or object.private_comment_n.inner_private_comments_related.all|length == 0 %}
+            {% else %}
+            <div class="mb-4 p-3" style="background:#d5e7d7b2">
+                {% autoescape off %}
+
+                <div class="badge px-4 pt-2 pb-2  pb-1 me-2 fs-6" style="background:#721717; color:white">Private Comment(s):</div><span class="text-secondary">(only Visible to Selected Seshat Experts and RAs)</span>
                 <div class="text-dark fs-6 pt-2">
-                    {{ object.private_comment }}
+                    {{ object.private_comment_n }}
+
+                    <a class=" m-1 fs-5" href="{% url 'seshatprivatecomment-update' object.private_comment_n.id %}"><span class="badge bg-warning text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Add your Private Comment</span></a>
                 </div>
-                
+                {% endautoescape %}
+
 
             </div>
+            {% endif %}
+
             {% endif %}
            
             <div class="row m-0 p-0">
@@ -392,10 +532,11 @@
 
 
 <!-- GV -->
+{% autoescape off %}
             {% if all_general_data %}
             <div class="col-md-12 m-0 p-0">
                 <span class="h2 fw-bold m-0 p-0 ">  
-                    <span class="badge mt-5 mb-2 p-3 fw-bold rounded-pill text-dark" style="text-align: left; background: #ffc1073b; border:1px solid #ffc107">
+                    <span class="badge mt-5 mb-2 p-3 fw-bold text-dark" style="text-align: left; background: #ffc1071d;">
                        General Variables
                     </span>   
                     <span class="mt-3 fs-5">
@@ -407,10 +548,10 @@
                 {% for key_top, values_top in all_general_data.items %}
                     {% for key_m, values_m in values_top.items %}
                     {% if values_m %}
-                    <div class="col-md-2 mt-2 pt-1 border-top border-2 border-warning d-flex align-items-top">
-                        <span class=" fs-6 text-dark"  style="text-align: left;">
+                    <div class="col-md-2 mt-2 pt-1 border-top border-1 border-warning d-flex align-items-top">
+                        <span class="fs-6 fw-bold"  style="text-align: left; color:#000">
                             <i class="fa-solid fa-circle fa-2xs text-warning"></i>
-                            <span class="fw-bold"> {{key_top}}</span> 
+                            <span> {{key_top}}</span> 
                             {% if key_m != 'None' %}
                             <span class="fw-light">/ {{key_m}}</span> 
                             {% endif %}
@@ -421,15 +562,17 @@
                             <div class="col-md-10 py-2" id="table_id_general">
                             {% for key, values in values_m.items %}
                                 {% if values %}
-                                <span class="badge mb-1 mt-0 pb-0 mx-0 fw-bold text-dark" style="text-align: left; background:#acd2cc62; border:1px solid #2436112e;">
-                                    <div class="fs-6"><a class="h6" href="#{{key}}"> &nbsp;<i class="fa-solid fa-circle-arrow-down fa-sm text-teal-light"></i>
-                                    </a> {{ values.0.clean_name_spaced|slice:"7:" }}:
-                                    {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %} 
-                                    <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-secondary"></i>
-                                    </a> 
-                                    {% endif %}
+                                <span class="badge mb-1 mt-0 pb-0 mx-0 text-dark" style="text-align: left; background:#acd2cc62;">
+                                    <div class="fs-6 pb-1">
+                                        <a class="h6" href="#{{key}}">
+                                            <i class="fa-solid fa-circle-arrow-down fa-sm text-teal-light"></i>
+                                        </a> {{ values.0.clean_name_spaced|slice:"7:" }}:
+                                        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %} 
+                                        <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-secondary"></i>
+                                        </a> 
+                                        {% endif %}
 
-                                </div>
+                                    </div>
                                     <table class="table mb-0 pb-0">
 
                                     {% for vv in values %}
@@ -438,10 +581,33 @@
                                             {% if  vv.tag == 'IFR' %}
                                             <span class="h6 text-secondary fw-bold">inferred</span> 
                                             {% endif %}
+
                                             {% if  vv.show_value == 'present' %}
                                             <span class="h6 text-teal fw-bold">{{ vv.show_value }}</span> 
                                             {% elif vv.show_value == "absent" %}
                                             <span class="h6 text-danger fw-bold">{{ vv.show_value }}</span> 
+                                            {% elif key == "Polity_suprapolity_relations" %}
+                                            <span class="h6 text-teal fw-bold">{{ vv.display_value }}</span> 
+                                            {% elif key == "Polity_preceding_entity" %}
+                                                {% if vv.polity and vv.other_polity and vv.other_polity.id == object.id %}
+                                                    <span class="h6 text-dark fw-bold">Succeeding: </span> 
+                                                    <span class="h6 text-teal fw-bold ps-2">
+                                                        <a href="{% url 'polity-detail-main' vv.polity.id %}">{{ vv.polity }}</a>
+                                                        </span> 
+                                                {% elif vv.polity and vv.other_polity and vv.polity.id == object.id %}
+                                                    <span class="h6 text-dark fw-bold">Preceding:&nbsp;&nbsp; </span> 
+                                                    <span class="h6 text-teal fw-bold ps-2">
+                                                        <a href="{% url 'polity-detail-main' vv.other_polity.id %}">{{ vv.other_polity }}</a>
+                                                        </span> 
+                                                {% else %}
+                                                    <span class="h6 text-dark fw-bold">UNCLEAR: </span> 
+                                                {% endif %}
+
+
+
+
+                                                <span class="h6 text-secondary fw-normal">&nbsp;&nbsp; [{{ vv.get_relationship_to_preceding_entity_display }}]</span>                     
+                    
                                             {% else %}
                                             <span class="h6 text-teal fw-bold">{{ vv.show_value }}</span> 
                                             {% endif %}
@@ -494,9 +660,9 @@
 
                                     </table>
                                 </span>
-                                {% elif user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                                <span class="badge mb-1 mt-0 mx-0 text-secondary" style="text-align: left; background:rgba(128, 128, 128, 0.734); border:1px solid #2436112e;">
-                                    <div class="fs-6 text-light"> {{ key|slice:"7:" }} <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
+                                {% elif user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                                <span class="badge mb-1 mt-0 mx-0 off-vars" style="text-align: left;">
+                                    <div class="fs-6"> {{ key|slice:"7:" }} <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
                                     </a></div>
                                 </span>
 
@@ -522,11 +688,13 @@
             </div>
 
             {% endif %}
+{% endautoescape  %}
+
 <!-- sc -->
             {% if all_sc_data %}
             <div class="col-md-12 m-0 p-0">
                 <span class="h2 fw-bold m-0 p-0 ">  
-                    <span class="badge mt-5 mb-2 p-3 fw-bold text-dark rounded-pill" style="text-align: left; background: #0d6dfd3b; border:1px solid #0d6dfd">
+                    <span class="badge mt-5 mb-2 p-3 fw-bold text-dark" style="text-align: left; background: #0d6dfd3b;">
                         Social Complexity Variables
                     </span>   
                     <span class="mt-3 fs-5">
@@ -538,7 +706,7 @@
                 {% for key_top, values_top in all_sc_data.items %}
                     {% for key_m, values_m in values_top.items %}
                     {% if values_m %}
-                    <div class="col-md-2 mt-2 pt-1 border-top border-2 border-primary d-flex align-items-top">
+                    <div class="col-md-2 mt-2 pt-1 border-top border-1 border-primary d-flex align-items-top">
                         <span class=" fs-6 text-dark border-primary"  style="text-align: left;">
                             <i class="fa-solid fa-circle fa-2xs text-primary"></i>
                             <span class="fw-bold"> {{key_top}}</span> 
@@ -549,17 +717,18 @@
                      </div>
                      {% endif %}
                      {% if values_m %}
-                            <div class="col-md-10 py-2 " id="table_id_sc">
+                            <div class="col-md-10 py-2" id="table_id_sc">
                             {% for key, values in values_m.items %}
                             {% if values %}
-                            <span class="badge mb-1 mt-0 pb-0 mx-0 text-dark" style="text-align: left; background:#acd2cc62; border:1px solid #2436112e;">
-                                <div class="fs-6 pb-1"> <a class="h6" href="#{{key}}"><i class="fa-solid fa-circle-arrow-down fa-sm text-teal-light"></i>
-                                </a> {{values.0.clean_name_spaced}}: 
-                                {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %} 
-                                <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-secondary"></i>
-                                </a> 
-                                {% endif %}
-                            </div>
+                            <span class="badge mb-1 mt-0 pb-0 mx-0 text-dark" style="text-align: left; background:#acd2cc62;">
+                                <div class="fs-6 pb-1"> 
+                                    <a class="h6" href="#{{key}}"><i class="fa-solid fa-circle-arrow-down fa-sm text-teal-light"></i>
+                                    </a> {{values.0.clean_name_spaced}}: 
+                                    {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %} 
+                                    <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-secondary"></i>
+                                    </a> 
+                                    {% endif %}
+                                </div>
                                 <table class="table mb-0 pb-0">
                                 {% for vv in values %}
                                 <tr>
@@ -620,9 +789,9 @@
                                 {% endfor %}
                             </table>
                                     </span>
-                                    {% elif user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                                    <span class="badge mb-1 mt-0 mx-0 text-secondary" style="text-align: left; background:rgba(128, 128, 128, 0.734); border:1px solid #2436112e;">
-                                        <div class="fs-6 text-light"> {{ key }} <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
+                                    {% elif user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                                    <span class="badge mb-1 mt-0 mx-0 off-vars" style="text-align: left;">
+                                        <div class="fs-6"> {{ key }} <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
                                         </a></div>
                                     </span>
                             {% endif %}
@@ -652,7 +821,7 @@
             {% if all_wf_data %}
             <div class="col-md-12 m-0 p-0">
                 <span class=" h3 fw-bold m-0 p-0 ">  
-                    <span class="badge mt-5 mb-2 p-3 fw-bold text-dark rounded-pill" style="text-align: left; background: #dc35453b; border:1px solid #dc3545">
+                    <span class="badge mt-5 mb-2 p-3 fw-bold text-dark" style="text-align: left; background: #dc35453b;">
                         Warfare Variables (Military Technologies)
                     </span>   
                     <span class=" mt-3 fs-5">
@@ -668,7 +837,7 @@
                     {% for key_m, values_m in values_top.items %}
                     {% if values_m %}
 
-                    <div class="col-md-2 mt-2 pt-1 border-top border-2 border-danger d-flex align-items-top">
+                    <div class="col-md-2 mt-2 pt-1 border-top border-1 border-danger d-flex align-items-top">
 
                         <span class=" fs-6 text-dark border-danger"  style="text-align: left;">
                             <i class="fa-solid fa-circle fa-2xs text-danger"></i>
@@ -687,10 +856,10 @@
                 
                             {% for key, values in values_m.items %}
                             {% if values %}
-                            <span class="badge mb-1 mt-0 pb-0 mx-0 text-dark" style="text-align: left; background:#acd2cc62; border:1px solid #2436112e;">
+                            <span class="badge mb-1 mt-0 pb-0 mx-0 text-dark" style="text-align: left; background:#acd2cc62;">
                                 <div class="fs-6 pb-1"> <a class="h6" href="#{{key}}"> &nbsp;<i class="fa-solid fa-circle-arrow-down fa-sm text-teal-light"></i>
                                 </a> {{values.0.clean_name_spaced}}:
-                                {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %} 
+                                {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %} 
                                 <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-secondary"></i>
                                 </a> 
                                 {% endif %}
@@ -760,9 +929,9 @@
 
 
                                     </span>
-                                    {% elif user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                                    <span class="badge mb-1 mt-0 mx-0 text-secondary" style="text-align: left; background:rgba(128, 128, 128, 0.734); border:1px solid #2436112e;">
-                                        <div class="fs-6 text-light"> {{ key }} <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
+                                    {% elif user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                                    <span class="badge mb-1 mt-0 mx-0 off-vars" style="text-align: left;">
+                                        <div class="fs-6"> {{ key }} <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
                                         </a></div>
                                     </span>
                             {% endif %}
@@ -792,7 +961,7 @@
 {% if all_rt_data and 'core.view_capital' in user.get_all_permissions or object.new_name == "kh_chenla" or object.new_name == "pe_wari_emp" or object.new_name == "in_kampili_k" or object.new_name == "in_kalyani_chalukya_emp" or object.new_name == "in_hoysala_k" or object.new_name == "et_aksum_emp_3" or object.new_name == "et_aksum_emp_2" or object.new_name == "ni_proto_yoruboid" or object.new_name == "ni_sokoto" or object.new_name == "gm_kaabu_emp" %}
 <div class="col-md-12 m-0 p-0">
     <span class=" h3 fw-bold m-0 p-0 ">  
-        <span class="badge mt-5 mb-2 p-3 fw-bold text-dark rounded-pill" style="text-align: left; background: #59007f3b; border:1px solid #59007f">
+        <span class="badge mt-5 mb-2 p-3 fw-bold text-dark" style="text-align: left; background: #59007f3b;">
             Religion Tolerance
         </span>   
         <span class=" mt-3 fs-5">
@@ -808,7 +977,7 @@
         {% for key_m, values_m in values_top.items %}
         {% if values_m  %}
 
-        <div class="col-md-2 mt-2 pt-1 d-flex align-items-top" style="border-top: 2px solid #59007f">
+        <div class="col-md-2 mt-2 pt-1 d-flex align-items-top" style="border-top: 1px solid #59007f">
 
             <span class=" fs-6 text-dark"  style="text-align: left;">
                 <i class="fa-solid fa-circle fa-2xs" style="color:#59007f"></i>
@@ -827,7 +996,7 @@
     
                 {% for key, values in values_m.items %}
                 {% if values %}
-                <span class="badge mb-1 mt-0 pb-0 mx-0 text-dark" style="text-align: left; background:#acd2cc62; border:1px solid #2436112e;">
+                <span class="badge mb-1 mt-0 pb-0 mx-0 text-dark" style="text-align: left; background:#acd2cc62;">
                     <div class="fs-6 pb-1"> <a class="h6" href="#{{key}}"> &nbsp;<i class="fa-solid fa-circle-arrow-down fa-sm text-teal-light"></i>
                     </a> {{values.0.clean_name_spaced}}:&nbsp; </div>
                     <table class="table mb-0 pb-0">
@@ -915,9 +1084,9 @@
                     {% endfor %}
                 </table>
                         </span>
-                        {% elif user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                        <span class="badge mb-1 mt-0 mx-0 text-secondary" style="text-align: left; background:rgba(128, 128, 128, 0.734); border:1px solid #2436112e;">
-                            <div class="fs-6 text-light"> {{ key }} <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
+                        {% elif user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
+                        <span class="badge mb-1 mt-0 mx-0 off-vars" style="text-align: left;">
+                            <div class="fs-6"> {{ key }} <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
                             </a></div>
                             <table class="table mb-0 pb-0">
 
@@ -950,18 +1119,18 @@
 
 <!-- HS -->
             {% for key, values in all_data.items %}
-            {% if "Human_sacrifice_for_polity" == key  %}
+            {% if "Human_sacrifice" == key  %}
                 {% if values and 'core.view_capital' in user.get_all_permissions %}
 
                 <div class="col-md-12 m-0 p-0">
                     <span class=" h3 fw-bold m-0 p-0 ">  
-                        <span class="badge mt-5 mb-2 p-3 fw-bold text-dark rounded-pill" style="text-align: left; background: #1987543b; border:1px solid #198754">
+                        <span class="badge mt-5 mb-2 p-3 fw-bold text-dark" style="text-align: left; background: #1987543b;">
                             Human Sacrifice
                         </span>   
                         <span class=" mt-3 fs-5">
                             <a href="#hs_var"><i class="fa-solid fa-circle-arrow-down mt-3 fa-lg"></i></a>
                         </span> 
-                        {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
+                        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
                         <span class="fs-6 text-teal">Add another Human Sacrifice: </span>  <a class="h6" href="{% url 'human_sacrifice-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
                         </a>
                         {% endif %}                  
@@ -977,7 +1146,7 @@
                         </span>   
                         <span class=" mt-3 fs-5">
                             Nothing coded yet. 
-                            {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
+                            {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
                             <span class="text-success">Add a new Human Sacrifice: </span>  <a class="h6" href="{% url 'human_sacrifice-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
                             </a>
                             {% endif %}                        </span>                 
@@ -991,7 +1160,7 @@
                 <div class="row px-1">
                     <div class="mb-2 col-md-12">
                                 {% for key, values in all_data.items %}
-                                    {% if "Human_sacrifice_for_polity" == key %}
+                                    {% if "Human_sacrifice" == key %}
                                     {% for value in values %}
                                     
                                     <span class="fs-6 fw-bold text-teal pt-2 pb-1 pe-2 ps-2 ms-2 me-2 mb-1 mt-1 highlighted-value">
@@ -1024,13 +1193,13 @@
 
             <div class="col-md-12 m-0 p-0">
                 <span class=" h3 fw-bold m-0 p-0 ">  
-                    <span class="badge mt-5 mb-2 p-3 fw-bold text-dark rounded-pill" style="text-align: left; background: #2125293b; border:1px solid #212529">
+                    <span class="badge mt-5 mb-2 p-3 fw-bold text-dark" style="text-align: left; background: #2125293b;">
                         Crisis Consequences
                     </span>   
                     <span class=" mt-3 fs-5">
                         <a href="#crisis_case_var"><i class="fa-solid fa-circle-arrow-down mt-3 fa-lg"></i></a>
                     </span> 
-                    {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
+                    {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
                     <span class="fs-6 text-teal">Add another Crisis Consequence: </span>  <a class="h6" href="{% url 'crisis_consequence-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
                     </a>
                     {% endif %}               
@@ -1073,7 +1242,7 @@
                     </span>   
                     <span class=" mt-3 fs-5">
                         Nothing coded yet. 
-                        {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
+                        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
                         <span class="text-success">Add a new Crisis Consequence: </span>  <a class="h6" href="{% url 'crisis_consequence-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
                         </a>
                         {% endif %}                    </span>                 
@@ -1083,16 +1252,16 @@
 
 <!-- PT -->
 
-            {% if all_power_transitions_data and 'core.view_capital' in user.get_all_permissions %}
+            {% if all_power_transitions_data and 'core.add_capital' in user.get_all_permissions %}
             <div class="col-md-12 m-0 p-0">
                 <span class=" h3 fw-bold m-0 p-0 ">  
-                    <span class="badge mt-5 mb-2 p-3 fw-bold text-dark rounded-pill" style="text-align: left; background: #0dcaf03b; border:1px solid #0dcaf0">
+                    <span class="badge mt-5 mb-2 p-3 fw-bold text-dark" style="text-align: left; background: #0dcaf03b;">
                         Power Transitions
                     </span>   
                     <span class=" mt-3 fs-5">
                         <a href="#power_transition_var"><i class="fa-solid fa-circle-arrow-down mt-3 fa-lg"></i></a>
                     </span>   
-                    {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
+                    {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
                     <span class="fs-6 text-teal">Add another Power Transition: </span>  <a class="h6" href="{% url 'power_transition-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
                     </a>
                     {% endif %}              
@@ -1102,296 +1271,11 @@
             <div class="row px-1">
                 <div class="mb-2 col-md-12">
                     {% for key, values in all_power_transitions_data.items %}
-                    {% if values %}
-                        <div id="{{key}}">
 
 
+                        {% include "core/partials/_pt_snippet_top.html" %}
 
-                                <div class="table-responsive" style="overflow-x:hidden;">
-                                    <div>
-                                        <span class="left-span px-1" style="color:rgba(0, 139, 139, 0.837);">
-                                                    
-                                            <h6 class="fw-bold" style="color:rgba(0, 139, 139, 0.837); text-align: left; line-height: 1.75;">
-                                                 <span class="badge bg-secondary" style="vertical-align: top;">&nbsp;</span> absent&nbsp;&nbsp; 
-                                                <span class="badge bg-success" style="vertical-align: top;">&nbsp;</span> present&nbsp;&nbsp; <span class="badge bg-dark" style="vertical-align: top;">&nbsp;</span> inferred absent&nbsp;&nbsp; 
-                                                <span class="badge bg-primary" style="vertical-align: top;">&nbsp;</span> inferred present&nbsp;&nbsp; <span class="badge bg-warning" style="vertical-align: top;">&nbsp;</span> suspected unknown&nbsp;&nbsp; <span class="fw-normal text-dark"></span>
-                                                <span class="badge bg-danger" style="vertical-align: top;">&nbsp;</span> unknown <span class="fw-normal text-dark"> are coded for:</span> <br>  
-                                                
-                            
-                                              </h6>
-                                              <div class="row">
-                                                <div class="col-md-3">
-                                                    <span class="badge bg-light text-dark border border-dark" style="padding-bottom:3px;" >OT</span> Overturn
-                                                </div>
-                                                <div class="col-md-3">                            
-                                                    <span class="badge bg-light text-dark border border-dark" style="padding-bottom:3px;"  >PA</span> Predecessor Assassination</div>
-                            
-                                                <div class="col-md-3">                             
-                                                    <span class="badge bg-light text-dark border border-dark" style="padding-bottom:3px;"  >IE</span> Intra-Elite</div>
-                                                <div class="col-md-3">
-                                                    <span class="badge bg-light text-dark border border-dark" style="padding-bottom:3px;"  >MR</span> Military Revolt
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <span class="badge bg-light text-dark border border-dark" style="padding-bottom:3px;"  >PU</span> Popular Uprising
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <span class="badge bg-light text-dark border border-dark" style="padding-bottom:3px;"  >SR</span> Separatist Rebellion
-                                                </div>
-                                                <div class="col-md-3">                             
-                                                    <span class="badge bg-light text-dark border border-dark" style="padding-bottom:3px;"  >EV</span> External Invasion
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <span class="badge bg-light text-dark border border-dark" style="padding-bottom:3px;"  >EF</span> External Inteference
-                                                </div>
-                                            </div>
-                                        </span> 
-                            
-                                    <table id="table_id" class="table align-middle table-striped table-bordered mb-4" style="padding: 0.25 rem !important;">
-                                        <tbody>
-                                            <tr>
-                                                <td class="text-secondary sticky-start p-0 m-0" scope="row"  style="text-align: left">
-                                                    
-                                                    <table class="table table-bordered">
-                                                        <tbody>
-                                                            {% for value in values %}
-                            
-                                                            <tr>
-                            
-                                                                                               
-                                                                 <td style="position: relative;">
-                                                                  
-                                                                    <span class="card-text-spaced">
-                                                                        <span class="left-span">    
-                                                                            <a href="#power_transition_{{value.id}}"><i class="fa-solid fa-circle-arrow-down fa-sm"></i></a>
-
-                            
-                            
-                                                                    <span class="badge border border-dark text-dark px-2 py-1 fw-light fs-6" style="background: linear-gradient(to right, #f8bdb288, #faf0b68e)">
-                                                                    
-                                                                        {% if value.year_from == None %}
-                                                                        <a type="button" class="btn p-0 m-0" data-bs-toggle="tooltip" data-bs-html="true"  title='Year Range of Polity is assumed.'>
-                                                                            <span><i class="fa-solid fa-clock fs-6 text-secondary"></i> </span>
-                                                                        </a>
-                                                                    
-                                                                    
-                                                                            
-                                                                        {% elif  value.year_from == value.year_to %}
-                                                                            {% if  value.year_from < 0 %}
-                                                                            {{ value.year_from|abs }} 
-                                                                            
-                                                                            <span class="text-secondary fw-light fs-6">BCE</span> 
-                                                                        
-                                                                            {% else %}
-                                                                            {{ value.year_from }} 
-                                                                        
-                                                                            <span class="text-secondary fw-light fs-6">CE</span>
-                                                                    
-                                                                            {% endif %}
-                                                                        {% elif value.year_to == None %}
-                                                                            {% if  value.year_from < 0 %}
-                                                                            {{ value.year_from|abs }} 
-                                                                            
-                                                                                <span class="text-secondary fw-light fs-6">BCE</span>
-                                                                        
-                                                                            {% else %}
-                                                                            {{ value.year_from }} 
-                                                                            
-                                                                                <span class="text-secondary fw-light fs-6">CE</span>
-                                                                        
-                                                                            {% endif %}
-                                                                        {% elif value.year_to == None and  value.year_from == None %}
-                                                                            <i class="fa-solid fa-minus"></i> 
-                                                                        {% else %}
-                                                                            {% if  value.year_from < 0 and value.year_to < 0 %}
-                                                                            {{ value.year_from|abs }} 
-                                                                            
-                                                                                <span class="text-secondary fw-light fs-6">BCE</span> 
-                                                                        
-                                                                            <i class="fas fa-long-arrow-alt-right"></i> {{ value.year_to|abs }}         
-                                                                                <span class="text-secondary fw-light fs-6">BCE</span> 
-                                                                        
-                                                                            {% elif  value.year_from < 0 and value.year_to >= 0 %}
-                                                                            {{ value.year_from|abs }}         
-                                                                                <span class="text-secondary fw-light fs-6">BCE</span> 
-                                                                         <i class="fas fa-long-arrow-alt-right"></i> {{ value.year_to }}         
-                                                                                <span class="text-secondary fw-light fs-6">CE</span> 
-                                                                        
-                                                                            {% else %}
-                                                                            {{ value.year_from }} 
-                                                                                <span class="text-secondary fw-light fs-6">CE</span>
-                                                                          <i class="fas fa-long-arrow-alt-right"></i> {{ value.year_to }}         
-                                                                                <span class="text-secondary fw-light fs-6">CE</span> 
-                                                                        
-                                                                            {% endif %}
-                                                                    
-                                                                        {% endif %}
-                                                                        {% if  info_list.polity_end_year < value.year_to %}
-                                                                        <span class="text-danger"> *Bad Years...</span>
-                                                                        {% endif %}
-                                                                    </span>
-                                                                   
-                                                                    <span class = "fw-bold text-danger">
-                                                                        {{ value.predecessor }}
-                                                                    </span> 
-                                                                    <span class="text-dark">
-                                                                        <i class="fa-solid fa-arrow-right-long fa-sm"></i> 
-                                                                    </span> 
-                                                                    <span class = "fw-bold text-teal">
-                                                                        {{ value.successor }}
-                                                                    </span>
-                            
-                                </span>
-                            
-                            
-                            <span class="right-span fw-normal">   
-                                {% if  value.overturn == "P" %}
-                                <span class="badge border border-dark bg-success">OV</span> 
-                                {% elif  value.overturn == "IP" %}
-                                <span class="badge border border-dark bg-primary">OV</span> 
-                                {% elif  value.overturn == "A" %}
-                                <span class="badge border border-dark bg-secondary">OV</span> 
-                                {% elif  value.overturn == "IA" %}
-                                <span class="badge border border-dark bg-dark text-light">OV</span> 
-                                {% elif  value.overturn == "U" %}
-                                <span class="badge border border-dark bg-danger">OV</span> 
-                                {% elif  value.overturn == "SU" %}
-                                <span class="badge border border-dark bg-warning text-dark">OV</span>
-                                {% endif %}
-                            
-                                {% if  value.predecessor_assassination == "P" %}
-                                <span class="badge border border-dark bg-success">PA</span> 
-                                {% elif  value.predecessor_assassination == "IP" %}
-                                <span class="badge border border-dark bg-primary">PA</span> 
-                                {% elif  value.predecessor_assassination == "A" %}
-                                <span class="badge border border-dark bg-secondary">PA</span> 
-                                {% elif  value.predecessor_assassination == "IA" %}
-                                <span class="badge border border-dark bg-dark text-light">PA</span> 
-                                {% elif  value.predecessor_assassination == "U" %}
-                                <span class="badge border border-dark bg-danger">PA</span> 
-                                {% elif  value.predecessor_assassination == "SU" %}
-                                <span class="badge border border-dark bg-warning text-dark">PA</span>
-                                {% endif %}
-                            
-                                {% if  value.intra_elite == "P" %}
-                                <span class="badge border border-dark bg-success">IE</span> 
-                                {% elif  value.intra_elite == "IP" %}
-                                <span class="badge border border-dark bg-primary">IE</span> 
-                                {% elif  value.intra_elite == "A" %}
-                                <span class="badge border border-dark bg-secondary">IE</span> 
-                                {% elif  value.intra_elite == "IA" %}
-                                <span class="badge border border-dark bg-dark text-light">IE</span> 
-                                {% elif  value.intra_elite == "U" %}
-                                <span class="badge border border-dark bg-danger">IE</span> 
-                                {% elif  value.intra_elite == "SU" %}
-                                <span class="badge border border-dark bg-warning text-dark">IE</span>
-                                {% endif %}
-                            
-                                {% if  value.military_revolt == "P" %}
-                                <span class="badge border border-dark bg-success">MR</span> 
-                                {% elif  value.military_revolt == "IP" %}
-                                <span class="badge border border-dark bg-primary">MR</span> 
-                                {% elif  value.military_revolt == "A" %}
-                                <span class="badge border border-dark bg-secondary">MR</span> 
-                                {% elif  value.military_revolt == "IA" %}
-                                <span class="badge border border-dark bg-dark text-light">MR</span> 
-                                {% elif  value.military_revolt == "U" %}
-                                <span class="badge border border-dark bg-danger">MR</span> 
-                                {% elif  value.military_revolt == "SU" %}
-                                <span class="badge border border-dark bg-warning text-dark">MR</span>
-                                {% endif %}
-                            
-                                {% if  value.popular_uprising == "P" %}
-                                <span class="badge border border-dark bg-success">PU</span> 
-                                {% elif  value.popular_uprising == "IP" %}
-                                <span class="badge border border-dark bg-primary">PU</span> 
-                                {% elif  value.popular_uprising == "A" %}
-                                <span class="badge border border-dark bg-secondary">PU</span> 
-                                {% elif  value.popular_uprising == "IA" %}
-                                <span class="badge border border-dark bg-dark text-light">PU</span> 
-                                {% elif  value.popular_uprising == "U" %}
-                                <span class="badge border border-dark bg-danger">PU</span> 
-                                {% elif  value.popular_uprising == "SU" %}
-                                <span class="badge border border-dark bg-warning text-dark">PU</span>
-                                {% endif %}
-                            
-                                {% if  value.separatist_rebellion == "P" %}
-                                <span class="badge border border-dark bg-success">SR</span> 
-                                {% elif  value.separatist_rebellion == "IP" %}
-                                <span class="badge border border-dark bg-primary">SR</span> 
-                                {% elif  value.separatist_rebellion == "A" %}
-                                <span class="badge border border-dark bg-secondary">SR</span> 
-                                {% elif  value.separatist_rebellion == "IA" %}
-                                <span class="badge border border-dark bg-dark text-light">SR</span> 
-                                {% elif  value.separatist_rebellion == "U" %}
-                                <span class="badge border border-dark bg-danger">SR</span> 
-                                {% elif  value.separatist_rebellion == "SU" %}
-                                <span class="badge border border-dark bg-warning text-dark">SR</span>
-                                {% endif %}
-                            
-                                {% if  value.external_invasion == "P" %}
-                                <span class="badge border border-dark bg-success">EV</span> 
-                                {% elif  value.external_invasion == "IP" %}
-                                <span class="badge border border-dark bg-primary">EV</span> 
-                                {% elif  value.external_invasion == "A" %}
-                                <span class="badge border border-dark bg-secondary">EV</span> 
-                                {% elif  value.external_invasion == "IA" %}
-                                <span class="badge border border-dark bg-dark text-light">EV</span> 
-                                {% elif  value.external_invasion == "U" %}
-                                <span class="badge border border-dark bg-danger">EV</span> 
-                                {% elif  value.external_invasion == "SU" %}
-                                <span class="badge border border-dark bg-warning text-dark">EV</span>
-                                {% endif %}
-                            
-                                {% if  value.external_interference == "P" %}
-                                <span class="badge border border-dark bg-success">EF</span> 
-                                {% elif  value.external_interference == "IP" %}
-                                <span class="badge border border-dark bg-primary">EF</span> 
-                                {% elif  value.external_interference == "A" %}
-                                <span class="badge border border-dark bg-secondary">EF</span> 
-                                {% elif  value.external_interference == "IA" %}
-                                <span class="badge border border-dark bg-dark text-light">EF</span> 
-                                {% elif  value.external_interference == "U" %}
-                                <span class="badge border border-dark bg-danger">EF</span> 
-                                {% elif  value.external_interference == "SU" %}
-                                <span class="badge border border-dark bg-warning text-dark">EF</span>
-                                {% endif %}
-                            
-                            
-                            </span>
-                            </span>
-                            
-                            
-                                                                </td>
-                                                            </tr>
-                                                            {% endfor %}
-                            
-                                                        </tbody>
-                                                    </table>
-                                                    
-                            
-                                                </td>
-                            
-                                            </tr>
-                            
-                                        </tbody>
-                                      </table>
-                                    </div>
-                                </div>
-                            
-                                {% else %}
-                            
-                                <div class="row">
-                                    <div class="col-md-12 mt-4">
-                                        <h3> <i class="fa-solid fa-triangle-exclamation"></i> There are no Facts for this variable in the Database.</h3>
-                                    </div>
-                                </div>
-
-
-
-
-                            </div>
-                        {% endif %}
-                        {% endfor %}
+                    {% endfor %}
 
                 </div>
             </div>
@@ -1404,7 +1288,7 @@
                     </span>   
                     <span class=" mt-3 fs-5">
                         Nothing coded yet. 
-                        {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
+                        {% if user.is_authenticated and 'core.add_capital' in user.get_all_permissions %}
                         <span class="text-success">Add a Power Transition: </span>  <a class="h6" href="{% url 'power_transition-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-dark"></i>
                         </a>
                         {% endif %}
@@ -1472,469 +1356,369 @@
 
 
 <!-- GV -->
-<div>
-    <span class="pt-5 display-1" style="text-align: left; color:#893101;" ><span class="h1 fw-bold" id="general_var">
-        General Variables</span>
-    </span>
+<div class=" ps-0 ms-0 ">
+    {% autoescape off %}
+    <div>
+        <span class="h1" style="text-align: left; color:#fc9002;" >
+            <span class="h1 federicka-huge" id="general_var">
+            General Variables</span>
+        </span>
+    </div>
     {% for key_top, values_top in all_general_data.items %}
-        <div class="py-2 custom-left-border-shadowed">
+        <div class="py-2 ps-0 ms-0  custom-left-border-shadowetd">
         {% for key_m, values_m in values_top.items %}
             {% if values_m %}
-                <span class=" fs-1 text-dark my-5 border-bottom border-5 border-warning"  style="text-align: left; background-color: #fffdf2;">
-                    <i class="fa-solid fa-circle fa-2xs text-warning"></i>
-                    <span class="fw-bold"> {{key_top}}</span> 
+            <div class="py-3 ps-0 ms-0">
+                <span class="h4 my-5 py-2 px-2 ms-0 federicka-medium text-dark"  style=" background:rgba(255, 166, 0, 0.376)">
+                    <span> {{key_top}}</span> 
                     {% if key_m != 'None' %}
                     <span class="fw-light">/ {{key_m}}</span> 
                     {% endif %}
                 </span>
-                <a href=""><i class="fa-solid fa-turn-up"></i></a>
-
+            </div>
             {% endif %}
             {% for key, values in values_m.items %}
                 {% if values %}
-                    <div>
-                        <div class="row d-flex">
-                            <div class="col-md-6">
-                                <span class="pt-1 fs-5 pb-1 fw-bold" id="{{key}}"> 
-                                    <i class="fa-solid fa-star fa-2xs"></i>
-                                    {{ values.0.clean_name_spaced|slice:"7:" }}:            
-                                </span> 
-
-                            </div>
-                            <div class="col-md-6">
-                                <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light">View all values of <b> <u> {{ values.0.clean_name_spaced|slice:"7:" }}</u></b> <i class="fa-solid fa-list"></i></a>
-                            </div>
-                        </div>
+                    <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
                             {% for value in values %}
-                            <span class="fs-4 fw-bold text-teal pt-2 pb-1 pe-2 ps-2 ms-2 me-2 mb-1 mt-1 highlighted-value">{{value.show_value}} 
-                                {% include "core/partials/_year_block_value_inline.html" %}
-                                <div style="display: block; padding: 0;">
-                                    <div style="display: inline-flex; flex-direction: row;">
-                                        {% include "core/partials/_tag_value_inline.html" %}
-                                        {% include "core/partials/_disputed_value_inline.html" %}
-                                        {% include "core/partials/_uncertain_value_inline.html" %}
-                                        {% include "core/partials/_expert_checked_value_inline.html" %}
-                                        {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-
-                                        <a class="p-0 m-0 fs-6" type="button" href="{% url key|lower|add:'-update' value.id %}">
-                                            <span class="badge rounded-pill bg-danger tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
-                                        </a>  
-                                        {% endif %}
-                
+                            <div class="col-md-9">
+                                <span class="h5 text-teal pt-0 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
+                                    {% if key == "Polity_suprapolity_relations" %}
+                                    <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                                        <span class="py-2 fs-6 fw-bold  text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                            {{ value.clean_name_spaced|slice:"7:" }}:            
+                                        </span>  <br>{{ value.display_value }}
+    
+                                    </span>
+                                    {% else %}
+                                    <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                                        <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                            {{ value.clean_name_spaced|slice:"7:" }}:            
+                                        </span>  <br>{{ value.show_value }}
+    
+                                    </span>
+                                    {% endif %}
+    
+                                    {% include "core/partials/_year_block_value_inline.html" %}
+                                    <div style="display: block; padding: 0;">
+                                        <div style="display: inline-flex; flex-direction: row;">
+                                            {% include "core/partials/_tag_value_inline.html" %}
+                                            {% include "core/partials/_disputed_value_inline.html" %}
+                                            {% include "core/partials/_uncertain_value_inline.html" %}
+                                            {% include "core/partials/_expert_checked_value_inline.html" %}
+                    
+                                        </div>
                                     </div>
-                                </div>
-                            </span>
-                            {% endfor %}
-                            <br>
-                            {% autoescape off %}   
-                            {% if values %}
-                                <div class="descriptions-container">
-                                    {% for description in values|unique_descriptions %}
-                                        <p class="fs-6">
-                                            <i class="fa-solid fa-layer-group fa-xs text-teal"></i>   
-                                            <span class="badge bg-secondary">
-                                                DESCRIPTION {{forloop.counter}}
-                                            </span>  {{ description|make_references_look_nicer }}
-                                        </p>
-                                        {% if not forloop.last %}
-                                        <hr class="light-narrow-hr">
-                                        {% endif %}
-                                    {% endfor %}
-                                    <hr class="light-heavy-hr">
+                                </span>
+                                {% with my_app_name='general' %}
+                                    {% include "core/partials/_abc.html" %}
+                                {% endwith %}
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light"><b> <u>View all such values</u></b></a>
+                            </div>
+                            {% if value.description %}
+                                <div class="col-md-12 highlighted-value my-0 py-0">
+                                    <p class="fs-6 my-1 py-1">
+                                            {{ value.description|make_references_look_nicer }}
+                                    </p>
 
                                 </div>
                             {% endif %}
-                            {% endautoescape %}    
+                            {% endfor %}
                     </div>
+                    <br>
                 {% endif %}
 
             {% endfor %}
         {% endfor %}
         </div>
     {% endfor %}
+    {% endautoescape  %}
+
 </div>
 
+<hr class="light-heavy-hr">
 
 <!-- SC -->
-    <div>
-        <span class="pt-5 display-1" style="text-align: left; color:#893101;" ><span class="h1 fw-bold" id="sc_var">
-            Social Complexity Variables</span>
-        </span>
+{% autoescape off %}
+    <div class=" ps-0 ms-0 ">
+        <div>
+            <span class="h1" style="text-align: left; color:#4682b4;" >
+                <span class="h1 federicka-huge" id="sc_var">
+                Social Complexity Variables</span>
+            </span>
+        </div>
         {% for key_top, values_top in all_sc_data.items %}
-            <div class="py-2 custom-left-border-shadowed">
+            <div class="py-2 ps-0 ms-0">
             {% for key_m, values_m in values_top.items %}
                 {% if values_m %}
-                    <span class=" fs-1 text-dark my-5 border-bottom border-5 border-primary"  style="text-align: left; background-color: #fffdf2;">
-                        <i class="fa-solid fa-circle fa-2xs text-primary"></i>
-                        <span class="fw-bold"> {{key_top}}</span> 
+                <div class="py-3 ps-0 ms-0">
+                    <span class="h4 my-5 py-2 px-2 ms-0 federicka-medium text-dark"  style="background-color: #aed4f4;">
+                        <span> {{key_top}}</span> 
                         {% if key_m != 'None' %}
                         <span class="fw-light">/ {{key_m}}</span> 
                         {% endif %}
                     </span>
-                    <a href=""><i class="fa-solid fa-turn-up"></i></a>
-
+                </div>
                 {% endif %}
                 {% for key, values in values_m.items %}
-                    {% if values %}
-                        <div>
-                            <div class="row d-flex">
-                                <div class="col-md-6">
-                                    <span class="pt-1 fs-5 pb-1 fw-bold" id="{{key}}"> 
-                                        <i class="fa-solid fa-star fa-2xs"></i>
-                                        {{ values.0.clean_name_spaced }}:            
-                                    </span> 
-    
-                                </div>
-                                <div class="col-md-6">
-                                    <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light">View all values of <b> <u> {{ values.0.clean_name_spaced }}</u></b> <i class="fa-solid fa-list"></i></a>
-                                </div>
-                            </div>
-                                {% for value in values %}
-                                <span class="fs-4 fw-bold text-teal pt-2 pb-1 pe-2 ps-2 ms-2 me-2 mb-1 mt-1 highlighted-value">{{value.show_value}} 
-                                    {% include "core/partials/_year_block_value_inline.html" %}
-                                    <div style="display: block; padding: 0;">
-                                        <div style="display: inline-flex; flex-direction: row;">
-                                            {% include "core/partials/_tag_value_inline.html" %}
-                                            {% include "core/partials/_disputed_value_inline.html" %}
-                                            {% include "core/partials/_uncertain_value_inline.html" %}
-                                            {% include "core/partials/_expert_checked_value_inline.html" %}
-                                            {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                                            <a class="p-0 m-0 fs-6" type="button" href="{% url key|lower|add:'-update' value.id %}">
-                                                <span class="badge rounded-pill bg-danger tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
-                                            </a>   
-
-
-                                            {% if value.comment %}
-                                            {% if value.comment.id == 1 or value.comment.inner_comments_related.all|length == 0 %}
-                                                <a class="p-0 m-0 fs-6" href="{% url 'create_subcomment_new' app_name='sc' model_name=value.name instance_id=value.id %}"><span class="badge rounded-pill bg-warning tag-border text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Description (NEW) </span></a>
-                                            {% else  %}
-            
-                                                <a class="p-0 m-0 fs-6" href="{% url 'seshatcomment-update' value.comment.id %}"><span class="badge rounded-pill bg-warning tag-border text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Edit Description</span></a>
-                                            {% endif %}  
-                                        {% endif %}   
-
-                                            {% endif %}
-            
-                                        </div>
-                                    </div>
-                                </span>
-                                {% endfor %}
-                                <br>
-                                {% autoescape off %}   
-                                {% if values %}
-                                <div class="descriptions-container">
-                                    {% for description in values|unique_descriptions %}
-                                        <p class="fs-6">
-                                            <i class="fa-solid fa-layer-group fa-xs text-teal"></i>   
-                                            <span class="badge bg-secondary">
-                                                DESCRIPTION                                                 
-                                                {% if values|unique_descriptions|length > 1 %}
-                                                {{forloop.counter}}
-                                                {% endif %}
-                                            </span>  {{ description|make_references_look_nicer }}
-                                        </p>
-                                        {% if not forloop.last %}
-                                        <hr class="light-narrow-hr">
-                                        {% endif %}
-                                    {% endfor %}
-<hr class="bg-colorful">
-                                        {% for value in values %}
-
-                                            {% if value.comment %}
-                                            {% if value.comment_id > 1 %}
-                                            <div>
-                                                <span class="pt-1 fs-5 pb-1 fw-bold" id="{{key}}"> 
-                                                    <i class="fa-solid fa-star fa-2xs"></i>
-                                                    {{ values.0.clean_name_spaced }} (NEW APPROACH):            
-                                                </span> 
-                                            </div>
-
-                                            <span class="fs-4 fw-bold text-teal pt-2 pb-1 pe-2 ps-2 ms-2 me-2 mb-1 mt-1 highlighted-value">{{value.show_value}} 
-                                                {% include "core/partials/_year_block_value_inline.html" %}
-                                                <div style="display: block; padding: 0;">
-                                                    <div style="display: inline-flex; flex-direction: row;">
-                                                        {% include "core/partials/_tag_value_inline.html" %}
-                                                        {% include "core/partials/_disputed_value_inline.html" %}
-                                                        {% include "core/partials/_uncertain_value_inline.html" %}
-                                                        {% include "core/partials/_expert_checked_value_inline.html" %}
-                                                        {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                                                        <a class="p-0 m-0 fs-6" type="button" href="{% url key|lower|add:'-update' value.id %}">
-                                                            <span class="badge rounded-pill bg-danger tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
-                                                        </a>   
-            
-            
-                                                        {% if value.comment %}
-                                                        {% if value.comment.id == 1 or value.comment.inner_comments_related.all|length == 0 %}
-                                                            <a class="p-0 m-0 fs-6" href="{% url 'create_subcomment_new' app_name='sc' model_name=value.name instance_id=value.id %}"><span class="badge rounded-pill bg-warning tag-border text-dark"> <i class=" fa-solid fa-plus text-dark"></i> Create Description (NEW) </span></a>
-                                                        {% else  %}
-                        
-                                                            <a class="p-0 m-0 fs-6" href="{% url 'seshatcomment-update' value.comment.id %}"><span class="badge rounded-pill bg-warning tag-border text-dark"> <i class=" fa-solid fa-pen-to-square bg-warning text-dark"></i> Edit Description</span></a>
-                                                        {% endif %}  
-                                                    {% endif %}   
-            
-                                                        {% endif %}
-                        
-                                                    </div>
-                                                </div>
-                                            </span>
-                                            <br>
-                                            {% endif %}
-
-
-                                                {% if value.comment.id == 1 or value.comment.inner_comments_related.all|length == 0 %}
-
-                                                {% else  %}
-                                                <i class="fa-solid fa-layer-group fa-xs text-danger"></i>   
-
-                                                <span class="badge bg-warning text-dark">
-                                                    DESCRIPTION (NEW APPROACH) </span> {{value.comment}} <br>
-                                                {% endif %}  
-                                            {% endif %}
-                                        {% endfor %}
-             
-                                </p>  
-                                    <hr class="light-heavy-hr">
-
-                                </div>
-                                {% endif %}
-                                {% endautoescape %}    
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            {% endfor %}
-            </div>
-
-        {% endfor %}
-    </div>
-<!-- WF -->
-    <div>
-        <span class="pt-5 display-1" style="text-align: left; color:#893101;"><span class="h1 fw-bold"  id="wf_var">
-            Warfare Variables (Military Technologies)</span>
-        </span>
-        {% for key_top, values_top in all_wf_data.items %}
-        <div class="py-2 custom-left-border-shadowed">
-
-            {% for key_m, values_m in values_top.items %}
-                {% if values_m %}
-
-                    <span class=" fs-1 text-dark my-5 border-bottom border-5 border-danger"  style="text-align: left; background-color: #fffdf2;">
-                        <i class="fa-solid fa-circle fa-2xs text-danger"></i>
-                        <span class="fw-bold"> {{key_top}}</span> 
-                        {% if key_m != 'None' %}
-                        <span class="fw-light">/ {{key_m}}</span> 
-                        {% endif %}
-                    </span>
-                    <a href=""><i class="fa-solid fa-turn-up"></i></a>
-
-                    <hr class="light-narrow-hr">
-                {% endif %}
-                {% for key, values in values_m.items %}
-                    {% if values %}
-                        <div>
-                            <div class="row d-flex">
-                                <div class="col-md-6">
-                                    <span class="pt-1 fs-5 pb-1 fw-bold" id="{{key}}"> 
-                                        <i class="fa-solid fa-star fa-2xs"></i>
-                                        {{ values.0.clean_name_spaced }}:            
-                                    </span> 
-    
-                                </div>
-                                <div class="col-md-6">
-                                    <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light">View all values of <b> <u> {{ values.0.clean_name_spaced }}</u></b> <i class="fa-solid fa-list"></i></a>
-                                </div>
-                            </div>
-                                {% for value in values %}
-                                <span class="fs-4 fw-bold text-teal pt-2 pb-1 pe-2 ps-2 ms-2 me-2 mb-1 mt-1 highlighted-value">{{value.show_value}} 
-                                    {% include "core/partials/_year_block_value_inline.html" %}
-                                    <div style="display: block; padding: 0;">
-                                        <div style="display: inline-flex; flex-direction: row;">
-                                            {% include "core/partials/_tag_value_inline.html" %}
-                                            {% include "core/partials/_disputed_value_inline.html" %}
-                                            {% include "core/partials/_uncertain_value_inline.html" %}
-                                            {% include "core/partials/_expert_checked_value_inline.html" %}
-                                            {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                                            <a class="p-0 m-0 fs-6" type="button" href="{% url key|lower|add:'-update' value.id %}">
-                                                <span class="badge rounded-pill bg-danger tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
-                                            </a>    
-                                            {% endif %}
-              
-                                        </div>
-                                    </div>
-                                </span>
-                                {% endfor %}
-                                <br>
-                                {% autoescape off %}   
-                                {% if values %}
-                                <div class="descriptions-container">
-                                    {% for description in values|unique_descriptions %}
-                                        <p class="fs-6">
-                                            <i class="fa-solid fa-layer-group fa-xs text-teal"></i>   
-                                            <span class="badge bg-secondary">
-                                                DESCRIPTION 
-                                                {% if values|unique_descriptions|length > 1 %}
-                                                {{forloop.counter}}
-                                                {% endif %}
-
-                                            </span>   {{ description|make_references_look_nicer }}
-                                        </p>
-                                        {% if not forloop.last %}
-                                        <hr class="light-narrow-hr">
-                                        {% endif %}
-                                    {% endfor %}
-                                    <hr class="light-heavy-hr">
-
-                                </div>
-                                {% endif %}
-                                {% endautoescape %}    
-                        </div>
-                    {% endif %}
-                {% endfor %}
-
-            {% endfor %}
-        </div>
-
-        {% endfor %}
-
-    </div>
-
-<!-- RT -->
-<div>    
-    {% if all_rt_data and 'core.view_capital' in user.get_all_permissions or object.new_name == "kh_chenla" or object.new_name == "pe_wari_emp" or object.new_name == "in_kampili_k" or object.new_name == "in_kalyani_chalukya_emp" or object.new_name == "in_hoysala_k" or object.new_name == "et_aksum_emp_3" or object.new_name == "et_aksum_emp_2" or object.new_name == "ni_proto_yoruboid" or object.new_name == "ni_sokoto" or object.new_name == "gm_kaabu_emp" %}
-
-    <span class="pt-5 display-1" style="text-align: left; color:#893101;" ><span class="h1 fw-bold" id="rt_var">
-        Religion Tolerance</span>
-    </span>
-
-    {% for key_top, values_top in all_rt_data.items %} 
-    <div class="py-2 custom-left-border-shadowed">
-
-        {% for key_m, values_m in values_top.items %}
-            {% if values_m %}
-
-                <span class=" fs-1 text-dark my-5"  style="text-align: left; border-bottom: 5px solid #59007f; background-color: #fffdf2;">
-                    <i class="fa-solid fa-circle fa-2xs" style="color:#59007f"></i>
-                    <span class="fw-bold"> {{key_top}}</span> 
-                    {% if key_m != 'None' %}
-                    <span class="fw-light">/ {{key_m}}</span> 
-                    {% endif %}
-                </span>
-                <a href=""><i class="fa-solid fa-turn-up"></i></a>
-
-                <hr class="light-narrow-hr">
-            {% endif %}
-            {% for key, values in values_m.items %}
                 {% if values %}
-                    <div>
-                        <div class="row d-flex">
-                            <div class="col-md-10">
-                                <span class="pt-1 fs-5 pb-1 fw-bold" id="{{key}}"> 
-                                    <i class="fa-solid fa-star fa-2xs"></i>
-                                    {{ values.0.clean_name_spaced }}:            
-                                </span> 
-
-                            </div>
-                            <div class="col-md-2">
-                                <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light"> <b> <u>View all such values</u></b> <i class="fa-solid fa-list"></i></a>
-                            </div>
-                        </div>
+                    <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
                             {% for value in values %}
-                            <span class="fs-4 fw-bold text-teal pt-2 pb-1 pe-2 ps-2 ms-2 me-2 mb-1 mt-1 highlighted-value">{{value.show_value}} 
-                                {% include "core/partials/_year_block_value_inline.html" %}
-                                <div style="display: block; padding: 0;">
-                                    <div style="display: inline-flex; flex-direction: row;">
-                                        {% include "core/partials/_tag_value_inline.html" %}
-                                        {% include "core/partials/_disputed_value_inline.html" %}
-                                        {% include "core/partials/_uncertain_value_inline.html" %}
-                                        {% include "core/partials/_expert_checked_value_inline.html" %}
+                            <div class="col-md-9">
+                                <span class="h5 text-teal pt-2 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
+                                    <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                                        <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                            {{ value.clean_name_spaced }}:            
+                                        </span>  <br>{{ value.show_value }}
+                                    </span>
+                                    {% include "core/partials/_year_block_value_inline.html" %}
+                                    <div style="display: block; padding: 0;">
+                                        <div style="display: inline-flex; flex-direction: row;">
+                                            {% include "core/partials/_tag_value_inline.html" %}
+                                            {% include "core/partials/_disputed_value_inline.html" %}
+                                            {% include "core/partials/_uncertain_value_inline.html" %}
+                                            {% include "core/partials/_expert_checked_value_inline.html" %}
 
-                                        {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                                        <a class="p-0 m-0 fs-6" type="button" href="{% url key|lower|add:'-update' value.id %}">
-                                            <span class="badge rounded-pill bg-danger tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
-                                        </a>    
-                                            {% if value.comment %}
-                                                {% if value.comment.id == 1 or value.comment.inner_comments_related.all|length == 0 %}
-                                                    <a class="p-0 m-0 fs-6" href="{% url 'create_subcomment_new' app_name='rt' model_name=value.name instance_id=value.id %}"><span class="badge rounded-pill bg-secondary tag-border"> <i class=" fa-solid fa-plus text-white"></i> Create Description (NEW) </span></a>
-                                                {% else  %}
-                                                    <a class="p-0 m-0 fs-6" href="{% url 'seshatcomment-update' value.comment.id %}"><span class="badge rounded-pill bg-secondary tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i> Edit Description {{value.comment.inner_comments_related.all|length }}</span></a>
-                                                {% endif %}  
-                                            {% endif %}
-                                        {% endif %}
-              
+                                        </div>
                                     </div>
-                                </div>
-                            </span>
-                            <br>
-                            {% autoescape off %}   
+                                </span>
+                                {% with my_app_name='sc' %}
+                                    {% include "core/partials/_abc.html" %}
+                                {% endwith %}
+
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light"><b><u>View all such values</u></b></a>
+                            </div>
                             {% if value.description %}
-                            <p class="fs-6">
-                                <i class="fa-solid fa-layer-group fa-xs text-teal"></i>   
-                                {{value.description|make_references_look_nicer}}
-                            </p>   
-  
+                                <div class="col-md-12 highlighted-value my-0 py-0">
+                                    <p class="fs-6 my-1 py-1">
+                                        {{ value.description|make_references_look_nicer }}
+                                    </p>
+                                </div>
                             {% endif %}
-
-
-
-
-                            <p class="fs-6 border border-4 border-info rounded p-2">
-                                <i class="fa-solid fa-layer-group fa-xs text-danger"></i>   
-                                {% if value.comment %}
-                                {% if value.comment.id == 1 or value.comment.inner_comments_related.all|length == 0 %}
-                                DESCRIPTION (NEW APPROACH): Empty.<br> 
-                                    <a class="p-0 m-0 fs-6" href="{% url 'create_subcomment_new' app_name='rt' model_name=value.name instance_id=value.id %}"><span class="badge rounded-pill bg-secondary tag-border"> <i class=" fa-solid fa-plus text-white"></i> Create Description (NEW) </span></a>
-                                {% else  %}
-                                DESCRIPTION (NEW APPROACH): <br> {{value.comment}} <br>
-
-                                    <a class="p-0 m-0 fs-6" href="{% url 'seshatcomment-update' value.comment.id %}"><span class="badge rounded-pill bg-secondary tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i> Edit Description {{value.comment.inner_comments_related.all|length }}</span></a>
-                                {% endif %}  
+                            {% if value.comment %}
+                                {% if value.comment_id > 1 %}
+                                <div class="col-md-12 highlighted-value my-0 py-0">
+                                    <p class="pt-1 fs-5 pb-1 fw-bold" id="{{key}}"> 
+                                        (NEW APPROACH): {{ value.comment }}             
+                                    </p> 
+                                </div>
+                                {% endif %}
                             {% endif %}
-                                                   
-                        </p>  
-
-                            <hr class="light-heavy-hr">
-
-                            {% endautoescape %}   
                             {% endfor %}
- 
+
                     </div>
-                {% endif %}
+                    <br>
+                    {% endif %}
+                    {% endfor %}
 
-            {% endfor %}
-
-        {% endfor %}
+                {% endfor %}
         </div>
-
         {% endfor %}
-    {% endif %}
+    </div>
 
-</div>
+    {% endautoescape  %}
+
+
+    <hr class="light-heavy-hr">
+
+    <!-- WF NEW -->
+    {% autoescape off %}
+        <div class=" ps-0 ms-0 ">
+            <div>
+                <span class="h1" style="text-align: left; color:#893101;" >
+                    <span class="h1 federicka-huge" id="wf_var">
+                        Warfare Variables </span> <span class="h2 federicka-bigger" >(Military Technologies)</span>
+                </span>
+            </div>
+            {% for key_top, values_top in all_wf_data.items %}
+                <div class="py-2 ps-0 ms-0">
+                {% for key_m, values_m in values_top.items %}
+                    {% if values_m %}
+                    <div class="py-3 ps-0 ms-0">
+                        <span class="h4 my-5 py-2 px-2 ms-0 federicka-medium text-dark"  style="background-color: #f3bc9f;">
+                            <span> {{key_top}}</span> 
+                            {% if key_m != 'None' %}
+                            <span class="fw-light">/ {{key_m}}</span> 
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% for key, values in values_m.items %}
+                    {% if values %}
+                        <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
+                                {% for value in values %}
+                                <div class="col-md-9">
+                                    <span class="h5 text-teal pt-2 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
+                                        <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                                            <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                                {{ value.clean_name_spaced }}:            
+                                            </span>  <br>{{ value.show_value }}
+                                        </span>
+                                        {% include "core/partials/_year_block_value_inline.html" %}
+                                        <div style="display: block; padding: 0;">
+                                            <div style="display: inline-flex; flex-direction: row;">
+                                                {% include "core/partials/_tag_value_inline.html" %}
+                                                {% include "core/partials/_disputed_value_inline.html" %}
+                                                {% include "core/partials/_uncertain_value_inline.html" %}
+                                                {% include "core/partials/_expert_checked_value_inline.html" %}
+                                                <a class="h6" href="{% url key|lower|add:'-create' %}?polity_id_x={{object.id}}"> &nbsp;<i class="fa-solid fa-plus text-secondary"></i>
+                                                </a> 
+                                            </div>
+                                        </div>
+                                    </span>
+
+                                    {% with my_app_name='wf' %}
+                                        {% include "core/partials/_abc.html" %}
+                                    {% endwith %}
+
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light"><b><u>View all such values</u></b></a>
+                                </div>
+                                {% if value.description %}
+                                    <div class="col-md-12 highlighted-value my-0 py-0">
+                                        <p class="fs-6 my-1 py-1">
+                                                {{ value.description|make_references_look_nicer }}
+                                        </p>
+                                    </div>
+                                {% endif %}
+                                {% if value.comment %}
+                                    {% if value.comment_id > 1 %}
+                                    <div class="col-md-12 highlighted-value my-0 py-0">
+                                        <p class="pt-1 fs-5 pb-1 fw-bold bg-info" id="{{key}}"> 
+                                            (NEW APPROACH): {{ value.comment }}             
+                                        </p> 
+                                    </div>
+                                    {% endif %}
+                                {% endif %}
+                                {% endfor %}
+    
+                        </div>
+                        <br>
+                        {% endif %}
+                        {% endfor %}
+    
+                    {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    
+        {% endautoescape  %}
+    
+        <hr class="light-heavy-hr">
+
+        <!-- RT NEW -->
+        {% autoescape off %}
+        {% if all_rt_data and 'core.view_capital' in user.get_all_permissions or object.new_name == "kh_chenla" or object.new_name == "pe_wari_emp" or object.new_name == "in_kampili_k" or object.new_name == "in_kalyani_chalukya_emp" or object.new_name == "in_hoysala_k" or object.new_name == "et_aksum_emp_3" or object.new_name == "et_aksum_emp_2" or object.new_name == "ni_proto_yoruboid" or object.new_name == "ni_sokoto" or object.new_name == "gm_kaabu_emp" %}
+            <div class=" ps-0 ms-0 ">
+                <div>
+                    <span class="h1" style="text-align: left; color:#59007f;" >
+                        <span class="h1 federicka-huge" id="rt_var">
+                            Religion Tolerance</span>
+                    </span>
+                </div>
+                {% for key_top, values_top in all_rt_data.items %}
+                    <div class="py-2 ps-0 ms-0">
+                    {% for key_m, values_m in values_top.items %}
+                        {% if values_m %}
+                        <div class="py-3 ps-0 ms-0">
+                            <span class="h4 my-5 py-2 px-2 ms-0 federicka-medium text-dark"  style="background-color: #e5c7f2;">
+                                <span> {{key_top}}</span> 
+                                {% if key_m != 'None' %}
+                                <span class="fw-light">/ {{key_m}}</span> 
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                        {% for key, values in values_m.items %}
+                        {% if values %}
+                            <div class="row d-flex mt-3 mb-5" style="--bs-gutter-x:0rem!important">
+                                    {% for value in values %}
+                                    <div class="col-md-10">
+                                        <span class="h5 text-teal pt-2 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
+                                            <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                                                <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                                    {{ value.clean_name_spaced }}:            
+                                                </span>  <br>{{ value.show_value }}
+                                            </span>
+                                            {% include "core/partials/_year_block_value_inline.html" %}
+                                            <div style="display: block; padding: 0;">
+                                                <div style="display: inline-flex; flex-direction: row;">
+                                                    {% include "core/partials/_tag_value_inline.html" %}
+                                                    {% include "core/partials/_disputed_value_inline.html" %}
+                                                    {% include "core/partials/_uncertain_value_inline.html" %}
+                                                    {% include "core/partials/_expert_checked_value_inline.html" %}
+                                                </div>
+                                            </div>
+                                        </span>
+                                        {% with my_app_name='rt' %}
+                                            {% include "core/partials/_abc.html" %}
+                                        {% endwith %}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <a href="{% url key|lower|add:'s_all' %}" class="btn float-end fw-light"><b><u>View all such values</u></b></a>
+                                    </div>
+                                    {% if value.description %}
+                                        <div class="col-md-12 highlighted-value my-0 py-0">
+                                            <p class="fs-6 my-1 py-1">
+                                                    {{ value.description|make_references_look_nicer }}
+                                            </p>
+                                        </div>
+                                    {% endif %}
+                                    {% if value.comment %}
+                                        {% if value.comment_id > 1 %}
+                                        <div class="col-md-12 highlighted-value my-0 py-0">
+                                            <p class="pt-1 fs-5 pb-1 fw-bold" id="{{key}}"> 
+                                                (NEW APPROACH): {{ value.comment }}             
+                                            </p> 
+                                        </div>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% endfor %}
+        
+                            </div>
+                            <br>
+                            {% endif %}
+                            {% endfor %}
+        
+                        {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% endautoescape  %}
+<!-- HS -->
 <div>
-    {% for key, values in all_data.items %}
-    {% if "Human_sacrifice_for_polity" == key %}
+    {% autoescape off %}
 
-    <span class="pt-5 display-1" style="text-align: left;  color:#893101;" ><span class="h1 fw-bold" id="hs_var"> Human Sacrifice Data</span>  <span class="h6"> <a href=""><i class="fa-solid fa-turn-up"></i></a></span>             
-    </span>
+    {% for key, values in all_data.items %}
+    {% if "Human_sacrifice" == key %}
+    <div>
+        <span class="h1" style="text-align: left;  color:#184f0d;" >
+            <span class="h1 federicka-huge" id="hs_var"> Human Sacrifice Data</span>  
+        </span>
+    </div>
+
     <h6>
         <span> <i class="fa-solid fa-caret-right"></i> Human Sacrifice is the deliberate and ritualized killing of a person to please or placate supernatural entities (including gods, spirits, and ancestors) or gain other supernatural benefits. </span>
     </h6>
-    <div class="py-2 custom-left-border-shadowed">
-        <div class="row d-flex">
-            <div class="col-md-6">
-                <span class="pt-1 fs-5 pb-1 fw-bold" id="{{key}}"> 
-                    <i class="fa-solid fa-star fa-2xs"></i>
-                    Human Sacrifice:            
-                </span> 
-                <a href=""><i class="fa-solid fa-turn-up"></i></a>
-
-            </div>
-            <div class="col-md-6">
-                <a href="{% url 'human_sacrifices_all' %}" class="btn float-end fw-light">View all values of <b> <u>Human Sacrifice</u></b> <i class="fa-solid fa-list"></i></a>
-            </div>
-        </div>            
+    <div class="py-2 custom-left-border-shadojjwed">        
         {% if values and 'core.view_capital' in user.get_all_permissions %}
+        <div class="row d-flex  mt-3 mb-5"  style="--bs-gutter-x:0rem!important">
 
                 {% for value in values %}
-                    <span class="fs-4 fw-bold text-teal pt-2 pb-1 pe-2 ps-2 ms-2 me-2 mb-1 mt-1 highlighted-value">{{value.show_value}} 
+                <div class="col-md-9">
+                    <span class="h5 text-teal pt-2 pb-0 pe-2 ps-1 mb-0 mt-1 highlighted-value-title">
+                        <span class="ps-1 h5 fw-bold" style="font-family: 'Delius', cursive;">
+                            <span class="py-2 fs-6 fw-bold text-secondary" style="font-family: 'Delius', cursive;" id="{{key}}"> 
+                                Human Sacrifice:           
+                            </span>  <br>{{ value.show_value }}
+                        </span>
                         {% include "core/partials/_year_block_value_inline.html" %}
                         <div style="display: block; padding: 0;">
                             <div style="display: inline-flex; flex-direction: row;">
@@ -1942,33 +1726,30 @@
                                 {% include "core/partials/_disputed_value_inline.html" %}
                                 {% include "core/partials/_expert_checked_value_inline.html" %}
                                 {% include "core/partials/_drb_checked_value_inline.html" %}
-
-                                <a class="p-0 m-0 fs-6" type="button" href="{% url 'human_sacrifice-update' value.id %}">
-                                    <span class="badge rounded-pill bg-danger tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
-                                </a>    
-                                {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                                {% if value.comment.id == 1 %}
-                                    <a class="p-0 m-0 fs-6" href="{% url 'create_subcomment' value.id %}"><span class="badge rounded-pill bg-secondary tag-border"> <i class=" fa-solid fa-plus text-white"></i> Create Description</span></a>
-                                {% else  %}
-                                    <a class="p-0 m-0 fs-6" href="{% url 'seshatcomment-update' value.comment.id %}"><span class="badge rounded-pill bg-secondary tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i> Edit Description</span></a>
-                                {% endif %}     
-                                {% endif %}
-     
                             </div>
                         </div>
                     </span>
-                    <br>
+                    {% with my_app_name='crisisdb' %}
+                        {% include "core/partials/_abc.html" %}
+                    {% endwith %}
+                </div>
+                <div class="col-md-3">
+                        <a href="{% url 'human_sacrifices_all' %}" class="btn float-end fw-light">View all values of <b> <u>Human Sacrifice</u></b> </a>
+                </div>
                         {% autoescape off %}
-                        <p class="fs-6">
-                            <i class="fa-solid fa-layer-group fa-xs text-teal"></i>   
-                            {{value.comment}} 
-                        </p>  
+                        <div class="col-md-12 highlighted-value my-0 py-0">
+                            <p class="fs-6 my-1 py-1">
+                                {{value.comment}} 
+                            </p>  
+                        </div>
+
                         {% endautoescape %}
                     {% if not forloop.last %}
                     <hr class="light-narrow-hr">
                     {% endif %}
 
-                {% endfor %}     
+                {% endfor %} 
+               </div>    
             {% else %}
                 <span class="text-secondary">- Nothing coded yet.</span>
             {% endif %}
@@ -1976,41 +1757,46 @@
 
     {% endif %}
     {% endfor %}
+    {% endautoescape %}
+
 </div>
+<!-- Crisis Cases -->
+
+{% autoescape off %}
+
     <div>
-        <div class="row d-flex align-items-center justify-content-center">
+        <div class="row d-flex align-items-center justify-content-center pt-4">
             <div class="col-md-6">
-                <span class="pt-5 display-1" style="text-align: left; color:#893101;" >
-                    <span class="h1 fw-bold" id="crisis_case_var"> Crisis Cases</span>
+                <span class="pt-5 display-1" style="text-align: left; color:#201d1b;" >
+                    <span class="h1 federicka-huge" id="crisis_case_var"> Crisis Cases</span>
                 </span>
-                <a href=""><i class="fa-solid fa-turn-up"></i></a>
 
             </div>
+
             <div class="col-md-6 pt-5">
-                <a href="{% url 'crisis_consequences_all' %}" class="btn float-end fw-light">View all values of <b> <u>Crisis Consequences</u></b> <i class="fa-solid fa-list"></i>
+                <a href="{% url 'crisis_consequences_all' %}" class="btn float-end fw-light">View all <b> <u>Crisis Consequences</u></b>
                 </a>
             </div>
         </div>
          
-        <div class="py-2 custom-left-border-shadowed">
-
+        <div class="py-2 custom-left-border-shakkdowed">
         {% if not all_crisis_cases_data %}
         <span class="text-secondary">- Nothing coded yet.</span>
         {% endif %}
-
         {% for key, values in all_crisis_cases_data.items %}
         {% if values and 'core.view_capital' in user.get_all_permissions %}
-            <div class="py-2"  id="{{key}}">
+            <div  id="{{key}}">
+
                     {% for value in values %}
                         <span class="pt-1 fs-5 pb-1 fw-bold" id="{{key}}"> 
                             <i class="fa-solid fa-star fa-2xs"></i>
                             {{ value.crisis_case_id }}:            
                         </span> 
                         <br>
-                    <span class="fs-4 fw-bold text-teal pt-2 pb-1 pe-2 ps-2 ms-2 me-2 mb-3 mt-1 highlighted-value">{{value.name}} 
+                    <span class="h5 fw-bold text-teal  pt-2 pb-0 pe-2 ps-1 mb-2 mt-1 highlighted-value-title">{{value.name}} 
                         {% include "core/partials/_year_block_value_inline_cc.html" %}
                         <div>
-                            <span class="fw-light fs-6 text-dark">
+                            <span class="fs-6 text-dark">
                                 {% if value.polity %}
                                 Polities:
                                     {% if value.polity.long_name %}
@@ -2018,7 +1804,7 @@
                                         <a href="{% url 'polity-detail-main' value.polity.id %}">{{ value.polity.long_name }}</a>
                                     </span>
                                     {% else %}
-                                    <span class="fw-light text-secondary">
+                                    <span class="text-secondary">
                                         <a href="{% url 'polity-detail-main' value.polity.id %}">{{ value.polity.name }}</a>
                                     </span>
                                     {% endif %}
@@ -2027,7 +1813,7 @@
                                         & <a href="{% url 'polity-detail-main' value.other_polity.id %}">{{ value.other_polity.long_name }}</a> 
                                     </span>
                                     {% elif value.other_polity.name %}
-                                    <span class="fw-light text-secondary">
+                                    <span class="text-secondary">
                                         &: <a href="{% url 'polity-detail-main' value.other_polity.id %}">{{ value.other_polity.name }}</a>  
                                     </span>
                                     {% else %}
@@ -2041,55 +1827,54 @@
                             </span>
                         </div>
                         <div style="display: block; padding: 0;">
-                            <div style="display: inline-flex; flex-direction: row;">
+                            <div style="display: inline-flex; flex-direction: row; padding: 0;">
                                 {% if value.is_first_100 == True %}
-                                <a type="button" class="fs-6">
-                                    <span class="badge rounded-pill bg-warning text-dark tag-border">
-                                        First 100
-                                    </span>
-                                </a>
-                                
+                                    <a type="button" class="fs-6">
+                                        <span class="badge" style="font-family: 'Roboto Mono', monospace; font-optical-sizing: auto; font-weight: 700; background:#744141; color:#e7baba;"> First 100</span>
+                                    </a>
                                 {% endif %}
                                 {% include "core/partials/_tag_value_inline.html" %}
-                                   
                                 {% include "core/partials/_disputed_value_inline.html" %}
                                 {% include "core/partials/_expert_checked_value_inline.html" %}
-                                {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                                <a class="p-0 m-0 fs-6" href="{% url 'crisis_consequence-update' value.id %}">
-                                    <span class="badge rounded-pill bg-danger tag-border"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
-                                </a>   
-                                {% endif %}
                
                             </div>
                         </div>
                     </span>
+                    {% with my_app_name='crisisdb' %}
+                        {% include "core/partials/_abc.html" %}
+                    {% endwith %}
+
                     {% include "core/partials/_crisis_cases_inline.html" %}
                         {% if not forloop.last %}
                         <hr class="light-narrow-hr">
                         {% endif %}
-                    {% endfor %}                            
+                    {% endfor %}   
+                                        
                 </div>
             {% endif %}
             {% endfor %}
         </div>  
 
     </div>  
+    {% endautoescape %}
 
-        <div class="row d-flex align-items-center justify-content-center">
-            <div class="col-md-6">
-                <span class="pt-5 display-1" style="text-align: left; color:#893101;" >
-                    <span class="h1 fw-bold" id="power_transition_var"> Power Transitions</span>
+    <!-- PT -->
+
+        <div class="row d-flex align-items-center justify-content-center pt-4">
+            <div class="col-md-8">
+                <span class="pt-5 display-1" style="text-align: left; color:#017989;" >
+                    <span class="h1 federicka-huge" id="power_transition_var"> Power Transitions</span>
                 </span>
-                <a href=""><i class="fa-solid fa-turn-up"></i></a>
 
             </div>
-            <div class="col-md-6 pt-5 pb-4">
-                <a href="{% url 'power_transitions_all' %}" class="btn float-end fw-light">View all values of <b> <u>Power Transitions</u></b> <i class="fa-solid fa-list"></i>
+            <div class="col-md-4 pt-5 pb-4">
+                <a href="{% url 'power_transitions_all' %}" class="btn float-end fw-light">View all <b> <u>Power Transitions</u></b>
                 </a>
             </div>
         </div>
-         
-        <div class="py-2 custom-left-border-shadowed my-3">
+        {% autoescape off %}
+
+        <div class="py-2 custom-left-border-shadtowed my-3">
 
         {% if not all_power_transitions_data %}
         <span class="text-secondary">- Nothing coded yet.</span>
@@ -2100,48 +1885,43 @@
         {% if values and 'core.view_capital' in user.get_all_permissions %}
             <div class="py-2"  id="{{key}}">
                     {% for value in values %}
-                        <span class="pt-1 fs-5 pb-1 fw-bold" id="power_transition_{{value.id}}"> 
+                        <span class="pt-2 fs-5 pb-1 fw-bold" id="power_transition_{{value.id}}"> 
                             <i class="fa-solid fa-star fa-2xs"></i>
                             <span class="h5">Power Transition in 
                                 <span class = "fw-bold text-teal">{{ value.polity }}:</span>
                             </span>            
                         </span> 
                         <br>
-                        <span class="fs-4 fw-bold text-teal pt-2 pb-1 pe-2 ps-2 ms-2 me-2 mb-3 mt-1 highlighted-value">
-                            <span class = "fw-bold text-danger">
-                                {{ value.predecessor }}
+                        <span class="h5 fw-bold text-teal  pt-2 pb-0 pe-2 ps-1 mb-2 mt-1 highlighted-value-title">
+                            <span class = "fw-bold text-danger" style="display:block;">
+                               <span class="text-secondary fw-normal">Predecessor: </span> {{ value.predecessor }}
                             </span> 
-                            <span class="text-dark">
-                                <i class="fa-solid fa-arrow-right-long fa-sm"></i> 
-                            </span> 
-                            <span class = "fw-bold text-teal">
-                                {{ value.successor }}
+                            <span class = "fw-bold text-teal" style="display:block;">
+                                <span class="text-secondary fw-normal">Successor: </span>  {{ value.successor }}
                             </span>
-                            {% include "core/partials/_year_block_value_inline_pt.html" %}
+                            <span class = "fw-bold text-dark pt-2" style="display:block;">
+                                {% include "core/partials/_year_block_value_inline_pt.html" %}
+                            </span>
                             <div style="display: block; padding: 0;">
                                 <div style="display: inline-flex; flex-direction: row;">
                                     {% include "core/partials/_tag_value_inline.html" %}
                                     {% include "core/partials/_disputed_value_inline.html" %}
                                     {% include "core/partials/_expert_checked_value_inline.html" %}
-                                    {% if user.is_authenticated and 'core.view_capital' in user.get_all_permissions %}
-                                    <a class="p-0 m-0 fs-6" href="{% url 'power_transition-update' value.id %}">
-                                        <span class="badge rounded-pill bg-danger"> <i class=" fa-solid fa-pen-to-square text-white"></i></span>
-                                    </a>  
-                                    {% endif %}
-                
                                 </div>
                             </div>
                         </span>
+                        {% with my_app_name='crisisdb' %}
+                            {% include "core/partials/_abc.html" %}
+                        {% endwith %}
+
                         {% include "core/partials/_power_transitions_inline.html" %}
-                        {% if not forloop.last %}
-                        <hr class="light-narrow-hr">
-                        {% endif %}
                     {% endfor %}                            
                 </div>
             {% endif %}
 
             {% endfor %}
         </div>
+        {% endautoescape %}
 
 </div>  
 

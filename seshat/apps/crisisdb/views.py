@@ -276,13 +276,21 @@ def crisis_consequence_download(request):
                     'other_polity_new_ID', 'other_polity_old_ID', 'other_polity_long_name', 'crisis_consequence_id', 'decline', 'collapse', 'epidemic', 'downward_mobility', 'extermination', 'uprising', 'revolution', 'successful_revolution', 'civil_war', 'century_plus', 'fragmentation', 'capital', 'conquest', 'assassination', 'depose', 'constitution', 'labor', 'unfree_labor', 'suffrage', 'public_goods', 'religion', 'description'])
 
     for obj in items:
-        if obj.other_polity:
+        if obj.other_polity and obj.polity:
             writer.writerow([obj.year_from, obj.year_to,
                             obj.polity.new_name, obj.polity.name, obj.polity.long_name, 
                             obj.other_polity.new_name, obj.other_polity.name, obj.other_polity.long_name, obj.crisis_case_id, obj.decline, obj.collapse, obj.epidemic, obj.downward_mobility, obj.extermination, obj.uprising, obj.revolution, obj.successful_revolution, obj.civil_war, obj.century_plus, obj.fragmentation, obj.capital, obj.conquest, obj.assassination, obj.depose, obj.constitution, obj.labor, obj.unfree_labor, obj.suffrage, obj.public_goods, obj.religion, ])
-        else:
+        elif obj.polity:
             writer.writerow([obj.year_from, obj.year_to,
                             obj.polity.new_name, obj.polity.name, obj.polity.long_name, 
+                            "", "", "", obj.crisis_case_id, obj.decline, obj.collapse, obj.epidemic, obj.downward_mobility, obj.extermination, obj.uprising, obj.revolution, obj.successful_revolution, obj.civil_war, obj.century_plus, obj.fragmentation, obj.capital, obj.conquest, obj.assassination, obj.depose, obj.constitution, obj.labor, obj.unfree_labor, obj.suffrage, obj.public_goods, obj.religion, ])
+        elif obj.other_polity:
+            writer.writerow([obj.year_from, obj.year_to,
+                            "", "", "",
+                            obj.other_polity.new_name, obj.other_polity.name, obj.other_polity.long_name, obj.crisis_case_id, obj.decline, obj.collapse, obj.epidemic, obj.downward_mobility, obj.extermination, obj.uprising, obj.revolution, obj.successful_revolution, obj.civil_war, obj.century_plus, obj.fragmentation, obj.capital, obj.conquest, obj.assassination, obj.depose, obj.constitution, obj.labor, obj.unfree_labor, obj.suffrage, obj.public_goods, obj.religion, ])
+        else:
+            writer.writerow([obj.year_from, obj.year_to,
+                            "", "", "", 
                             "", "", "", obj.crisis_case_id, obj.decline, obj.collapse, obj.epidemic, obj.downward_mobility, obj.extermination, obj.uprising, obj.revolution, obj.successful_revolution, obj.civil_war, obj.century_plus, obj.fragmentation, obj.capital, obj.conquest, obj.assassination, obj.depose, obj.constitution, obj.labor, obj.unfree_labor, obj.suffrage, obj.public_goods, obj.religion, ])
 
 
@@ -539,8 +547,12 @@ def power_transition_download(request):
                      'polity_new_ID', 'polity_old_ID', 'polity_long_form_name', 'conflict_name', 'contested', 'overturn', 'predecessor_assassination', 'intra_elite', 'military_revolt', 'popular_uprising', 'separatist_rebellion', 'external_invasion', 'external_interference',])
 
     for obj in items:
-        writer.writerow([obj.year_from, obj.year_to, obj.predecessor, obj.successor,
+        if obj.polity:
+            writer.writerow([obj.year_from, obj.year_to, obj.predecessor, obj.successor,
                          obj.polity.new_name, obj.polity.name, obj.polity.long_name, obj.name, obj.contested, obj.overturn, obj.predecessor_assassination, obj.intra_elite, obj.military_revolt, obj.popular_uprising, obj.separatist_rebellion, obj.external_invasion, obj.external_interference])
+        else:
+            writer.writerow([obj.year_from, obj.year_to, obj.predecessor, obj.successor,
+                         "", "", "", obj.name, obj.contested, obj.overturn, obj.predecessor_assassination, obj.intra_elite, obj.military_revolt, obj.popular_uprising, obj.separatist_rebellion, obj.external_invasion, obj.external_interference])
 
     return response
 
@@ -646,7 +658,7 @@ class Human_sacrificeListView(PermissionRequiredMixin, generic.ListView):
     model = Human_sacrifice
     template_name = "crisisdb/human_sacrifice/human_sacrifice_list.html"
     paginate_by = 50
-    permission_required = 'core.add_capital'
+    permission_required = 'core.view_capital'
 
     def get_absolute_url(self):
         return reverse('human_sacrifices')
@@ -668,7 +680,8 @@ class Human_sacrificeListView(PermissionRequiredMixin, generic.ListView):
 class Human_sacrificeListViewAll(PermissionRequiredMixin, generic.ListView):
     model = Human_sacrifice
     template_name = "crisisdb/human_sacrifice/human_sacrifice_list_all.html"
-    permission_required = 'core.add_capital'
+    permission_required = 'core.view_capital'
+
 
     #paginate_by = 50
 
@@ -708,7 +721,8 @@ class Human_sacrificeListViewAll(PermissionRequiredMixin, generic.ListView):
 class Human_sacrificeDetailView(PermissionRequiredMixin, generic.DetailView):
     model = Human_sacrifice
     template_name = "crisisdb/human_sacrifice/human_sacrifice_detail.html"
-    permission_required = 'core.add_capital'
+    permission_required = 'core.view_capital'
+
 
 
 @permission_required('core.view_capital')
@@ -3529,16 +3543,18 @@ class UsLocationListView(ListView):
     template_name = 'crisisdb/us_location/list.html'
     context_object_name = 'us_locations'
 
-class UsLocationCreateView(CreateView):
+class UsLocationCreateView(PermissionRequiredMixin, CreateView):
     model = Us_location
     form_class = Us_locationForm
     template_name = 'crisisdb/us_location/create.html'
+    permission_required = 'core.add_capital'
     success_url = reverse_lazy('us_location_list')
 
-class UsLocationUpdateView(UpdateView):
+class UsLocationUpdateView(PermissionRequiredMixin, UpdateView):
     model = Us_location
     form_class = Us_locationForm
     template_name = 'crisisdb/us_location/update.html'
+    permission_required = 'core.add_capital'
     success_url = reverse_lazy('us_location_list')
 
 class UsViolenceSubtypeListView(ListView):
@@ -3546,16 +3562,18 @@ class UsViolenceSubtypeListView(ListView):
     template_name = 'crisisdb/subtype/list.html'
     context_object_name = 'subtypes'
 
-class UsViolenceSubtypeCreateView(CreateView):
+class UsViolenceSubtypeCreateView(PermissionRequiredMixin, CreateView):
     model = Us_violence_subtype
     form_class = Us_violence_subtypeForm
     template_name = 'crisisdb/subtype/create.html'
+    permission_required = 'core.add_capital'
     success_url = reverse_lazy('subtype_list')
 
-class UsViolenceSubtypeUpdateView(UpdateView):
+class UsViolenceSubtypeUpdateView(PermissionRequiredMixin, UpdateView):
     model = Us_violence_subtype
     form_class = Us_violence_subtypeForm
     template_name = 'crisisdb/subtype/update.html'
+    permission_required = 'core.add_capital'
     success_url = reverse_lazy('subtype_list')
 
 class UsViolenceDataSourceListView(ListView):
@@ -3563,16 +3581,18 @@ class UsViolenceDataSourceListView(ListView):
     template_name = 'crisisdb/datasource/list.html'
     context_object_name = 'datasources'
 
-class UsViolenceDataSourceCreateView(CreateView):
+class UsViolenceDataSourceCreateView(PermissionRequiredMixin, CreateView):
     model = Us_violence_data_source
     form_class = Us_violence_data_sourceForm
     template_name = 'crisisdb/datasource/create.html'
+    permission_required = 'core.add_capital'
     success_url = reverse_lazy('datasource_list')
 
-class UsViolenceDataSourceUpdateView(UpdateView):
+class UsViolenceDataSourceUpdateView(PermissionRequiredMixin, UpdateView):
     model = Us_violence_data_source
     form_class = Us_violence_data_sourceForm
     template_name = 'crisisdb/datasource/update.html'
+    permission_required = 'core.add_capital'
     success_url = reverse_lazy('datasource_list')
 
 class UsViolenceListView(ListView):
@@ -3600,16 +3620,18 @@ class UsViolenceListViewPaginated(ListView):
     context_object_name = 'us_violences'
     paginate_by = 100
 
-class UsViolenceCreateView(CreateView):
+class UsViolenceCreateView(PermissionRequiredMixin, CreateView):
     model = Us_violence
     form_class = Us_violenceForm
     template_name = 'crisisdb/us_violence/create.html'
+    permission_required = 'core.add_capital'
     success_url = reverse_lazy('us_violence_paginated')
 
-class UsViolenceUpdateView(UpdateView):
+class UsViolenceUpdateView(PermissionRequiredMixin, UpdateView):
     model = Us_violence
     form_class = Us_violenceForm
     template_name = 'crisisdb/us_violence/update.html'
+    permission_required = 'core.add_capital'
     success_url = reverse_lazy('us_violence_paginated')
 
 
@@ -3672,7 +3694,7 @@ def download_csv_all_american_violence2(request):
 
     return response
 
-
+@permission_required('core.add_capital')
 def confirm_delete_view(request, model_class, pk, var_name):
     permission_required = 'core.add_capital'
     
@@ -3693,6 +3715,7 @@ def confirm_delete_view(request, model_class, pk, var_name):
 
     return render(request, template_name, context)
 
+@permission_required('core.add_capital')
 def delete_object_view(request, model_class, pk, var_name):
     permission_required = 'core.add_capital'
     # Retrieve the object for the given model class

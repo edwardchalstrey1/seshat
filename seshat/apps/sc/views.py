@@ -35,6 +35,8 @@ from django.apps import apps
 
 from django.contrib import messages
 
+#from easyaudit.models import CRUDEvent
+
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 
 
@@ -4381,6 +4383,25 @@ class ScriptListViewAll(generic.ListView):
 class ScriptDetailView(generic.DetailView):
     model = Script
     template_name = "sc/script/script_detail.html"
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     my_instance_id = self.object.pk
+    #     context["myvar"] = "Script"
+    #     content_type = ContentType.objects.get_for_model(self.model)
+    #     print(f'content_type:             {content_type}')
+    #     print(f'my_instance_id:             {my_instance_id}')
+    #     crud_events = CRUDEvent.objects.filter(
+    #         content_type_id=content_type,
+    #         object_id=445
+    #     )
+
+    #     context['cruds'] = crud_events
+
+    #     print(context)
+
+    #     return context
+
 
 
 @permission_required('core.view_capital')

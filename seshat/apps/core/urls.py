@@ -20,6 +20,9 @@ urlpatterns += [path('polity_filter_options/', views.polity_filter_options_view,
 
 
 urlpatterns += [
+     path('core/religions_all/', views.ReligionListView.as_view(), name='religion_list'),
+     path('core/create_religion/', views.religion_create, name='religion_create'),
+     path('core/update_religion/<int:pk>/', views.religion_update, name='religion_update'),
      path('core/references/', views.ReferenceListView.as_view(), name='references'),
      path('core/nlp-references/', views.NlpReferenceListView.as_view(), name='nlp-references'),
      path('core/references/create/', views.ReferenceCreate.as_view(),
@@ -63,7 +66,8 @@ urlpatterns += [
          name="capital-download"),
 
 
-
+    path('search/', views.search_view, name='search'),
+     path('search_suggestions/', views.search_suggestions, name='search_suggestions'),
     path('signup/', views.signup_traditional, name='signup'),
     path('signup_followup/', views.signupfollowup, name='signup-followup'),
     # re_path(r'^account_activation_sent/$', views.account_activation_sent,
@@ -134,6 +138,14 @@ urlpatterns += [
 
     # NEW
      path('create_subcomment_new/<slug:app_name>/<slug:model_name>/<int:instance_id>/', views.create_a_comment_with_a_subcomment_new, name='create_subcomment_new'),
+     path('create_private_subcomment_new/<slug:app_name>/<slug:model_name>/<int:instance_id>/', views.create_a_private_comment_with_a_private_subcomment_new, name='create_private_subcomment_new'),
+     path('core/seshatprivatecomments/<int:pk>/update/',
+         views.SeshatPrivateCommentUpdate.as_view(), name="seshatprivatecomment-update"),
+     path('core/seshatprivatecommentparts/create2/<int:private_com_id>/', views.seshat_private_comment_part_create_from_null_view,
+         name="seshatprivatecommentpart-create2"),
+
+    path('core/seshatprivatecommentparts/<int:pk>/update/<int:private_com_id>/',
+         views.SeshatPrivateCommentPartUpdate.as_view(), name="seshatprivatecommentpart-update"),
 
     # Download
     #path('balancedownload/', views.balance_download,

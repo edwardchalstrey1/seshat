@@ -16,8 +16,8 @@ commonlabels = {
     'year_from': 'Start Year',
     'year_to': 'End Year',
     'tag': 'Confidence Level',
-    "is_disputed" : "&nbsp; <b> There is a Dispute? </b>",
-    "is_uncertain" : "&nbsp; <b> There is Uncertainty? </b>",
+    "is_disputed" : "&nbsp; There is a Dispute?",
+    "is_uncertain" : "&nbsp; There is Uncertainty?",
     "expert_reviewed" : "&nbsp; Expert Checked?",
     "drb_reviewed" : "&nbsp; Data Review Board Reviewed?",
     'citations': 'Add one or more Citations',
@@ -28,13 +28,14 @@ commonfields = ['polity', 'year_from', 'year_to',
                 'description', 'tag', 'is_disputed', 'is_uncertain', 'expert_reviewed', 'drb_reviewed', 'finalized', 'citations']
 
 commonwidgets = {
-    'polity': forms.Select(attrs={'class': 'form-control  mb-1 js-example-basic-single', 'id': 'id_polity', 'name': 'polity'}),    'year_from': forms.NumberInput(attrs={'class': 'form-control  mb-3',}),
+    'polity': forms.Select(attrs={'class': 'form-control  mb-1 js-example-basic-single', 'id': 'id_polity', 'name': 'polity'}),    
+    'year_from': forms.NumberInput(attrs={'class': 'form-control  mb-3',}),
     'year_to': forms.NumberInput(attrs={'class': 'form-control  mb-3', }),
-    'description': Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 140px', 'placeholder':'Add a meaningful description (optional)'}),
+    'description': Textarea(attrs={'class': 'form-control  mb-3', 'style': 'height: 200px', 'placeholder':'Add a meaningful description (optional)'}),
     'citations': forms.SelectMultiple(attrs={'class': 'form-control mb-3 js-states js-example-basic-multiple', 'text':'citations[]' , 'style': 'height: 340px', 'multiple': 'multiple'}),
     'tag': forms.RadioSelect(),
     "is_disputed" : forms.CheckboxInput(attrs={'class': 'mb-3', }),
-    "is_uncertain" : forms.CheckboxInput(attrs={'class': 'mb-1', }),
+    "is_uncertain" : forms.CheckboxInput(attrs={'class': 'mb-3', }),
     "expert_reviewed" : forms.CheckboxInput(attrs={'class': 'mb-3', }),
     "drb_reviewed" : forms.CheckboxInput(attrs={'class': 'mb-3', }),
     'finalized': forms.CheckboxInput(attrs={'class': 'mb-3', 'checked': True, }),
@@ -91,6 +92,10 @@ class Polity_peak_yearsForm(forms.ModelForm):
         fields.append('peak_year_from')
         fields.append('peak_year_to')
         labels = commonlabels
+
+        labels['peak_year_from'] = "Peak Year (Start)"
+        labels['peak_year_to'] = "Peak Year (End)"
+
         
         widgets = dict(commonwidgets)
         widgets['peak_year_from'] = forms.NumberInput(attrs={'class': 'form-control  mb-3', })
@@ -107,6 +112,10 @@ class Polity_durationForm(forms.ModelForm):
         fields.append('polity_year_from')
         fields.append('polity_year_to')
         labels = commonlabels
+
+
+        labels['polity_year_from'] = "Polity Start Year"
+        labels['polity_year_to'] = "Polity End Year"
         
         widgets = dict(commonwidgets)
         widgets['polity_year_from'] = forms.NumberInput(attrs={'class': 'form-control  mb-3', })
@@ -129,10 +138,13 @@ class Polity_suprapolity_relationsForm(forms.ModelForm):
         model = Polity_suprapolity_relations
         fields = commonfields.copy()
         fields.append('supra_polity_relations')
+        fields.append('other_polity')
+
         labels = commonlabels
         
         widgets = dict(commonwidgets)
         widgets['supra_polity_relations'] = forms.Select(attrs={'class': 'form-control  mb-3', })
+        widgets['other_polity'] = forms.Select(attrs={'class': 'form-control  mb-4 pb-4 js-example-basic-single', 'id': 'id_other_polity', 'name': 'other_polity'})   
         
 
 class Polity_capitalForm(forms.ModelForm):
@@ -140,10 +152,17 @@ class Polity_capitalForm(forms.ModelForm):
         model = Polity_capital
         fields = commonfields.copy()
         fields.append('capital')
+        fields.append('polity_cap')
         labels = commonlabels
+
+        labels['capital'] = 'Coded Capital (Obsolete)'
+        labels['polity_cap'] = 'Polity Capital'
+
         
         widgets = dict(commonwidgets)
-        widgets['capital'] = forms.TextInput(attrs={'class': 'form-control  mb-3', })
+        widgets['capital'] = forms.TextInput(attrs={'class': 'form-control  mb-3', 'readonly': "True" })
+        widgets['polity_cap'] = forms.Select(attrs={'class': 'form-control  mb-1 js-example-basic-single', 'id': 'id_polity_cap', 'name': 'polity_cap'})    
+
         
 
 class Polity_languageForm(forms.ModelForm):
@@ -227,11 +246,21 @@ class Polity_preceding_entityForm(forms.ModelForm):
     class Meta:
         model = Polity_preceding_entity
         fields = commonfields.copy()
-        fields.append('preceding_entity')
+        #fields.append('preceding_entity')
+        fields.append('merged_old_data')
+        fields.append('relationship_to_preceding_entity')
+        fields.append('other_polity')
         labels = commonlabels
+
+        labels['other_polity'] = 'Entity (A): Prior'
+        labels['polity'] = 'Entity (B): Subsequent'
+
         
         widgets = dict(commonwidgets)
-        widgets['preceding_entity'] = forms.TextInput(attrs={'class': 'form-control  mb-3', })
+        #widgets['preceding_entity'] = forms.TextInput(attrs={'class': 'form-control  mb-3', 'readonly': "True" })
+        widgets['merged_old_data'] = forms.TextInput(attrs={'class': 'form-control  mb-3', 'readonly': "True"})
+        widgets['relationship_to_preceding_entity'] = forms.Select(attrs={'class': 'form-control  mb-3', })
+        widgets['other_polity'] = forms.Select(attrs={'class': 'form-control  mb-4 pb-4 js-example-basic-single', 'id': 'id_other_polity', 'name': 'other_polity'}) 
         
 
 class Polity_succeeding_entityForm(forms.ModelForm):

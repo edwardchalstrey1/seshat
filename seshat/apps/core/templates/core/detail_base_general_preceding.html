@@ -1,0 +1,76 @@
+{% extends "core/seshat-base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="my-4">Consecutive Polities </h3>
+      <h6 class="my-2">The following data has been added to the database:</h6>
+
+    </div>
+    <div class="col-md-6"> 
+        {% block addmore %}
+        {% endblock addmore %}
+    </div>
+  </div>
+  {% if messages %}
+  <ul class="messages mt-3">
+      {% for message in messages %}
+      <div class="container-fluid p-0">
+          <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+              <i class="fa-solid fa-circle-info"></i> Thank you <b>{{ user }}</b>. {{ message }}
+          </div>
+      </div>
+      {% endfor %}
+      {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+      <div class="container-fluid p-0">
+        <div class="text-danger" role="alert" >
+          <i class="fa-solid fa-triangle-exclamation"></i>  {{ error }}
+        </div>
+      </div>
+      {% endfor %}
+      <hr> 
+      {% endif %}
+  </ul>
+  <hr>
+  {% endif %}
+  <table class="table align-middle table-striped table-bordered">
+    <thead>        
+      <tr>
+        <!-- headings for the newly added row come here -->
+        <!-- extra headings -->
+        {% block myheadings %}
+        {% endblock myheadings %}
+        {% include "core/partials/_confidence_disputed_expert.html" %}
+
+        <th scope="col" style="text-align: center">Update</th>
+
+      </tr>
+    </thead>
+    <tbody>
+          <tr>
+            <div>
+              <!-- columns for extra vars come here -->
+              {% block extracols %}
+              {% endblock extracols %}
+
+             {% include "core/partials/_confidence_disputed_expert_object.html" %}
+
+              <td style="text-align: center;">
+                {% with object.clean_name|add:"-update" as meat %}
+                <div class="py-1">
+                  <a href="{% url meat object.id %}"><button class="btn btn-warning btn-sm btn-block">Update</button></a>
+                </div>
+                {% endwith %}
+
+              </td>
+        </div>
+        </tr>
+    </tbody>
+  </table>
+
+</div>
+  {% endblock %}

@@ -19,6 +19,7 @@ from ..core.models import Citation, Reference, Polity, Section, Subsection, Coun
 from django.conf import settings
 
 from django.urls import reverse, reverse_lazy
+from django.db.models import Q
 
 from django.views import generic
 import csv
@@ -34,7 +35,7 @@ from requests.structures import CaseInsensitiveDict
 from django.apps import apps
 
 ######EMAIL_CONFIRMATION_BRANCH is the keyword that needs to be searched
-#from django.core.mail import send_mail
+from django.core.mail import send_mail
 
 from .mixins import PolityIdMixin
 
@@ -609,6 +610,9 @@ class Polity_peak_yearsCreate(PermissionRequiredMixin, PolityIdMixin, CreateView
         context["mysubsection"] = "General Variables"
         context["myvar"] = "Polity Peak Years"
         context["my_exp"] = "The peak years of a polity."
+        context["var_section"] = "General Variables"
+        context["var_subsection"] = "Temporal Bounds"
+
         context["var_null_meaning"] = "The value is not available."
         context["inner_vars"] = {'peak_year_from': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The beginning of the peak years for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}, 'peak_year_to': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The end of the peak years for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}}
         context["potential_cols"] = []
@@ -624,6 +628,10 @@ class Polity_peak_yearsUpdate(PermissionRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Polity Peak Years"
+        context["mysection"] = "General Variables"
+        context["mysubsection"] = "Temporal Bounds"
+        context["var_section"] = "General Variables"
+        context["var_subsection"] = "Temporal Bounds"
 
         return context
 
@@ -647,8 +655,10 @@ class Polity_peak_yearsListView(generic.ListView):
         context["myvar"] = "Polity Peak Years"
         context["var_main_desc"] = "The peak years of a polity."
         context["var_main_desc_source"] = "None"
+        context["mysection"] = "General Variables"
+        context["mysubsection"] = "Temporal Bounds"
         context["var_section"] = "General Variables"
-        context["var_subsection"] = "General"
+        context["var_subsection"] = "Temporal Bounds"
         context["inner_vars"] = {'peak_year_from': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The beginning of the peak years for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}, 'peak_year_to': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The end of the peak years for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}}
         context["potential_cols"] = []
 
@@ -674,8 +684,10 @@ class Polity_peak_yearsListViewAll(generic.ListView):
         context["myvar"] = "Polity Peak Years"
         context["var_main_desc"] = "The peak years of a polity."
         context["var_main_desc_source"] = "None"
+        context["mysection"] = "General Variables"
+        context["mysubsection"] = "Temporal Bounds"
         context["var_section"] = "General Variables"
-        context["var_subsection"] = "General"
+        context["var_subsection"] = "Temporal Bounds"
         context["inner_vars"] = {'peak_year_from': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The beginning of the peak years for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}, 'peak_year_to': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The end of the peak years for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}}
         context["potential_cols"] = []
         context['orderby'] = self.request.GET.get('orderby', 'year_from')
@@ -739,7 +751,9 @@ class Polity_durationCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
         context = super().get_context_data(**kwargs)
         # get the explanattion:
         context["mysection"] = "General Variables"
-        context["mysubsection"] = "General Variables"
+        context["mysubsection"] = "Temporal Bounds"
+        context["var_section"] = "General Variables"
+        context["var_subsection"] = "Temporal Bounds"
         context["myvar"] = "Polity Duration"
         context["my_exp"] = "The lifetime of a polity."
         context["var_null_meaning"] = "The value is not available."
@@ -757,6 +771,10 @@ class Polity_durationUpdate(PermissionRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Polity Duration"
+        context["mysection"] = "General Variables"
+        context["mysubsection"] = "Temporal Bounds"
+        context["var_section"] = "General Variables"
+        context["var_subsection"] = "Temporal Bounds"
 
         return context
 
@@ -781,7 +799,7 @@ class Polity_durationListView(generic.ListView):
         context["var_main_desc"] = "The lifetime of a polity."
         context["var_main_desc_source"] = "None"
         context["var_section"] = "General Variables"
-        context["var_subsection"] = "General"
+        context["var_subsection"] = "Temporal Bounds"
         context["inner_vars"] = {'polity_year_from': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The beginning year for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}, 'polity_year_to': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The end year for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}}
         context["potential_cols"] = []
 
@@ -808,7 +826,7 @@ class Polity_durationListViewAll(generic.ListView):
         context["var_main_desc"] = "The lifetime of a polity."
         context["var_main_desc_source"] = "None"
         context["var_section"] = "General Variables"
-        context["var_subsection"] = "General"
+        context["var_subsection"] = "Temporal Bounds"
         context["inner_vars"] = {'polity_year_from': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The beginning year for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}, 'polity_year_to': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The end year for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}}
         context["potential_cols"] = []
         context['orderby'] = self.request.GET.get('orderby', 'year_from')
@@ -843,7 +861,7 @@ def polity_duration_meta_download(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="polity_durations.csv"'
     
-    my_meta_data_dic = {'notes': None, 'main_desc': 'The lifetime of a polity.', 'main_desc_source': None, 'section': 'General Variables', 'subsection': 'General'}
+    my_meta_data_dic = {'notes': None, 'main_desc': 'The lifetime of a polity.', 'main_desc_source': None, 'section': 'General Variables', 'subsection': 'Temporal Bounds'}
     my_meta_data_dic_inner_vars = {'polity_year_from': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The beginning year for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}, 'polity_year_to': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The end year for a polity.', 'units': None, 'choices': None, 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}}
     writer = csv.writer(response, delimiter='|')
     # bring in the meta data nedded
@@ -1021,8 +1039,14 @@ class Polity_suprapolity_relationsCreate(PermissionRequiredMixin, PolityIdMixin,
         # get the explanattion:
         context["mysection"] = "General Variables"
         context["mysubsection"] = "General Variables"
+        context["var_section"] = "General Variables"
+        context["var_subsection"] = "Political and Cultural Relations"
         context["myvar"] = "Polity Suprapolity Relations"
-        context["my_exp"] = "The supra polity relations of a polity."
+        context["my_exp"] = """ <u>Possible Codes</u>: <br> alliance / nominal allegiance / personal union / vassalage / unknown / none <br><br>
+<b>alliance</b> = belongs to a long-term military-political alliance of independent polities ('long-term' refers to more or less permanent relationship between polities extending over multiple years)<br>
+<b>nominal allegiance</b> = same as 'nominal' under the variable "Degree of centralization" but now reflecting the position of the focal polity within the overarching political authority.<br>
+<b>personal union</b> = the focal polity is united with another, or others, as a result of a dynastic marriage.<br>
+<b>vassalage</b> = corresponding to 'loose' category in the Degree of centralization."""
         context["var_null_meaning"] = "The value is not available."
         context["inner_vars"] = {'supra_polity_relations': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The details of supra polity relations.', 'units': None, 'choices': 'SUPRA_POLITY_RELATIONS_CHOICES', 'null_meaning': 'No_Value_Provided_in_Old_Wiki'}}
         context["potential_cols"] = []
@@ -1042,8 +1066,15 @@ class Polity_suprapolity_relationsUpdate(PermissionRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["mysubsection"] = "General Variables"
+        context["var_section"] = "General Variables"
+        context["var_subsection"] = "Political and Cultural Relations"
         context["myvar"] = "Polity Suprapolity Relations"
-
+        context["my_exp"] = """ <u>Possible Codes</u>: <br> alliance / nominal allegiance / personal union / vassalage / unknown / none <br><br>
+<b>alliance</b> = belongs to a long-term military-political alliance of independent polities ('long-term' refers to more or less permanent relationship between polities extending over multiple years)<br>
+<b>nominal allegiance</b> = same as 'nominal' under the variable "Degree of centralization" but now reflecting the position of the focal polity within the overarching political authority.<br>
+<b>personal union</b> = the focal polity is united with another, or others, as a result of a dynastic marriage.<br>
+<b>vassalage</b> = corresponding to 'loose' category in the Degree of centralization."""
         return context
 
 class Polity_suprapolity_relationsDelete(PermissionRequiredMixin, DeleteView):
@@ -1115,11 +1146,16 @@ def polity_suprapolity_relations_download(request):
 
     writer = csv.writer(response, delimiter='|')
     writer.writerow(['variable_name', 'year_from', 'year_to', 'polity_name', 'polity_new_ID', 'polity_old_ID',
-                    'supra_polity_relations', 'confidence', 'is_disputed', 'expert_checked', 'DRB_reviewed'])
+                    'supra_polity_relations', 'other_polity_id', 'confidence', 'is_disputed', 'expert_checked', 'DRB_reviewed'])
 
     for obj in items:
-        writer.writerow([obj.name, obj.year_from, obj.year_to,
-                         obj.polity, obj.polity.new_name, obj.polity.name, obj.supra_polity_relations, obj.get_tag_display(), obj.is_disputed,
+        if obj.other_polity:
+            writer.writerow([obj.name, obj.year_from, obj.year_to,
+                            obj.polity.long_name, obj.polity.new_name, obj.polity.name, obj.supra_polity_relations, obj.other_polity.new_name, obj.get_tag_display(), obj.is_disputed,
+                            obj.expert_reviewed, obj.drb_reviewed,])
+        else:
+            writer.writerow([obj.name, obj.year_from, obj.year_to,
+                         obj.polity.long_name, obj.polity.new_name, obj.polity.name, obj.supra_polity_relations, '-', obj.get_tag_display(), obj.is_disputed,
                          obj.expert_reviewed, obj.drb_reviewed,])
 
     return response
@@ -1160,7 +1196,7 @@ class Polity_capitalCreate(PermissionRequiredMixin, PolityIdMixin, CreateView):
         context["mysection"] = "General Variables"
         context["mysubsection"] = "General Variables"
         context["myvar"] = "Polity Capital"
-        context["my_exp"] = "The capital of a polity."
+        context["my_exp"] = "The capital of a polity is connection point between an existing Polity instance and an existing Capital instance. Optionally, year range associations can be specified. If not provided, it implies that the capital remains constant throughout the entire duration of the polity's existence."
         context["var_null_meaning"] = "The value is not available."
         context["inner_vars"] = {'capital': {'min': None, 'max': None, 'scale': None, 'var_exp_source': None, 'var_exp': 'The capital of a polity.', 'units': None, 'choices': None, 'null_meaning': 'This polity did not have a capital.'}}
         context["potential_cols"] = []
@@ -1176,6 +1212,7 @@ class Polity_capitalUpdate(PermissionRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Polity Capital"
+        context["my_exp"] = "The capital of a polity is connection point between an existing Polity instance and an existing Capital instance. Optionally, year range associations can be specified. If not provided, it implies that the capital remains constant throughout the entire duration of the polity's existence."
 
         return context
 
@@ -1197,7 +1234,7 @@ class Polity_capitalListView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Polity Capital"
-        context["var_main_desc"] = "The capital of a polity."
+        context["var_main_desc"] = "The capital of a polity is connection point between an existing Polity instance and an existing Capital instance. Optionally, year range associations can be specified. If not provided, it implies that the capital remains constant throughout the entire duration of the polity's existence."
         context["var_main_desc_source"] = "None"
         context["var_section"] = "General Variables"
         context["var_subsection"] = "General"
@@ -1224,7 +1261,7 @@ class Polity_capitalListViewAll(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["myvar"] = "Polity Capital"
-        context["var_main_desc"] = "The capital of a polity."
+        context["var_main_desc"] = "The capital of a polity is connection point between an existing Polity instance and an existing Capital instance. Optionally, year range associations can be specified. If not provided, it implies that the capital remains constant throughout the entire duration of the polity's existence."
         context["var_main_desc_source"] = "None"
         context["var_section"] = "General Variables"
         context["var_subsection"] = "General"
@@ -1251,7 +1288,12 @@ def polity_capital_download(request):
                     'capital', 'confidence', 'is_disputed', 'expert_checked', 'DRB_reviewed'])
 
     for obj in items:
-        writer.writerow([obj.name, obj.year_from, obj.year_to,
+        if obj.polity_cap:
+            writer.writerow([obj.name, obj.year_from, obj.year_to,
+                         obj.polity, obj.polity.new_name, obj.polity.name, str(obj.polity_cap), obj.get_tag_display(), obj.is_disputed,
+                         obj.expert_reviewed, obj.drb_reviewed,])
+        else:
+            writer.writerow([obj.name, obj.year_from, obj.year_to,
                          obj.polity, obj.polity.new_name, obj.polity.name, obj.capital, obj.get_tag_display(), obj.is_disputed,
                          obj.expert_reviewed, obj.drb_reviewed,])
 
@@ -2306,7 +2348,33 @@ class Polity_preceding_entityUpdate(PermissionRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+
+        if self.object.polity and self.object.other_polity:
+            all_rels = Polity_preceding_entity.objects.filter(
+                Q(polity_id=self.object.polity.pk) |
+                Q(other_polity_id=self.object.polity.pk) |
+                Q(polity_id=self.object.other_polity.pk) |
+                Q(other_polity_id=self.object.other_polity.pk)
+            ).exclude(id=self.object.pk)
+        elif self.object.polity:
+            # If other_polity is None, exclude it from the filter
+            all_rels = Polity_preceding_entity.objects.filter(
+                Q(polity_id=self.object.polity.pk) |
+                Q(other_polity_id=self.object.polity.pk)
+            ).exclude(id=self.object.pk)
+        elif self.object.other_polity:
+            # If polity is None, exclude it from the filter
+            all_rels = Polity_preceding_entity.objects.filter(
+                Q(polity_id=self.object.other_polity.pk) |
+                Q(other_polity_id=self.object.other_polity.pk)
+            ).exclude(id=self.object.pk)
+        else:
+            # If both polity and other_polity are None, exclude both from the filter
+            all_rels = Polity_preceding_entity.objects.none()
+
         context["myvar"] = "Polity Preceding Entity"
+        context["all_rels"] = all_rels
 
         return context
 
@@ -3837,11 +3905,11 @@ def download_csv_all_general(request):
 
 
 ######EMAIL_CONFIRMATION_BRANCH is the keyword that needs to be searched
-# def send_test_email(request):
-#     send_mail(
-#         'Test Email',
-#         'This is a test email from Django.',
-#         'benam.mjd@gmail.com',  # Replace with your sender email
-#         ['benam@csh.ac.at'],  # Replace with recipient email(s)
-#         fail_silently=False,
-#     )
+def send_test_email():
+    send_mail(
+        'Test Email',
+        'This is a test email from Django.',
+        'seshatdb@gmail.com',  # Replace with your sender email
+        ['benam@csh.ac.at'],  # Replace with recipient email(s)
+        fail_silently=False,
+    )

@@ -159,7 +159,7 @@ import uuid
 def make_references_look_nicer(value):
     value = value.replace("'", "&rsquo;").replace("\n", "MJD_BNM_NEWLINE_TAG_XYZ")
     pattern = r'§REF§(.*?)§REF§'
-    replacement = r"""<sup class="fs-6" id="sup_{ref_id}">
+    replacement = r"""<sup class="fw-bold" id="sup_{ref_id}">
         <a href="#{ref_id}">[{ref_num}]</a>
     </sup>
     """
@@ -185,9 +185,49 @@ def make_references_look_nicer(value):
     
     # Add the collected references at the end of the string in separate <p> tags with the color red
     if reference_data:
-        new_string += "<h6 class='pt-1 pb-0 text-secondary'><i class='fa-solid fa-bookmark fa-xs '></i> Reference(s): </h6>"
-        reference_tags = '\n'.join([f'<p id="{data["ref_id"]}" class="p-0 m-0 text-teal"><span class="fw-bold">  <a href="#sup_{data["ref_id"]}">[{data["ref_num"]}]</a></span>: <span style="font-size: 14px;">{reference.replace("MJD_BNM_NEWLINE_TAG_XYZ", " ")}</span> </p>' for reference, data in reference_data.items()])
+        #new_string += "<h6 class='pt-1 pb-0 text-secondary'><i class='fa-solid fa-bookmark fa-xs '></i> Reference(s): </h6>"
+        reference_tags = '\n'.join([f'<p id="{data["ref_id"]}" class="p-0 m-0 text-secondary"><span class="fw-bold">  <a href="#sup_{data["ref_id"]}">[{data["ref_num"]}]</a></span>: <span>{reference.replace("MJD_BNM_NEWLINE_TAG_XYZ", " ")}</span> </p>' for reference, data in reference_data.items()])
         new_string += reference_tags
 
     paargraphed_new_str = new_string.replace("MJD_BNM_NEWLINE_TAG_XYZ", "<br>")
     return paargraphed_new_str
+
+
+@register.filter
+def give_me_a_color(value):
+    light_colors = [
+    '#e6b8af',
+    '#f4cccc',
+    '#fce5cd',
+    '#fff2cc',
+    '#d9ead3',
+    '#d0e0e3',
+    '#c9daf8',
+    '#cfe2f3',
+    '#d9d2e9',
+    '#ead1dc',
+    '#dd7e6b',
+    '#ea9999',
+    '#f9cb9c',
+    '#ffe599',
+    '#b6d7a8',
+    '#a2c4c9',
+    '#a4c2f4',
+    '#9fc5e8',
+    '#b4a7d6',
+    '#d5a6bd',
+    '#cc4125',
+    '#e06666',
+    '#f6b26b',
+    '#ffd966',
+    '#93c47d',
+    '#76a5af',
+    '#6d9eeb',
+    '#6fa8dc',
+    '#8e7cc3',
+    '#c27ba0',
+    ]
+
+    index = int(value) % 30
+
+    return light_colors[index]

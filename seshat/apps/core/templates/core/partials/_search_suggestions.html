@@ -1,0 +1,17 @@
+{% for polity in polities %}
+    <a href="{% url 'polity-detail-main' polity.id %}" class="fs-6 ps-2 pe-3 fw-normal search-item" style="display:block; white-space: nowrap;">
+
+        <!-- Using flexbox to align the content -->
+        <div  class="aabb" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="pe-4">
+                <b>{{ polity.long_name }}</b> ({{ polity.new_name }})
+            </div>
+            <div class="pe-0 bbaa" style="margin-left: auto;"> <!-- Aligns start_year to the right -->
+                [{{ polity.start_year }} to {{ polity.end_year }}]
+            </div>
+        </div>
+
+    </a>
+{% empty %}
+    <div class="p-2">No Results found.</div>
+{% endfor %}
