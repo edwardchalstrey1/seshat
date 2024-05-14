@@ -173,7 +173,7 @@ function updateLegend() {
 
     if (variable == 'polity') {
         var addedPolities = [];
-        var addedPolityNames = [];
+        var addedPolityColours = [];
         shapesData.forEach(function (shape) {
             // If the polity shape is part of a personal union or meta-polity active in the selected year, don't add it to the legend
             var ignore = false;
@@ -186,12 +186,12 @@ function updateLegend() {
                 shape_name_col_dict = {};
                 shape_name_col_dict['polity'] = shape.polity;
                 shape_name_col_dict['colour'] = shape.colour;
-                if (shape.weight > 0 && !addedPolityNames.includes(shape_name_col_dict['polity'])) {
+                if (shape.weight > 0 && !addedPolityColours.includes(shape.colour)) {
                     // If the shape spans the selected year
                     if ((parseInt(shape.start_year) <= selectedYearInt1 && parseInt(shape.end_year) >= selectedYearInt1)) {
                         // Add the polity to the list of added polities
                         addedPolities.push(shape_name_col_dict);
-                        addedPolityNames.push(shape_name_col_dict['polity']);
+                        addedPolityColours.push(shape.colour);
                     };
                 };
             };
