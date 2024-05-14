@@ -71,6 +71,7 @@ class ProfileForm(forms.ModelForm):
 }
 
 
+
 class CustomSignUpForm(UserCreationForm):
     # Your other form fields
 
