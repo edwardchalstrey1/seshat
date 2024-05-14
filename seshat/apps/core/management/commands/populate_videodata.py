@@ -91,8 +91,8 @@ class Command(BaseCommand):
                             polity_years[polity_name].append(properties['Year'])
                             if polity_colour_key not in polity_shapes:
                                 polity_shapes[polity_colour_key] = []
-                            feature['Name'] = polity_name  # Update the name
-                            feature['Polity'] = polity_polity  # Update the polity
+                            feature['properties']['Name'] = polity_name  # Update the name
+                            feature['properties']['Polity'] = polity_polity  # Update the polity
                             polity_shapes[polity_colour_key].append(feature)
 
                             all_polities.add(polity_colour_key)
