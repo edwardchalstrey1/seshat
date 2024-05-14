@@ -77,22 +77,12 @@ class Command(BaseCommand):
                                     polity_colour_key = properties['Member_of'].replace('(', '').replace(')', '')
                         except KeyError:
                             pass
-
                         if polity_name:
-                            
-                            # Use seshat_id as the colour key, if it exists
-                            # But use what we previously set as the polity_colour_key for the top level name
-                            polity_polity = polity_colour_key
-                            if properties['SeshatID']:
-                                polity_colour_key = properties['SeshatID']
-
                             if polity_name not in polity_years:
                                 polity_years[polity_name] = []
                             polity_years[polity_name].append(properties['Year'])
                             if polity_colour_key not in polity_shapes:
                                 polity_shapes[polity_colour_key] = []
-                            feature['properties']['PolityName'] = polity_name  # Update the name
-                            feature['properties']['Polity'] = polity_polity  # Update the polity
                             polity_shapes[polity_colour_key].append(feature)
 
                             all_polities.add(polity_colour_key)
@@ -109,7 +99,7 @@ class Command(BaseCommand):
         for polity_colour_key, features in polity_shapes.items():
             for feature in features:
                 properties = feature['properties']
-                polity_name = properties['PolityName']
+                polity_name = properties["Name"].replace('(', '').replace(')', '')
                 self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_name} ({properties["Year"]})'))
                 
                 # Get a sorted list of the shape years this polity
@@ -152,7 +142,7 @@ class Command(BaseCommand):
                 VideoShapefile.objects.create(
                     geom=geom,
                     name=polity_name,
-                    polity=properties['Polity'],
+                    polity=polity_colour_key,
                     wikipedia_name=properties['Wikipedia'],
                     seshat_id=properties['SeshatID'],
                     area=properties['Area_km2'],
