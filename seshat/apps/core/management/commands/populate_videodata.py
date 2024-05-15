@@ -57,7 +57,7 @@ class Command(BaseCommand):
                 # Extract data and create VideoShapefile instances
                 for feature in geojson_data['features']:
                     properties = feature['properties']
-                    if properties['Type'] == 'POLITY':
+                    if properties['Type'] == 'POLITY' or properties['Type'] == 'LEADER':
                         polity_name = properties['Name'].replace('(', '').replace(')', '')  # Remove spaces and brackets from name
                         polity_colour_key = polity_name
                         try:
@@ -78,6 +78,8 @@ class Command(BaseCommand):
                         except KeyError:
                             pass
                         if polity_name:
+                            if properties['Type'] == 'LEADER':
+                                polity_name = 'Leader: ' + polity_name
                             if polity_name not in polity_years:
                                 polity_years[polity_name] = []
                             polity_years[polity_name].append(properties['Year'])
