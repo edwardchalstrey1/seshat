@@ -102,6 +102,8 @@ class Command(BaseCommand):
             for feature in features:
                 properties = feature['properties']
                 polity_name = properties["Name"].replace('(', '').replace(')', '')
+                if properties['Type'] == 'LEADER':
+                    polity_name = 'Leader: ' + polity_name
                 self.stdout.write(self.style.SUCCESS(f'Importing shape for {polity_name} ({properties["Year"]})'))
                 
                 # Get a sorted list of the shape years this polity
