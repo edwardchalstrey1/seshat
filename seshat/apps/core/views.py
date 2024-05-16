@@ -2912,8 +2912,8 @@ def assign_categorical_variables_to_shapes(shapes, variables):
 app_map = {
     'sc': 'Social Complexity Variables',
     'wf': 'Warfare Variables (Military Technologies)',
-    'rt': 'Religion Tolerance',
-    # 'general': 'General Variables',
+    # 'rt': 'Religion Tolerance',     TODO: Temporarily restricted. Uncomment when ready.
+    # 'general': 'General Variables', TODO: Not implemented yet
 }
 
 # Get sorted lists of choices for each categorical variable
