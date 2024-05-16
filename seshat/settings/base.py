@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'leaflet',
     #'easyaudit',
+    'django_recaptcha',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -90,6 +91,10 @@ AUTHENTICATION_BACKENDS = [
     #'allauth.socialaccount.auth_backends.AuthenticationBackend',
 
 ]
+
+
+RECAPTCHA_PUBLIC_KEY = config('GOOGLE_RECAPTCHA_SITE_KEY')
+RECAPTCHA_PRIVATE_KEY = config('GOOGLE_RECAPTCHA_SECRET_KEY')
 
 # all-auth
 LOGIN_REDIRECT_URL = 'seshat-index'

@@ -194,6 +194,13 @@ def seshatolddownloads(request):
     }
     return render(request, 'core/old_downloads.html', context=context)
 
+def seshatcodebookold(request):
+    context = {
+        'insta': "Instabilities All Over the Place..",
+    }
+    return render(request, 'core/old_codebook.html', context=context)
+
+
 def seshatacknowledgements(request):
     context = {
         'insta': "Instabilities All Over the Place..",

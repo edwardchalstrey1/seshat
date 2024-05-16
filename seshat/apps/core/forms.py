@@ -13,6 +13,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.core.exceptions import ValidationError
 
+from django_recaptcha.fields import ReCaptchaField
+
 
 #from .models import Religion
 
@@ -340,7 +342,11 @@ class SeshatCommentForm2(forms.Form):
     formset = CommentPartFormSet(prefix='commentpart')
     formset.management_form  # Include the management form
 
+
+
 class SignUpForm(UserCreationForm):
+    captcha = ReCaptchaField()
+
     # first_name = forms.CharField(
     #     max_length=30, required=False, help_text='Optional.')
     # last_name = forms.CharField(
@@ -370,7 +376,7 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name',
-                  'email', 'password1', 'password2', )
+                  'email', 'password1', 'password2', 'captcha')
         widgets = {
             'first_name': forms.TextInput(
                 attrs={'class': 'form-control mb-3', }),
