@@ -2954,6 +2954,9 @@ def map_view_initial(request):
 
     # Add categorical variable choices to content for dropdown selection
     content['categorical_variables'] = categorical_variables
+
+    # TODO: Temporary restriction on the latest year for the map view
+    content['latest_year'] = 2014
     
     return render(request,
                   'core/world_map.html',
@@ -2979,6 +2982,9 @@ def map_view_all(request):
 
     # Add categorical variable choices to content for dropdown selection
     content['categorical_variables'] = categorical_variables
+
+    # TODO: Temporary restriction on the latest year for the map view
+    content['latest_year'] = 2014
     
     return JsonResponse(content)
 
