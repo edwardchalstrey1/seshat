@@ -557,29 +557,36 @@
                                         </tr>
                                 `;
                                 if (variable != 'polity' && !categorical_variables.hasOwnProperty(variable)) {
-                                    // if (shape[variable + '_dict']) {
-                                    //     // Iterate through key/values in the dictionary
-                                    //     for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
-                                    //         for (const [startYear, endYear] of value) {
-                                    //             if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
-                                    //                 popupContent = popupContent + `
-                                    //                     <tr>
-                                    //                         <td><span style="text-transform: capitalize;">${variable} ${startYear}-${endYear}</span></td>
-                                    //                         <td><span style="text-transform: capitalize;">${key}</span></td>
-                                    //                     </tr>
-                                    //                 `;
-                                    //                 break;
-                                    //             }
-                                    //         }
-                                    //     }
-                                    // } else {
-                                    popupContent = popupContent + `
-                                        <tr>
-                                            <td><span style="text-transform: capitalize;">${variable}</span></td>
-                                            <td><span style="text-transform: capitalize;">${shape[variable]}</span></td>
-                                        </tr>
-                                    `;
-                                    // }
+                                    if (shape[variable + '_dict']) {
+                                        // Iterate through key/values in the dictionary
+                                        for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
+                                            let startYear = value[0];
+                                            let endYear = value[1];
+                                            // If startYear or endYear are None, use the shape's start_year or end_year
+                                            if (startYear == 'None' || startYear == null) {
+                                                startYear = shape.start_year;
+                                            }
+                                            if (endYear == 'None' || endYear == null) {
+                                                endYear = shape.end_year;
+                                            }
+                                            if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
+                                                popupContent = popupContent + `
+                                                    <tr>
+                                                        <td><span style="text-transform: capitalize;">${variable} ${startYear}-${endYear}</span></td>
+                                                        <td><span style="text-transform: capitalize;">${key}</span></td>
+                                                    </tr>
+                                                `;
+                                                break;
+                                            }
+                                        }
+                                    } else {
+                                        popupContent = popupContent + `
+                                            <tr>
+                                                <td><span style="text-transform: capitalize;">${variable}</span></td>
+                                                <td><span style="text-transform: capitalize;">${shape[variable]}</span></td>
+                                            </tr>
+                                        `;
+                                    }
                                 }
                                 if (variable == 'language' || variable == 'linguistic_family' || variable == 'language_genus') {
                                     popupContent = popupContent + `
