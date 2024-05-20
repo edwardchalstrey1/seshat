@@ -2842,6 +2842,18 @@ def assign_variables_to_shapes(shapes, app_map):
                     if variable_obj:
                         try:
                             shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
+
+                            # TODO: replace the above with this:
+                            rows = variable_obj.__class__.objects.filter(
+                                year_from__lte=shape['start_year'],
+                                year_to__gte=shape['end_year']
+                            ).values(variable, 'year_from', 'year_to')
+                            variable_dict = {}
+                            for entry in list(rows):
+                                if entry[variable] not in variable_dict:
+                                    variable_dict[entry[variable]] = []
+                                variable_dict[entry[variable]].append((entry['year_from'], entry['year_to']))
+                            shape[variable_formatted + '_dict'] = variable_dict
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
                 else:
