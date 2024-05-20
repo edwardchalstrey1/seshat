@@ -1,6 +1,7 @@
 import sys
 import importlib
 
+from collections import defaultdict
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
 
 from django.contrib.sites.shortcuts import get_current_site
@@ -2848,10 +2849,8 @@ def assign_variables_to_shapes(shapes, app_map):
                                 year_from__lte=shape['start_year'],
                                 year_to__gte=shape['end_year']
                             ).values(variable, 'year_from', 'year_to')
-                            variable_dict = {}
-                            for entry in list(rows):
-                                if entry[variable] not in variable_dict:
-                                    variable_dict[entry[variable]] = []
+                            variable_dict = defaultdict(list)
+                            for entry in rows:
                                 variable_dict[entry[variable]].append((entry['year_from'], entry['year_to']))
                             shape[variable_formatted + '_dict'] = variable_dict
                         except AttributeError:  # For rt models where coded_value is used
