@@ -448,6 +448,28 @@
                     } else {  // Absent-present variables
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
+                        // TODO: remove this if statement when all variables have a dictionary entry
+                        if (shape['name'] == 'Dutch Republic') {
+                            console.log('Dutch Republic: ' + variable)
+                            console.log(shape[variable + '_dict'])
+                        }
+                        if (shape[variable + '_dict']) {
+                            // Iterate through key/values in the dictionary
+                            for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
+                                // Iterate through the year pairs in the value
+                                for (const [startYear, endYear] of value) {
+                                    // If the shape is part of the variable during the selected year
+                                    if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
+                                        shapeColour = variableColourMapping[key];
+                                        if (shape['name'] == 'Dutch Republic'){
+                                            console.log('Dutch Republic: ' + shapeColour)
+                                        }
+                                        break;
+                                    }
+                                }
+
+                            }
+                        }
                     }
 
                     // If the shape spans the selected year
