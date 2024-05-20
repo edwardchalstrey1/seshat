@@ -2854,7 +2854,6 @@ def assign_variables_to_shapes(shapes, app_map):
                             variable_dict = defaultdict(list)
                             for entry in rows:
                                 variable_dict[entry[variable]].append((entry['year_from'], entry['year_to']))
-                            # if len(variable_dict) > 1:
                             shape[variable_formatted + '_dict'] = variable_dict
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
