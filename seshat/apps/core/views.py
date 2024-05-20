@@ -2835,23 +2835,28 @@ def assign_variables_to_shapes(shapes, app_map):
             variable_formatted = variables[app_name_long][variable]['formatted']
             variable_objs = {obj.polity_id: obj for obj in class_.objects.filter(polity_id__in=polities.values())}
 
-            variable_objs_2 = defaultdict(list)
+            variable_objs_2 = {}
             for obj in class_.objects.filter(polity_id__in=polities.values()):
-                variable_dict = {}
-                variable_dict[getattr(obj, variable)] = (obj.year_from, obj.year_to)
-                variable_objs_2[obj.polity_id].append(variable_dict)
+                variable_value = getattr(obj, variable)
+                if obj.polity_id not in variable_objs_2:
+                    variable_objs_2[obj.polity_id] = {}
+                variable_objs_2[obj.polity_id][variable_value] = (obj.year_from, obj.year_to)
 
             for shape in shapes:
                 shape[variable_formatted] = 'uncoded'  # Default value
                 polity = polities.get(shape['seshat_id'])
                 if polity:
                     variable_obj = variable_objs.get(polity.id)
-                    variable_obj_2 = variable_objs_2[polity.id]
+                    # variable_obj_2 = variable_objs_2[polity.id]
                     if shape['seshat_id'] == 'nl_dutch_emp_1' and variable == 'professional_military_officer':
                         print('var: ')
                         print(variable_obj)
                         print('var2: ')
-                        print(variable_obj_2)
+                        try:
+                            variable_obj_2 = variable_objs_2[polity.id]
+                            print(variable_obj_2)
+                        except KeyError:
+                            print('no var2 for ' + shape['seshat_id'] + ' ' + variable)
                     if variable_obj:
                         try:
                             shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
