@@ -2856,8 +2856,7 @@ def assign_variables_to_shapes(shapes, app_map):
                         pass
                     if variable_obj:
                         try:
-                            shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
-                            # Only do this if there is more than one value for the variable TODO: do this for coded_value variables           
+                            shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice         
                             shape[variable_formatted + '_dict'] = variable_obj_dict
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
