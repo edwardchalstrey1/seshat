@@ -456,7 +456,6 @@
                     } else {  // Absent-present variables
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
-                        // TODO: remove this if statement when all variables have a dictionary entry
                         if (shape[variable + '_dict']) {
                             // Iterate through key/values in the dictionary
                             for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
