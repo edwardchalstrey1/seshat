@@ -591,6 +591,7 @@
                                 if (variable != 'polity' && !categorical_variables.hasOwnProperty(variable)) {
                                     if (shape[variable + '_dict']) {
                                         // Iterate through key/values in the dictionary
+                                        var counter = 0;
                                         for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
                                             let startYear = value[0];
                                             let endYear = value[1];
@@ -601,15 +602,22 @@
                                             if (endYear == 'None' || endYear == null) {
                                                 endYear = shape.end_year;
                                             }
-                                            if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
+                                            if (counter == 0) {
                                                 popupContent = popupContent + `
                                                     <tr>
                                                         <td><span style="text-transform: capitalize;">${variable}</span></td>
                                                         <td><span style="text-transform: capitalize;">${key} (${startYear}-${endYear})</span></td>
                                                     </tr>
                                                 `;
-                                                break;
+                                            } else {                            
+                                                popupContent = popupContent + `
+                                                    <tr>
+                                                        <td></td>
+                                                        <td><span style="text-transform: capitalize;">${key} (${startYear}-${endYear})</span></td>
+                                                    </tr>
+                                                `;
                                             }
+                                            counter++;
                                         }
                                     } else {
                                         popupContent = popupContent + `
