@@ -2835,15 +2835,15 @@ def assign_variables_to_shapes(shapes, app_map):
             variable_formatted = variables[app_name_long][variable]['formatted']
             variable_objs = {obj.polity_id: obj for obj in class_.objects.filter(polity_id__in=polities.values())}
 
-            variable_objs_2 = {}
+            all_variable_objs = {}
             for obj in class_.objects.filter(polity_id__in=polities.values()):
                 try:
                     variable_value = getattr(obj, variable)
                 except AttributeError:  # For rt models where coded_value is used
                     variable_value = getattr(obj, 'coded_value')
-                if obj.polity_id not in variable_objs_2:
-                    variable_objs_2[obj.polity_id] = {}
-                variable_objs_2[obj.polity_id][variable_value] = [obj.year_from, obj.year_to]
+                if obj.polity_id not in all_variable_objs:
+                    all_variable_objs[obj.polity_id] = {}
+                all_variable_objs[obj.polity_id][variable_value] = [obj.year_from, obj.year_to]
 
             for shape in shapes:
                 shape[variable_formatted] = 'uncoded'  # Default value
@@ -2851,17 +2851,17 @@ def assign_variables_to_shapes(shapes, app_map):
                 if polity:
                     variable_obj = variable_objs.get(polity.id)
                     try:
-                        variable_obj_2 = variable_objs_2[polity.id]
+                        variable_obj_dict = all_variable_objs[polity.id]
                     except KeyError:
                         pass
                     if variable_obj:
                         try:
                             shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
                             # Only do this if there is more than one value for the variable TODO: do this for coded_value variables           
-                            shape[variable_formatted + '_dict'] = variable_obj_2
+                            shape[variable_formatted + '_dict'] = variable_obj_dict
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
-                            shape[variable_formatted + '_dict'] = variable_obj_2
+                            shape[variable_formatted + '_dict'] = variable_obj_dict
                 else:
                     shape[variable_formatted] = 'no seshat page'
 
