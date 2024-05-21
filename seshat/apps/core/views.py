@@ -2903,8 +2903,11 @@ def assign_categorical_variables_to_shapes(shapes, variables):
     # Add language variable info to polity shapes
     for shape in shapes:
         shape['linguistic_family'] = []
+        shape['linguistic_family_dict'] = {}
         shape['language_genus'] = []
+        shape['language_genus_dict'] = {}
         shape['language'] = []
+        shape['language_dict'] = {}
         if shape['seshat_id'] != 'none':  # Skip shapes with no seshat_id
             polity = polities.get(shape['seshat_id'])
             if polity:
@@ -2912,6 +2915,11 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                 shape['linguistic_family'].extend([lf.linguistic_family for lf in linguistic_families.get(polity.id, [])])
                 shape['language_genus'].extend([lg.language_genus for lg in language_genuses.get(polity.id, [])])
                 shape['language'].extend([l.language for l in languages.get(polity.id, [])])
+
+                # Get the years for the linguistic family, language genus, and language for the polity
+                shape['linguistic_family_dict'].update({lf.linguistic_family: [lf.year_from, lf.year_to] for lf in linguistic_families.get(polity.id, [])})
+                shape['language_genus_dict'].update({lg.language_genus: [lg.year_from, lg.year_to] for lg in language_genuses.get(polity.id, [])})
+                shape['language_dict'].update({l.language: [l.year_from, l.year_to] for l in languages.get(polity.id, [])})
 
         # If no linguistic family, language genus, or language was found, append 'Uncoded'
         polity = polities.get(shape['seshat_id'])

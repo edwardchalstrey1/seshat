@@ -139,11 +139,15 @@ class ShapesTest(TestCase):
         Polity_language.objects.create(
             name='language',
             language='English',
-            polity_id=2
+            polity_id=2,
+            year_from=1998,
+            year_to=2000
         )
         Polity_language.objects.create(
             name='language',
             language='French',
+            year_from=1999,
+            year_to=2007,
             polity_id=2
         )
 
@@ -470,4 +474,6 @@ class ShapesTest(TestCase):
             'full_name': 'Language'
         }
         self.assertEqual(result_variables['General Variables']['polity_language'], expected_result_variables_language)
-        self.assertEqual(result_shapes[0]['language'], ['English', 'French'])
+        # self.assertEqual(result_shapes[0]['language'], ['English', 'French'])
+        self.assertEqual(result_shapes[0]['language_dict']['English'], [1998, 2000])
+        self.assertEqual(result_shapes[0]['language_dict']['French'], [1999, 2007])
