@@ -474,6 +474,6 @@ class ShapesTest(TestCase):
             'full_name': 'Language'
         }
         self.assertEqual(result_variables['General Variables']['polity_language'], expected_result_variables_language)
-        # self.assertEqual(result_shapes[0]['language'], ['English', 'French'])
+        self.assertEqual(result_shapes[0]['language'], ['English', 'French'])
         self.assertEqual(result_shapes[0]['language_dict']['English'], [1998, 2000])
         self.assertEqual(result_shapes[0]['language_dict']['French'], [1999, 2007])
