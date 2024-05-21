@@ -464,20 +464,14 @@
                             shapeColour = oneLanguageColourMapping['Present exclusively'];
                         } else if (numberOfThisVariable > 0 && !selectedValueOfThisVariablePresent) {
                             shapeColour = oneLanguageColourMapping['Absent'];
-                        } else if (!shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
+                        } else {
                             if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
                                 shapeColour = oneLanguageColourMapping['Unknown'];
                             } else if (shape[variable][0] == 'Uncoded') {
                                 shapeColour = oneLanguageColourMapping['Uncoded'];
                             } else if (shape[variable][0] == 'No Seshat page') {
                                 shapeColour = oneLanguageColourMapping['No Seshat page'];
-                            } else {
-                                // Thow error as should not get here
-                                console.log('Error: Should not get here as present, absent and present exclusively should have been covered');
                             }
-                        } else {
-                            // Thow error as should not get here
-                            console.log('Error: Should not get here as all categorical variable cases should have been covered');
                         }
 
                     } else {  // Absent-present variables
