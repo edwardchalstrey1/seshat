@@ -597,23 +597,23 @@
                                             let endYear = value[1];
                                             // If startYear or endYear are None, use the polity start_year or end_year
                                             if (startYear == 'None' || startYear == null) {
-                                                startYear = 'Uncoded'
+                                                startYear = '[Uncoded]'
                                             }
                                             if (endYear == 'None' || endYear == null) {
-                                                endYear = 'Uncoded'
+                                                endYear = '[Uncoded]'
                                             }
                                             if (counter == 0) {
                                                 popupContent = popupContent + `
                                                     <tr>
                                                         <td><span style="text-transform: capitalize;">${variable}</span></td>
-                                                        <td><span style="text-transform: capitalize;">${key} (${startYear}-${endYear})</span></td>
+                                                        <td><span style="text-transform: capitalize;">${key}</span> from ${startYear} to ${endYear}</td>
                                                     </tr>
                                                 `;
                                             } else {                            
                                                 popupContent = popupContent + `
                                                     <tr>
                                                         <td></td>
-                                                        <td><span style="text-transform: capitalize;">${key} (${startYear}-${endYear})</span></td>
+                                                        <td><span style="text-transform: capitalize;">${key}</span> from ${startYear} to ${endYear}</td>
                                                     </tr>
                                                 `;
                                             }
