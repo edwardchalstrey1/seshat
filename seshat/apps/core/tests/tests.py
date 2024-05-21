@@ -125,11 +125,15 @@ class ShapesTest(TestCase):
         Judge.objects.create(
             name='judge',
             judge='present',
+            year_from=2003,
+            year_to=2004,
             polity_id=2
         )
         Gov_res_pub_pros.objects.create(
             name='gov_res_pub_pros',
             coded_value='absent',
+            year_from=2002,
+            year_to=2003,
             polity_id=2
         )
         Polity_language.objects.create(
@@ -440,7 +444,9 @@ class ShapesTest(TestCase):
         self.assertEqual(result_variables['Religion Tolerance']['gov_res_pub_pros'], expected_result_variables_gov_res_pub_pros)
         # Test that the shapes have been updated with the variables
         self.assertEqual(result_shapes[0]['Judge'], 'present')
+        self.assertEqual(result_shapes[0]['Judge_dict'], {'present': [2003, 2004]})
         self.assertEqual(result_shapes[0]['Government Restrictions on Public Proselytizings'], 'absent')
+        self.assertEqual(result_shapes[0]['Government Restrictions on Public Proselytizings_dict'], {'absent': [2002, 2003]})
 
     def test_assign_categorical_variables_to_shapes(self):
         """Test the assign_categorical_variables_to_shapes function."""
