@@ -2837,7 +2837,10 @@ def assign_variables_to_shapes(shapes, app_map):
 
             variable_objs_2 = {}
             for obj in class_.objects.filter(polity_id__in=polities.values()):
-                variable_value = getattr(obj, variable)
+                try:
+                    variable_value = getattr(obj, variable)
+                except AttributeError:  # For rt models where coded_value is used
+                    variable_value = getattr(obj, 'coded_value')
                 if obj.polity_id not in variable_objs_2:
                     variable_objs_2[obj.polity_id] = {}
                 variable_objs_2[obj.polity_id][variable_value] = [obj.year_from, obj.year_to]
