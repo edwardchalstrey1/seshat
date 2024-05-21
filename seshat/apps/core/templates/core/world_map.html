@@ -436,23 +436,53 @@
                         };
                     } else if (variable in categorical_variables){
                         shapeWeight = 2;
-                        if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
-                            if (shape[variable].length > 1) {
+                        // If the shape has a dictionary for the variable the key of the dict is the variable value and the value is a list of start and end years.
+                        // Iterate through it and choose the colour based on the number of that variable that are active in the selected year
+                        if (shape[variable + '_dict']) {
+                            var numberOfThisVariable = 0;  // Number of different values of this variable that are active in the selected year
+                            var selectedValueOfThisVariablePresent = false;  // Whether the selected value of this variable is active in the selected year
+                            // Iterate through key/values in the dictionary
+                            for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
+                                let startYear = value[0];
+                                let endYear = value[1];
+                                // If startYear or endYear are None, use the shape's start_year or end_year
+                                if (startYear == 'None' || startYear == null) {
+                                    startYear = shape.start_year;
+                                }
+                                if (endYear == 'None' || endYear == null) {
+                                    endYear = shape.end_year;
+                                }
+                                if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
+                                    numberOfThisVariable++;
+                                    if (key.includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
+                                        selectedValueOfThisVariablePresent = true;
+                                    }
+                                }
+                            }
+                            if (numberOfThisVariable > 1 && selectedValueOfThisVariablePresent) {
                                 shapeColour = oneLanguageColourMapping['Present'];
-                            } else {
-                                shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
-                            }
-                        } else {
-                            if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
-                                shapeColour = oneLanguageColourMapping['Unknown'];
-                            } else if (shape[variable][0] == 'Uncoded') {
-                                shapeColour = oneLanguageColourMapping['Uncoded'];
-                            } else if (shape[variable][0] == 'No Seshat page') {
-                                shapeColour = oneLanguageColourMapping['No Seshat page'];
-                            } else {
+                            } else if (numberOfThisVariable == 1 && selectedValueOfThisVariablePresent) {
+                                shapeColour = oneLanguageColourMapping['Present exclusively'];
+                            } else if (numberOfThisVariable > 0 && !selectedValueOfThisVariablePresent) {
                                 shapeColour = oneLanguageColourMapping['Absent'];
+                            } else if (!shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
+                                if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
+                                    shapeColour = oneLanguageColourMapping['Unknown'];
+                                } else if (shape[variable][0] == 'Uncoded') {
+                                    shapeColour = oneLanguageColourMapping['Uncoded'];
+                                } else if (shape[variable][0] == 'No Seshat page') {
+                                    shapeColour = oneLanguageColourMapping['No Seshat page'];
+                                } else {
+                                    // Thow error as should not get here
+                                    console.log('Error: Should not get here as present, absent and present exclusively should have been covered');
+                                }
+                            } else {
+                                // Thow error as should not get here
+                                console.log('Error: Should not get here as all categorical variable cases should have been covered');
                             }
-                        }                          
+                        }
+
+
                     } else {  // Absent-present variables
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
