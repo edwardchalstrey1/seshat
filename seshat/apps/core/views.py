@@ -2861,6 +2861,7 @@ def assign_variables_to_shapes(shapes, app_map):
                             shape[variable_formatted + '_dict'] = variable_obj_2
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
+                            shape[variable_formatted + '_dict'] = variable_obj_2
                 else:
                     shape[variable_formatted] = 'no seshat page'
 
