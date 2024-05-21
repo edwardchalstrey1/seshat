@@ -228,6 +228,7 @@
         ];
 
         // Iterate through shapesData and ensure that fields that are lists are interpreted properly
+        // TODO: find a way to avoid having to do this
         shapesData.forEach(function (shape) {
             if (shape.language) {
                 shape.language = JSON.parse(shape.language.replace(/'/g, '"'));
@@ -240,6 +241,13 @@
             }
             if (shape.linguistic_family) {
                 shape.linguistic_family = JSON.parse(shape.linguistic_family.replace(/'/g, '"'));
+            }
+            // Any fields that end _dict should be converted to a dictionary from a string
+            for (const [key, value] of Object.entries(shape)) {
+                if (key.endsWith('_dict')) {
+                    let newValue = value.replace(/None/g, 'null');
+                    shape[key] = JSON.parse(newValue.replace(/'/g, '"'));
+                }
             }
         });
 
@@ -495,6 +503,10 @@
                                 displayend_year = shape.polity_end_year + ' CE';
                             }
                         }
+
+                        if (shape['name'] == 'Dutch Republic') {
+                            console.log(typeof(shape['Professional military officer_dict']));
+                        };
 
                         // Add shape
                         var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom), {

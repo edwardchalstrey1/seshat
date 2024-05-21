@@ -2840,7 +2840,7 @@ def assign_variables_to_shapes(shapes, app_map):
                 variable_value = getattr(obj, variable)
                 if obj.polity_id not in variable_objs_2:
                     variable_objs_2[obj.polity_id] = {}
-                variable_objs_2[obj.polity_id][variable_value] = (obj.year_from, obj.year_to)
+                variable_objs_2[obj.polity_id][variable_value] = [obj.year_from, obj.year_to]
 
             for shape in shapes:
                 shape[variable_formatted] = 'uncoded'  # Default value
