@@ -585,6 +585,7 @@
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                 `;
+                                // Absent/present variables
                                 if (variable != 'polity' && !categorical_variables.hasOwnProperty(variable)) {
                                     if (shape[variable + '_dict']) {
                                         // Iterate through key/values in the dictionary
@@ -627,6 +628,8 @@
                                     }
                                 }
                                 if (variable == 'language' || variable == 'linguistic_family' || variable == 'language_genus') {
+                                    // TODO: if these variables are populated start to get entries for years,
+                                    // this will need to be updated to use shape[variable + '_dict'] as done above for absent/present variables
                                     popupContent = popupContent + `
                                         <tr>
                                             <td>Languages</td>
