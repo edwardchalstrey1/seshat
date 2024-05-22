@@ -595,7 +595,7 @@
                                         for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
                                             let startYear = value[0];
                                             let endYear = value[1];
-                                            // If startYear or endYear are None, use the polity start_year or end_year
+                                            // If startYear or endYear are None, state these as uncoded
                                             if (startYear == 'None' || startYear == null) {
                                                 startYear = '[Uncoded]'
                                             }
