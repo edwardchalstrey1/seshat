@@ -444,7 +444,8 @@
                         for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
                             let startYear = value[0];
                             let endYear = value[1];
-                            // If startYear or endYear are None, use the shape's start_year or end_year
+                            // If startYear or endYear are None, use the polity start_year or end_year
+                            // ensuring that the shape is coloured by the variable selection for all years
                             if (startYear == 'None' || startYear == null) {
                                 startYear = shape.polity_start_year;
                             }
@@ -630,6 +631,7 @@
                                 if (variable == 'language' || variable == 'linguistic_family' || variable == 'language_genus') {
                                     // TODO: if these variables are populated start to get entries for years,
                                     // this will need to be updated to use shape[variable + '_dict'] as done above for absent/present variables
+                                    // Note: the actual colouring of the shapes is done in the style function above and this is already set up to handle the dictionaries
                                     popupContent = popupContent + `
                                         <tr>
                                             <td>Languages</td>
