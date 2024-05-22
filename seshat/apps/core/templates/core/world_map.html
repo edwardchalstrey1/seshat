@@ -268,7 +268,7 @@
                 .then(response => response.json())
                 .then(data => {
                     data.shapes // Add the rest of the shapes to shapesData
-                        .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
+                        .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id.toString()))
                         .forEach(shape => {
                             shape.weight = polityBorderWeight;
                             shapesData.push(shape);
