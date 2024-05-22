@@ -595,9 +595,10 @@
                                             let variable_value = key;
                                             if (variable_value == 'A~P'){
                                                 variable_value = 'Absent then Present'
-                                            }
-                                            if (variable_value == 'P~A'){
+                                            } else if (variable_value == 'P~A'){
                                                 variable_value = 'Present then Absent'
+                                            } else {
+                                                variable_value = `${variable_value[0].toUpperCase()}${variable_value.slice(1)}`
                                             }
                                             // If startYear or endYear are None, state these as uncoded
                                             if (startYear == 'None' || startYear == null) {
@@ -609,15 +610,15 @@
                                             if (counter == 0) {
                                                 popupContent = popupContent + `
                                                     <tr>
-                                                        <td><span style="text-transform: capitalize;">${variable}</span></td>
-                                                        <td><span style="text-transform: capitalize;">${variable_value}</span> from ${startYear} to ${endYear}</td>
+                                                        <td>${variable}</td>
+                                                        <td>${variable_value} from ${startYear} to ${endYear}</td>
                                                     </tr>
                                                 `;
                                             } else {                            
                                                 popupContent = popupContent + `
                                                     <tr>
                                                         <td></td>
-                                                        <td><span style="text-transform: capitalize;">${variable_value}</span> from ${startYear} to ${endYear}</td>
+                                                        <td>${variable_value} from ${startYear} to ${endYear}</td>
                                                     </tr>
                                                 `;
                                             }
