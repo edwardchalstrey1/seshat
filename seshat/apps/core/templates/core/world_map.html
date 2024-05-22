@@ -267,9 +267,14 @@
             fetch('/core/world_map_all/')
                 .then(response => response.json())
                 .then(data => {
-                    shapesData = data.shapes.map(function (shape) {
+                    data.shapes.forEach(function (shape) {
                         shape.weight = polityBorderWeight;
-                        return shape;
+                        let isDuplicate = shapesData.some(existingShape =>
+                            existingShape.geom === shape.geom
+                        );
+                        if (!isDuplicate) {
+                            shapesData.push(shape);
+                        }
                     });
 
                     // Update seshat_id_page_id from the JSON response
