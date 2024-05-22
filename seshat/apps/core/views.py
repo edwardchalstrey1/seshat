@@ -2690,7 +2690,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     else:
         rows = VideoShapefile.objects.all()
 
-    rows = rows.values('seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom', 'geom')
+    rows = rows.values('id', 'seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom', 'geom')
 
     shapes = []
     for shape in rows:
