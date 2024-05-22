@@ -592,20 +592,13 @@
                                         for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
                                             let startYear = value[0];
                                             let endYear = value[1];
-                                            let variable_value = key;
-                                            if (variable_value == 'A~P'){
-                                                variable_value = 'Absent then Present'
-                                            } else if (variable_value == 'P~A'){
-                                                variable_value = 'Present then Absent'
-                                            } else {
-                                                variable_value = `${variable_value[0].toUpperCase()}${variable_value.slice(1)}`
-                                            }
+                                            let variable_value = longAbsentPresentVarName(key);
                                             // If startYear or endYear are None, state these as uncoded
                                             if (startYear == 'None' || startYear == null) {
-                                                startYear = '[Year uncoded]'
+                                                startYear = '[Year Uncoded]'
                                             }
                                             if (endYear == 'None' || endYear == null) {
-                                                endYear = '[Year uncoded]'
+                                                endYear = '[Year Uncoded]'
                                             }
                                             if (counter == 0) {
                                                 popupContent = popupContent + `
