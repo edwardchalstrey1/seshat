@@ -483,6 +483,7 @@
                                 let startYear = value[0];
                                 let endYear = value[1];
                                 // If startYear or endYear are None, use the polity start_year or end_year
+                                // ensuring that the shape is coloured by the variable selection for all years
                                 if (startYear == 'None' || startYear == null) {
                                     startYear = shape.polity_start_year;
                                 }
