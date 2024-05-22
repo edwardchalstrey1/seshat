@@ -491,7 +491,7 @@
                                 }
                                 if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
                                     shapeColour = variableColourMapping[key];
-                                    break;
+                                    break;  // Only one of present, absent, P~A, A~P, unknown, uncoded should be active at a time, so break after finding the active one
                                 }
                             }
                         }
