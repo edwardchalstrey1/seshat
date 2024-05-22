@@ -1,6 +1,7 @@
 import sys
 import importlib
 
+from collections import defaultdict
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
 
 from django.contrib.sites.shortcuts import get_current_site
@@ -2834,16 +2835,32 @@ def assign_variables_to_shapes(shapes, app_map):
             variable_formatted = variables[app_name_long][variable]['formatted']
             variable_objs = {obj.polity_id: obj for obj in class_.objects.filter(polity_id__in=polities.values())}
 
+            all_variable_objs = {}
+            for obj in class_.objects.filter(polity_id__in=polities.values()):
+                try:
+                    variable_value = getattr(obj, variable)
+                except AttributeError:  # For rt models where coded_value is used
+                    variable_value = getattr(obj, 'coded_value')
+                if obj.polity_id not in all_variable_objs:
+                    all_variable_objs[obj.polity_id] = {}
+                all_variable_objs[obj.polity_id][variable_value] = [obj.year_from, obj.year_to]
+
             for shape in shapes:
                 shape[variable_formatted] = 'uncoded'  # Default value
                 polity = polities.get(shape['seshat_id'])
                 if polity:
                     variable_obj = variable_objs.get(polity.id)
+                    try:
+                        variable_obj_dict = all_variable_objs[polity.id]
+                    except KeyError:
+                        pass
                     if variable_obj:
                         try:
-                            shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice
+                            shape[variable_formatted] = getattr(variable_obj, variable)  # absent/present choice         
+                            shape[variable_formatted + '_dict'] = variable_obj_dict
                         except AttributeError:  # For rt models where coded_value is used
                             shape[variable_formatted] = getattr(variable_obj, 'coded_value')
+                            shape[variable_formatted + '_dict'] = variable_obj_dict
                 else:
                     shape[variable_formatted] = 'no seshat page'
 
@@ -2886,8 +2903,11 @@ def assign_categorical_variables_to_shapes(shapes, variables):
     # Add language variable info to polity shapes
     for shape in shapes:
         shape['linguistic_family'] = []
+        shape['linguistic_family_dict'] = {}
         shape['language_genus'] = []
+        shape['language_genus_dict'] = {}
         shape['language'] = []
+        shape['language_dict'] = {}
         if shape['seshat_id'] != 'none':  # Skip shapes with no seshat_id
             polity = polities.get(shape['seshat_id'])
             if polity:
@@ -2895,6 +2915,11 @@ def assign_categorical_variables_to_shapes(shapes, variables):
                 shape['linguistic_family'].extend([lf.linguistic_family for lf in linguistic_families.get(polity.id, [])])
                 shape['language_genus'].extend([lg.language_genus for lg in language_genuses.get(polity.id, [])])
                 shape['language'].extend([l.language for l in languages.get(polity.id, [])])
+
+                # Get the years for the linguistic family, language genus, and language for the polity
+                shape['linguistic_family_dict'].update({lf.linguistic_family: [lf.year_from, lf.year_to] for lf in linguistic_families.get(polity.id, [])})
+                shape['language_genus_dict'].update({lg.language_genus: [lg.year_from, lg.year_to] for lg in language_genuses.get(polity.id, [])})
+                shape['language_dict'].update({l.language: [l.year_from, l.year_to] for l in languages.get(polity.id, [])})
 
         # If no linguistic family, language genus, or language was found, append 'Uncoded'
         polity = polities.get(shape['seshat_id'])
@@ -2919,8 +2944,8 @@ def assign_categorical_variables_to_shapes(shapes, variables):
 app_map = {
     'sc': 'Social Complexity Variables',
     'wf': 'Warfare Variables (Military Technologies)',
-    # 'rt': 'Religion Tolerance',     TODO: Temporarily restricted. Uncomment when ready.
-    # 'general': 'General Variables', TODO: Not implemented yet
+    # 'rt': 'Religion Tolerance',     # TODO: Implemented but temporarily restricted. Uncomment when ready.
+    # 'general': 'General Variables', # TODO: Partially implmented and hardcoded in assign_categorical_variables_to_shapes.
 }
 
 # Get sorted lists of choices for each categorical variable

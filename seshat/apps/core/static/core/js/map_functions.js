@@ -271,15 +271,7 @@ function updateLegend() {
                 colorBox.style.border = '1px solid black';
             }
 
-            if (key === 'A~P') {
-                legendItem.appendChild(document.createTextNode('Absent then present'));
-            } else if (key === 'P~A') {
-                legendItem.appendChild(document.createTextNode('Present then absent'));
-            } else if (key === 'unknown') {
-                legendItem.appendChild(document.createTextNode('Coded unknown'));
-            } else {
-                legendItem.appendChild(document.createTextNode(`${key[0].toUpperCase()}${key.slice(1)}`));
-            }
+            legendItem.appendChild(document.createTextNode(longAbsentPresentVarName(key)));
 
             legendDiv.appendChild(legendItem);
         }
@@ -330,4 +322,19 @@ function updateCategoricalVariableSelection(variable){
     var varSelectElement = document.getElementById('chooseVariable');
     var varText = varSelectElement.options[varSelectElement.selectedIndex].text;
     document.querySelector('label[for="chooseCategoricalVariableSelection"]').textContent = varText + ': ';
+}
+
+function longAbsentPresentVarName(var_name){
+    if (var_name === 'A~P') {
+        var_name = 'Absent then Present';
+    } else if (var_name === 'P~A') {
+        var_name = 'Present then Absent';
+    } else if (var_name === 'unknown') {
+        var_name = 'Coded Unknown';
+    } else if (var_name === 'no seshat page') {
+        var_name = 'No Seshat Page';
+    } else {
+        var_name = `${var_name[0].toUpperCase()}${var_name.slice(1)}`;
+    }
+    return var_name;
 }

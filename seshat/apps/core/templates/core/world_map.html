@@ -228,6 +228,7 @@
         ];
 
         // Iterate through shapesData and ensure that fields that are lists are interpreted properly
+        // TODO: find a way to avoid having to do this
         shapesData.forEach(function (shape) {
             if (shape.language) {
                 shape.language = JSON.parse(shape.language.replace(/'/g, '"'));
@@ -240,6 +241,13 @@
             }
             if (shape.linguistic_family) {
                 shape.linguistic_family = JSON.parse(shape.linguistic_family.replace(/'/g, '"'));
+            }
+            // Any fields that end _dict should be converted to a dictionary from a string
+            for (const [key, value] of Object.entries(shape)) {
+                if (key.endsWith('_dict')) {
+                    let newValue = value.replace(/None/g, 'null');
+                    shape[key] = JSON.parse(newValue.replace(/'/g, '"'));
+                }
             }
         });
 
@@ -428,12 +436,35 @@
                         };
                     } else if (variable in categorical_variables){
                         shapeWeight = 2;
-                        if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
-                            if (shape[variable].length > 1) {
-                                shapeColour = oneLanguageColourMapping['Present'];
-                            } else {
-                                shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
+                        // If the shape has a dictionary for the variable the key of the dict is the variable value and the value is a list of start and end years.
+                        // Iterate through it and choose the colour based on the number of that variable that are active in the selected year
+                        var numberOfThisVariable = 0;  // Number of different values of this variable that are active in the selected year
+                        var selectedValueOfThisVariablePresent = false;  // Whether the selected value of this variable is active in the selected year
+                        // Iterate through key/values in the dictionary
+                        for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
+                            let startYear = value[0];
+                            let endYear = value[1];
+                            // If startYear or endYear are None, use the polity start_year or end_year
+                            // ensuring that the shape is coloured by the variable selection for all years
+                            if (startYear == 'None' || startYear == null) {
+                                startYear = shape.polity_start_year;
                             }
+                            if (endYear == 'None' || endYear == null) {
+                                endYear = shape.polity_end_year;
+                            }
+                            if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
+                                numberOfThisVariable++;
+                                if (key.includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
+                                    selectedValueOfThisVariablePresent = true;
+                                }
+                            }
+                        }
+                        if (numberOfThisVariable > 1 && selectedValueOfThisVariablePresent) {
+                            shapeColour = oneLanguageColourMapping['Present'];
+                        } else if (numberOfThisVariable == 1 && selectedValueOfThisVariablePresent) {
+                            shapeColour = oneLanguageColourMapping['Present exclusively'];
+                        } else if (numberOfThisVariable > 0 && !selectedValueOfThisVariablePresent) {
+                            shapeColour = oneLanguageColourMapping['Absent'];
                         } else {
                             if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
                                 shapeColour = oneLanguageColourMapping['Unknown'];
@@ -441,13 +472,31 @@
                                 shapeColour = oneLanguageColourMapping['Uncoded'];
                             } else if (shape[variable][0] == 'No Seshat page') {
                                 shapeColour = oneLanguageColourMapping['No Seshat page'];
-                            } else {
-                                shapeColour = oneLanguageColourMapping['Absent'];
                             }
-                        }                          
+                        }
+
                     } else {  // Absent-present variables
                         shapeWeight = 2;
                         shapeColour = variableColourMapping[shape[variable]];
+                        if (shape[variable + '_dict']) {
+                            // Iterate through key/values in the dictionary
+                            for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
+                                let startYear = value[0];
+                                let endYear = value[1];
+                                // If startYear or endYear are None, use the polity start_year or end_year
+                                // ensuring that the shape is coloured by the variable selection for all years
+                                if (startYear == 'None' || startYear == null) {
+                                    startYear = shape.polity_start_year;
+                                }
+                                if (endYear == 'None' || endYear == null) {
+                                    endYear = shape.polity_end_year;
+                                }
+                                if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
+                                    shapeColour = variableColourMapping[key];
+                                    break;  // Only one of present, absent, P~A, A~P, unknown, uncoded should be active at a time, so break after finding the active one
+                                }
+                            }
+                        }
                     }
 
                     // If the shape spans the selected year
@@ -537,15 +586,52 @@
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                 `;
+                                // Absent/present variables
                                 if (variable != 'polity' && !categorical_variables.hasOwnProperty(variable)) {
-                                    popupContent = popupContent + `
-                                        <tr>
-                                            <td><span style="text-transform: capitalize;">${variable}</span></td>
-                                            <td><span style="text-transform: capitalize;">${shape[variable]}</span></td>
-                                        </tr>
-                                    `;
+                                    if (shape[variable + '_dict']) {
+                                        // Iterate through key/values in the dictionary
+                                        var counter = 0;
+                                        for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
+                                            let startYear = value[0];
+                                            let endYear = value[1];
+                                            let variable_value = longAbsentPresentVarName(key);
+                                            // If startYear or endYear are None, state these as uncoded
+                                            if (startYear == 'None' || startYear == null) {
+                                                startYear = '[Year Uncoded]'
+                                            }
+                                            if (endYear == 'None' || endYear == null) {
+                                                endYear = '[Year Uncoded]'
+                                            }
+                                            if (counter == 0) {
+                                                popupContent = popupContent + `
+                                                    <tr>
+                                                        <td>${variable}</td>
+                                                        <td>${variable_value} from ${startYear} to ${endYear}</td>
+                                                    </tr>
+                                                `;
+                                            } else {                            
+                                                popupContent = popupContent + `
+                                                    <tr>
+                                                        <td></td>
+                                                        <td>${variable_value} from ${startYear} to ${endYear}</td>
+                                                    </tr>
+                                                `;
+                                            }
+                                            counter++;
+                                        }
+                                    } else {
+                                        popupContent = popupContent + `
+                                            <tr>
+                                                <td><span style="text-transform: capitalize;">${variable}</span></td>
+                                                <td><span style="text-transform: capitalize;">${shape[variable]}</span></td>
+                                            </tr>
+                                        `;
+                                    }
                                 }
                                 if (variable == 'language' || variable == 'linguistic_family' || variable == 'language_genus') {
+                                    // TODO: if these variables are populated start to get entries for years,
+                                    // this will need to be updated to use shape[variable + '_dict'] as done above for absent/present variables
+                                    // Note: the actual colouring of the shapes is done in the style function above and this is already set up to handle the dictionaries
                                     popupContent = popupContent + `
                                         <tr>
                                             <td>Languages</td>
