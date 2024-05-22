@@ -272,11 +272,13 @@ function updateLegend() {
             }
 
             if (key === 'A~P') {
-                legendItem.appendChild(document.createTextNode('Absent then present'));
+                legendItem.appendChild(document.createTextNode('Absent then Present'));
             } else if (key === 'P~A') {
-                legendItem.appendChild(document.createTextNode('Present then absent'));
+                legendItem.appendChild(document.createTextNode('Present then Absent'));
             } else if (key === 'unknown') {
-                legendItem.appendChild(document.createTextNode('Coded unknown'));
+                legendItem.appendChild(document.createTextNode('Coded Unknown'));
+            } else if (key === 'no seshat page') {
+                legendItem.appendChild(document.createTextNode('No Seshat Page'));
             } else {
                 legendItem.appendChild(document.createTextNode(`${key[0].toUpperCase()}${key.slice(1)}`));
             }
