@@ -213,6 +213,7 @@
         
         var displayedShapes = [];
         var polityBorderWeight = 0;
+        var polityBorderWeightSelected = 2;
 
         // Load inital polity shapes for the displayed year
         var shapesData = [
@@ -441,7 +442,7 @@
                             };
                         };
                     } else if (variable in categorical_variables){
-                        shapeWeight = 2;
+                        shapeWeight = polityBorderWeightSelected;
                         // If the shape has a dictionary for the variable the key of the dict is the variable value and the value is a list of start and end years.
                         // Iterate through it and choose the colour based on the number of that variable that are active in the selected year
                         var numberOfThisVariable = 0;  // Number of different values of this variable that are active in the selected year
@@ -482,7 +483,7 @@
                         }
 
                     } else {  // Absent-present variables
-                        shapeWeight = 2;
+                        shapeWeight = polityBorderWeightSelected;
                         shapeColour = variableColourMapping[shape[variable]];
                         if (shape[variable + '_dict']) {
                             // Iterate through key/values in the dictionary
@@ -678,7 +679,7 @@
                                     if (allPolitiesLoaded && variable == 'polity'){
                                         if (shape.weight === 0) {
                                             // Increase the weight of the clicked layer
-                                            newWeight = 2;
+                                            newWeight = polityBorderWeightSelected;
                                             this.setStyle({
                                                 weight: newWeight
                                             });
@@ -686,7 +687,7 @@
                                             layer.openPopup();
                                         } else {
                                             // Decrease the weight of the clicked layer
-                                            newWeight = 0;
+                                            newWeight = polityBorderWeight;
                                             // Close the popup
                                             layer.closePopup();
                                         };
@@ -796,7 +797,7 @@
                         //                 var marker = L.circleMarker([capital.latitude, capital.longitude], {
                         //                     color: 'black', // Set the border color
                         //                     fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                        //                     weight: 2,  // Set the border weight
+                        //                     weight: polityBorderWeightSelected,  // Set the border weight
                         //                     fillOpacity: 0.5,  // Set the fill opacity
                         //                     radius: 5
                         //                 });
