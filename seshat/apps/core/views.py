@@ -2972,7 +2972,8 @@ def map_view_initial(request):
         # If 'year' parameter is not present, redirect to the same view with 'year' set to 1900
         return redirect('{}?year={}'.format(request.path, 1900))
 
-    content = get_polity_shape_content(displayed_year=displayed_year)
+    # content = get_polity_shape_content(displayed_year=displayed_year)
+    content = get_polity_shape_content(seshat_id="gb_british_emp_2")
 
     # Add in the present/absent variables to view for the shapes
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)

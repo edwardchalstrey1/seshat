@@ -285,6 +285,10 @@
 
                     allPolitiesLoaded = true;
 
+                    // Update the date slide to use the earliest and latest years
+                    document.getElementById('dateSlide').min = data.earliest_year;
+                    document.getElementById('dateSlide').max = data.latest_year;
+
                     // Hide the loading indicator and enable the buttons after the fetch request is done
                     document.getElementById('loadingIndicator').style.display = 'none';
                     document.getElementById('enterYear').disabled = false;
