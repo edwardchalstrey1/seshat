@@ -296,14 +296,8 @@
                     document.getElementById('dateSlide').min = data.earliest_year;
                     document.getElementById('dateSlide').max = data.latest_year;
 
-                    // Hide the loading indicator and enable the buttons after the fetch request is done
+                    // Hide the loading indicator after the fetch request is done
                     document.getElementById('loadingIndicator').style.display = 'none';
-                    document.getElementById('enterYear').disabled = false;
-                    document.getElementById('minusButton').disabled = false;
-                    document.getElementById('plusButton').disabled = false;
-                    document.getElementById('dateSlide').disabled = false;
-                    document.getElementById('playRate').disabled = false;
-                    document.getElementById('chooseVariable').disabled = false;
 
                     // Start the second fetch after the first one is complete
                     return fetch('/core/provinces_and_countries');
