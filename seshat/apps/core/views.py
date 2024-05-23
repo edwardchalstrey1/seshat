@@ -2956,8 +2956,8 @@ categorical_variables = {
 }
 
 # World map defalut settings
-world_map_initial_displayed_year = 1900
-world_map_initial_polity = 'gb_british_emp_2'
+world_map_initial_displayed_year = 117
+world_map_initial_polity = 'it_roman_principate'
 
 def map_view_initial(request):
     """
