@@ -270,8 +270,6 @@
         var provinceShapeData;
         var countryShapeData;
 
-        var allPolitiesLoaded = false;
-
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
             fetch('/core/world_map_one_year/')
@@ -316,8 +314,6 @@
                     // Update the date slide to use the earliest and latest years
                     document.getElementById('dateSlide').min = data.earliest_year;
                     document.getElementById('dateSlide').max = data.latest_year;
-
-                    allPolitiesLoaded = true;
 
                     // Hide the loading indicator after the fetch request is done
                     document.getElementById('loadingIndicator').style.display = 'none';
@@ -697,7 +693,7 @@
 
                                 // Listen for the click event on the layer
                                 layer.on('click', function (e) {            
-                                    if (allPolitiesLoaded && variable == 'polity'){
+                                    if (variable == 'polity'){
                                         if (shape.weight === 0) {
                                             // Increase the weight of the clicked layer
                                             newWeight = polityBorderWeightSelected;
