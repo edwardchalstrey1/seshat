@@ -293,9 +293,6 @@
                     // Call plotPolities() after shapesData is updated
                     plotPolities();
 
-                    // Update the date slide to use the earliest and latest years
-                    document.getElementById('dateSlide').min = data.earliest_year;
-                    document.getElementById('dateSlide').max = data.latest_year;
                 })
                 .then(() => fetch('/core/world_map_all/'))
                 .then(response => response.json())
