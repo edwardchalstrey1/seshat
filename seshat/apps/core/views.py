@@ -2989,7 +2989,8 @@ def map_view_initial(request):
     content['categorical_variables'] = categorical_variables
 
     # TODO: Temporary restriction on the latest year for the map view
-    content['latest_year'] = 2014
+    if content['latest_year'] > 2014:
+        content['latest_year'] = 2014
 
     # Set the initial displayed year and polity to highlight
     content['display_year'] = world_map_initial_displayed_year
