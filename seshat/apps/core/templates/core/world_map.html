@@ -142,10 +142,10 @@
                     <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;"><br>
                     <label for="sliderDate">Selected year:</label><span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
-                    <button id="playButton" type="button" onclick="startPlay()" disabled>▶️</button>
-                    <button id="stopButton" type="button" onclick="stopPlay()" disabled>⏸</button><br>
+                    <button id="playButton" type="button" onclick="startPlay()">▶️</button>
+                    <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
                     <label for="playRate">Animation speed:</label>
-                    <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" onchange="plotPolities()" disabled><br>
+                    <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" onchange="plotPolities()"><br>
                     <label for="opacitySlide">Opacity:</label>
                     <input type="range" name="opacitySlide" id="opacitySlide" min="0.1" max="1" step="0.1" value="0.5" class="slider" onchange="plotPolities()" style="width: 150px;"><br><br>
                     <!-- TODO: Uncomment this when there are more capitals with coordinates in the database -->
@@ -302,8 +302,6 @@
                     document.getElementById('minusButton').disabled = false;
                     document.getElementById('plusButton').disabled = false;
                     document.getElementById('dateSlide').disabled = false;
-                    document.getElementById('playButton').disabled = false;
-                    document.getElementById('stopButton').disabled = false;
                     document.getElementById('playRate').disabled = false;
                     document.getElementById('chooseVariable').disabled = false;
 
