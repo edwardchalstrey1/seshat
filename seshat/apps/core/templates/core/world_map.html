@@ -140,7 +140,7 @@
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
                     <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
                     <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;"><br>
-                    <label for="sliderDate">Selected year:</label><span id="sliderDate"></span><br><br>
+                    <label for="sliderDate">Selected year:&nbsp;</label><span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
                     <button id="playButton" type="button" onclick="startPlay()">▶️</button>
                     <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
