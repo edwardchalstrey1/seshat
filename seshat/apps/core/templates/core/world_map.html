@@ -256,6 +256,9 @@
                 shape.weight = polityBorderWeight;
             }
 
+            // Convert shape.id to int
+            shape.id = parseInt(shape.id);
+
         });
 
         // Load seshat_id_page_id dictionary
@@ -275,7 +278,7 @@
                 .then(response => response.json())
                 .then(data => {
                     data.shapes // Add the shapes from the url year to shapesData
-                        .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id.toString()))
+                        .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
                         .forEach(shape => {
                             shape.weight = polityBorderWeight;
                             shapesData.push(shape);
@@ -298,7 +301,7 @@
                 .then(response => response.json())
                 .then(data => {
                     data.shapes // Add the rest of the shapes to shapesData
-                        .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id.toString()))
+                        .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
                         .forEach(shape => {
                             shape.weight = polityBorderWeight;
                             shapesData.push(shape);
