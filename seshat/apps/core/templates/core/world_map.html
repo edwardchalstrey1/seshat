@@ -223,7 +223,6 @@
                     {% for key, value in shape.items %}
                         '{{ key }}': '{{ value|escapejs }}',
                     {% endfor %}
-                    'weight': polityBorderWeight,
                 },
             {% endfor %}
         ];
@@ -250,6 +249,14 @@
                     shape[key] = JSON.parse(newValue.replace(/'/g, '"'));
                 }
             }
+
+            // Set the border weights for shapes
+            if (shape.seshat_id && shape.seshat_id === '{{ world_map_initial_polity }}') {
+                shape.weight = polityBorderWeightSelected;
+            } else {
+                shape.weight = polityBorderWeight;
+            }
+
         });
 
         // Load seshat_id_page_id dictionary

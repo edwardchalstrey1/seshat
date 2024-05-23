@@ -2733,7 +2733,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     if displayed_year == "all":
         displayed_year = initial_displayed_year 
 
-    if seshat_id != "all":
+    if seshat_id != "all":  # Used in the polity pages
         earliest_year = min([shape['start_year'] for shape in shapes])
         displayed_year = earliest_year
         latest_year = max([shape['end_year'] for shape in shapes])
@@ -2955,6 +2955,10 @@ categorical_variables = {
     'language': sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
 }
 
+# World map defalut settings
+world_map_initial_displayed_year = 1900
+world_map_initial_polity = 'gb_british_emp_2'
+
 def map_view_initial(request):
     """
         This view is used to display a map with polities plotted on it.
@@ -2969,11 +2973,11 @@ def map_view_initial(request):
         request.session['year'] = request.GET['year']
         displayed_year = request.GET['year']
     else:
-        # If 'year' parameter is not present, redirect to the same view with 'year' set to 1900
-        return redirect('{}?year={}'.format(request.path, 1900))
+        # If 'year' parameter is not present, redirect to the same view with 'year' set to world_map_initial_displayed_year
+        return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
 
     # content = get_polity_shape_content(displayed_year=displayed_year)
-    content = get_polity_shape_content(seshat_id="gb_british_emp_2")
+    content = get_polity_shape_content(seshat_id=world_map_initial_polity)
 
     # Add in the present/absent variables to view for the shapes
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
@@ -2990,6 +2994,10 @@ def map_view_initial(request):
 
     # TODO: Temporary restriction on the latest year for the map view
     content['latest_year'] = 2014
+
+    # Set the initial displayed year and polity to highlight
+    content['display_year'] = world_map_initial_displayed_year
+    content['world_map_initial_polity'] = world_map_initial_polity
     
     return render(request,
                   'core/world_map.html',
@@ -3018,6 +3026,9 @@ def map_view_all(request):
 
     # TODO: Temporary restriction on the latest year for the map view
     content['latest_year'] = 2014
+
+    # Set the polity to highlight
+    content['world_map_initial_polity'] = world_map_initial_polity
     
     return JsonResponse(content)
 
