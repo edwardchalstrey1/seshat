@@ -1,5 +1,6 @@
 import sys
 import importlib
+import random
 
 from collections import defaultdict
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
@@ -2958,9 +2959,23 @@ categorical_variables = {
     'language': sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
 }
 
-# World map defalut settings
-world_map_initial_displayed_year = 117
-world_map_initial_polity = 'it_roman_principate'
+def random_polity():
+    """
+        Get a random polity for the world map initial view.
+        Use the VideoShapefile model to get the polity shapes.
+        Choose one that has a seshat_id.
+        Return the seshat_id and start year.
+    """
+    max_id = VideoShapefile.objects.filter(seshat_id__isnull=False).aggregate(max_id=Max("id"))['max_id']
+    while True:
+        pk = random.randint(1, max_id)
+        polity = VideoShapefile.objects.filter(seshat_id__isnull=False, id=pk).first()
+        if polity:
+            break
+    return polity.start_year, polity.seshat_id
+
+# World map default settings
+world_map_initial_displayed_year, world_map_initial_polity = random_polity()
 
 def map_view_initial(request):
     """
