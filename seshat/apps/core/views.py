@@ -2965,7 +2965,7 @@ world_map_initial_polity = 'it_roman_principate'
 def map_view_initial(request):
     """
         This view is used to display a map with polities plotted on it.
-        The inital view just loads the polities for the initial_displayed_year.
+        The inital view just loads the world_map_initial_polity.
     """
 
     # Check if 'year' parameter is different from the world_map_initial_displayed_year or not present then redirect
@@ -2975,7 +2975,6 @@ def map_view_initial(request):
     else:
         return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
 
-    # content = get_polity_shape_content(displayed_year=displayed_year)
     content = get_polity_shape_content(seshat_id=world_map_initial_polity)
 
     # Add in the present/absent variables to view for the shapes
@@ -3003,6 +3002,35 @@ def map_view_initial(request):
                   'core/world_map.html',
                   content
                   )
+
+def map_view_one_year(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The view loads all polities present in the year in the url.
+    """
+    year = request.GET.get('year', world_map_initial_displayed_year)
+    content = get_polity_shape_content(displayed_year=year)
+
+    # Add in the present/absent variables to view for the shapes
+    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+
+    # Add in the categorical variables to view for the shapes
+    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
+
+    # Load the capital cities for polities that have them
+    caps = get_all_polity_capitals()
+    content['all_capitals_info'] = caps
+
+    # Add categorical variable choices to content for dropdown selection
+    content['categorical_variables'] = categorical_variables
+
+    # TODO: Temporary restriction on the latest year for the map view
+    content['latest_year'] = 2014
+
+    # Set the polity to highlight
+    content['world_map_initial_polity'] = world_map_initial_polity
+    
+    return JsonResponse(content)
 
 def map_view_all(request):
     """
