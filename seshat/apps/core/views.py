@@ -2965,15 +2965,11 @@ def map_view_initial(request):
         The inital view just loads the polities for the initial_displayed_year.
     """
 
-    # Check if 'year' parameter is in the request
+    # Check if 'year' parameter is different from the world_map_initial_displayed_year or not present then redirect
     if 'year' in request.GET:
-        # If 'year' parameter is present, store it in the session
-        # Ensures that if a user clicks through to a polity page from the world map,
-        # then hits the back button in browser, the initial year loaded is what they were previously looking at
-        request.session['year'] = request.GET['year']
-        displayed_year = request.GET['year']
+        if request.GET['year'] != str(world_map_initial_displayed_year):
+            return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
     else:
-        # If 'year' parameter is not present, redirect to the same view with 'year' set to world_map_initial_displayed_year
         return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
 
     # content = get_polity_shape_content(displayed_year=displayed_year)
