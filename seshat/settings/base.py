@@ -384,3 +384,5 @@ else: # linux
         # TODO: find a way to specify this based on the VM: aarch64 or x86_64
         # GEOS_LIBRARY_PATH = '/usr/lib/aarch64-linux-gnu/libgeos_c.so'
         GEOS_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgeos_c.so'
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
