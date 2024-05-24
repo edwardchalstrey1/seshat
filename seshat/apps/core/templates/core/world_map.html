@@ -270,6 +270,8 @@
         var provinceShapeData;
         var countryShapeData;
 
+        var allPolitiesLoaded = false;  // Used in storeYear()
+
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
             fetch('/core/world_map_one_year/')
@@ -317,6 +319,10 @@
                     // Update the date slide to use the earliest and latest years
                     document.getElementById('dateSlide').min = data.earliest_year;
                     document.getElementById('dateSlide').max = data.latest_year;
+
+                    allPolitiesLoaded = true;  // Used in storeYear()
+                    // Hide the loading indicator after the fetch request is done
+                    document.getElementById('loadingIndicator').style.display = 'none';
 
                     // Start the second fetch after the first one is complete
                     return fetch('/core/provinces_and_countries');
