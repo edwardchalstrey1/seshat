@@ -2971,13 +2971,12 @@ def random_polity():
         pk = random.randint(1, max_id)
         polity = VideoShapefile.objects.filter(seshat_id__isnull=False, id=pk).first()
         if polity:
-            break
+            if polity.seshat_id:
+                break
     return polity.start_year, polity.seshat_id
 
-# World map default settings
-world_map_initial_displayed_year, world_map_initial_polity = random_polity()
-
 def map_view_initial(request):
+    global world_map_initial_displayed_year, world_map_initial_polity
     """
         This view is used to display a map with polities plotted on it.
         The inital view just loads the world_map_initial_polity.
@@ -2988,6 +2987,9 @@ def map_view_initial(request):
         if request.GET['year'] != str(world_map_initial_displayed_year):
             return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
     else:
+        # Select a random polity for the initial view
+        world_map_initial_displayed_year, world_map_initial_polity = random_polity()
+        print(world_map_initial_displayed_year, world_map_initial_polity)
         return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
 
     content = get_polity_shape_content(seshat_id=world_map_initial_polity)
