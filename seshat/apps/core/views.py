@@ -2739,9 +2739,6 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         displayed_year = earliest_year
         latest_year = max([shape['end_year'] for shape in shapes])
 
-    # Order the shapes by start year
-    shapes = sorted(shapes, key=lambda x: x['start_year'])
-
     content = {
         'shapes': shapes,
         'earliest_year': earliest_year,
