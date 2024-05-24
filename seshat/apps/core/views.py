@@ -2988,6 +2988,13 @@ def common_map_view_content(content):
     # Add categorical variable choices to content for dropdown selection
     content['categorical_variables'] = categorical_variables
 
+    # TODO: Temporary restriction on the latest year for the map view
+    if content['latest_year'] > 2014:
+        content['latest_year'] = 2014
+
+    # Set the initial polity to highlight
+    content['world_map_initial_polity'] = world_map_initial_polity
+
     return content
 
 # World map defalut settings
@@ -2998,7 +3005,8 @@ def map_view_initial(request):
     global world_map_initial_displayed_year, world_map_initial_polity
     """
         This view is used to display a map with polities plotted on it.
-        The inital view just loads the world_map_initial_polity.
+        The inital view just loads a polity with a seshat_id picked at random
+        and sets the display year to that polity start year.
     """
 
     # Check if 'year' parameter is different from the world_map_initial_displayed_year or not present then redirect
@@ -3008,20 +3016,14 @@ def map_view_initial(request):
     else:
         # Select a random polity for the initial view
         world_map_initial_displayed_year, world_map_initial_polity = random_polity()
-        print(world_map_initial_displayed_year, world_map_initial_polity)
         return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
 
     content = get_polity_shape_content(seshat_id=world_map_initial_polity)
 
     content = common_map_view_content(content)
 
-    # TODO: Temporary restriction on the latest year for the map view
-    if content['latest_year'] > 2014:
-        content['latest_year'] = 2014
-
-    # Set the initial displayed year and polity to highlight
+    # For the initial view, set the displayed year to the polity's start year
     content['display_year'] = world_map_initial_displayed_year
-    content['world_map_initial_polity'] = world_map_initial_polity
     
     return render(request,
                   'core/world_map.html',
@@ -3037,12 +3039,6 @@ def map_view_one_year(request):
     content = get_polity_shape_content(displayed_year=year)
 
     content = common_map_view_content(content)
-
-    # TODO: Temporary restriction on the latest year for the map view
-    content['latest_year'] = 2014
-
-    # Set the polity to highlight
-    content['world_map_initial_polity'] = world_map_initial_polity
     
     return JsonResponse(content)
 
@@ -3054,12 +3050,6 @@ def map_view_all(request):
     content = get_polity_shape_content()
 
     content = common_map_view_content(content)
-
-    # TODO: Temporary restriction on the latest year for the map view
-    content['latest_year'] = 2014
-
-    # Set the polity to highlight
-    content['world_map_initial_polity'] = world_map_initial_polity
     
     return JsonResponse(content)
 
