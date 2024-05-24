@@ -291,6 +291,9 @@
                     // Call plotPolities() after shapesData is updated
                     plotPolities();
 
+                    // Hide the loading indicator after the fetch request is done
+                    document.getElementById('loadingIndicator').style.display = 'none';
+
                 })
                 .then(() => fetch('/core/world_map_all/'))
                 .then(response => response.json())
@@ -314,9 +317,6 @@
                     // Update the date slide to use the earliest and latest years
                     document.getElementById('dateSlide').min = data.earliest_year;
                     document.getElementById('dateSlide').max = data.latest_year;
-
-                    // Hide the loading indicator after the fetch request is done
-                    document.getElementById('loadingIndicator').style.display = 'none';
 
                     // Start the second fetch after the first one is complete
                     return fetch('/core/provinces_and_countries');
