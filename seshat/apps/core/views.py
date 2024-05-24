@@ -2956,7 +2956,7 @@ categorical_variables = {
     'language': sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
 }
 
-def random_polity():
+def random_polity_shape():
     """
         Get a random polity for the world map initial view.
         Use the VideoShapefile model to get the polity shapes.
@@ -2966,11 +2966,11 @@ def random_polity():
     max_id = VideoShapefile.objects.filter(seshat_id__isnull=False).aggregate(max_id=Max("id"))['max_id']
     while True:
         pk = random.randint(1, max_id)
-        polity = VideoShapefile.objects.filter(seshat_id__isnull=False, id=pk).first()
-        if polity:
-            if polity.seshat_id:
+        shape = VideoShapefile.objects.filter(seshat_id__isnull=False, id=pk).first()
+        if shape:
+            if shape.seshat_id and shape.area > 600000:  # Big empires only
                 break
-    return polity.start_year, polity.seshat_id
+    return shape.start_year, shape.seshat_id
 
 def common_map_view_content(content):
     """
@@ -3015,7 +3015,7 @@ def map_view_initial(request):
             return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
     else:
         # Select a random polity for the initial view
-        world_map_initial_displayed_year, world_map_initial_polity = random_polity()
+        world_map_initial_displayed_year, world_map_initial_polity = random_polity_shape()
         return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
 
     content = get_polity_shape_content(seshat_id=world_map_initial_polity)
