@@ -2972,6 +2972,25 @@ def random_polity():
                 break
     return polity.start_year, polity.seshat_id
 
+def common_map_view_content(content):
+    """
+        Set of functions that update content and run in each map view function.
+    """
+    # Add in the present/absent variables to view for the shapes
+    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+
+    # Add in the categorical variables to view for the shapes
+    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
+
+    # Load the capital cities for polities that have them
+    caps = get_all_polity_capitals()
+    content['all_capitals_info'] = caps
+
+    # Add categorical variable choices to content for dropdown selection
+    content['categorical_variables'] = categorical_variables
+
+    return content
+
 # World map defalut settings
 world_map_initial_displayed_year = 117
 world_map_initial_polity = 'it_roman_principate'
@@ -2995,18 +3014,7 @@ def map_view_initial(request):
 
     content = get_polity_shape_content(seshat_id=world_map_initial_polity)
 
-    # Add in the present/absent variables to view for the shapes
-    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
-
-    # Add in the categorical variables to view for the shapes
-    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
-
-    # Load the capital cities for polities that have them
-    caps = get_all_polity_capitals()
-    content['all_capitals_info'] = caps
-
-    # Add categorical variable choices to content for dropdown selection
-    content['categorical_variables'] = categorical_variables
+    content = common_map_view_content(content)
 
     # TODO: Temporary restriction on the latest year for the map view
     if content['latest_year'] > 2014:
@@ -3029,18 +3037,7 @@ def map_view_one_year(request):
     year = request.GET.get('year', world_map_initial_displayed_year)
     content = get_polity_shape_content(displayed_year=year)
 
-    # Add in the present/absent variables to view for the shapes
-    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
-
-    # Add in the categorical variables to view for the shapes
-    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
-
-    # Load the capital cities for polities that have them
-    caps = get_all_polity_capitals()
-    content['all_capitals_info'] = caps
-
-    # Add categorical variable choices to content for dropdown selection
-    content['categorical_variables'] = categorical_variables
+    content = common_map_view_content(content)
 
     # TODO: Temporary restriction on the latest year for the map view
     content['latest_year'] = 2014
@@ -3057,18 +3054,7 @@ def map_view_all(request):
     """
     content = get_polity_shape_content()
 
-    # Add in the present/absent variables to view for the shapes
-    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
-
-    # Add in the categorical variables to view for the shapes
-    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
-
-    # Load the capital cities for polities that have them
-    caps = get_all_polity_capitals()
-    content['all_capitals_info'] = caps
-
-    # Add categorical variable choices to content for dropdown selection
-    content['categorical_variables'] = categorical_variables
+    content = common_map_view_content(content)
 
     # TODO: Temporary restriction on the latest year for the map view
     content['latest_year'] = 2014
