@@ -1,5 +1,6 @@
 import sys
 import importlib
+import random
 
 from collections import defaultdict
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
@@ -2690,7 +2691,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     else:
         rows = VideoShapefile.objects.all()
 
-    rows = rows.values('seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom', 'geom')
+    rows = rows.values('id', 'seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom', 'geom')
 
     shapes = []
     for shape in rows:
@@ -2733,7 +2734,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     if displayed_year == "all":
         displayed_year = initial_displayed_year 
 
-    if seshat_id != "all":
+    if seshat_id != "all":  # Used in the polity pages
         earliest_year = min([shape['start_year'] for shape in shapes])
         displayed_year = earliest_year
         latest_year = max([shape['end_year'] for shape in shapes])
@@ -2955,25 +2956,26 @@ categorical_variables = {
     'language': sorted([x[0] for x in POLITY_LANGUAGE_CHOICES])
 }
 
-def map_view_initial(request):
+def random_polity():
     """
-        This view is used to display a map with polities plotted on it.
-        The inital view just loads the polities for the initial_displayed_year.
+        Get a random polity for the world map initial view.
+        Use the VideoShapefile model to get the polity shapes.
+        Choose one that has a seshat_id.
+        Return the seshat_id and start year.
     """
+    max_id = VideoShapefile.objects.filter(seshat_id__isnull=False).aggregate(max_id=Max("id"))['max_id']
+    while True:
+        pk = random.randint(1, max_id)
+        polity = VideoShapefile.objects.filter(seshat_id__isnull=False, id=pk).first()
+        if polity:
+            if polity.seshat_id:
+                break
+    return polity.start_year, polity.seshat_id
 
-    # Check if 'year' parameter is in the request
-    if 'year' in request.GET:
-        # If 'year' parameter is present, store it in the session
-        # Ensures that if a user clicks through to a polity page from the world map,
-        # then hits the back button in browser, the initial year loaded is what they were previously looking at
-        request.session['year'] = request.GET['year']
-        displayed_year = request.GET['year']
-    else:
-        # If 'year' parameter is not present, redirect to the same view with 'year' set to 1900
-        return redirect('{}?year={}'.format(request.path, 1900))
-
-    content = get_polity_shape_content(displayed_year=displayed_year)
-
+def common_map_view_content(content):
+    """
+        Set of functions that update content and run in each map view function.
+    """
     # Add in the present/absent variables to view for the shapes
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
 
@@ -2981,19 +2983,64 @@ def map_view_initial(request):
     content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
 
     # Load the capital cities for polities that have them
-    caps = get_all_polity_capitals()
-    content['all_capitals_info'] = caps
+    content['all_capitals_info'] = get_all_polity_capitals()
 
     # Add categorical variable choices to content for dropdown selection
     content['categorical_variables'] = categorical_variables
 
     # TODO: Temporary restriction on the latest year for the map view
-    content['latest_year'] = 2014
+    if content['latest_year'] > 2014:
+        content['latest_year'] = 2014
+
+    # Set the initial polity to highlight
+    content['world_map_initial_polity'] = world_map_initial_polity
+
+    return content
+
+# World map defalut settings
+world_map_initial_displayed_year = 117
+world_map_initial_polity = 'it_roman_principate'
+
+def map_view_initial(request):
+    global world_map_initial_displayed_year, world_map_initial_polity
+    """
+        This view is used to display a map with polities plotted on it.
+        The inital view just loads a polity with a seshat_id picked at random
+        and sets the display year to that polity start year.
+    """
+
+    # Check if 'year' parameter is different from the world_map_initial_displayed_year or not present then redirect
+    if 'year' in request.GET:
+        if request.GET['year'] != str(world_map_initial_displayed_year):
+            return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
+    else:
+        # Select a random polity for the initial view
+        world_map_initial_displayed_year, world_map_initial_polity = random_polity()
+        return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
+
+    content = get_polity_shape_content(seshat_id=world_map_initial_polity)
+
+    content = common_map_view_content(content)
+
+    # For the initial view, set the displayed year to the polity's start year
+    content['display_year'] = world_map_initial_displayed_year
     
     return render(request,
                   'core/world_map.html',
                   content
                   )
+
+def map_view_one_year(request):
+    """
+        This view is used to display a map with polities plotted on it.
+        The view loads all polities present in the year in the url.
+    """
+    year = request.GET.get('year', world_map_initial_displayed_year)
+    content = get_polity_shape_content(displayed_year=year)
+
+    content = common_map_view_content(content)
+    
+    return JsonResponse(content)
 
 def map_view_all(request):
     """
@@ -3002,21 +3049,7 @@ def map_view_all(request):
     """
     content = get_polity_shape_content()
 
-    # Add in the present/absent variables to view for the shapes
-    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
-
-    # Add in the categorical variables to view for the shapes
-    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
-
-    # Load the capital cities for polities that have them
-    caps = get_all_polity_capitals()
-    content['all_capitals_info'] = caps
-
-    # Add categorical variable choices to content for dropdown selection
-    content['categorical_variables'] = categorical_variables
-
-    # TODO: Temporary restriction on the latest year for the map view
-    content['latest_year'] = 2014
+    content = common_map_view_content(content)
     
     return JsonResponse(content)
 

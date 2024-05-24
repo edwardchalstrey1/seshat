@@ -69,7 +69,7 @@
 
             var displayedShapes = [];
             // Load inital polity shapes for the displayed year
-            var shapesData = [
+            var polityMapShapesData = [
                 // JavaScript object representing shape data
                 {% for shape in content.shapes %}
                     {
@@ -143,7 +143,7 @@
                 // Add shapes to the map
                 // Don't plot them if "Base map only" checkbox selected
                 if (!document.getElementById('baseMapOnly').checked) {
-                    shapesData.forEach(function (shape) {
+                    polityMapShapesData.forEach(function (shape) {
 
                         // If the shape spans the selected year
                         if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {

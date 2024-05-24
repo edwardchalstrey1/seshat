@@ -165,5 +165,6 @@ urlpatterns += [
 
 # Map urls
 urlpatterns += [path('core/world_map/', views.map_view_initial, name='world_map'),]
+urlpatterns += [path('core/world_map_one_year/', views.map_view_one_year, name='world_map_one_year'),]
 urlpatterns += [path('core/world_map_all/', views.map_view_all, name='world_map_all'),]
 urlpatterns += [path('core/provinces_and_countries', views.provinces_and_countries_view, name='provinces_and_countries'),]

@@ -43,6 +43,7 @@ class ShapesTest(TestCase):
             end_year=1100
         )
         self.video_shapefile = VideoShapefile.objects.create(
+            id=1,
             geom=self.square,
             simplified_geom=self.square,
             name="Test shape",
@@ -56,6 +57,7 @@ class ShapesTest(TestCase):
             colour="#FFFFFF"
         )
         VideoShapefile.objects.create(
+            id=2,
             geom=self.square,
             simplified_geom=self.square,
             name="Test shape 2",
@@ -204,7 +206,8 @@ class ShapesTest(TestCase):
                     'polity_end_year': 2020,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square
+                    'geom': self.geo_square,
+                    'id': 1
                 },
                 {
                     'seshat_id': 'Test seshat_id 2',
@@ -216,7 +219,8 @@ class ShapesTest(TestCase):
                     'polity_end_year': 1000,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square
+                    'geom': self.geo_square,
+                    'id': 2
                 }
             ],
             'earliest_year': 0,
@@ -248,7 +252,8 @@ class ShapesTest(TestCase):
                     'polity_end_year': 2020,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square
+                    'geom': self.geo_square,
+                    'id': 1
                 }
             ],
             'earliest_year': 0,  # This is the earliest year in the database, not the earliest year of the polity
@@ -279,7 +284,8 @@ class ShapesTest(TestCase):
                     'polity_end_year': 2020,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square
+                    'geom': self.geo_square,
+                    'id': 1
                 }
             ],
             'earliest_year': 2000,  # This is the earliest year of the polity
@@ -333,7 +339,8 @@ class ShapesTest(TestCase):
                         'polity_end_year': 2020,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square
+                        'geom': self.geo_square,
+                        'id': 1
                     }
                 ],
                 'earliest_year': 2000,
@@ -367,7 +374,8 @@ class ShapesTest(TestCase):
                         'polity_end_year': 1000,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square
+                        'geom': self.geo_square,
+                        'id': 2
                     }
                 ],
                 'earliest_year': 0,
@@ -426,7 +434,8 @@ class ShapesTest(TestCase):
                         'polity_end_year': 1000,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square
+                        'geom': self.geo_square,
+                        'id': 2
                     }
                 ]
         app_map = {
@@ -465,7 +474,8 @@ class ShapesTest(TestCase):
                         'polity_end_year': 1000,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square
+                        'geom': self.geo_square,
+                        'id': 2
                     }
                 ]
         result_shapes, result_variables = assign_categorical_variables_to_shapes(shapes, {})

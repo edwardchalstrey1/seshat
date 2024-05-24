@@ -838,6 +838,7 @@ class Religion(models.Model):
 # Shapefile models
 
 class VideoShapefile(models.Model):
+    id = models.AutoField(primary_key=True)
     geom = models.MultiPolygonField()
     simplified_geom = models.MultiPolygonField(null=True)
     name=models.CharField(max_length=100)
