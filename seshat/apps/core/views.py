@@ -2983,8 +2983,7 @@ def common_map_view_content(content):
     content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
 
     # Load the capital cities for polities that have them
-    caps = get_all_polity_capitals()
-    content['all_capitals_info'] = caps
+    content['all_capitals_info'] = get_all_polity_capitals()
 
     # Add categorical variable choices to content for dropdown selection
     content['categorical_variables'] = categorical_variables
