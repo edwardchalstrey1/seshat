@@ -2975,6 +2975,10 @@ def random_polity():
                 break
     return polity.start_year, polity.seshat_id
 
+# World map defalut settings
+world_map_initial_displayed_year = 117
+world_map_initial_polity = 'it_roman_principate'
+
 def map_view_initial(request):
     global world_map_initial_displayed_year, world_map_initial_polity
     """
