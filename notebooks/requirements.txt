@@ -1,0 +1,4 @@
+jupyter==1.0.0
+ipykernel==6.29.3
+geopandas
+contextily==1.6.0
