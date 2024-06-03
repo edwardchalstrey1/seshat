@@ -1,5 +1,8 @@
 import geopandas as gpd
 import json
+import folium
+from IPython.display import display, clear_output
+import time
 
 def cliopatria_gdf(cliopatria_geojson_path, cliopatria_json_path):
     """
@@ -55,3 +58,42 @@ def cliopatria_gdf(cliopatria_geojson_path, cliopatria_json_path):
         gdf.loc[i, 'EndYear'] = end_year
 
     return gdf
+
+
+# Define a function for the style_function parameter
+def style_function(feature, color):
+    return {
+        'fillColor': color,
+        'color': color,
+        'weight': 2,
+        'fillOpacity': 0.5
+    }
+
+def create_map(selected_year, gdf, map_output):
+    global m
+    m = folium.Map(location=[0, 0], zoom_start=2, tiles='https://a.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}.png', attr='CartoDB')
+
+    # Filter the gdf for shapes that overlap with the selected_year
+    filtered_gdf = gdf[(gdf['Year'] <= selected_year) & (gdf['EndYear'] >= selected_year)]
+
+    # Remove '0x' and add '#' to the start of the color strings
+    filtered_gdf['Color'] = '#' + filtered_gdf['Color'].str.replace('0x', '')
+
+    # Transform the CRS of the GeoDataFrame to WGS84 (EPSG:4326)
+    filtered_gdf = filtered_gdf.to_crs(epsg=4326)
+
+    # Add the polygons to the map
+    for _, row in filtered_gdf.iterrows():
+        # Convert the geometry to GeoJSON
+        geojson = folium.GeoJson(
+            row.geometry,
+            style_function=lambda feature, color=row['Color']: style_function(feature, color)
+        )
+
+        # Add the GeoJSON to the map
+        geojson.add_to(m)
+
+    # Display the map
+    with map_output:
+        clear_output(wait=True)
+        display(m)
