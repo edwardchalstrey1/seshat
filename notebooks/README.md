@@ -14,4 +14,5 @@ Cliopatria is the shape dataset used by the Seshat Global History Databank websi
 
 3. Open the `cliopatria.ipynb` notebook with Jupyter (or another application that can run notebooks such as VSCode).
     - `jupyter lab` (or `jupyter notebook`)
+    - Note: make sure the notebook Python kernel is using the virtual environment you created
 4. Follow the instructions in the notebook.
