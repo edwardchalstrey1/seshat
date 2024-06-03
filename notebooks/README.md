@@ -8,7 +8,7 @@ Cliopatria is the shape dataset used by the Seshat Global History Databank websi
 2. Set up the required virtual environment and install packages into it.
     - Conda example:
         ```
-            conda create --name cliopatria
+            conda create --name cliopatria python=3.11
             conda activate cliopatria
             pip install -r requirements.txt
 
