@@ -2,7 +2,6 @@ import geopandas as gpd
 import json
 import folium
 from IPython.display import display, clear_output
-import time
 
 def cliopatria_gdf(cliopatria_geojson_path, cliopatria_json_path):
     """
