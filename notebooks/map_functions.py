@@ -100,17 +100,21 @@ def create_map(selected_year, gdf, map_output):
     # Transform the CRS of the GeoDataFrame to WGS84 (EPSG:4326)
     filtered_gdf = filtered_gdf.to_crs(epsg=4326)
 
+    # Define a function for the style_function parameter
+    def style_function(feature, color):
+        return {
+            'fillColor': color,
+            'color': color,
+            'weight': 2,
+            'fillOpacity': 0.5
+        }
+
     # Add the polygons to the map
     for _, row in filtered_gdf.iterrows():
         # Convert the geometry to GeoJSON
         geojson = folium.GeoJson(
             row.geometry,
-            style_function=lambda feature: {
-                'fillColor': row['Color'],
-                'color': row['Color'],
-                'weight': 2,
-                'fillOpacity': 0.5
-            }
+            style_function=lambda feature, color=row['Color']: style_function(feature, color)
         )
 
         # Add a popup to the GeoJSON
