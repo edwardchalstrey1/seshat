@@ -29,7 +29,7 @@ def cliopatria_gdf(cliopatria_geojson_path, cliopatria_json_path):
     """
         Load the Cliopatria shape dataset with GeoPandas and add the EndYear column to the geodataframe.
     """
-    # Load the geojson file
+    # Load the geojson and json files
     gdf = gpd.read_file(cliopatria_geojson_path)
     with open(cliopatria_json_path, 'r') as f:
         name_years = json.load(f)
