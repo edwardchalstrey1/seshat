@@ -90,6 +90,9 @@ def create_map(selected_year, gdf, map_output):
             style_function=lambda feature, color=row['Color']: style_function(feature, color)
         )
 
+        # Add a popup to the GeoJSON
+        folium.Popup(row['Name']).add_to(geojson)
+
         # Add the GeoJSON to the map
         geojson.add_to(m)
 
