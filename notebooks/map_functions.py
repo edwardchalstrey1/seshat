@@ -3,6 +3,28 @@ import json
 import folium
 from IPython.display import display, clear_output
 
+
+def convert_name(gdf, i):
+    """
+        Convert the polity name of a shape in the Cliopatria dataset to what we want to display on the Seshat world map.
+        Where gdf is the geodataframe, i is the index of the row/shape of interest.
+        Returns the name to display on the map.
+        Returns None if we don't want to display the shape (see comments below for details).
+    """
+    polity_name = gdf.loc[i, 'Name'].replace('(', '').replace(')', '')  # Remove spaces and brackets from name
+    # If a shape has components (is a composite) we'll load the components instead
+    # ... unless the components have their own components, then load the top level shape
+    # ... or the shape is in a personal union, then load the personal union shape instead
+    try:
+        if gdf.loc[i, 'Components']:  # If the shape has components
+            if ';' not in gdf.loc[i, 'SeshatID']:  # If the shape is not a personal union
+                if len(gdf.loc[i, 'Components']) > 0 and '(' not in gdf.loc[i, 'Components']:  # If the components don't have components
+                    polity_name = None
+    except KeyError:  # If the shape has no components, don't modify the name
+        pass
+    return polity_name
+
+
 def cliopatria_gdf(cliopatria_geojson_path, cliopatria_json_path):
     """
         Load the Cliopatria shape dataset with GeoPandas and add the EndYear column to the geodataframe.
@@ -18,21 +40,11 @@ def cliopatria_gdf(cliopatria_geojson_path, cliopatria_json_path):
     # Loop through the geodataframe
     for i in range(len(gdf)):
 
-        # Get the name of the current row
+        # Get the raw name of the current row and the name to display
         polity_name_raw = gdf.loc[i, 'Name']
-        polity_name = polity_name_raw.replace('(', '').replace(')', '')  # Remove spaces and brackets from name
-        try:
-            # If a shape has components we'll load the components instead
-            # ... unless the components have their own components, then load the top level shape
-            # ... or the shape is a personal union, then load the personal union shape
-            if gdf.loc[i, 'Components']:
-                if ';' not in gdf.loc[i, 'SeshatID']:
-                    if len(gdf.loc[i, 'Components']) > 0 and '(' not in gdf.loc[i, 'Components']:
-                        polity_name = None
-        except KeyError:
-            pass
+        polity_name = convert_name(gdf, i)
 
-        if polity_name:
+        if polity_name:  # convert_name returns None if we don't want to display the shape
             if gdf.loc[i, 'Type'] != 'POLITY':  # Add the type to the name if it's not a polity
                 polity_name = gdf.loc[i, 'Type'] + ': ' + polity_name
 
@@ -83,6 +95,7 @@ def style_function(feature, color):
         'weight': 2,
         'fillOpacity': 0.5
     }
+
 
 def create_map(selected_year, gdf, map_output):
     global m
