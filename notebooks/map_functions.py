@@ -18,44 +18,60 @@ def cliopatria_gdf(cliopatria_geojson_path, cliopatria_json_path):
 
     # Loop through the geodataframe
     for i in range(len(gdf)):
+
         # Get the name of the current row
-        polity_name = gdf.loc[i, 'Name']
+        polity_name_raw = gdf.loc[i, 'Name']
+        polity_name = polity_name_raw.replace('(', '').replace(')', '')  # Remove spaces and brackets from name
+        try:
+            # If a shape has components we'll load the components instead
+            # ... unless the components have their own components, then load the top level shape
+            # ... or the shape is a personal union, then load the personal union shape
+            if gdf.loc[i, 'Components']:
+                if ';' not in gdf.loc[i, 'SeshatID']:
+                    if len(gdf.loc[i, 'Components']) > 0 and '(' not in gdf.loc[i, 'Components']:
+                        polity_name = None
+        except KeyError:
+            pass
 
-        # Get the start year of the current row
-        start_year = gdf.loc[i, 'Year']
+        if polity_name:
+            if gdf.loc[i, 'Type'] != 'POLITY':  # Add the type to the name if it's not a polity
+                polity_name = gdf.loc[i, 'Type'] + ': ' + polity_name
 
-        # Get a sorted list of the years for that name from the geodataframe
-        this_polity_years = sorted(gdf[gdf['Name'] == polity_name]['Year'].unique())
+            # Get the start year of the current row
+            start_year = gdf.loc[i, 'Year']
 
-        # Get the end year for a shape    
-        # Most of the time, the shape end year is the year of the next shape
-        # Some polities have a gap in their active years
-        # For a shape year at the start of a gap, set the end year to be the shape year, so it doesn't cover the inactive period
-        start_end_years = name_years[polity_name]
-        end_years = [x[1] for x in start_end_years]
+            # Get a sorted list of the years for that name from the geodataframe
+            this_polity_years = sorted(gdf[gdf['Name'] == polity_name_raw]['Year'].unique())
 
-        polity_start_year = start_end_years[0][0]
-        polity_end_year = end_years[-1]
+            # Get the end year for a shape    
+            # Most of the time, the shape end year is the year of the next shape
+            # Some polities have a gap in their active years
+            # For a shape year at the start of a gap, set the end year to be the shape year, so it doesn't cover the inactive period
+            start_end_years = name_years[polity_name_raw]
+            end_years = [x[1] for x in start_end_years]
 
-        # Raise an error if the shape year is not the start year of the polity
-        if this_polity_years[0] != polity_start_year:
-            raise ValueError(f'First shape year for {polity_name} is not the start year of the polity')
-        
-        # Find the closest higher value from end_years to the shape year
-        next_end_year = min(end_years, key=lambda x: x if x >= start_year else float('inf'))
+            polity_start_year = start_end_years[0][0]
+            polity_end_year = end_years[-1]
 
-        if start_year in end_years:  # If the shape year is in the list of polity end years, the start year is the end year
-            end_year = start_year
-        else:
-            this_year_index = this_polity_years.index(start_year)  
-            try:  # Try to use the next shape year minus one as the end year if possible, unless it's higher than the next_end_year
-                next_shape_year_minus_one = this_polity_years[this_year_index + 1] - 1
-                end_year = next_shape_year_minus_one if next_shape_year_minus_one < next_end_year else next_end_year
-            except IndexError:  # Otherwise assume the end year of the shape is the end year of the polity
-                end_year = polity_end_year
+            # Raise an error if the shape year is not the start year of the polity
+            if this_polity_years[0] != polity_start_year:
+                raise ValueError(f'First shape year for {polity_name} is not the start year of the polity')
+            
+            # Find the closest higher value from end_years to the shape year
+            next_end_year = min(end_years, key=lambda x: x if x >= start_year else float('inf'))
 
-        # Set the EndYear column to the end year
-        gdf.loc[i, 'EndYear'] = end_year
+            if start_year in end_years:  # If the shape year is in the list of polity end years, the start year is the end year
+                end_year = start_year
+            else:
+                this_year_index = this_polity_years.index(start_year)  
+                try:  # Try to use the next shape year minus one as the end year if possible, unless it's higher than the next_end_year
+                    next_shape_year_minus_one = this_polity_years[this_year_index + 1] - 1
+                    end_year = next_shape_year_minus_one if next_shape_year_minus_one < next_end_year else next_end_year
+                except IndexError:  # Otherwise assume the end year of the shape is the end year of the polity
+                    end_year = polity_end_year
+
+            # Set the EndYear column to the end year
+            gdf.loc[i, 'EndYear'] = end_year
 
     return gdf
 
