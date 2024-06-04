@@ -87,16 +87,6 @@ def cliopatria_gdf(cliopatria_geojson_path, cliopatria_json_path):
     return gdf
 
 
-# Define a function for the style_function parameter
-def style_function(feature, color):
-    return {
-        'fillColor': color,
-        'color': color,
-        'weight': 2,
-        'fillOpacity': 0.5
-    }
-
-
 def create_map(selected_year, gdf, map_output):
     global m
     m = folium.Map(location=[0, 0], zoom_start=2, tiles='https://a.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}.png', attr='CartoDB')
@@ -115,7 +105,12 @@ def create_map(selected_year, gdf, map_output):
         # Convert the geometry to GeoJSON
         geojson = folium.GeoJson(
             row.geometry,
-            style_function=lambda feature, color=row['Color']: style_function(feature, color)
+            style_function=lambda feature: {
+                'fillColor': row['Color'],
+                'color': row['Color'],
+                'weight': 2,
+                'fillOpacity': 0.5
+            }
         )
 
         # Add a popup to the GeoJSON
