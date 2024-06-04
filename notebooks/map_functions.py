@@ -34,8 +34,9 @@ def cliopatria_gdf(cliopatria_geojson_path, cliopatria_json_path):
     with open(cliopatria_json_path, 'r') as f:
         name_years = json.load(f)
 
-    # Create a new column in the geodataframe
+    # Create new columns in the geodataframe
     gdf['EndYear'] = None
+    gdf['DisplayName'] = None
 
     # Loop through the geodataframe
     for i in range(len(gdf)):
@@ -84,6 +85,9 @@ def cliopatria_gdf(cliopatria_geojson_path, cliopatria_json_path):
             # Set the EndYear column to the end year
             gdf.loc[i, 'EndYear'] = end_year
 
+            # Set the DisplayName column to the name to display
+            gdf.loc[i, 'DisplayName'] = polity_name
+
     return gdf
 
 
@@ -118,7 +122,7 @@ def create_map(selected_year, gdf, map_output):
         )
 
         # Add a popup to the GeoJSON
-        folium.Popup(row['Name']).add_to(geojson)
+        folium.Popup(row['DisplayName']).add_to(geojson)
 
         # Add the GeoJSON to the map
         geojson.add_to(m)
