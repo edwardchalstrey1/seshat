@@ -1,6 +1,8 @@
 import geopandas as gpd
 import json
 import folium
+import folium
+import ipywidgets as widgets
 from IPython.display import display, clear_output
 
 
@@ -131,3 +133,39 @@ def create_map(selected_year, gdf, map_output):
     with map_output:
         clear_output(wait=True)
         display(m)
+
+
+def display_map(gdf, display_year):
+
+    # Create a text box for input
+    year_input = widgets.IntText(
+        value=display_year,
+        description='Year:',
+    )
+
+    # Define a function to be called when the value of the text box changes
+    def on_value_change(change):
+        create_map(change['new'], gdf, map_output)
+
+    # Create a slider for input
+    year_slider = widgets.IntSlider(
+        value=display_year,
+        min=gdf['Year'].min(),
+        max=gdf['EndYear'].max(),
+        description='Year:',
+    )
+
+    # Link the text box and the slider
+    widgets.jslink((year_input, 'value'), (year_slider, 'value'))
+
+    # Create an output widget
+    map_output = widgets.Output()
+
+    # Attach the function to the text box
+    year_input.observe(on_value_change, names='value')
+
+    # Display the widgets
+    display(year_input, year_slider, map_output)
+
+    # Call create_map initially to display the map
+    create_map(display_year, gdf, map_output)
