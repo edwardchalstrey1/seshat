@@ -2697,7 +2697,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     print("Retrieved rows in %s seconds" % (time.time() - start_time))
     start_time = time.time()
 
-    rows = rows.values('id', 'seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom', 'geom')
+    rows = rows.values('id', 'seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'geom')
 
     print("Retrieved values in %s seconds" % (time.time() - start_time))
     start_time = time.time()
@@ -2706,10 +2706,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     seshat_id_to_shape = {shape['seshat_id']: shape for shape in rows if shape['seshat_id']}
 
     for shape in rows:
-        if shape['simplified_geom'] == None:  # This may occur if the shape is so small that simplification reduced it to nothing
-            shape['simplified_geom'] = shape['geom']  # Use the original geometry in this case
-        simplified_geom = shape.pop('simplified_geom').geojson
-        shape['geom'] = simplified_geom
+        shape['geom'] = shape['geom'].geojson
 
         # If the polity shape is part of a personal union or meta-polity, add colour and polity years for the union
         if shape['seshat_id']:
