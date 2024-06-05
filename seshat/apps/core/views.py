@@ -2793,8 +2793,10 @@ def assign_variables_to_shapes(shapes, app_map):
         for app_name, app_name_long in app_map.items():
             module = apps.get_app_config(app_name)
             variables[app_name_long] = {}
-            for model in module.get_models():
-                for field in model._meta.get_fields():
+            models = list(module.get_models())
+            for model in models:
+                fields = list(model._meta.get_fields())
+                for field in fields:
                     if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
                         # Get the variable name and formatted name
                         if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
@@ -2817,9 +2819,6 @@ def assign_variables_to_shapes(shapes, app_map):
                         if hasattr(instance, 'subsection'):
                             variable_full_name = instance.subsection() + ': ' + variable_full_name 
                         variables[app_name_long][var_name]['full_name'] = variable_full_name
-
-            # Sort a given app's variables alphabetically by full name
-            variables[app_name_long] = dict(sorted(variables[app_name_long].items(), key=lambda item: item[1]['full_name']))
 
         # Store the variables in the cache for 1 hour
         cache.set('variables', variables, 3600)
@@ -2978,17 +2977,26 @@ def common_map_view_content(content):
     """
         Set of functions that update content and run in each map view function.
     """
+    start_time = time.time()
     # Add in the present/absent variables to view for the shapes
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+    print(f"Time taken to assign absent/present variables to shapes: {time.time() - start_time} seconds")
+    start_time = time.time()
 
     # Add in the categorical variables to view for the shapes
     content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
+    print(f"Time taken to assign categorical variables to shapes: {time.time() - start_time} seconds")
+    start_time = time.time()
 
     # Load the capital cities for polities that have them
     content['all_capitals_info'] = get_all_polity_capitals()
+    print(f"Time taken to get all polity capitals: {time.time() - start_time} seconds")
+    start_time = time.time()
 
     # Add categorical variable choices to content for dropdown selection
     content['categorical_variables'] = categorical_variables
+    print(f"Time taken to add categorical variable choices to content: {time.time() - start_time} seconds")
+    start_time = time.time()
 
     # TODO: Temporary restriction on the latest year for the map view
     if content['latest_year'] > 2014:
