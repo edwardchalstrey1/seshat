@@ -2682,8 +2682,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         Setting seshat_id to the value of the seshat_id will result in only the shapes for that polity being returned.
         Note: seshat_id in VideoShapefile is new_name in Polity.
     """
-    print("Timing: get_polity_shape_content")
-    start_time = time.time()
+
     if displayed_year != "all" and seshat_id != "all":
         raise ValueError("Only one of displayed_year or seshat_id should be set not both.")
 
@@ -2694,14 +2693,9 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     else:
         rows = VideoShapefile.objects.all()
 
-    print("Retrieved rows in %s seconds" % (time.time() - start_time))
-    start_time = time.time()
 
     # Convert 'geom' to GeoJSON in the database query
     rows = rows.annotate(geom_json=AsGeoJSON('geom')).values('id', 'seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'geom_json')
-
-    print("Retrieved values in %s seconds" % (time.time() - start_time))
-    start_time = time.time()
 
     # Create a dictionary to map seshat_id to shape
     seshat_id_to_shape = {shape['seshat_id']: shape for shape in rows if shape['seshat_id']}
@@ -2719,28 +2713,13 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
 
     shapes = list(rows)
 
-    print("Processed shapes in %s seconds" % (time.time() - start_time))
-    start_time = time.time()
-
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
-
-    print("Got seshat_ids in %s seconds" % (time.time() - start_time))
-    start_time = time.time()
 
     polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
 
-    print("Got polities in %s seconds" % (time.time() - start_time))
-    start_time = time.time()
-
     polity_info = [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
 
-    print("Got polity_info in %s seconds" % (time.time() - start_time))
-    start_time = time.time()
-
     seshat_id_page_id = {new_name: {'id': id, 'long_name': long_name or ""} for new_name, id, long_name in polity_info}
-
-    print("Got seshat_id_page_id in %s seconds" % (time.time() - start_time))
-    start_time = time.time()
 
     if 'migrate' not in sys.argv:
         result = VideoShapefile.objects.aggregate(
@@ -2761,9 +2740,6 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         earliest_year = min([shape['start_year'] for shape in shapes])
         displayed_year = earliest_year
         latest_year = max([shape['end_year'] for shape in shapes])
-
-    print("Got earliest_year, displayed_year, latest_year in %s seconds" % (time.time() - start_time))
-    start_time = time.time()
 
     content = {
         'shapes': shapes,
