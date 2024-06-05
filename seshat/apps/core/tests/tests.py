@@ -21,6 +21,7 @@ class ShapesTest(TestCase):
         # Simple square polygon to use in geospatial data table tests
         self.square = MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (0, 0))))
         self.geo_square = '{"type":"MultiPolygon","coordinates":[[[[0,0],[0,1],[1,1],[0,0]]]]}'
+        self.geo_square_for_gadm = GEOSGeometry(self.square).geojson
         self.polity = Polity.objects.create(
             name='TestPolity',
             id=self.pk,
@@ -183,11 +184,11 @@ class ShapesTest(TestCase):
         province_result = get_provinces(selected_base_map_gadm='province')
         country_result = get_provinces(selected_base_map_gadm='country')
         
-        province_expected_result = [{'aggregated_geometry': self.geo_square,
+        province_expected_result = [{'aggregated_geometry': self.geo_square_for_gadm,
                                      'country': 'Test Country',
                                      'province': 'Test Province',
                                      'province_type': 'Test Type'}]
-        country_expected_result = [{'aggregated_geometry': self.geo_square,
+        country_expected_result = [{'aggregated_geometry': self.geo_square_for_gadm,
                                     'country': 'Test Country'}]
         
         self.assertEqual(province_result, province_expected_result)
