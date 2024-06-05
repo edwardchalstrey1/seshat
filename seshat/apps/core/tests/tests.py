@@ -1,3 +1,4 @@
+import json
 from django.contrib.gis.geos import MultiPolygon, Polygon, GEOSGeometry
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -19,7 +20,7 @@ class ShapesTest(TestCase):
         self.pk = 1
         # Simple square polygon to use in geospatial data table tests
         self.square = MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (0, 0))))
-        self.geo_square = GEOSGeometry(self.square).geojson
+        self.geo_square = '{"type":"MultiPolygon","coordinates":[[[[0,0],[0,1],[1,1],[0,0]]]]}'
         self.polity = Polity.objects.create(
             name='TestPolity',
             id=self.pk,
