@@ -206,7 +206,7 @@ class ShapesTest(TestCase):
                     'polity_end_year': 2020,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square,
+                    'geom_json': self.geo_square,
                     'id': 1
                 },
                 {
@@ -219,7 +219,7 @@ class ShapesTest(TestCase):
                     'polity_end_year': 1000,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square,
+                    'geom_json': self.geo_square,
                     'id': 2
                 }
             ],
@@ -252,7 +252,7 @@ class ShapesTest(TestCase):
                     'polity_end_year': 2020,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square,
+                    'geom_json': self.geo_square,
                     'id': 1
                 }
             ],
@@ -284,7 +284,7 @@ class ShapesTest(TestCase):
                     'polity_end_year': 2020,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square,
+                    'geom_json': self.geo_square,
                     'id': 1
                 }
             ],
@@ -339,7 +339,7 @@ class ShapesTest(TestCase):
                         'polity_end_year': 2020,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square,
+                        'geom_json': self.geo_square,
                         'id': 1
                     }
                 ],
@@ -374,7 +374,7 @@ class ShapesTest(TestCase):
                         'polity_end_year': 1000,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square,
+                        'geom_json': self.geo_square,
                         'id': 2
                     }
                 ],
@@ -434,7 +434,7 @@ class ShapesTest(TestCase):
                         'polity_end_year': 1000,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square,
+                        'geom_json': self.geo_square,
                         'id': 2
                     }
                 ]
@@ -474,7 +474,7 @@ class ShapesTest(TestCase):
                         'polity_end_year': 1000,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square,
+                        'geom_json': self.geo_square,
                         'id': 2
                     }
                 ]
