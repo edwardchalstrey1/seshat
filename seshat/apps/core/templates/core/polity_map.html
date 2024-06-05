@@ -169,7 +169,7 @@
                             }
 
                             // Add shape
-                            var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom), {
+                            var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom_json), {
                                 style: function (feature) {
                                     return {
                                         fillColor: shape.colour,  // Set the fill color based on the "colour" field
