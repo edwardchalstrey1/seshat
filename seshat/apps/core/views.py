@@ -2963,26 +2963,19 @@ def common_map_view_content(content):
     """
         Set of functions that update content and run in each map view function.
     """
-    start_time = time.time()
+    # start_time = time.time()
     # Add in the present/absent variables to view for the shapes
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
-    print(f"Time taken to assign absent/present variables to shapes: {time.time() - start_time} seconds")
-    start_time = time.time()
+    # print(f"Time taken to assign absent/present variables to shapes: {time.time() - start_time} seconds")
 
     # Add in the categorical variables to view for the shapes
     content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
-    print(f"Time taken to assign categorical variables to shapes: {time.time() - start_time} seconds")
-    start_time = time.time()
 
     # Load the capital cities for polities that have them
     content['all_capitals_info'] = get_all_polity_capitals()
-    print(f"Time taken to get all polity capitals: {time.time() - start_time} seconds")
-    start_time = time.time()
 
     # Add categorical variable choices to content for dropdown selection
     content['categorical_variables'] = categorical_variables
-    print(f"Time taken to add categorical variable choices to content: {time.time() - start_time} seconds")
-    start_time = time.time()
 
     # TODO: Temporary restriction on the latest year for the map view
     if content['latest_year'] > 2014:
@@ -3045,20 +3038,9 @@ def map_view_all(request):
         The view loads all polities for the range of years.
     """
 
-    # Start a timer
-    print("Starting the timer for the all years view")
-    view_time = time.time()
-
     content = get_polity_shape_content()
 
-    # Print the time taken to get the polity shape content
-    print(f"Time taken to get the polity shape content: {time.time() - view_time} seconds")
-    view_time = time.time()
-
     content = common_map_view_content(content)
-
-    # Print the time taken to assign variables to shapes
-    print(f"Time taken to assign variables to shapes: {time.time() - view_time} seconds")
     
     return JsonResponse(content)
 
