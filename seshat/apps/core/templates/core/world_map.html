@@ -180,7 +180,7 @@
                 <!-- Add a loading indicator for Current borders -->
                 <div id="baseMapCurrentLoadingIndicator">
                     <p>Loading current borders...</p>
-                    <div class="spinner"></div>
+                    <!-- <div class="spinner"></div> -->
                 </div><br>
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
@@ -270,79 +270,76 @@
         var provinceShapeData;
         var countryShapeData;
 
+        var allPolitiesLoaded = false;  // Used in storeYear()
+
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
-            fetch('/core/world_map_one_year/')
-                .then(response => response.json())
-                .then(data => {
-                    data.shapes // Add the shapes from the url year to shapesData
-                        .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
-                        .forEach(shape => {
-                            shape.weight = polityBorderWeight;
-                            shapesData.push(shape);
+            function fetchData(url, displayYear) {
+                return fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.shapes
+                            .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
+                            .forEach(shape => {
+                                shape.weight = polityBorderWeight;
+                                shapesData.push(shape);
+                            });
+
+                        seshat_id_page_id = data.seshat_id_page_id;
+                        allCapitalsInfo = data.all_capitals_info;
+                        plotPolities();
+                        document.getElementById('loadingIndicator').style.display = 'none';
+                        let enteredYear = document.getElementById('enterYear').value;
+                        if (displayYear != enteredYear) {
+                            return fetchData('/core/world_map_one_year/', enteredYear);
+                        } else {
+                            return fetch('/core/world_map_all/');
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        data.shapes
+                            .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
+                            .forEach(shape => {
+                                shape.weight = polityBorderWeight;
+                                shapesData.push(shape);
+                            });
+
+                        seshat_id_page_id = data.seshat_id_page_id;
+                        allCapitalsInfo = data.all_capitals_info;
+                        plotPolities();
+                        document.getElementById('dateSlide').min = data.earliest_year;
+                        document.getElementById('dateSlide').max = data.latest_year;
+                        allPolitiesLoaded = true;
+                        document.getElementById('loadingIndicator').style.display = 'none';
+
+                        return fetch('/core/provinces_and_countries');
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        provinceShapeData = data.provinces.map(function (shape) {
+                            return {
+                                geometry: JSON.parse(shape.aggregated_geometry),
+                                country: shape.country,
+                                province: shape.province,
+                                provinceType: shape.province_type
+                            };
                         });
 
-                    // Update seshat_id_page_id from the JSON response
-                    seshat_id_page_id = data.seshat_id_page_id;
-
-                    // Update allCapitalsInfo from the JSON response
-                    allCapitalsInfo = data.all_capitals_info;
-
-                    // Call plotPolities() after shapesData is updated
-                    plotPolities();
-
-                })
-                .then(() => fetch('/core/world_map_all/'))
-                .then(response => response.json())
-                .then(data => {
-                    data.shapes // Add the rest of the shapes to shapesData
-                        .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
-                        .forEach(shape => {
-                            shape.weight = polityBorderWeight;
-                            shapesData.push(shape);
+                        countryShapeData = data.countries.map(function (shape) {
+                            return {
+                                geometry: JSON.parse(shape.aggregated_geometry),
+                                country: shape.country
+                            };
                         });
 
-                    // Update seshat_id_page_id from the JSON response
-                    seshat_id_page_id = data.seshat_id_page_id;
-
-                    // Update allCapitalsInfo from the JSON response
-                    allCapitalsInfo = data.all_capitals_info;
-
-                    // Call plotPolities() after shapesData is updated
-                    plotPolities();
-
-                    // Update the date slide to use the earliest and latest years
-                    document.getElementById('dateSlide').min = data.earliest_year;
-                    document.getElementById('dateSlide').max = data.latest_year;
-
-                    // Hide the loading indicator after the fetch request is done
-                    document.getElementById('loadingIndicator').style.display = 'none';
-
-                    // Start the second fetch after the first one is complete
-                    return fetch('/core/provinces_and_countries');
-                })
-                .then(response => response.json())
-                .then(data => {
-                    provinceShapeData = data.provinces.map(function (shape) {
-                        return {
-                            geometry: JSON.parse(shape.aggregated_geometry),
-                            country: shape.country,
-                            province: shape.province,
-                            provinceType: shape.province_type
-                        };
+                        document.getElementById('baseMapCurrentLoadingIndicator').style.display = 'none';
+                        document.getElementById('baseMapCurrent').disabled = false;
                     });
+            }
 
-                    countryShapeData = data.countries.map(function (shape) {
-                        return {
-                            geometry: JSON.parse(shape.aggregated_geometry),
-                            country: shape.country
-                        };
-                    });
-
-                    // Enable the radio selection after the fetch request is done
-                    document.getElementById('baseMapCurrentLoadingIndicator').style.display = 'none';
-                    document.getElementById('baseMapCurrent').disabled = false;
-                });
+            var displayYear = {{ display_year }};
+            fetchData('/core/world_map_one_year/', displayYear);
         });
 
         var map = L.map('map').setView([0, 0], 2);

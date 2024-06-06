@@ -51,7 +51,7 @@
                     <!-- Add a loading indicator for Current borders -->
                     <div id="baseMapCurrentLoadingIndicator">
                         <p><sub>Loading current borders...</sub></p>
-                        <div class="spinner"></div>
+                        <!-- <div class="spinner"></div> -->
                     </div><br>
                 </fieldset>
                 <fieldset id="baseMapGADMFieldset">
@@ -67,6 +67,8 @@
         <script src="{% static 'core/js/map_functions.js' %}"></script>
         <script>
 
+            var allPolitiesLoaded = false;
+
             var displayedShapes = [];
             // Load inital polity shapes for the displayed year
             var polityMapShapesData = [
@@ -79,6 +81,8 @@
                     },
                 {% endfor %}
             ];
+
+            allPolitiesLoaded = true;
 
             // Load capital info
             var capitalsInfo = {{ content.capitals_info | safe }};
