@@ -310,6 +310,53 @@
                         plotPolities();
                         document.getElementById('dateSlide').min = data.earliest_year;
                         document.getElementById('dateSlide').max = data.latest_year;
+                        // Update the options in chooseVariable dropdown
+                        // Get the 'chooseVariable' element
+                        let chooseVariable = document.getElementById('chooseVariable');
+
+                        let variables = data.variables;
+
+                        // Clear the current options
+                        chooseVariable.innerHTML = '';
+
+                        // Add the 'Polity' option
+                        chooseVariable.innerHTML += '<option value="polity">Polity</option>';
+
+                        // Iterate over the 'variables' object
+                        Object.entries(variables).forEach(([category, variables]) => {
+                            // Check if the category is 'General Variables'
+                            if (category === 'General Variables') {
+                                let optgroup = `<optgroup label="${category}">`;
+
+                                // Iterate over the variables in the category
+                                Object.entries(variables).forEach(([variable, details]) => {
+                                    optgroup += `<option value="${details.formatted}">${details.full_name}</option>`;
+                                });
+
+                                optgroup += '</optgroup>';
+
+                                // Add the optgroup to the 'chooseVariable' element
+                                chooseVariable.innerHTML += optgroup;
+                            }
+                        });
+
+                        // Iterate over the 'variables' object again
+                        Object.entries(variables).forEach(([category, variables]) => {
+                            // Check if the category is not 'General Variables'
+                            if (category !== 'General Variables') {
+                                let optgroup = `<optgroup label="${category}">`;
+
+                                // Iterate over the variables in the category
+                                Object.entries(variables).forEach(([variable, details]) => {
+                                    optgroup += `<option value="${details.formatted}">${details.full_name}</option>`;
+                                });
+
+                                optgroup += '</optgroup>';
+
+                                // Add the optgroup to the 'chooseVariable' element
+                                chooseVariable.innerHTML += optgroup;
+                            }
+                        });
                         allPolitiesLoaded = true;
                         document.getElementById('loadingIndicator').style.display = 'none';
 
@@ -499,7 +546,10 @@
                     } else {  // Absent-present variables
                         shapeWeight = polityBorderWeightSelected;
                         shapeColour = variableColourMapping[shape[variable]];
+                        console.log(variable)
                         if (shape[variable + '_dict']) {
+                            console.log('shape has dict')
+                            console.log(shape[variable + '_dict'])
                             // Iterate through key/values in the dictionary
                             for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
                                 let startYear = value[0];
@@ -513,6 +563,8 @@
                                     endYear = shape.polity_end_year;
                                 }
                                 if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
+                                    console.log(key)
+                                    console.log(variableColourMapping[key])
                                     shapeColour = variableColourMapping[key];
                                     break;  // Only one of present, absent, P~A, A~P, unknown, uncoded should be active at a time, so break after finding the active one
                                 }
