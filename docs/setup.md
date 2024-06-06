@@ -267,7 +267,7 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
     - <details><summary>macOS</summary>
 
         ```
-            pg_restore -U postgres -d <seshat_db_name> /path/to/file.dump
+            psql <seshat_db_name> < /path/to/file.dump
         ```
         </details>
     - <details><summary>Ubuntu</summary>
