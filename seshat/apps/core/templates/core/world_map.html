@@ -289,13 +289,10 @@
                         allCapitalsInfo = data.all_capitals_info;
                         plotPolities();
                         document.getElementById('loadingIndicator').style.display = 'none';
-                        console.log('1')
                         let enteredYear = document.getElementById('enterYear').value;
                         if (displayYear != enteredYear) {
-                            console.log('2')
                             return fetchData('/core/world_map_one_year/', enteredYear);
                         } else {
-                            console.log('3')
                             return fetch('/core/world_map_all/');
                         }
                     })
