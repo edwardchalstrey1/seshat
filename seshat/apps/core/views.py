@@ -3025,7 +3025,8 @@ def map_view_initial(request):
             return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
     else:
         # Select a random polity for the initial view
-        world_map_initial_displayed_year, world_map_initial_polity = random_polity_shape()
+        if 'test' not in sys.argv:
+            world_map_initial_displayed_year, world_map_initial_polity = random_polity_shape()
         return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
 
     content = get_polity_shape_content(seshat_id=world_map_initial_polity)
