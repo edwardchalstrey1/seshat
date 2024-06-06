@@ -2697,20 +2697,6 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     # Convert 'geom' to GeoJSON in the database query
     rows = rows.annotate(geom_json=AsGeoJSON('geom')).values('id', 'seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'geom_json')
 
-    # Create a dictionary to map seshat_id to shape
-    seshat_id_to_shape = {shape['seshat_id']: shape for shape in rows if shape['seshat_id']}
-
-    # Add union information to the shapes
-    # TODO: fix this
-    for shape in rows:
-        if shape['seshat_id'] in seshat_id_to_shape:
-            shape2 = seshat_id_to_shape[shape['seshat_id']]
-            if shape2 and ';' in shape2['seshat_id'] and shape['seshat_id'] != shape2['seshat_id']:
-                shape['union_colour'] = shape2['colour']
-                shape['union_name'] = shape2['name']
-                shape['union_start_year'] = shape2['polity_start_year']
-                shape['union_end_year'] = shape2['polity_end_year']
-
     shapes = list(rows)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
