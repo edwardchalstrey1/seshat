@@ -2973,24 +2973,30 @@ def random_polity_shape():
                 break
     return shape.start_year, shape.seshat_id
 
-def common_map_view_content(content, all_shapes=True):
+def common_map_view_content(content):
     """
         Set of functions that update content and run in each map view function.
     """
+    start_time = time.time()
+    # Add in the present/absent variables to view for the shapes
+    content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+    print(f"Time taken to assign absent/present variables to shapes: {time.time() - start_time} seconds")
+    start_time = time.time()
 
-    if all_shapes:
-
-        # Add in the present/absent variables to view for the shapes
-        content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
-
-        # Add in the categorical variables to view for the shapes
-        content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
+    # Add in the categorical variables to view for the shapes
+    content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
+    print(f"Time taken to assign categorical variables to shapes: {time.time() - start_time} seconds")
+    start_time = time.time()
 
     # Load the capital cities for polities that have them
     content['all_capitals_info'] = get_all_polity_capitals()
+    print(f"Time taken to get all polity capitals: {time.time() - start_time} seconds")
+    start_time = time.time()
 
     # Add categorical variable choices to content for dropdown selection
     content['categorical_variables'] = categorical_variables
+    print(f"Time taken to add categorical variable choices to content: {time.time() - start_time} seconds")
+    start_time = time.time()
 
     # TODO: Temporary restriction on the latest year for the map view
     if content['latest_year'] > 2014:
@@ -3025,7 +3031,7 @@ def map_view_initial(request):
 
     content = get_polity_shape_content(seshat_id=world_map_initial_polity)
 
-    content = common_map_view_content(content, all_shapes=False)
+    content = common_map_view_content(content)
 
     # For the initial view, set the displayed year to the polity's start year
     content['display_year'] = world_map_initial_displayed_year
@@ -3043,7 +3049,7 @@ def map_view_one_year(request):
     year = request.GET.get('year', world_map_initial_displayed_year)
     content = get_polity_shape_content(displayed_year=year)
 
-    content = common_map_view_content(content, all_shapes=False)
+    content = common_map_view_content(content)
     
     return JsonResponse(content)
 
