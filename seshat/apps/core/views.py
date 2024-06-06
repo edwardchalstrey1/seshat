@@ -75,7 +75,7 @@ from django.shortcuts import HttpResponse
 
 from math import floor, ceil
 from django.contrib.gis.geos import GEOSGeometry
-from distinctipy import get_colors, get_hex
+from django.contrib.gis.db.models.functions import AsGeoJSON
 from django.views.generic import ListView
 
 @login_required
@@ -2642,6 +2642,7 @@ def seshatcommentpart_create_view(request):
 
 
 # Shapefile views
+import time # TODO: delete
 
 def get_provinces(selected_base_map_gadm='province'):
     """
@@ -2681,6 +2682,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         Setting seshat_id to the value of the seshat_id will result in only the shapes for that polity being returned.
         Note: seshat_id in VideoShapefile is new_name in Polity.
     """
+
     if displayed_year != "all" and seshat_id != "all":
         raise ValueError("Only one of displayed_year or seshat_id should be set not both.")
 
@@ -2691,30 +2693,16 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
     else:
         rows = VideoShapefile.objects.all()
 
-    rows = rows.values('id', 'seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'simplified_geom', 'geom')
 
-    shapes = []
-    for shape in rows:
-        if shape['simplified_geom'] == None:  # This may occur if the shape is so small that simplification reduced it to nothing
-            shape['simplified_geom'] = shape['geom']  # Use the original geometry in this case
-        simplified_geom = shape.pop('simplified_geom').geojson
-        shape['geom'] = simplified_geom
+    # Convert 'geom' to GeoJSON in the database query
+    rows = rows.annotate(geom_json=AsGeoJSON('geom')).values('id', 'seshat_id', 'name', 'polity', 'start_year', 'end_year', 'polity_start_year', 'polity_end_year', 'colour', 'area', 'geom_json')
 
-        # If the polity shape is part of a personal union or meta-polity, add colour and polity years for the union
-        if shape['seshat_id']:
-            for shape2 in rows:
-                if shape2['seshat_id']:
-                    if shape['seshat_id'] in shape2['seshat_id'] and ';' in shape2['seshat_id'] and shape['seshat_id'] != shape2['seshat_id']:
-                        shape['union_colour'] = shape2['colour']
-                        shape['union_name'] = shape2['name']
-                        shape['union_start_year'] = shape2['polity_start_year']
-                        shape['union_end_year'] = shape2['polity_end_year']
-                        break  # Exit the loop once the matching shape is found
-
-        shapes.append(shape)
+    shapes = list(rows)
 
     seshat_ids = [shape['seshat_id'] for shape in shapes if shape['seshat_id']]
+
     polities = Polity.objects.filter(new_name__in=seshat_ids).values('new_name', 'id', 'long_name')
+
     polity_info = [(polity['new_name'], polity['id'], polity['long_name']) for polity in polities]
 
     seshat_id_page_id = {new_name: {'id': id, 'long_name': long_name or ""} for new_name, id, long_name in polity_info}
@@ -2791,8 +2779,10 @@ def assign_variables_to_shapes(shapes, app_map):
         for app_name, app_name_long in app_map.items():
             module = apps.get_app_config(app_name)
             variables[app_name_long] = {}
-            for model in module.get_models():
-                for field in model._meta.get_fields():
+            models = list(module.get_models())
+            for model in models:
+                fields = list(model._meta.get_fields())
+                for field in fields:
                     if hasattr(field, 'choices') and field.choices == ABSENT_PRESENT_CHOICES:
                         # Get the variable name and formatted name
                         if field.name == 'coded_value':  # Use the class name lower case for rt models where coded_value is used
@@ -2815,9 +2805,6 @@ def assign_variables_to_shapes(shapes, app_map):
                         if hasattr(instance, 'subsection'):
                             variable_full_name = instance.subsection() + ': ' + variable_full_name 
                         variables[app_name_long][var_name]['full_name'] = variable_full_name
-
-            # Sort a given app's variables alphabetically by full name
-            variables[app_name_long] = dict(sorted(variables[app_name_long].items(), key=lambda item: item[1]['full_name']))
 
         # Store the variables in the cache for 1 hour
         cache.set('variables', variables, 3600)
@@ -2976,8 +2963,10 @@ def common_map_view_content(content):
     """
         Set of functions that update content and run in each map view function.
     """
+    # start_time = time.time()
     # Add in the present/absent variables to view for the shapes
     content['shapes'], content['variables'] = assign_variables_to_shapes(content['shapes'], app_map)
+    # print(f"Time taken to assign absent/present variables to shapes: {time.time() - start_time} seconds")
 
     # Add in the categorical variables to view for the shapes
     content['shapes'], content['variables'] = assign_categorical_variables_to_shapes(content['shapes'], content['variables'])
@@ -3015,7 +3004,8 @@ def map_view_initial(request):
             return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
     else:
         # Select a random polity for the initial view
-        world_map_initial_displayed_year, world_map_initial_polity = random_polity_shape()
+        if 'test' not in sys.argv:
+            world_map_initial_displayed_year, world_map_initial_polity = random_polity_shape()
         return redirect('{}?year={}'.format(request.path, world_map_initial_displayed_year))
 
     content = get_polity_shape_content(seshat_id=world_map_initial_polity)
@@ -3047,6 +3037,7 @@ def map_view_all(request):
         This view is used to display a map with polities plotted on it.
         The view loads all polities for the range of years.
     """
+
     content = get_polity_shape_content()
 
     content = common_map_view_content(content)
