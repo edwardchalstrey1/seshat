@@ -134,9 +134,9 @@ Local setup steps have been tested on an M1 Mac and on an Ubuntu VM running on t
     - Note: the images used by Multipass don’t have a pre-installed graphical desktop
 2. Create a VM (Ubuntu 22.04)
     ```
-        multipass launch 22.04
+        multipass launch 22.04 -n primary
     ```
-    - This should create a VM called `primary` by default
+    - This should create a VM called `primary`
 3. Make sure the VM has enough resources:
     ```
         multipass stop primary
