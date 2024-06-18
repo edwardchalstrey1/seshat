@@ -180,7 +180,7 @@
                 <!-- Add a loading indicator for Current borders -->
                 <div id="baseMapCurrentLoadingIndicator">
                     <p>Loading current borders...</p>
-                    <div class="spinner"></div>
+                    <!-- <div class="spinner"></div> -->
                 </div><br>
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
@@ -270,79 +270,76 @@
         var provinceShapeData;
         var countryShapeData;
 
+        var allPolitiesLoaded = false;  // Used in storeYear()
+
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
-            fetch('/core/world_map_one_year/')
-                .then(response => response.json())
-                .then(data => {
-                    data.shapes // Add the shapes from the url year to shapesData
-                        .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
-                        .forEach(shape => {
-                            shape.weight = polityBorderWeight;
-                            shapesData.push(shape);
+            function fetchData(url, displayYear) {
+                return fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.shapes
+                            .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
+                            .forEach(shape => {
+                                shape.weight = polityBorderWeight;
+                                shapesData.push(shape);
+                            });
+
+                        seshat_id_page_id = data.seshat_id_page_id;
+                        allCapitalsInfo = data.all_capitals_info;
+                        plotPolities();
+                        document.getElementById('loadingIndicator').style.display = 'none';
+                        let enteredYear = document.getElementById('enterYear').value;
+                        if (displayYear != enteredYear) {
+                            return fetchData('/core/world_map_one_year/', enteredYear);
+                        } else {
+                            return fetch('/core/world_map_all/');
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        data.shapes
+                            .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
+                            .forEach(shape => {
+                                shape.weight = polityBorderWeight;
+                                shapesData.push(shape);
+                            });
+
+                        seshat_id_page_id = data.seshat_id_page_id;
+                        allCapitalsInfo = data.all_capitals_info;
+                        plotPolities();
+                        document.getElementById('dateSlide').min = data.earliest_year;
+                        document.getElementById('dateSlide').max = data.latest_year;
+                        allPolitiesLoaded = true;
+                        document.getElementById('loadingIndicator').style.display = 'none';
+
+                        return fetch('/core/provinces_and_countries');
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        provinceShapeData = data.provinces.map(function (shape) {
+                            return {
+                                geometry: JSON.parse(shape.aggregated_geometry),
+                                country: shape.country,
+                                province: shape.province,
+                                provinceType: shape.province_type
+                            };
                         });
 
-                    // Update seshat_id_page_id from the JSON response
-                    seshat_id_page_id = data.seshat_id_page_id;
-
-                    // Update allCapitalsInfo from the JSON response
-                    allCapitalsInfo = data.all_capitals_info;
-
-                    // Call plotPolities() after shapesData is updated
-                    plotPolities();
-
-                })
-                .then(() => fetch('/core/world_map_all/'))
-                .then(response => response.json())
-                .then(data => {
-                    data.shapes // Add the rest of the shapes to shapesData
-                        .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
-                        .forEach(shape => {
-                            shape.weight = polityBorderWeight;
-                            shapesData.push(shape);
+                        countryShapeData = data.countries.map(function (shape) {
+                            return {
+                                geometry: JSON.parse(shape.aggregated_geometry),
+                                country: shape.country
+                            };
                         });
 
-                    // Update seshat_id_page_id from the JSON response
-                    seshat_id_page_id = data.seshat_id_page_id;
-
-                    // Update allCapitalsInfo from the JSON response
-                    allCapitalsInfo = data.all_capitals_info;
-
-                    // Call plotPolities() after shapesData is updated
-                    plotPolities();
-
-                    // Update the date slide to use the earliest and latest years
-                    document.getElementById('dateSlide').min = data.earliest_year;
-                    document.getElementById('dateSlide').max = data.latest_year;
-
-                    // Hide the loading indicator after the fetch request is done
-                    document.getElementById('loadingIndicator').style.display = 'none';
-
-                    // Start the second fetch after the first one is complete
-                    return fetch('/core/provinces_and_countries');
-                })
-                .then(response => response.json())
-                .then(data => {
-                    provinceShapeData = data.provinces.map(function (shape) {
-                        return {
-                            geometry: JSON.parse(shape.aggregated_geometry),
-                            country: shape.country,
-                            province: shape.province,
-                            provinceType: shape.province_type
-                        };
+                        document.getElementById('baseMapCurrentLoadingIndicator').style.display = 'none';
+                        document.getElementById('baseMapCurrent').disabled = false;
                     });
+            }
 
-                    countryShapeData = data.countries.map(function (shape) {
-                        return {
-                            geometry: JSON.parse(shape.aggregated_geometry),
-                            country: shape.country
-                        };
-                    });
-
-                    // Enable the radio selection after the fetch request is done
-                    document.getElementById('baseMapCurrentLoadingIndicator').style.display = 'none';
-                    document.getElementById('baseMapCurrent').disabled = false;
-                });
+            var displayYear = {{ display_year }};
+            fetchData('/core/world_map_one_year/', displayYear);
         });
 
         var map = L.map('map').setView([0, 0], 2);
@@ -443,8 +440,23 @@
             var selectedYearInt = parseInt(selectedYear);
             // Add shapes to the map
             // Don't plot them if "Base map only" checkbox selected
+            var dontPlotMeBecauseImInAUnion = [];
             if (!document.getElementById('baseMapOnly').checked){
-                // Iterate over all shapes
+                
+                // if there is a ';' in the seshat_id, it is inside a personal union or meta-polity, don't plot it when we are plotting the union
+                // so split the seshat_id by ';' and add each to the dontPlotMeBecauseImInAUnion list, when the year is inside the union period
+                if (variable == 'polity') {
+                    shapesData.forEach(function (shape) {
+                        if (shape.seshat_id.includes(';') && (parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+                            var these_seshat_ids = shape.seshat_id.split(';');
+                            these_seshat_ids.forEach(function (this_seshat_id) {
+                                dontPlotMeBecauseImInAUnion.push(this_seshat_id);
+                            });
+                        };
+                    });
+                };
+
+                // Iterate through shapesData and plot the shapes
                 shapesData.forEach(function (shape) {
 
                     // Set weight and colour based on the variable
@@ -452,12 +464,6 @@
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
 
-                        // If the polity shape is part of a personal union or meta-polity during the selected year, set the colour based on the union
-                        if (shape.union_colour) {
-                            if ((parseInt(shape.union_start_year) <= selectedYearInt && parseInt(shape.union_end_year) >= selectedYearInt)) {
-                                shapeColour = shape.union_colour;
-                            };
-                        };
                     } else if (variable in categorical_variables){
                         shapeWeight = polityBorderWeightSelected;
                         // If the shape has a dictionary for the variable the key of the dict is the variable value and the value is a list of start and end years.
@@ -524,7 +530,8 @@
                     }
 
                     // If the shape spans the selected year
-                    if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+                    // Ignore shapes that are in a union during this year (because we are plotting the union)
+                    if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt) && !dontPlotMeBecauseImInAUnion.includes(shape.seshat_id)) {
 
                         // Format the area float
                         const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
@@ -551,7 +558,7 @@
                         }
 
                         // Add shape
-                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom), {
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom_json), {
                             style: function (feature) {
                                 // Create the style object
                                 var style = {
@@ -596,7 +603,7 @@
                                     popupContent = popupContent + `
                                         <tr>
                                             <td>Seshat Page</td>
-                                            <td>${longName}</td>
+                                            <td>${longName} (${shape.seshat_id})</td>
                                         </tr>
                                     `;
                                 }

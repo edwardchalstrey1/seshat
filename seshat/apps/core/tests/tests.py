@@ -1,3 +1,4 @@
+import json
 from django.contrib.gis.geos import MultiPolygon, Polygon, GEOSGeometry
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -19,7 +20,8 @@ class ShapesTest(TestCase):
         self.pk = 1
         # Simple square polygon to use in geospatial data table tests
         self.square = MultiPolygon(Polygon(((0, 0), (0, 1), (1, 1), (0, 0))))
-        self.geo_square = GEOSGeometry(self.square).geojson
+        self.geo_square = '{"type":"MultiPolygon","coordinates":[[[[0,0],[0,1],[1,1],[0,0]]]]}'
+        self.geo_square_for_gadm = GEOSGeometry(self.square).geojson
         self.polity = Polity.objects.create(
             name='TestPolity',
             id=self.pk,
@@ -182,11 +184,11 @@ class ShapesTest(TestCase):
         province_result = get_provinces(selected_base_map_gadm='province')
         country_result = get_provinces(selected_base_map_gadm='country')
         
-        province_expected_result = [{'aggregated_geometry': self.geo_square,
+        province_expected_result = [{'aggregated_geometry': self.geo_square_for_gadm,
                                      'country': 'Test Country',
                                      'province': 'Test Province',
                                      'province_type': 'Test Type'}]
-        country_expected_result = [{'aggregated_geometry': self.geo_square,
+        country_expected_result = [{'aggregated_geometry': self.geo_square_for_gadm,
                                     'country': 'Test Country'}]
         
         self.assertEqual(province_result, province_expected_result)
@@ -206,7 +208,7 @@ class ShapesTest(TestCase):
                     'polity_end_year': 2020,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square,
+                    'geom_json': self.geo_square,
                     'id': 1
                 },
                 {
@@ -219,7 +221,7 @@ class ShapesTest(TestCase):
                     'polity_end_year': 1000,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square,
+                    'geom_json': self.geo_square,
                     'id': 2
                 }
             ],
@@ -252,7 +254,7 @@ class ShapesTest(TestCase):
                     'polity_end_year': 2020,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square,
+                    'geom_json': self.geo_square,
                     'id': 1
                 }
             ],
@@ -284,7 +286,7 @@ class ShapesTest(TestCase):
                     'polity_end_year': 2020,
                     'colour': "#FFFFFF",
                     'area': 100.0,
-                    'geom': self.geo_square,
+                    'geom_json': self.geo_square,
                     'id': 1
                 }
             ],
@@ -339,7 +341,7 @@ class ShapesTest(TestCase):
                         'polity_end_year': 2020,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square,
+                        'geom_json': self.geo_square,
                         'id': 1
                     }
                 ],
@@ -374,7 +376,7 @@ class ShapesTest(TestCase):
                         'polity_end_year': 1000,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square,
+                        'geom_json': self.geo_square,
                         'id': 2
                     }
                 ],
@@ -434,7 +436,7 @@ class ShapesTest(TestCase):
                         'polity_end_year': 1000,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square,
+                        'geom_json': self.geo_square,
                         'id': 2
                     }
                 ]
@@ -474,7 +476,7 @@ class ShapesTest(TestCase):
                         'polity_end_year': 1000,
                         'colour': "#FFFFFF",
                         'area': 100.0,
-                        'geom': self.geo_square,
+                        'geom_json': self.geo_square,
                         'id': 2
                     }
                 ]
