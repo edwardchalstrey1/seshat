@@ -12,6 +12,8 @@ Cliopatria is the shape dataset used by the Seshat Global History Databank websi
             conda activate cliopatria
             pip install -r requirements.txt
             python -m ipykernel install --user --name=cliopatria --display-name="Python (cliopatria)"
+        ```
+    - Note: This will install Geopandas 0.13.2, but if you [install from source](https://geopandas.org/en/stable/getting_started/install.html#installing-from-source) it's much faster with version 1.0.0 (unreleased on pip as of 18th June 2024)
 
 3. Open the `cliopatria.ipynb` notebook with Jupyter (or another application that can run notebooks such as VSCode).
     - `jupyter lab` (or `jupyter notebook`)
