@@ -148,7 +148,7 @@ class Command(BaseCommand):
                     polity=polity_colour_key,
                     wikipedia_name=properties['Wikipedia'],
                     seshat_id=properties['SeshatID'],
-                    area=properties['Area_km2'],
+                    area=properties['Area'],
                     start_year=properties['Year'],
                     end_year=end_year,
                     polity_start_year=polity_start_year,
