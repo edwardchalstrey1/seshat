@@ -162,18 +162,7 @@
                     <input type="checkbox" id="showCapitals" name="showCapitals" onclick=plotPolities()><br><br> -->
                 </div>
             </fieldset>
-            <ul>
-                <li>Choose the variable to view.</li>
-                <li>Click shape for polity info.</li>
-                <fieldset id="politySpecificInfo" style="display: block">
-                    <li>Click shape to update legend.</li>
-                    <li>Click again to remove from legend.</li>
-                </fieldset>
-                <li>Double click to reach Seshat page.</li>
-                <li>Change the year or play animation.</li>
-                <!-- <li>Show capital city coordinates.</li> -->
-                <li>Try different base maps.</li>
-            </ul>
+            <p>🗣️ <i>Double clicks open Seshat pages.</i></p>
             <fieldset>
                 <legend>
                     <h3>Base Map</h3>
@@ -401,13 +390,6 @@
             var variable = document.getElementById('chooseVariable').value;
             var selectedYear = document.getElementById('dateSlide').value;
             var opacity = document.getElementById('opacitySlide').value;
-
-            // Show or hide the polity-specific info fieldset
-            if (variable == 'polity') {
-                document.getElementById('politySpecificInfo').style.display = 'block';
-            } else {
-                document.getElementById('politySpecificInfo').style.display = 'none';
-            }
 
             // If variable has changed from the previous selection
             if (localStorage.getItem('variable') != variable) {
