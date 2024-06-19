@@ -626,13 +626,30 @@
                                             let variableStartYear = value[0];
                                             let variableEndYear = value[1];
                                             let variable_value = longAbsentPresentVarName(key);
-                                            // If startYear or endYear are None, set them to the polity start_year or end_year
+                                            // If startYear or endYear are None, set them to the polity start year or end year
+                                            // Format the years to BCE/CE
                                             if (variableStartYear == 'None' || variableStartYear == null) {
                                                 variableStartYear = displaystart_year;
+                                            } else {
+                                                if (variableStartYear < 0) {
+                                                    variableStartYear = Math.abs(variableStartYear) + ' BCE';
+                                                } else {
+                                                    variableStartYear = variableStartYear + ' CE';
+                                                }
                                             }
                                             if (variableEndYear == 'None' || variableEndYear == null) {
                                                 variableEndYear = displayend_year;
-                                            }
+                                            } else {
+                                                if (variableEndYear == {{ latest_year }}){
+                                                    variableEndYear = 'Present';
+                                                } else {
+                                                    if (variableEndYear < 0) {
+                                                        variableEndYear = Math.abs(variableEndYear) + ' BCE';
+                                                    } else {
+                                                        variableEndYear = variableEndYear + ' CE';
+                                                    }
+                                                }
+                                            }      
                                             if (counter == 0) {
                                                 popupContent = popupContent + `
                                                     <tr>
