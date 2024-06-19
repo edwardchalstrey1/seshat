@@ -20,6 +20,28 @@ function adjustSliderDown() {
     plotPolities(); // This function is defined differently in the world_map and polity_map templates
 }
 
+function updateSliderValue(value) {
+    var sliderValue = document.getElementById('sliderValue');
+    switch (value) {
+        case '1':
+            sliderValue.textContent = '1 y/s';  // See the values in the startPlay function below
+            break;
+        case '2':
+            sliderValue.textContent = '5 y/s';
+            break;
+        case '3':
+            sliderValue.textContent = '20 y/s';
+            break;
+        case '4':
+            sliderValue.textContent = '50 y/s';
+            break;
+        case '5':
+            sliderValue.textContent = '100 y/s';
+            break;
+    }
+    plotPolities();
+}
+
 function startPlay() {
     stopPlay(); // Clear existing interval before starting a new one
 
