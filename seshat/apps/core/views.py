@@ -1,6 +1,7 @@
 import sys
 import importlib
 import random
+import numpy as np
 
 from collections import defaultdict
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
@@ -2728,7 +2729,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         latest_year = max([shape['end_year'] for shape in shapes])
 
     # Get the years for the tick marks on the year slider
-    tick_years = list(range(earliest_year, latest_year + 1, 10))
+    tick_years = [round(year) for year in np.linspace(earliest_year, latest_year, num=10)]
 
     content = {
         'shapes': shapes,
