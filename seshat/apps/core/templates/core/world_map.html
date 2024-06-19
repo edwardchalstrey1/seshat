@@ -623,28 +623,28 @@
                                         // Iterate through key/values in the dictionary
                                         var counter = 0;
                                         for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
-                                            let startYear = value[0];
-                                            let endYear = value[1];
+                                            let variableStartYear = value[0];
+                                            let variableEndYear = value[1];
                                             let variable_value = longAbsentPresentVarName(key);
                                             // If startYear or endYear are None, set them to the polity start_year or end_year
-                                            if (startYear == 'None' || startYear == null) {
-                                                startYear = shape.polity_start_year;
+                                            if (variableStartYear == 'None' || variableStartYear == null) {
+                                                variableStartYear = displaystart_year;
                                             }
-                                            if (endYear == 'None' || endYear == null) {
-                                                endYear = shape.polity_end_year;
+                                            if (variableEndYear == 'None' || variableEndYear == null) {
+                                                variableEndYear = displayend_year;
                                             }
                                             if (counter == 0) {
                                                 popupContent = popupContent + `
                                                     <tr>
                                                         <td>${variable}</td>
-                                                        <td>${variable_value} from ${startYear} to ${endYear}</td>
+                                                        <td>${variable_value} from ${variableStartYear} to ${variableEndYear}</td>
                                                     </tr>
                                                 `;
                                             } else {                            
                                                 popupContent = popupContent + `
                                                     <tr>
                                                         <td></td>
-                                                        <td>${variable_value} from ${startYear} to ${endYear}</td>
+                                                        <td>${variable_value} from ${variableStartYear} to ${variableEndYear}</td>
                                                     </tr>
                                                 `;
                                             }
