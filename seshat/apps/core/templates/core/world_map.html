@@ -626,12 +626,12 @@
                                             let startYear = value[0];
                                             let endYear = value[1];
                                             let variable_value = longAbsentPresentVarName(key);
-                                            // If startYear or endYear are None, state these as uncoded
+                                            // If startYear or endYear are None, set them to the polity start_year or end_year
                                             if (startYear == 'None' || startYear == null) {
-                                                startYear = '[Year Uncoded]'
+                                                startYear = shape.polity_start_year;
                                             }
                                             if (endYear == 'None' || endYear == null) {
-                                                endYear = '[Year Uncoded]'
+                                                endYear = shape.polity_end_year;
                                             }
                                             if (counter == 0) {
                                                 popupContent = popupContent + `
