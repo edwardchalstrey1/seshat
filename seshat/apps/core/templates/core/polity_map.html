@@ -77,11 +77,7 @@
                     <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}" max="{{ content.latest_year }}"
                         value="{{ content.display_year }}" class="slider" onchange="plotPolities()" style="width: 100%;"
                         list="yearTickmarks">
-                    <div id="yearTickmarkValues">
-                        <span id="minYear">{{ content.earliest_year }}</span>
-                        <span id="midYear" style="position: absolute; left: 50%; transform: translateX(-50%);">{{ content.middle_year }}</span>
-                        <span id="maxYear" style="float: right;">{{ content.latest_year }}</span>
-                    </div>
+                    <div id="yearTickmarkValues"></div>
                 </div>
             </fieldset>
         </div>
@@ -92,6 +88,8 @@
                 var min = parseInt(document.getElementById('dateSlide').min);
                 var max = parseInt(document.getElementById('dateSlide').max);
                 var datalist = document.getElementById('yearTickmarks');
+                var tickYears = JSON.parse('{{ content.tick_years|escapejs }}');
+                var tickmarkValuesDiv = document.getElementById('yearTickmarkValues');
 
                 var increment = Math.ceil((max - min) / 10); // Calculate the increment
 
@@ -100,6 +98,15 @@
                     option.value = i;
                     datalist.appendChild(option);
                 }
+
+                for (var i = 0; i < tickYears.length; i++) {
+                    var span = document.createElement('span');
+                    span.textContent = tickYears[i];
+                    span.style.position = 'absolute';
+                    span.style.left = (i * 10) + '%'; // Position the span
+                    tickmarkValuesDiv.appendChild(span);
+                }
+
             };
 
             var allPolitiesLoaded = false;

@@ -2727,11 +2727,14 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         displayed_year = earliest_year
         latest_year = max([shape['end_year'] for shape in shapes])
 
+    # Get the years for the tick marks on the year slider
+    tick_years = list(range(earliest_year, latest_year + 1, 10))
+
     content = {
         'shapes': shapes,
         'earliest_year': earliest_year,
         'display_year': displayed_year,
-        'middle_year': (earliest_year + latest_year) // 2,
+        'tick_years': json.dumps(tick_years),
         'latest_year': latest_year,
         'seshat_id_page_id': seshat_id_page_id
     }
