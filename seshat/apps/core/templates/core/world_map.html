@@ -340,8 +340,14 @@
             fetchData('/core/world_map_one_year/', displayYear);
         });
 
+        var southWest = L.latLng(-89.98155760646617, -180),
+            northEast = L.latLng(89.99346179538875, 180),
+            bounds = L.latLngBounds(southWest, northEast);
+
         var map = L.map('map', {
             minZoom: 2,
+            maxBounds: bounds,
+            maxBoundsViscosity: 1.0
         }).setView([0, 0], 2);
 
         var baseLayers = {
