@@ -2731,6 +2731,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         'shapes': shapes,
         'earliest_year': earliest_year,
         'display_year': displayed_year,
+        'middle_year': (earliest_year + latest_year) // 2,
         'latest_year': latest_year,
         'seshat_id_page_id': seshat_id_page_id
     }

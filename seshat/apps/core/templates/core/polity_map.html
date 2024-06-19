@@ -72,6 +72,11 @@
                 <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
                 <label for="sliderDate">Selected year:</label>
                 <span id="sliderDate"></span><br>
+                <div id="yearTickmarks">
+                    <span id="minYear">{{ content.earliest_year }}</span>
+                    <span id="midYear" style="position: absolute; left: 50%; transform: translateX(-50%);">{{ content.middle_year }}</span>
+                    <span id="maxYear" style="float: right;">{{ content.latest_year }}</span>
+                </div>
                 <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}"
                     max="{{ content.latest_year }}" value="{{ content.display_year }}" class="slider" onchange="plotPolities()"
                     style="width: 100%;"><br>
