@@ -354,13 +354,15 @@
         var provinceLayers = []; // Keep track of province layers to remove them later
 
         // Note: these are the choices for the variable values as encoded in sc.models
+        // Note: uncoded and no seshat page are both now set to the same colour
+        // Note: if you modify this, you should check that updateLegend() is consistent (found in map_functions.js)
         let variableColourMapping = {
             'present': 'green',
             'absent': 'red',
             'P~A': 'orange',
             'A~P': 'blue',
             'unknown': 'yellow',
-            'uncoded': '#ffa2a1',
+            'uncoded': 'grey',
             'no seshat page': 'grey'
         };
 
@@ -369,7 +371,7 @@
             'Present': '#13d446',
             'Absent': 'red',
             'Unknown': 'yellow',
-            'Uncoded': '#ffa2a1',
+            'Uncoded': 'grey',
             'No Seshat page': 'grey'
         };
 

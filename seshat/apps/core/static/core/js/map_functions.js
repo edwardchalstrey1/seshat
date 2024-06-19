@@ -226,6 +226,9 @@ function updateLegend() {
         legendDiv.appendChild(legendTitle);
 
         for (var key in oneLanguageColourMapping) {
+            if (key === 'No Seshat page') {  // Skip the "No Seshat page" key as it's the same colour as "Uncoded" (see world_map.html)
+                continue;
+            }
             var legendItem = document.createElement('p');
 
             var colorBox = document.createElement('span');
@@ -254,6 +257,9 @@ function updateLegend() {
         legendDiv.appendChild(legendTitle);
 
         for (var key in variableColourMapping) {
+            if (key === 'no seshat page') {  // Skip the "No Seshat page" key as it's the same colour as "Uncoded" (see world_map.html)
+                continue;
+            }
             var legendItem = document.createElement('p');
 
             var colorBox = document.createElement('span');
