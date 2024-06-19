@@ -72,13 +72,28 @@
                 <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
                 <label for="sliderDate">Selected year:</label>
                 <span id="sliderDate"></span><br>
-                <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}"
-                    max="{{ content.latest_year }}" value="{{ content.display_year }}" class="slider" onchange="plotPolities()"
-                    style="width: 100%;"><br>
+                <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}" max="{{ content.latest_year }}"
+                    value="{{ content.display_year }}" class="slider" onchange="plotPolities()" style="width: 100%;"
+                    list="yearTickmarks"><br>
+                <datalist id="yearTickmarks"></datalist>
             </fieldset>
         </div>
         <script src="{% static 'core/js/map_functions.js' %}"></script>
         <script>
+
+            window.onload = function () {
+                var min = parseInt(document.getElementById('dateSlide').min);
+                var max = parseInt(document.getElementById('dateSlide').max);
+                var datalist = document.getElementById('yearTickmarks');
+
+                var increment = Math.ceil((max - min) / 10); // Calculate the increment
+
+                for (var i = min; i <= max; i += increment) {
+                    var option = document.createElement('option');
+                    option.value = i;
+                    datalist.appendChild(option);
+                }
+            };
 
             var allPolitiesLoaded = false;
 
