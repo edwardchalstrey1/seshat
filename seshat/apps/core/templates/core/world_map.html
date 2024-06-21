@@ -92,7 +92,7 @@
     {% include "core/partials/_navbar.html" %}
     {% block content %}
     <div style="display: flex;">
-        <div>
+        <div style="width: 20%">
             <fieldset>
                 <legend>
                     <h3>Polities</h3>
@@ -139,7 +139,6 @@
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
                     <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;"><br>
                     <label for="sliderDate">Selected year:&nbsp;</label><span id="sliderDate"></span><br><br>
                     <label for="playButton">Run animation:</label>
                     <button id="playButton" type="button" onclick="startPlay()">▶️</button>
@@ -190,11 +189,26 @@
                 <p>Click a country or province.</p>
             </fieldset>
         </div>
-        <div id="map" style="height: 85vh; flex: 1;"></div>
-        <div id="variableLegend"></div>
+        <div style="display: flex; flex-direction: column; width: 80%">
+            <div id="map" style="height: 85vh; flex: 1; width: 100%"></div>
+            <div id="variableLegend"></div>
+            <div style="display: block; width: 100%">
+                <fieldset>
+                    <div class="slider-container" style="position: relative;">
+                        <datalist id="yearTickmarks"></datalist>
+                        <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}"
+                            max="{{ content.latest_year }}" value="{{ content.display_year }}" class="slider"
+                            onchange="plotPolities()" style="width: 100%;" list="yearTickmarks">
+                        <div id="yearTickmarkValues"></div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
     </div>
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
+
+        // window.onload = setSliderTicks();
 
         var categorical_variables = {{ categorical_variables | safe }};
         updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
@@ -310,6 +324,7 @@
                         document.getElementById('dateSlide').max = data.latest_year;
                         allPolitiesLoaded = true;
                         document.getElementById('loadingIndicator').style.display = 'none';
+                        setSliderTicks();
 
                         return fetch('/core/provinces_and_countries');
                     })
