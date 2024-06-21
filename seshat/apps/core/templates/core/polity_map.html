@@ -72,7 +72,7 @@
                 <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button>
                 <label for="sliderDate">Selected year:</label>
                 <span id="sliderDate"></span><br>
-                <div class="slider-container">
+                <div class="slider-container" style="position: relative;">
                     <datalist id="yearTickmarks"></datalist>
                     <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}" max="{{ content.latest_year }}"
                         value="{{ content.display_year }}" class="slider" onchange="plotPolities()" style="width: 100%;"
@@ -91,22 +91,27 @@
                 var tickYears = JSON.parse('{{ content.tick_years|escapejs }}');
                 var tickmarkValuesDiv = document.getElementById('yearTickmarkValues');
 
-                var increment = Math.ceil((max - min) / 10); // Calculate the increment
+                // Calculate the increment for 9 intervals, resulting in 10 tickmarks
+                var increment = (max - min) / 9;
 
-                for (var i = min; i <= max; i += increment) {
+                // Loop to add tickmarks
+                for (var i = 0; i <= 9; i++) {
+                    var tickValue = Math.round(min + increment * i);
                     var option = document.createElement('option');
-                    option.value = i;
+                    option.value = tickValue;
                     datalist.appendChild(option);
-                }
 
-                for (var i = 0; i < tickYears.length; i++) {
+                    // Create and add corresponding span for tickmark labels
                     var span = document.createElement('span');
-                    span.textContent = tickYears[i];
+                    span.textContent = tickValue;
                     span.style.position = 'absolute';
-                    span.style.left = (i * 10) + '%'; // Position the span
+                    span.style.left = (i / 9 * 100) + '%';
+                    // Adjust the last span to prevent overflow
+                    if (i === 9) {
+                        span.style.transform = 'translateX(-100%)';
+                    }
                     tickmarkValuesDiv.appendChild(span);
                 }
-
             };
 
             var allPolitiesLoaded = false;
