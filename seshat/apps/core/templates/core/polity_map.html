@@ -81,42 +81,7 @@
         <script src="{% static 'core/js/map_functions.js' %}"></script>
         <script>
 
-            window.onload = function () {
-                var min = parseInt(document.getElementById('dateSlide').min);
-                var max = parseInt(document.getElementById('dateSlide').max);
-                var datalist = document.getElementById('yearTickmarks');
-                var tickmarkValuesDiv = document.getElementById('yearTickmarkValues');
-
-                // Calculate the increment for 9 intervals, resulting in 10 tickmarks
-                var increment = (max - min) / 9;
-
-                // Loop to add tickmarks
-                for (var i = 0; i <= 9; i++) {
-                    var tickValue = Math.round(min + increment * i);
-                    var option = document.createElement('option');
-                    option.value = tickValue;
-                    datalist.appendChild(option);
-
-                    // Create and add corresponding span for tickmark labels
-                    var span = document.createElement('span');
-                    span.textContent = tickValue;
-                    span.style.position = 'absolute';
-                    span.style.textAlign = 'center';
-                    
-                    // Use transform to center the span over the tickmark, with special handling for the first and last span
-                    var leftPercentage = (i / 9 * 100);
-                    span.style.left = `${leftPercentage}%`;
-                    if (i === 0) {
-                        span.style.transform = 'translateX(0%)'; // No translation for the first span
-                        span.style.textAlign = 'left'; // Align text to the left for the first span
-                    } else if (i === 9) {
-                        span.style.transform = 'translateX(-100%)'; // Adjust the last span to prevent overflow
-                    } else {
-                        span.style.transform = 'translateX(-50%)'; // Center all other spans
-                    }
-                    tickmarkValuesDiv.appendChild(span);
-                }
-            };
+            window.onload = setSliderTicks();
 
             var allPolitiesLoaded = false;
 
