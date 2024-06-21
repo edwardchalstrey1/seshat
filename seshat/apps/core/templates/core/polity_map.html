@@ -63,18 +63,20 @@
                     </div>
                 </fieldset>
             </div>
-            <div id="map" style="height: 30vh; flex: 1;"></div>
-        </div>
-        <div style="display: block;">
-            <fieldset>
-                <div class="slider-container" style="position: relative;">
-                    <datalist id="yearTickmarks"></datalist>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}" max="{{ content.latest_year }}"
-                        value="{{ content.display_year }}" class="slider" onchange="plotPolities()" style="width: 100%;"
-                        list="yearTickmarks">
-                    <div id="yearTickmarkValues"></div>
+            <div style="display: flex; flex-direction: column; width: 100%">
+                <div id="map" style="height: 30vh; flex: 1; width: 100%"></div>
+                <div style="display: block; width: 100%">
+                    <fieldset>
+                        <div class="slider-container" style="position: relative;">
+                            <datalist id="yearTickmarks"></datalist>
+                            <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}" max="{{ content.latest_year }}"
+                                value="{{ content.display_year }}" class="slider" onchange="plotPolities()" style="width: 100%;"
+                                list="yearTickmarks">
+                            <div id="yearTickmarkValues"></div>
+                        </div>
+                    </fieldset>
                 </div>
-            </fieldset>
+            </div>
         </div>
         <script src="{% static 'core/js/map_functions.js' %}"></script>
         <script>
