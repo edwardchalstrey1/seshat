@@ -12,11 +12,11 @@
 <body>
     {% block content %}
     {% if content.include_polity_map %}
-        <h2 class="h1 text-teal federicka-bigger" id="sliderDate"></h2>
         <div style="display: flex;">
             <div>
                 <fieldset>
                     <div>
+                        <h2 class="h1 text-teal federicka-bigger" id="sliderDate"></h2>
                         <label for="enterYear">Enter year:</label>
                         <input type="number" id="enterYear" name="enterYear" value="{{ content.display_year }}" style="width: 75px;""><button id=" minusButton" type="button" onclick="adjustSliderDown()">-</button>
                         <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
