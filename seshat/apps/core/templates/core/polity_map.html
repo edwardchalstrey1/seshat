@@ -17,6 +17,9 @@
             <div>
                 <fieldset>
                     <div>
+                        <label for="enterYear">Enter year:</label>
+                        <input type="number" id="enterYear" name="enterYear" value="{{ content.display_year }}" style="width: 75px;""><button id=" minusButton" type="button" onclick="adjustSliderDown()">-</button>
+                        <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
                         <label for="playButton">Run animation:</label>
                         <button id="playButton" type="button" onclick="startPlay()">▶️</button>
                         <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
@@ -31,43 +34,36 @@
                             <option value="5"></option>
                         </datalist>
                         <span id="sliderValue">5 y/s</span><br>
-                        <label for="enterYear">Enter year:</label>
-                        <input type="number" id="enterYear" name="enterYear" value="{{ content.display_year }}" style="width: 75px;"">
-                                        <button id=" minusButton" type="button" onclick="adjustSliderDown()">-</button>
-                        <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
                         <label for="opacitySlide">Opacity:</label>
-                        <input type="range" name="opacitySlide" id="opacitySlide" min="0.1" max="1" step="0.1" value="0.5" class="slider" onchange="plotPolities()" style="width: 150px;">
+                        <input type="range" name="opacitySlide" id="opacitySlide" min="0.1" max="1" step="0.1" value="0.5" class="slider"
+                            onchange="plotPolities()" style="width: 150px;">
+                        <fieldset>
+                            <br>
+                            <label for="baseMapOnly">Base map only</label>
+                            <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br><br>
+                            <label><input type="radio" name="baseMap" id="baseMapBasic" value="cartobasic" onclick="switchBaseMap()"
+                                    checked>Basic</label><br>
+                            <label><input type="radio" name="baseMap" id="baseMapOSM" value="osm"
+                                    onclick="switchBaseMap()">OpenStreetMap</label><br>
+                            <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()"
+                                    disabled>Current borders</label>
+                            <!-- Add a loading indicator for Current borders -->
+                            <div id="baseMapCurrentLoadingIndicator">
+                                <p><sub>Loading current borders...</sub></p>
+                                <!-- <div class="spinner"></div> -->
+                            </div><br>
+                        </fieldset>
+                        <fieldset id="baseMapGADMFieldset">
+                            <label for="baseMapGADM">Current borders:</label>
+                            <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMap()">
+                                <option value="country">Countries</option>
+                                <option value="province">Provinces</option>
+                            </select><br>
+                        </fieldset>
                     </div>
                 </fieldset>
             </div>
             <div id="map" style="height: 30vh; flex: 1;"></div>
-            <div>
-                <fieldset>
-                    <br>
-                    <h5>Base Map:</h5>
-                    <label for="baseMapOnly">Base map only</label>
-                    <input type="checkbox" id="baseMapOnly" name="baseMapOnly" onclick=plotPolities()><br><br>
-                    <label><input type="radio" name="baseMap" id="baseMapBasic" value="cartobasic" onclick="switchBaseMap()"
-                            checked>Basic</label><br>
-                    <label><input type="radio" name="baseMap" id="baseMapOSM" value="osm"
-                            onclick="switchBaseMap()">OpenStreetMap</label><br>
-                    <label><input type="radio" name="baseMap" id="baseMapCurrent" value="gadm" onclick="switchBaseMap()"
-                            disabled>Current borders</label>
-                    <!-- Add a loading indicator for Current borders -->
-                    <div id="baseMapCurrentLoadingIndicator">
-                        <p><sub>Loading current borders...</sub></p>
-                        <!-- <div class="spinner"></div> -->
-                    </div><br>
-                </fieldset>
-                <fieldset id="baseMapGADMFieldset">
-                    <label for="baseMapGADM">Current borders:</label>
-                    <select name="baseMapGADM" id="baseMapGADM" onchange="switchBaseMap()">
-                        <option value="country">Countries</option>
-                        <option value="province">Provinces</option>
-                    </select><br>
-                </fieldset>
-                <p></p>
-            </div>
         </div>
         <div style="display: block;">
             <fieldset>
