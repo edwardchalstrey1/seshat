@@ -95,7 +95,7 @@
         <div style="width: 15%">
             <fieldset>
                 <legend>
-                    <h3>Polities</h3>
+                    <h3 class="h1 text-teal federicka-bigger" id="sliderDate"></h3>
                     <!-- Add a loading indicator -->
                     <div id="loadingIndicator">
                         <p id="loadingText" style="font-size: 16px;">Loading all polities for all years...</p>
@@ -138,8 +138,7 @@
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
-                    <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
-                    <label for="sliderDate">Selected year:&nbsp;</label><span id="sliderDate"></span><br><br>
+                    <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br><br>
                     <label for="playButton">Run animation:</label>
                     <button id="playButton" type="button" onclick="startPlay()">▶️</button>
                     <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
