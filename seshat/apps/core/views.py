@@ -3019,8 +3019,6 @@ def map_view_initial(request):
 
     # For the initial view, set the displayed year to the polity's start year
     content['display_year'] = world_map_initial_displayed_year
-
-    print(content)
     
     return render(request,
                   'core/world_map.html',
