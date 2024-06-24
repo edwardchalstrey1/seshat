@@ -20,6 +20,70 @@ function adjustSliderDown() {
     plotPolities(); // This function is defined differently in the world_map and polity_map templates
 }
 
+function updateSliderValue(value) {
+    var sliderValue = document.getElementById('sliderValue');
+    switch (value) {
+        case '1':
+            sliderValue.textContent = '1 y/s';  // See the values in the startPlay function below
+            break;
+        case '2':
+            sliderValue.textContent = '5 y/s';
+            break;
+        case '3':
+            sliderValue.textContent = '20 y/s';
+            break;
+        case '4':
+            sliderValue.textContent = '50 y/s';
+            break;
+        case '5':
+            sliderValue.textContent = '100 y/s';
+            break;
+    }
+    plotPolities();
+}
+
+function setSliderTicks (tickYears) {
+    var datalist = document.getElementById('yearTickmarks');
+    var tickmarkValuesDiv = document.getElementById('yearTickmarkValues');
+
+    // If the data list already has options, remove them
+    while (datalist.firstChild) {
+        datalist.removeChild(datalist.firstChild);
+    };
+    // If the tickmark values div already has spans, remove them
+    while (tickmarkValuesDiv.firstChild) {
+        tickmarkValuesDiv.removeChild(tickmarkValuesDiv.firstChild);
+    };
+
+    // Loop to add tickmarks
+    i = 0;
+    for (const tickValue of tickYears) {
+        var option = document.createElement('option');
+        option.value = tickValue;
+        datalist.appendChild(option);
+
+        // Create and add corresponding span for tickmark labels
+        var span = document.createElement('span');
+        span.textContent = tickValue;
+        span.style.position = 'absolute';
+        span.style.textAlign = 'center';
+
+        // Use transform to center the span over the tickmark, with special handling for the first and last span
+        var leftPercentage = (i / (tickYears.length - 1) * 100);
+        span.style.left = `${leftPercentage}%`;
+        if (i === 0) {
+            span.style.transform = 'translateX(0%)'; // No translation for the first span
+            span.style.textAlign = 'left'; // Align text to the left for the first span
+       } else if (i === (tickYears.length - 1)) {
+            span.style.transform = 'translateX(-100%)'; // Adjust the last span to prevent overflow
+        } else {
+            span.style.transform = 'translateX(-50%)'; // Center all other spans
+        }
+        tickmarkValuesDiv.appendChild(span);
+        i++;
+    }
+};
+
 function startPlay() {
     stopPlay(); // Clear existing interval before starting a new one
 
@@ -226,6 +290,9 @@ function updateLegend() {
         legendDiv.appendChild(legendTitle);
 
         for (var key in oneLanguageColourMapping) {
+            if (key === 'No Seshat page') {  // Skip the "No Seshat page" key as it's the same colour as "Uncoded" (see world_map.html)
+                continue;
+            }
             var legendItem = document.createElement('p');
 
             var colorBox = document.createElement('span');
@@ -254,6 +321,9 @@ function updateLegend() {
         legendDiv.appendChild(legendTitle);
 
         for (var key in variableColourMapping) {
+            if (key === 'no seshat page') {  // Skip the "No Seshat page" key as it's the same colour as "Uncoded" (see world_map.html)
+                continue;
+            }
             var legendItem = document.createElement('p');
 
             var colorBox = document.createElement('span');

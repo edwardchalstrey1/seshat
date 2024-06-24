@@ -1,6 +1,7 @@
 import sys
 import importlib
 import random
+import numpy as np
 
 from collections import defaultdict
 from seshat.utils.utils import adder, dic_of_all_vars, list_of_all_Polities, dic_of_all_vars_in_sections
@@ -2673,7 +2674,7 @@ def get_provinces(selected_base_map_gadm='province'):
 
     return provinces
 
-def get_polity_shape_content(displayed_year="all", seshat_id="all"):
+def get_polity_shape_content(displayed_year="all", seshat_id="all", tick_number=20, override_earliest_year=None, override_latest_year=None):
     """
         This function returns the polity shapes and other content for the map.
         Only one of displayed_year or seshat_id should be set not both.
@@ -2719,6 +2720,11 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         earliest_year, latest_year = 2014, 2014
         initial_displayed_year = -3400
 
+    if override_earliest_year is not None:
+        earliest_year = override_earliest_year
+    if override_latest_year is not None:
+        latest_year = override_latest_year
+
     if displayed_year == "all":
         displayed_year = initial_displayed_year 
 
@@ -2727,10 +2733,14 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         displayed_year = earliest_year
         latest_year = max([shape['end_year'] for shape in shapes])
 
+    # Get the years for the tick marks on the year slider
+    tick_years = [round(year) for year in np.linspace(earliest_year, latest_year, num=tick_number)]
+
     content = {
         'shapes': shapes,
         'earliest_year': earliest_year,
         'display_year': displayed_year,
+        'tick_years': json.dumps(tick_years),
         'latest_year': latest_year,
         'seshat_id_page_id': seshat_id_page_id
     }
@@ -2977,10 +2987,6 @@ def common_map_view_content(content):
     # Add categorical variable choices to content for dropdown selection
     content['categorical_variables'] = categorical_variables
 
-    # TODO: Temporary restriction on the latest year for the map view
-    if content['latest_year'] > 2014:
-        content['latest_year'] = 2014
-
     # Set the initial polity to highlight
     content['world_map_initial_polity'] = world_map_initial_polity
 
@@ -3038,7 +3044,8 @@ def map_view_all(request):
         The view loads all polities for the range of years.
     """
 
-    content = get_polity_shape_content()
+    # Temporary restriction on the latest year for the whole map view
+    content = get_polity_shape_content(override_latest_year=2014)
 
     content = common_map_view_content(content)
     

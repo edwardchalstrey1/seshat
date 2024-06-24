@@ -227,13 +227,14 @@ class ShapesTest(TestCase):
             ],
             'earliest_year': 0,
             'display_year': 0,
+            'tick_years': json.dumps([0, 1010, 2020]),
             'latest_year': 2020,
             'seshat_id_page_id': {
                 'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'},
                 'Test seshat_id 2': {'id': 2, 'long_name': 'TestPolity2'}
             }
         }
-        result = get_polity_shape_content()
+        result = get_polity_shape_content(tick_number=3)
 
         self.assertEqual(result, expected_result)
 
@@ -260,12 +261,13 @@ class ShapesTest(TestCase):
             ],
             'earliest_year': 0,  # This is the earliest year in the database, not the earliest year of the polity
             'display_year': 2000,
+            'tick_years': json.dumps([0, 1010, 2020]),
             'latest_year': 2020,
             'seshat_id_page_id': {
                 'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
             }
         }
-        result = get_polity_shape_content(displayed_year=2000)
+        result = get_polity_shape_content(displayed_year=2000, tick_number=3)
 
         self.assertEqual(result, expected_result)
 
@@ -292,18 +294,19 @@ class ShapesTest(TestCase):
             ],
             'earliest_year': 2000,  # This is the earliest year of the polity
             'display_year': 2000,
+            'tick_years': json.dumps([2000, 2010, 2020]),
             'latest_year': 2020,
             'seshat_id_page_id': {
                 'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
             }
         }
-        result = get_polity_shape_content(seshat_id='Test seshat_id')
+        result = get_polity_shape_content(seshat_id='Test seshat_id', tick_number=3)
 
         self.assertEqual(result, expected_result)
 
     def test_get_polity_shape_content_displayed_year_and_seshat_id_both_set(self):
         """Test that a ValueError is raised if both displayed_year and seshat_id are set."""
-        self.assertRaises(ValueError, get_polity_shape_content, displayed_year=2000, seshat_id='Test seshat_id')
+        self.assertRaises(ValueError, get_polity_shape_content, displayed_year=2000, seshat_id='Test seshat_id', tick_number=3)
 
     def test_get_polity_capitals(self):
         """Test the get_polity_capitals function."""
@@ -348,6 +351,7 @@ class ShapesTest(TestCase):
                 'earliest_year': 2000,
                 'display_year': 2001,  # This is the peak year of the polity
                 'latest_year': 2020,
+                'tick_years': json.dumps([2000, 2010, 2020]),
                 'seshat_id_page_id': {
                     'Test seshat_id': {'id': 1, 'long_name': 'TestPolity'}
                 },
@@ -357,7 +361,7 @@ class ShapesTest(TestCase):
                 ]
             }
         }
-        result = polity_map(self.pk)
+        result = polity_map(self.pk, test=True)
     
         self.assertEqual(result, expected_result)
 
@@ -383,6 +387,7 @@ class ShapesTest(TestCase):
                 'earliest_year': 0,
                 'display_year': 0,
                 'latest_year': 1000,
+                'tick_years': json.dumps([0, 500, 1000]),
                 'seshat_id_page_id': {
                     'Test seshat_id 2': {'id': 2, 'long_name': 'TestPolity2'}
                 },
@@ -393,7 +398,7 @@ class ShapesTest(TestCase):
                 ]
             }
         }
-        result = polity_map(2)
+        result = polity_map(2, test=True)
 
         self.assertEqual(result, expected_result)
 
@@ -404,7 +409,7 @@ class ShapesTest(TestCase):
                 'include_polity_map': False
             }
         }
-        result = polity_map(3)
+        result = polity_map(3, test=True)
         self.assertEqual(result, expected_result)
 
     def test_map_view_initial(self):
