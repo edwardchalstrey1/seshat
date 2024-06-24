@@ -208,9 +208,6 @@
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
 
-        var tick_years = {{ tick_years }};
-        window.onload = setSliderTicks(tick_years);
-
         var categorical_variables = {{ categorical_variables | safe }};
         updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
 
@@ -285,6 +282,9 @@
 
         var allPolitiesLoaded = false;  // Used in storeYear()
 
+        var tick_years = {{ tick_years }};
+        setSliderTicks(tick_years);
+
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
             function fetchData(url, displayYear) {
@@ -325,7 +325,7 @@
                         document.getElementById('dateSlide').max = data.latest_year;
                         allPolitiesLoaded = true;
                         document.getElementById('loadingIndicator').style.display = 'none';
-                        tick_years =  JSON.parse(data.tick_years);
+                        tick_years = JSON.parse(data.tick_years);
 
                         return fetch('/core/provinces_and_countries');
                     })
