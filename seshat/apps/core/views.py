@@ -2674,7 +2674,7 @@ def get_provinces(selected_base_map_gadm='province'):
 
     return provinces
 
-def get_polity_shape_content(displayed_year="all", seshat_id="all"):
+def get_polity_shape_content(displayed_year="all", seshat_id="all", tick_number=10):
     """
         This function returns the polity shapes and other content for the map.
         Only one of displayed_year or seshat_id should be set not both.
@@ -2729,7 +2729,7 @@ def get_polity_shape_content(displayed_year="all", seshat_id="all"):
         latest_year = max([shape['end_year'] for shape in shapes])
 
     # Get the years for the tick marks on the year slider
-    tick_years = [round(year) for year in np.linspace(earliest_year, latest_year, num=10)]
+    tick_years = [round(year) for year in np.linspace(earliest_year, latest_year, num=tick_number)]
 
     content = {
         'shapes': shapes,
@@ -3019,6 +3019,8 @@ def map_view_initial(request):
 
     # For the initial view, set the displayed year to the polity's start year
     content['display_year'] = world_map_initial_displayed_year
+
+    print(content)
     
     return render(request,
                   'core/world_map.html',
