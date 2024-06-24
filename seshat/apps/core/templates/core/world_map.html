@@ -191,7 +191,7 @@
         </div>
         <div style="position: relative; height: 85vh; width: 80%">
             <div id="map" style="height: 100%; width: 100%; z-index: 0;"></div>
-            <div style="display: block; position: absolute; bottom: 4.5vh; width: 100%; z-index: 2">
+            <div id="sliderdiv" style="display: block; position: absolute; bottom: 4.5vh; width: 100%; z-index: 2; display: none;">
                 <fieldset>
                     <div class="slider-container" style="position: relative;">
                         <datalist id="yearTickmarks"></datalist>
@@ -324,7 +324,6 @@
                         document.getElementById('dateSlide').min = data.earliest_year;
                         document.getElementById('dateSlide').max = data.latest_year;
                         allPolitiesLoaded = true;
-                        document.getElementById('loadingIndicator').style.display = 'none';
                         tick_years = JSON.parse(data.tick_years);
 
                         return fetch('/core/provinces_and_countries');
@@ -332,6 +331,8 @@
                     .then(response => response.json())
                     .then(data => {
                         setSliderTicks(tick_years);
+                        document.getElementById('sliderdiv').style.display = 'block';
+                        document.getElementById('loadingIndicator').style.display = 'none';
                         provinceShapeData = data.provinces.map(function (shape) {
                             return {
                                 geometry: JSON.parse(shape.aggregated_geometry),
