@@ -195,8 +195,8 @@
                 <fieldset>
                     <div class="slider-container" style="position: relative;">
                         <datalist id="yearTickmarks"></datalist>
-                        <input type="range" name="dateSlide" id="dateSlide" min="{{ content.earliest_year }}"
-                            max="{{ content.latest_year }}" value="{{ content.display_year }}" class="slider"
+                        <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}"
+                            max="{{ latest_year }}" value="{{ display_year }}" class="slider"
                             onchange="plotPolities()" style="width: 100%;" list="yearTickmarks">
                         <div id="yearTickmarkValues"></div>
                     </div>
