@@ -189,10 +189,9 @@
                 <p>Click a country or province.</p>
             </fieldset>
         </div>
-        <div style="display: flex; flex-direction: column; width: 80%">
-            <div id="map" style="height: 85vh; flex: 1; width: 100%"></div>
-            <div id="variableLegend"></div>
-            <div style="display: block; width: 100%">
+        <div style="position: relative; height: 85vh; width: 80%">
+            <div id="map" style="height: 100%; width: 100%; z-index: 0;"></div>
+            <div style="display: block; position: absolute; bottom: 4.5vh; width: 100%; z-index: 2">
                 <fieldset>
                     <div class="slider-container" style="position: relative;">
                         <datalist id="yearTickmarks"></datalist>
@@ -203,12 +202,13 @@
                     </div>
                 </fieldset>
             </div>
+            <div id="variableLegend"></div>
         </div>
     </div>
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
 
-        // window.onload = setSliderTicks();
+        window.onload = setSliderTicks();
 
         var categorical_variables = {{ categorical_variables | safe }};
         updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
