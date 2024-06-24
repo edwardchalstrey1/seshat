@@ -20,7 +20,7 @@ def polity_map(pk, test=False):
         if test:
             content = get_polity_shape_content(seshat_id=polity.new_name, tick_number=3)
         else:
-            content = get_polity_shape_content(seshat_id=polity.new_name)
+            content = get_polity_shape_content(seshat_id=polity.new_name, tick_number=10)
         capitals_info = get_polity_capitals(pk)
         # Set the start and end years to be the same as the polity where missing
         modified_caps = capitals_info
