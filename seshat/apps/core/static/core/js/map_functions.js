@@ -42,18 +42,13 @@ function updateSliderValue(value) {
     plotPolities();
 }
 
-function setSliderTicks () {
-    var min = parseInt(document.getElementById('dateSlide').min);
-    var max = parseInt(document.getElementById('dateSlide').max);
+function setSliderTicks (tickYears) {
     var datalist = document.getElementById('yearTickmarks');
     var tickmarkValuesDiv = document.getElementById('yearTickmarkValues');
 
-    // Calculate the increment for 9 intervals, resulting in 10 tickmarks
-    var increment = (max - min) / 9;
-
     // Loop to add tickmarks
-    for (var i = 0; i <= 9; i++) {
-        var tickValue = Math.round(min + increment * i);
+    i = 0;
+    for (const tickValue of tickYears) {
         var option = document.createElement('option');
         option.value = tickValue;
         datalist.appendChild(option);
@@ -65,17 +60,18 @@ function setSliderTicks () {
         span.style.textAlign = 'center';
 
         // Use transform to center the span over the tickmark, with special handling for the first and last span
-        var leftPercentage = (i / 9 * 100);
+        var leftPercentage = (i / (tickYears.length - 1) * 100);
         span.style.left = `${leftPercentage}%`;
         if (i === 0) {
             span.style.transform = 'translateX(0%)'; // No translation for the first span
             span.style.textAlign = 'left'; // Align text to the left for the first span
-        } else if (i === 9) {
+       } else if (i === (tickYears.length - 1)) {
             span.style.transform = 'translateX(-100%)'; // Adjust the last span to prevent overflow
         } else {
             span.style.transform = 'translateX(-50%)'; // Center all other spans
         }
         tickmarkValuesDiv.appendChild(span);
+        i++;
     }
 };
 

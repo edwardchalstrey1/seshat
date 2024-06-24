@@ -81,7 +81,7 @@
         <script src="{% static 'core/js/map_functions.js' %}"></script>
         <script>
 
-            window.onload = setSliderTicks();
+            window.onload = setSliderTicks({{ content.tick_years }});
 
             var allPolitiesLoaded = false;
 
