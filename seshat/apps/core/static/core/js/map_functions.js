@@ -46,6 +46,15 @@ function setSliderTicks (tickYears) {
     var datalist = document.getElementById('yearTickmarks');
     var tickmarkValuesDiv = document.getElementById('yearTickmarkValues');
 
+    // If the data list already has options, remove them
+    while (datalist.firstChild) {
+        datalist.removeChild(datalist.firstChild);
+    };
+    // If the tickmark values div already has spans, remove them
+    while (tickmarkValuesDiv.firstChild) {
+        tickmarkValuesDiv.removeChild(tickmarkValuesDiv.firstChild);
+    };
+
     // Loop to add tickmarks
     i = 0;
     for (const tickValue of tickYears) {

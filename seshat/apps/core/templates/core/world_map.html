@@ -208,7 +208,8 @@
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
 
-        window.onload = setSliderTicks({{ tick_years }});
+        var tick_years = {{ tick_years }};
+        window.onload = setSliderTicks(tick_years);
 
         var categorical_variables = {{ categorical_variables | safe }};
         updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
@@ -324,12 +325,13 @@
                         document.getElementById('dateSlide').max = data.latest_year;
                         allPolitiesLoaded = true;
                         document.getElementById('loadingIndicator').style.display = 'none';
-                        setSliderTicks({{ data.tick_years }});
+                        tick_years =  JSON.parse(data.tick_years);
 
                         return fetch('/core/provinces_and_countries');
                     })
                     .then(response => response.json())
                     .then(data => {
+                        setSliderTicks(tick_years);
                         provinceShapeData = data.provinces.map(function (shape) {
                             return {
                                 geometry: JSON.parse(shape.aggregated_geometry),
