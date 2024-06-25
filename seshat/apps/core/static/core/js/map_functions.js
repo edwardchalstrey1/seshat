@@ -167,7 +167,7 @@ function switchBaseMap() {
         baseShapeData.forEach(function (shape) {
             // Ensure the geometry is not empty
             if (shape.geometry && shape.geometry.type) {
-                gadmFillColour = 'none';  // Default fill colour
+                gadmFillColour = 'white';  // Default fill colour
                 if (shape.country.toLowerCase().includes('sea')) {
                     gadmFillColour = 'lightblue';
                 }
@@ -213,7 +213,7 @@ function switchBaseMap() {
                         fillColor: gadmFillColour,   // Set the fill color based on the "colour" field
                         color: 'black',       // Set the border color
                         weight: 1,            // Set the border weight
-                        fillOpacity: 1        // Set the fill opacity
+                        fillOpacity: 0.5        // Set the fill opacity
                     });
                     polygon.bringToBack(); // Move the province layers to back so they are always behind polity shapes
                     provinceLayers.push(polygon); // Add the layer to the array
