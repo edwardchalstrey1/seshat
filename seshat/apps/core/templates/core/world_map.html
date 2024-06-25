@@ -92,14 +92,13 @@
     {% include "core/partials/_navbar.html" %}
     {% block content %}
     <div style="display: flex;">
-        <div>
+        <div style="width: 15%">
             <fieldset>
                 <legend>
-                    <h3>Polities</h3>
+                    <h3 class="h1 text-teal federicka-bigger" id="sliderDate"></h3>
                     <!-- Add a loading indicator -->
                     <div id="loadingIndicator">
-                        <p id="loadingText" style="font-size: 16px;">Loading polities for all years...</p>
-                        <p style="font-size: 16px;">Note: You may adjust the year<br>now to quickly load a year of interest,<br>but this will slow loading all polities!</p>
+                        <p id="loadingText" style="font-size: 16px;">Loading all polities for all years...</p>
                         <div class="spinner"></div>                   
                     </div>
                 </legend>
@@ -128,8 +127,8 @@
                         {% endfor %}
                     </select><br>
                     <fieldset id="previouslySelectedVariableFieldset" style="display: none">
-                        <label for="previouslySelectedVariable">Switch to </label>
-                        <button id="previouslySelectedVariable" type="button" onclick="previouslySelectedVariableButton()" style="width: 200px; text-overflow: ellipsis;">Polity</button><br>
+                        <label for="previouslySelectedVariable">Variable: </label>
+                        <button id="previouslySelectedVariable" type="button" onclick="previouslySelectedVariableButton()" style="width: 150px; text-overflow: ellipsis;">Previous variable</button><br>
                     </fieldset>
                     <fieldset id="chooseCategoricalVariableSelectionFieldset">
                         <label for="chooseCategoricalVariableSelection"></label>
@@ -139,14 +138,21 @@
                     <label for="enterYear">Enter year:</label>
                     <input type="number" id="enterYear" name="enterYear" value="{{ display_year }}" style="width: 75px;" onchange="storeYear()">
                     <button id="minusButton" type="button" onclick="adjustSliderDown()">-</button>
-                    <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br>
-                    <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}" value="{{ display_year }}" class="slider" onchange="plotPolities(); storeYear()" style="width: 300px;"><br>
-                    <label for="sliderDate">Selected year:</label><span id="sliderDate"></span><br><br>
+                    <button id="plusButton" type="button" onclick="adjustSliderUp()">+</button><br><br>
                     <label for="playButton">Run animation:</label>
-                    <button id="playButton" type="button" onclick="startPlay()" disabled>▶️</button>
-                    <button id="stopButton" type="button" onclick="stopPlay()" disabled>⏸</button><br>
-                    <label for="playRate">Animation speed:</label>
-                    <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" onchange="plotPolities()" disabled><br>
+                    <button id="playButton" type="button" onclick="startPlay()">▶️</button>
+                    <button id="stopButton" type="button" onclick="stopPlay()">⏸</button><br>
+                    <label for="playRate">Speed: </label>
+                    <input type="range" name="playRate" id="playRate" min="1" max="5" value="2" class="slider" list="tickmarks"
+                        onchange="updateSliderValue(this.value)">
+                    <datalist id="tickmarks">
+                        <option value="1"></option>
+                        <option value="2"></option>
+                        <option value="3"></option>
+                        <option value="4"></option>
+                        <option value="5"></option>
+                    </datalist><br>
+                    <div style="text-align: center;"><span id="sliderValue">5 y/s</span></div><br>
                     <label for="opacitySlide">Opacity:</label>
                     <input type="range" name="opacitySlide" id="opacitySlide" min="0.1" max="1" step="0.1" value="0.5" class="slider" onchange="plotPolities()" style="width: 150px;"><br><br>
                     <!-- TODO: Uncomment this when there are more capitals with coordinates in the database -->
@@ -154,18 +160,7 @@
                     <input type="checkbox" id="showCapitals" name="showCapitals" onclick=plotPolities()><br><br> -->
                 </div>
             </fieldset>
-            <ul>
-                <li>Choose the variable to view.</li>
-                <li>Click shape for polity info.</li>
-                <fieldset id="politySpecificInfo" style="display: block">
-                    <li>Click shape to update legend.</li>
-                    <li>Click again to remove from legend.</li>
-                </fieldset>
-                <li>Double click to reach Seshat page.</li>
-                <li>Change the year or play animation.</li>
-                <!-- <li>Show capital city coordinates.</li> -->
-                <li>Try different base maps.</li>
-            </ul>
+            <p>🗣️ <i>Double click to reach polity pages.</i></p>
             <fieldset>
                 <legend>
                     <h3>Base Map</h3>
@@ -181,7 +176,7 @@
                 <!-- Add a loading indicator for Current borders -->
                 <div id="baseMapCurrentLoadingIndicator">
                     <p>Loading current borders...</p>
-                    <div class="spinner"></div>
+                    <!-- <div class="spinner"></div> -->
                 </div><br>
             </fieldset>
             <fieldset id="baseMapGADMFieldset">
@@ -193,22 +188,40 @@
                 <p>Click a country or province.</p>
             </fieldset>
         </div>
-        <div id="map" style="height: 85vh; flex: 1;"></div>
-        <div id="variableLegend"></div>
+        <div style="position: relative; height: 85vh; width: 80%">
+            <div id="map" style="height: 100%; width: 100%; z-index: 0;"></div>
+            <div id="sliderdiv" style="display: block; position: absolute; bottom: 4.5vh; width: 100%; z-index: 2">
+                <fieldset>
+                    <div class="slider-container" style="position: relative;">
+                        <datalist id="yearTickmarks"></datalist>
+                        <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}"
+                            max="{{ latest_year }}" value="{{ display_year }}" class="slider"
+                            onchange="plotPolities()" style="width: 100%;" list="yearTickmarks">
+                        <div id="yearTickmarkValues"></div>
+                    </div>
+                </fieldset>
+            </div>
+            <div id="variableLegend"></div>
+        </div>
     </div>
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
 
+        var categorical_variables = {{ categorical_variables | safe }};
+        updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
+
         // If there's a variable stored in the local storage, set the variable selection to that
         if (localStorage.getItem('variable')) {
             document.getElementById('chooseVariable').value = localStorage.getItem('variable');
+            // If it's a categorical variable, set the categorical variable selection to that
+            if (localStorage.getItem('variable') in categorical_variables) {
+                updateCategoricalVariableSelection(localStorage.getItem('variable')); 
+            };
         }
-
-        var categorical_variables = {{ categorical_variables | safe }};
-        updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
         
         var displayedShapes = [];
         var polityBorderWeight = 0;
+        var polityBorderWeightSelected = 2;
 
         // Load inital polity shapes for the displayed year
         var shapesData = [
@@ -218,12 +231,12 @@
                     {% for key, value in shape.items %}
                         '{{ key }}': '{{ value|escapejs }}',
                     {% endfor %}
-                    'weight': polityBorderWeight,
                 },
             {% endfor %}
         ];
 
         // Iterate through shapesData and ensure that fields that are lists are interpreted properly
+        // TODO: find a way to avoid having to do this
         shapesData.forEach(function (shape) {
             if (shape.language) {
                 shape.language = JSON.parse(shape.language.replace(/'/g, '"'));
@@ -237,6 +250,24 @@
             if (shape.linguistic_family) {
                 shape.linguistic_family = JSON.parse(shape.linguistic_family.replace(/'/g, '"'));
             }
+            // Any fields that end _dict should be converted to a dictionary from a string
+            for (const [key, value] of Object.entries(shape)) {
+                if (key.endsWith('_dict')) {
+                    let newValue = value.replace(/None/g, 'null');
+                    shape[key] = JSON.parse(newValue.replace(/'/g, '"'));
+                }
+            }
+
+            // Set the border weights for shapes
+            if (shape.seshat_id && shape.seshat_id === '{{ world_map_initial_polity }}') {
+                shape.weight = polityBorderWeightSelected;
+            } else {
+                shape.weight = polityBorderWeight;
+            }
+
+            // Convert shape.id to int
+            shape.id = parseInt(shape.id);
+
         });
 
         // Load seshat_id_page_id dictionary
@@ -248,68 +279,92 @@
         var provinceShapeData;
         var countryShapeData;
 
-        var allPolitiesLoaded = false; // Used within storeYear() function
+        var allPolitiesLoaded = false;  // Used in storeYear()
+
+        var tick_years = {{ tick_years }};
+        setSliderTicks(tick_years);
 
         // Load all polity shapes and modern province/country shapes in background
         window.addEventListener('load', function () {
-            fetch('/core/world_map_all/')
-                .then(response => response.json())
-                .then(data => {
-                    shapesData = data.shapes.map(function (shape) {
-                        shape.weight = polityBorderWeight;
-                        return shape;
+            function fetchData(url, displayYear) {
+                return fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.shapes
+                            .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
+                            .forEach(shape => {
+                                shape.weight = polityBorderWeight;
+                                shapesData.push(shape);
+                            });
+
+                        seshat_id_page_id = data.seshat_id_page_id;
+                        allCapitalsInfo = data.all_capitals_info;
+                        plotPolities();
+                        document.getElementById('loadingIndicator').style.display = 'none';
+                        let enteredYear = document.getElementById('enterYear').value;
+                        if (displayYear != enteredYear) {
+                            return fetchData('/core/world_map_one_year/', enteredYear);
+                        } else {
+                            return fetch('/core/world_map_all/');
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        data.shapes
+                            .filter(shape => !shapesData.some(existingShape => existingShape.id === shape.id))
+                            .forEach(shape => {
+                                shape.weight = polityBorderWeight;
+                                shapesData.push(shape);
+                            });
+
+                        seshat_id_page_id = data.seshat_id_page_id;
+                        allCapitalsInfo = data.all_capitals_info;
+                        plotPolities();
+                        document.getElementById('dateSlide').min = data.earliest_year;
+                        document.getElementById('dateSlide').max = data.latest_year;
+                        allPolitiesLoaded = true;
+                        tick_years = JSON.parse(data.tick_years);
+                        setSliderTicks(tick_years);
+                        document.getElementById('loadingIndicator').style.display = 'none';
+
+                        return fetch('/core/provinces_and_countries');
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        provinceShapeData = data.provinces.map(function (shape) {
+                            return {
+                                geometry: JSON.parse(shape.aggregated_geometry),
+                                country: shape.country,
+                                province: shape.province,
+                                provinceType: shape.province_type
+                            };
+                        });
+
+                        countryShapeData = data.countries.map(function (shape) {
+                            return {
+                                geometry: JSON.parse(shape.aggregated_geometry),
+                                country: shape.country
+                            };
+                        });
+
+                        document.getElementById('baseMapCurrentLoadingIndicator').style.display = 'none';
+                        document.getElementById('baseMapCurrent').disabled = false;
                     });
+            }
 
-                    // Update seshat_id_page_id from the JSON response
-                    seshat_id_page_id = data.seshat_id_page_id;
-
-                    // Update allCapitalsInfo from the JSON response
-                    allCapitalsInfo = data.all_capitals_info;
-
-                    // Call plotPolities() after shapesData is updated
-                    plotPolities();
-
-                    allPolitiesLoaded = true;
-
-                    // Hide the loading indicator and enable the buttons after the fetch request is done
-                    document.getElementById('loadingIndicator').style.display = 'none';
-                    document.getElementById('enterYear').disabled = false;
-                    document.getElementById('minusButton').disabled = false;
-                    document.getElementById('plusButton').disabled = false;
-                    document.getElementById('dateSlide').disabled = false;
-                    document.getElementById('playButton').disabled = false;
-                    document.getElementById('stopButton').disabled = false;
-                    document.getElementById('playRate').disabled = false;
-                    document.getElementById('chooseVariable').disabled = false;
-
-                    // Start the second fetch after the first one is complete
-                    return fetch('/core/provinces_and_countries');
-                })
-                .then(response => response.json())
-                .then(data => {
-                    provinceShapeData = data.provinces.map(function (shape) {
-                        return {
-                            geometry: JSON.parse(shape.aggregated_geometry),
-                            country: shape.country,
-                            province: shape.province,
-                            provinceType: shape.province_type
-                        };
-                    });
-
-                    countryShapeData = data.countries.map(function (shape) {
-                        return {
-                            geometry: JSON.parse(shape.aggregated_geometry),
-                            country: shape.country
-                        };
-                    });
-
-                    // Enable the radio selection after the fetch request is done
-                    document.getElementById('baseMapCurrentLoadingIndicator').style.display = 'none';
-                    document.getElementById('baseMapCurrent').disabled = false;
-                });
+            var displayYear = {{ display_year }};
+            fetchData('/core/world_map_one_year/', displayYear);
         });
 
-        var map = L.map('map').setView([0, 0], 2);
+        var southWest = L.latLng(-89.98155760646617, -180),
+            northEast = L.latLng(89.99346179538875, 180),
+            bounds = L.latLngBounds(southWest, northEast);
+
+        var map = L.map('map', {
+            minZoom: 2,
+            maxBounds: bounds,
+            maxBoundsViscosity: 1.0
+        }).setView([0, 0], 2);
 
         var baseLayers = {
             "carto": L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}.png'),
@@ -321,13 +376,15 @@
         var provinceLayers = []; // Keep track of province layers to remove them later
 
         // Note: these are the choices for the variable values as encoded in sc.models
+        // Note: uncoded and no seshat page are both now set to the same colour
+        // Note: if you modify this, you should check that updateLegend() is consistent (found in map_functions.js)
         let variableColourMapping = {
             'present': 'green',
             'absent': 'red',
             'P~A': 'orange',
             'A~P': 'blue',
             'unknown': 'yellow',
-            'uncoded': '#ffa2a1',
+            'uncoded': 'grey',
             'no seshat page': 'grey'
         };
 
@@ -336,7 +393,7 @@
             'Present': '#13d446',
             'Absent': 'red',
             'Unknown': 'yellow',
-            'Uncoded': '#ffa2a1',
+            'Uncoded': 'grey',
             'No Seshat page': 'grey'
         };
 
@@ -358,23 +415,20 @@
             var selectedYear = document.getElementById('dateSlide').value;
             var opacity = document.getElementById('opacitySlide').value;
 
-            // Show or hide the polity-specific info fieldset
-            if (variable == 'polity') {
-                document.getElementById('politySpecificInfo').style.display = 'block';
-            } else {
-                document.getElementById('politySpecificInfo').style.display = 'none';
-            }
-
             // If variable has changed from the previous selection
             if (localStorage.getItem('variable') != variable) {
                 // Update previously selected variable button
                 document.getElementById('previouslySelectedVariable').setAttribute('variableSelection', localStorage.getItem('variable'));
-                if (localStorage.getItem('variable') in categorical_variables || localStorage.getItem('variable') == 'polity'){
-                    // Categorical variables don't have a full name so we need to modify TODO: Make this more consistent
-                    document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable').replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-                } else {
-                    document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable')
-                }
+
+                // Set the text of the previously selected variable button
+                // Note: we decided to not use the variabled name and instead keep the button text consistent
+                // if (localStorage.getItem('variable') in categorical_variables || localStorage.getItem('variable') == 'polity'){
+                //     // Categorical variables don't have a full name so we need to modify TODO: Make this more consistent
+                //     document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable').replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                // } else {
+                //     document.getElementById('previouslySelectedVariable').innerHTML = localStorage.getItem('variable')
+                // }
+
                 document.getElementById('previouslySelectedVariableFieldset').style.display = 'block';
             }
 
@@ -407,8 +461,23 @@
             var selectedYearInt = parseInt(selectedYear);
             // Add shapes to the map
             // Don't plot them if "Base map only" checkbox selected
+            var dontPlotMeBecauseImInAUnion = [];
             if (!document.getElementById('baseMapOnly').checked){
-                // Iterate over all shapes
+                
+                // if there is a ';' in the seshat_id, it is inside a personal union or meta-polity, don't plot it when we are plotting the union
+                // so split the seshat_id by ';' and add each to the dontPlotMeBecauseImInAUnion list, when the year is inside the union period
+                if (variable == 'polity') {
+                    shapesData.forEach(function (shape) {
+                        if (shape.seshat_id.includes(';') && (parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+                            var these_seshat_ids = shape.seshat_id.split(';');
+                            these_seshat_ids.forEach(function (this_seshat_id) {
+                                dontPlotMeBecauseImInAUnion.push(this_seshat_id);
+                            });
+                        };
+                    });
+                };
+
+                // Iterate through shapesData and plot the shapes
                 shapesData.forEach(function (shape) {
 
                     // Set weight and colour based on the variable
@@ -416,20 +485,37 @@
                         shapeWeight = shape.weight;
                         shapeColour = shape.colour;
 
-                        // If the polity shape is part of a personal union or meta-polity during the selected year, set the colour based on the union
-                        if (shape.union_colour) {
-                            if ((parseInt(shape.union_start_year) <= selectedYearInt && parseInt(shape.union_end_year) >= selectedYearInt)) {
-                                shapeColour = shape.union_colour;
-                            };
-                        };
                     } else if (variable in categorical_variables){
-                        shapeWeight = 2;
-                        if (shape[variable].includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
-                            if (shape[variable].length > 1) {
-                                shapeColour = oneLanguageColourMapping['Present'];
-                            } else {
-                                shapeColour = oneLanguageColourMapping['Present exclusively'];                                   
+                        shapeWeight = polityBorderWeightSelected;
+                        // If the shape has a dictionary for the variable the key of the dict is the variable value and the value is a list of start and end years.
+                        // Iterate through it and choose the colour based on the number of that variable that are active in the selected year
+                        var numberOfThisVariable = 0;  // Number of different values of this variable that are active in the selected year
+                        var selectedValueOfThisVariablePresent = false;  // Whether the selected value of this variable is active in the selected year
+                        // Iterate through key/values in the dictionary
+                        for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
+                            let startYear = value[0];
+                            let endYear = value[1];
+                            // If startYear or endYear are None, use the polity start_year or end_year
+                            // ensuring that the shape is coloured by the variable selection for all years
+                            if (startYear == 'None' || startYear == null) {
+                                startYear = shape.polity_start_year;
                             }
+                            if (endYear == 'None' || endYear == null) {
+                                endYear = shape.polity_end_year;
+                            }
+                            if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
+                                numberOfThisVariable++;
+                                if (key.includes(document.getElementById('chooseCategoricalVariableSelection').value)) {
+                                    selectedValueOfThisVariablePresent = true;
+                                }
+                            }
+                        }
+                        if (numberOfThisVariable > 1 && selectedValueOfThisVariablePresent) {
+                            shapeColour = oneLanguageColourMapping['Present'];
+                        } else if (numberOfThisVariable == 1 && selectedValueOfThisVariablePresent) {
+                            shapeColour = oneLanguageColourMapping['Present exclusively'];
+                        } else if (numberOfThisVariable > 0 && !selectedValueOfThisVariablePresent) {
+                            shapeColour = oneLanguageColourMapping['Absent'];
                         } else {
                             if (shape[variable][0] == 'Unknown') {   // If the categorical var is unknown or uncoded, there will be only one in the list
                                 shapeColour = oneLanguageColourMapping['Unknown'];
@@ -437,17 +523,36 @@
                                 shapeColour = oneLanguageColourMapping['Uncoded'];
                             } else if (shape[variable][0] == 'No Seshat page') {
                                 shapeColour = oneLanguageColourMapping['No Seshat page'];
-                            } else {
-                                shapeColour = oneLanguageColourMapping['Absent'];
                             }
-                        }                          
+                        }
+
                     } else {  // Absent-present variables
-                        shapeWeight = 2;
+                        shapeWeight = polityBorderWeightSelected;
                         shapeColour = variableColourMapping[shape[variable]];
+                        if (shape[variable + '_dict']) {
+                            // Iterate through key/values in the dictionary
+                            for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
+                                let startYear = value[0];
+                                let endYear = value[1];
+                                // If startYear or endYear are None, use the polity start_year or end_year
+                                // ensuring that the shape is coloured by the variable selection for all years
+                                if (startYear == 'None' || startYear == null) {
+                                    startYear = shape.polity_start_year;
+                                }
+                                if (endYear == 'None' || endYear == null) {
+                                    endYear = shape.polity_end_year;
+                                }
+                                if (parseInt(startYear) <= selectedYearInt && parseInt(endYear) >= selectedYearInt) {
+                                    shapeColour = variableColourMapping[key];
+                                    break;  // Only one of present, absent, P~A, A~P, unknown, uncoded should be active at a time, so break after finding the active one
+                                }
+                            }
+                        }
                     }
 
                     // If the shape spans the selected year
-                    if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt)) {
+                    // Ignore shapes that are in a union during this year (because we are plotting the union)
+                    if ((parseInt(shape.start_year) <= selectedYearInt && parseInt(shape.end_year) >= selectedYearInt) && !dontPlotMeBecauseImInAUnion.includes(shape.seshat_id)) {
 
                         // Format the area float
                         const formattedArea = parseFloat(shape.area).toLocaleString('en-US', {
@@ -474,7 +579,7 @@
                         }
 
                         // Add shape
-                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom), {
+                        var geoJSONLayer = L.geoJSON(JSON.parse(shape.geom_json), {
                             style: function (feature) {
                                 // Create the style object
                                 var style = {
@@ -519,7 +624,7 @@
                                     popupContent = popupContent + `
                                         <tr>
                                             <td>Seshat Page</td>
-                                            <td>${longName}</td>
+                                            <td>${longName} (${shape.seshat_id})</td>
                                         </tr>
                                     `;
                                 }
@@ -533,15 +638,69 @@
                                             <td>${formattedArea} Km<sup>2</sup></td>
                                         </tr>
                                 `;
+                                // Absent/present variables
                                 if (variable != 'polity' && !categorical_variables.hasOwnProperty(variable)) {
-                                    popupContent = popupContent + `
-                                        <tr>
-                                            <td><span style="text-transform: capitalize;">${variable}</span></td>
-                                            <td><span style="text-transform: capitalize;">${shape[variable]}</span></td>
-                                        </tr>
-                                    `;
+                                    if (shape[variable + '_dict']) {
+                                        // Iterate through key/values in the dictionary
+                                        var counter = 0;
+                                        for (const [key, value] of Object.entries(shape[variable + '_dict'])) {
+                                            let variableStartYear = value[0];
+                                            let variableEndYear = value[1];
+                                            let variable_value = longAbsentPresentVarName(key);
+                                            // If startYear or endYear are None, set them to the polity start year or end year
+                                            // Format the years to BCE/CE
+                                            if (variableStartYear == 'None' || variableStartYear == null) {
+                                                variableStartYear = displaystart_year;
+                                            } else {
+                                                if (variableStartYear < 0) {
+                                                    variableStartYear = Math.abs(variableStartYear) + ' BCE';
+                                                } else {
+                                                    variableStartYear = variableStartYear + ' CE';
+                                                }
+                                            }
+                                            if (variableEndYear == 'None' || variableEndYear == null) {
+                                                variableEndYear = displayend_year;
+                                            } else {
+                                                if (variableEndYear == {{ latest_year }}){
+                                                    variableEndYear = 'Present';
+                                                } else {
+                                                    if (variableEndYear < 0) {
+                                                        variableEndYear = Math.abs(variableEndYear) + ' BCE';
+                                                    } else {
+                                                        variableEndYear = variableEndYear + ' CE';
+                                                    }
+                                                }
+                                            }      
+                                            if (counter == 0) {
+                                                popupContent = popupContent + `
+                                                    <tr>
+                                                        <td>${variable}</td>
+                                                        <td>${variable_value} from ${variableStartYear} to ${variableEndYear}</td>
+                                                    </tr>
+                                                `;
+                                            } else {                            
+                                                popupContent = popupContent + `
+                                                    <tr>
+                                                        <td></td>
+                                                        <td>${variable_value} from ${variableStartYear} to ${variableEndYear}</td>
+                                                    </tr>
+                                                `;
+                                            }
+                                            counter++;
+                                        }
+                                    } else {
+                                        popupContent = popupContent + `
+                                            <tr>
+                                                <td><span style="text-transform: capitalize;">${variable}</span></td>
+                                                <td><span style="text-transform: capitalize;">${shape[variable]}</span></td>
+                                            </tr>
+                                        `;
+                                    }
                                 }
                                 if (variable == 'language' || variable == 'linguistic_family' || variable == 'language_genus') {
+                                    // TODO: if these variables are populated start to get entries for years,
+                                    // this will need to be updated to use shape[variable + '_dict'] as done above for absent/present variables
+                                    // Note: the actual colouring of the shapes is done in the style function above and this is already set up to handle the dictionaries
                                     popupContent = popupContent + `
                                         <tr>
                                             <td>Languages</td>
@@ -579,10 +738,10 @@
 
                                 // Listen for the click event on the layer
                                 layer.on('click', function (e) {            
-                                    if (allPolitiesLoaded && variable == 'polity'){
+                                    if (variable == 'polity'){
                                         if (shape.weight === 0) {
                                             // Increase the weight of the clicked layer
-                                            newWeight = 2;
+                                            newWeight = polityBorderWeightSelected;
                                             this.setStyle({
                                                 weight: newWeight
                                             });
@@ -590,7 +749,7 @@
                                             layer.openPopup();
                                         } else {
                                             // Decrease the weight of the clicked layer
-                                            newWeight = 0;
+                                            newWeight = polityBorderWeight;
                                             // Close the popup
                                             layer.closePopup();
                                         };
@@ -700,7 +859,7 @@
                         //                 var marker = L.circleMarker([capital.latitude, capital.longitude], {
                         //                     color: 'black', // Set the border color
                         //                     fillColor: shape.colour,  // Set the fill color based on the "colour" field
-                        //                     weight: 2,  // Set the border weight
+                        //                     weight: polityBorderWeightSelected,  // Set the border weight
                         //                     fillOpacity: 0.5,  // Set the fill opacity
                         //                     radius: 5
                         //                 });
@@ -742,7 +901,7 @@
         // Display slider value
         var slider = document.getElementById("dateSlide");
         var enterYearInput = document.getElementById("enterYear");
-        var output = document.getElementById("sliderDate");
+        var output = document.getElementById("sliderDate");  // Used in updateSliderOutput()
         updateSliderOutput(); // Display the default slider value
 
         // Update the current slider value (each time you drag the slider handle)

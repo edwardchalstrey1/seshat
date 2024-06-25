@@ -8,7 +8,7 @@ from ..views import get_polity_shape_content
 register = template.Library()
 
 @register.inclusion_tag('core/polity_map.html')
-def polity_map(pk):
+def polity_map(pk, test=False):
     """
         This function is used by the polity_map template and gets the specific polity shape data and capital information.
         Sets include_polity_map to False if there is no shape data.
@@ -17,7 +17,10 @@ def polity_map(pk):
     page_id = str(pk)
     polity = Polity.objects.get(id=page_id)
     try:
-        content = get_polity_shape_content(seshat_id=polity.new_name)
+        if test:
+            content = get_polity_shape_content(seshat_id=polity.new_name, tick_number=3)
+        else:
+            content = get_polity_shape_content(seshat_id=polity.new_name, tick_number=10)
         capitals_info = get_polity_capitals(pk)
         # Set the start and end years to be the same as the polity where missing
         modified_caps = capitals_info

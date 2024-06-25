@@ -220,4 +220,3 @@ pulumi/logs
 pulumi/Pulumi.seshat.yaml
 scripts
 .DS_Store
-*.ipynb

@@ -20,6 +20,70 @@ function adjustSliderDown() {
     plotPolities(); // This function is defined differently in the world_map and polity_map templates
 }
 
+function updateSliderValue(value) {
+    var sliderValue = document.getElementById('sliderValue');
+    switch (value) {
+        case '1':
+            sliderValue.textContent = '1 y/s';  // See the values in the startPlay function below
+            break;
+        case '2':
+            sliderValue.textContent = '5 y/s';
+            break;
+        case '3':
+            sliderValue.textContent = '20 y/s';
+            break;
+        case '4':
+            sliderValue.textContent = '50 y/s';
+            break;
+        case '5':
+            sliderValue.textContent = '100 y/s';
+            break;
+    }
+    plotPolities();
+}
+
+function setSliderTicks (tickYears) {
+    var datalist = document.getElementById('yearTickmarks');
+    var tickmarkValuesDiv = document.getElementById('yearTickmarkValues');
+
+    // If the data list already has options, remove them
+    while (datalist.firstChild) {
+        datalist.removeChild(datalist.firstChild);
+    };
+    // If the tickmark values div already has spans, remove them
+    while (tickmarkValuesDiv.firstChild) {
+        tickmarkValuesDiv.removeChild(tickmarkValuesDiv.firstChild);
+    };
+
+    // Loop to add tickmarks
+    i = 0;
+    for (const tickValue of tickYears) {
+        var option = document.createElement('option');
+        option.value = tickValue;
+        datalist.appendChild(option);
+
+        // Create and add corresponding span for tickmark labels
+        var span = document.createElement('span');
+        span.textContent = tickValue;
+        span.style.position = 'absolute';
+        span.style.textAlign = 'center';
+
+        // Use transform to center the span over the tickmark, with special handling for the first and last span
+        var leftPercentage = (i / (tickYears.length - 1) * 100);
+        span.style.left = `${leftPercentage}%`;
+        if (i === 0) {
+            span.style.transform = 'translateX(0%)'; // No translation for the first span
+            span.style.textAlign = 'left'; // Align text to the left for the first span
+       } else if (i === (tickYears.length - 1)) {
+            span.style.transform = 'translateX(-100%)'; // Adjust the last span to prevent overflow
+        } else {
+            span.style.transform = 'translateX(-50%)'; // Center all other spans
+        }
+        tickmarkValuesDiv.appendChild(span);
+        i++;
+    }
+};
+
 function startPlay() {
     stopPlay(); // Clear existing interval before starting a new one
 
@@ -60,10 +124,7 @@ function storeYear() {
     var year = document.getElementById('enterYear').value;
     history.pushState(null, '', '/core/world_map/?year=' + year);
     if (!allPolitiesLoaded) {
-        // Refresh the page to load all polities
-        location.reload();
-        var loadingTextElement = document.getElementById('loadingText');
-        loadingTextElement.innerHTML = 'Loading polities for <b>' + year + '</b>...';
+        document.getElementById('loadingIndicator').style.display = 'block';
     }
 }
 
@@ -106,7 +167,7 @@ function switchBaseMap() {
         baseShapeData.forEach(function (shape) {
             // Ensure the geometry is not empty
             if (shape.geometry && shape.geometry.type) {
-                gadmFillColour = 'none';  // Default fill colour
+                gadmFillColour = 'white';  // Default fill colour
                 if (shape.country.toLowerCase().includes('sea')) {
                     gadmFillColour = 'lightblue';
                 }
@@ -152,7 +213,7 @@ function switchBaseMap() {
                         fillColor: gadmFillColour,   // Set the fill color based on the "colour" field
                         color: 'black',       // Set the border color
                         weight: 1,            // Set the border weight
-                        fillOpacity: 1        // Set the fill opacity
+                        fillOpacity: 0.5        // Set the fill opacity
                     });
                     polygon.bringToBack(); // Move the province layers to back so they are always behind polity shapes
                     provinceLayers.push(polygon); // Add the layer to the array
@@ -229,6 +290,9 @@ function updateLegend() {
         legendDiv.appendChild(legendTitle);
 
         for (var key in oneLanguageColourMapping) {
+            if (key === 'No Seshat page') {  // Skip the "No Seshat page" key as it's the same colour as "Uncoded" (see world_map.html)
+                continue;
+            }
             var legendItem = document.createElement('p');
 
             var colorBox = document.createElement('span');
@@ -257,6 +321,9 @@ function updateLegend() {
         legendDiv.appendChild(legendTitle);
 
         for (var key in variableColourMapping) {
+            if (key === 'no seshat page') {  // Skip the "No Seshat page" key as it's the same colour as "Uncoded" (see world_map.html)
+                continue;
+            }
             var legendItem = document.createElement('p');
 
             var colorBox = document.createElement('span');
@@ -271,15 +338,7 @@ function updateLegend() {
                 colorBox.style.border = '1px solid black';
             }
 
-            if (key === 'A~P') {
-                legendItem.appendChild(document.createTextNode('Absent then present'));
-            } else if (key === 'P~A') {
-                legendItem.appendChild(document.createTextNode('Present then absent'));
-            } else if (key === 'unknown') {
-                legendItem.appendChild(document.createTextNode('Coded unknown'));
-            } else {
-                legendItem.appendChild(document.createTextNode(`${key[0].toUpperCase()}${key.slice(1)}`));
-            }
+            legendItem.appendChild(document.createTextNode(longAbsentPresentVarName(key)));
 
             legendDiv.appendChild(legendItem);
         }
@@ -330,4 +389,19 @@ function updateCategoricalVariableSelection(variable){
     var varSelectElement = document.getElementById('chooseVariable');
     var varText = varSelectElement.options[varSelectElement.selectedIndex].text;
     document.querySelector('label[for="chooseCategoricalVariableSelection"]').textContent = varText + ': ';
+}
+
+function longAbsentPresentVarName(var_name){
+    if (var_name === 'A~P') {
+        var_name = 'Absent then Present';
+    } else if (var_name === 'P~A') {
+        var_name = 'Present then Absent';
+    } else if (var_name === 'unknown') {
+        var_name = 'Coded Unknown';
+    } else if (var_name === 'no seshat page') {
+        var_name = 'No Seshat Page';
+    } else {
+        var_name = `${var_name[0].toUpperCase()}${var_name.slice(1)}`;
+    }
+    return var_name;
 }
