@@ -75,26 +75,15 @@
     }
 
     #variableLegend {
-        position: absolute;
-        bottom: 75;
-        right: 0;
-        background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
-        padding: 10px;
-        border-radius: 5px;
-        max-width: 200px;
-        z-index: 999;
-    }
-
-    /* Hide scrollbar for WebKit browsers */
-    #sliderdiv::-webkit-scrollbar {
-        display: none;
-    }
-
-    /* Hide scrollbar for IE, Edge, and Firefox */
-    #sliderdiv {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-    }
+    position: absolute;
+    bottom: 75;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 200px;
+    z-index: 999;
+}
 
 </style>
 <body style="background-color: #fffdf2;">
@@ -201,14 +190,13 @@
         </div>
         <div style="position: relative; height: 85vh; width: 80%">
             <div id="map" style="height: 100%; width: 100%; z-index: 0;"></div>
-            <div id="sliderdiv"
-                style="display: block; position: absolute; bottom: 4.5vh; width: 100%; z-index: 2; overflow-x: auto;">
+            <div id="sliderdiv" style="display: block; position: absolute; bottom: 4.5vh; width: 100%; z-index: 2">
                 <fieldset>
-                    <div class="slider-container" style="position: relative; width: 150%;">
+                    <div class="slider-container" style="position: relative;">
                         <datalist id="yearTickmarks"></datalist>
-                        <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}" max="{{ latest_year }}"
-                            value="{{ display_year }}" class="slider" onchange="plotPolities(); adjustScroll();"
-                            style="width: 100%;" list="yearTickmarks">
+                        <input type="range" name="dateSlide" id="dateSlide" min="{{ earliest_year }}"
+                            max="{{ latest_year }}" value="{{ display_year }}" class="slider"
+                            onchange="plotPolities()" style="width: 100%;" list="yearTickmarks">
                         <div id="yearTickmarkValues"></div>
                     </div>
                 </fieldset>
@@ -218,19 +206,6 @@
     </div>
     <script src="{% static 'core/js/map_functions.js' %}"></script>
     <script>
-
-        function adjustScroll() {
-            const slider = document.getElementById('dateSlide');
-            const sliderDiv = document.getElementById('sliderdiv');
-            const max = slider.max - slider.min;
-            const percent = (slider.value - slider.min) / max;
-
-            // Calculate the new scroll position based on the slider's value
-            const maxScrollLeft = sliderDiv.scrollWidth - sliderDiv.clientWidth;
-            const newScrollLeft = percent * maxScrollLeft;
-
-            sliderDiv.scrollLeft = newScrollLeft;
-        }
 
         var categorical_variables = {{ categorical_variables | safe }};
         updateCategoricalVariableSelection('language');  // Set the default categorical variable selection
